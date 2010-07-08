@@ -56,11 +56,11 @@
 </div>
 <div id="content">
 <h3>Find the schedule that works for you!</h3>
-<p>View a <a href="http://protofusion.org/~nathang/scheduler/schedulecreator.php">demo output</a> or get <a href="http://protofusion.org/~nathang/scheduler/input.php">started on your own</a>.</p>
+<p>View a <a href="schedulecreator.php">demo output</a> or get <a href="input.php">started on your own</a>.</p>
 
 </div>
 <div id="footer">
-<h5>&copy; <?php echo Date("Y"); ?> Nathan Gelderloos<br />
+<h5>&copy; <?php echo Date("Y"); ?> <a href="/~nathang">Nathan Gelderloos</a><br />
 with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5>
 </div>
 </body>

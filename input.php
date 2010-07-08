@@ -273,7 +273,7 @@ else
 
 </div>
 <div id="footer">
-<h5>&copy; <?php echo Date("Y"); ?> Nathan Gelderloos<br />
+<h5>&copy; <?php echo Date("Y"); ?> <a href="/~nathang">Nathan Gelderloos</a><br />
 with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5>
 </div>
 </body>
