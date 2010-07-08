@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-<title>Scheduler - Beta</title>
+<title>Scheduler</title>
 
 <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8">
 
@@ -56,11 +56,11 @@
 </div>
 <div id="content">
 <h3>Find the schedule that works for you!</h3>
-<p>View a <a href="schedulecreator.php">demo output</a> or get <a href="input.php">started on your own</a>.</p>
+<p>View a <a href="./schedulecreator.php">demo output</a> or get <a href="./input.php">started on your own</a>.</p>
 
 </div>
 <div id="footer">
-<h5>&copy; <?php echo Date("Y"); ?> <a href="/~nathang">Nathan Gelderloos</a><br />
+<h5>&copy; <?php echo Date("Y"); ?> Nathan Gelderloos<br />
 with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5>
 </div>
 </body>
