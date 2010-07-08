@@ -1,0 +1,56 @@
+div.scroller { 
+	/* modify width and height of scrolling section if necessary	*/		
+	width: 626px; 
+	/* height: 300px;*/
+	overflow: hidden;
+	border:0;
+	padding:0;
+	margin:0;
+//OLD:	margin-left: -23px;
+	}
+	div.scroller div.section {
+		/* modify width and height of each section as needed (should match the size of the scroller window)	*/		
+		width:626px;
+		/* height:300px; */
+		overflow:hidden;
+		float:left;
+		padding:0;		
+		}
+//OLD:	img.header {
+//OLD:		padding-top: 15px;
+//OLD:		margin-top:-5px;
+//OLD:	 }
+	div.scroller div.section div.txt {
+		padding: 1em;
+	}
+	div.scroller div.scontent {
+		width: 50000px;
+		}
+.controls {
+//OLD:text-align: center;
+text-align: left;
+margin-top: 10px;
+margin-bottom: 2px;
+}
+.controls a{
+  -moz-border-radius-topright: 10px;
+  -moz-border-radius-topleft: 10px;
+  text-decoration: none;
+  background: rgba(152,1,1,0.9);
+  padding: 2px;
+//OLD:  margin-left: 3px;
+//OLD:  margin-right: 3px;
+}
+.controls a:link{
+	color: rgba(255,255,255,1);
+}
+.controls a:visited{
+	color: rgba(255,255,255,1);
+}
+.controls a:hover{
+	background: rgba(255,255,255,1);
+	color: rgba(152,1,1,0.9);
+}
+.controls a:active{
+	color: rgba(200,200,200,1);
+}
