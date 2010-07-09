@@ -131,7 +131,7 @@
 		<option value="900">9:00 am</option><option value="930">9:30 am</option>\
 		<option value="1000">10:00 am</option><option value="1030">10:30 am</option>\
 		<option value="1100">11:00 am</option><option value="1130">11:30 am</option>\
-		<option value="1200">12:00 am</option><option value="1230">12:30 am</option>\
+		<option value="1200">12:00 pm</option><option value="1230">12:30 pm</option>\
 		<option value="1300">1:00 pm</option><option value="1330">1:30 pm</option>\
 		<option value="1400">2:00 pm</option><option value="1430">2:30 pm</option>\
 		<option value="1500">3:00 pm</option><option value="1530">3:30 pm</option>\
@@ -147,7 +147,7 @@
 		<option value="920">9:20 am</option><option value="950">9:50 am</option>\
 		<option value="1020">10:20 am</option><option value="1050">10:50 am</option>\
 		<option value="1120">11:20 am</option><option value="1150">11:50 am</option>\
-		<option value="1220">12:20 am</option><option value="1250">12:50 pm</option>\
+		<option value="1220">12:20 pm</option><option value="1250">12:50 pm</option>\
 		<option value="1320">1:20 pm</option><option value="1350">1:50 pm</option>\
 		<option value="1420">2:20 pm</option><option value="1450">2:50 pm</option>\
 		<option value="1520">3:20 pm</option><option value="1550">3:50 pm</option>\
@@ -269,11 +269,14 @@ else
 <h3>TODO:</h3>
 <ul>
 <li>Form validation to ensure endtime is after starttime, at least one day is checked.</li>
+<li>Check the saved schedule function. After input my default schedule, the output was the same
+as that of the demo. However, when I went back and clicked the "Saved Schedule 0" link, there 
+were then 48 possible schedules. It seems that the classes were added twice for some reason.</li>
 </ul>
 
 </div>
 <div id="footer">
-<h5>&copy; <?php echo Date("Y"); ?> <a href="/~nathang">Nathan Gelderloos</a><br />
+<h5>&copy; <?php echo Date("Y"); ?> <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
 with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5>
 </div>
 </body>
