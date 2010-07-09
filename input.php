@@ -232,8 +232,8 @@
 <p>
 <?php
 if(isset($_SESSION['saved']))
-	foreach($_SESSION['saved'] as $schedule)
-		echo "Saved Schedule<br />";
+	foreach($_SESSION['saved'] as $key => $schedule)
+		echo "<a href=\"process.php?savedkey=$key\">Saved Schedule $key</a><br />";
 else
 	echo "No saved schedules!<br />";
 ?>

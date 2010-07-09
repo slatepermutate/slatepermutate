@@ -62,25 +62,30 @@ if(isset($_GET['debug']))
 
 if(!$DEBUG){
 
-
-	$allClasses = new Schedule("Fall 2010");
-
-	foreach(sortInputs($_POST) as $class)
-	{
-		$allClasses->addClass($class['name']);
-
-		foreach($class as $section)
-			if(is_array($section)) // Skip the name, which isn't a section
-			{
-		             $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days']));
-			}
+	if(isset($_GET['savedkey'])){
+		$savedSched = unserialize($_SESSION['saved'][$_GET['savedkey']]);
+                $savedSched->findPossibilities();
+		$savedSched->writeoutTables();
 	}
-	$allClasses->findPossibilities();
-	$allClasses->writeoutTables();
-	if(!isset($_SESSION['saved']))
-		$_SESSION['saved'] = array();
-	array_push ( $_SESSION['saved'], $allClasses );
-	$_SESSION['meh'] = "MEH!";
+	else{
+		$allClasses = new Schedule("Fall 2010");
+	
+		foreach(sortInputs($_POST) as $class)
+		{
+			$allClasses->addClass($class['name']);
+	
+			foreach($class as $section)
+				if(is_array($section)) // Skip the name, which isn't a section
+				{
+			             $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days']));
+				}
+		}
+		$allClasses->findPossibilities();
+		$allClasses->writeoutTables();
+		if(!isset($_SESSION['saved']))
+			$_SESSION['saved'] = array();
+		array_push ( $_SESSION['saved'], serialize($allClasses));
+	}
 
 } else {
 
