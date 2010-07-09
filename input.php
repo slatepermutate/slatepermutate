@@ -253,6 +253,12 @@ else
 <form method="post" action="process.php" id="scheduleForm">
 
 <table id="jsrows">
+<!--	<tr>
+		<td colspan="11">Name this schedule:
+			<input type="text" class="required" name="postData[name]" />
+			(For example: Fall <?php echo Date("Y"); ?>)
+		</td>
+	</tr>-->
 <!-- Header -->
 	<tr>
 		<td>Class</td>
@@ -293,6 +299,7 @@ else
 	<li>Check the saved schedule function. After input my default schedule, the output was the same
 		as that of the demo. However, when I went back and clicked the "Saved Schedule 0" link, there 
 		were then 48 possible schedules. It seems that the classes were added twice for some reason.</li>
+	<li>Attempted to add schedule name field but was unsure of where to send the variable.</li>
 </ul>
 
 </div>
