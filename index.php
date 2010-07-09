@@ -6,21 +6,6 @@
 <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8">
 
 <style type="text/css">
-/*  body {
-    width: 80%;
-    margin:auto;
-    font-family: sans-serif;
-  }
-  #header {
-    text-align: left;
-    background: rgb(220,220,220); /* IE fallback */
-    background: rgba(200,200,200, .3);  
-  }
-  #footer {
-    text-align: right;
-    background: rgb(220,220,220); /* IE fallback */
-    background: rgba(200,200,200, .3); 
-  }*/
   .error {
     color: #F00; /* For validation errors */
   } 
