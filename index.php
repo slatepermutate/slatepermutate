@@ -56,7 +56,7 @@
 </div>
 <div id="content">
 <h3>Find the schedule that works for you!</h3>
-<p>View a <a href="./schedulecreator.php">demo output</a> or get <a href="./input.php">started on your own</a>.</p>
+<p>View a <a href="schedulecreator.php">demo output</a> or get <a href="input.php">started on your own</a>.</p>
 
 </div>
 <div id="footer">
