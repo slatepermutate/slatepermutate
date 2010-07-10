@@ -36,17 +36,20 @@
 </style>
 </head>
 <body>
+
 <div id="header">
 <h1><em>SlatePermutate</em> -  Scheduler</h1>
 </div>
+
 <div id="content">
 <h3>Find the schedule that works for you!</h3>
-<p>View a <a href="schedulecreator.php">demo output</a> or get <a href="input.php">started on your own</a>.</p>
-
+<p>View a <a href="schedulecreator.php">demo output</a> or get <a href="input.php">started on your own</a>. This program was created specifically for use by <a href="http://www.calvin.edu">Calvin College</a> students, although it may work for other schools as well.</p>
 </div>
+
 <div id="footer">
-<h5>&copy; <?php echo Date("Y"); ?> Nathan Gelderloos<br />
+<h5>&copy; <?php echo Date("Y"); ?> <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
 with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5>
 </div>
+
 </body>
 </html>

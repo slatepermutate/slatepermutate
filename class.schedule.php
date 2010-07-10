@@ -223,10 +223,10 @@ class Schedule
 
 			"\n<link rel=\"stylesheet\" href=\"styles/general.css\" type=\"text/css\" media=\"screen\" charset=\"utf-8\">".
 
-			"\n<link rel=\"stylesheet\" href=\"glider.css\" type=\"text/css\" media=\"screen\" charset=\"utf-8\">".
-			"\n<script src=\"prototype.js\" type=\"text/javascript\" charset=\"utf-8\"></script>". 
-			"\n<script src=\"effects.js\" type=\"text/javascript\" charset=\"utf-8\"></script>".
-			"\n<script src=\"glider.js\" type=\"text/javascript\" charset=\"utf-8\"></script>".
+			"\n<link rel=\"stylesheet\" href=\"styles/glider.css\" type=\"text/css\" media=\"screen\" charset=\"utf-8\">".
+			"\n<script src=\"scripts/prototype.js\" type=\"text/javascript\" charset=\"utf-8\"></script>". 
+			"\n<script src=\"scripts/effects.js\" type=\"text/javascript\" charset=\"utf-8\"></script>".
+			"\n<script src=\"scripts/glider.js\" type=\"text/javascript\" charset=\"utf-8\"></script>".
 			
 			"\n</head><body>".
 
@@ -236,7 +236,7 @@ class Schedule
 			
 		$footer .="</div></div><script type=\"text/javascript\" charset=\"utf-8\">". 
 			"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
-			"\n</script>\n\n</div><div id=\"footer\">\n<h5>&copy; 2010 Nathan Gelderloos<br />".
+			"\n</script>\n\n</div><div id=\"footer\">\n<h5>&copy; " . Date("Y") . " <a href=\"http://protofusion.org/~nathang/\">Nathan Gelderloos</a><br />".
 			"\nwith special thanks to <a href=\"http://ethanzonca.com\">Ethan Zonca</a></h5>\n</div>";
 
 		$footer .="\n\n</body></html>";
