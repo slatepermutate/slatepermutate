@@ -17,6 +17,12 @@ include_once 'class.section.php';
 		margin:auto;
 		font-family: sans-serif;
 	}
+	.defaultText { 
+		width: 300px; }
+	.defaultTextActive { 
+		color: #a1a1a1; 
+		font-style: italic; 
+	}
 	#savedBox {
 		width: 15em;
 		padding: 1em;
@@ -190,7 +196,7 @@ include_once 'class.section.php';
 	//--------------------------------------------------
 	function addRow(){
 		sectionsOfClass[classNum] = 0; // This is class 0, initialize at 0
-		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + '"><td><input type="text" class="required" name="postData[' + classNum + '][name]" /></td>' + getCommonInputs(classNum) + '<td><div class="addSection"><input type="button" value="Add section" /></div></td><td><div class="deleteClass"><input type="button" value="Delete" /></div></td></tr>');
+		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + '"><td><input type="text" class="required defText" title="Class Name" name="postData[' + classNum + '][name]" /></td>' + getCommonInputs(classNum) + '<td><div class="addSection"><input type="button" value="Add section" /></div></td><td><div class="deleteClass"><input type="button" value="Delete" /></div></td></tr>');
 		classNum++;
 	};
 	
@@ -234,9 +240,26 @@ include_once 'class.section.php';
 		jQuery('#scheduleForm').resetForm();
     });
 
-	jQuery('#scheduleName').hover(function() {
-		jQuery(this).val('');
-	});
+	//--------------------------------------------------
+	// Default text stuff
+	//--------------------------------------------------
+    jQuery(".defText").focus(function(srcc)
+    {
+        if (jQuery(this).val() == jQuery(this)[0].title)
+        {
+            jQuery(this).removeClass("defaultTextActive");
+            jQuery(this).val("");
+        }
+    });
+    jQuery(".defText").blur(function()
+    {
+        if (jQuery(this).val() == "")
+        {
+            jQuery(this).addClass("defaultTextActive");
+            jQuery(this).val($(this)[0].title);
+        }
+    });
+    jQuery(".defText").blur();    
 
 });
 
@@ -274,7 +297,7 @@ if(isset($_SESSION['saved']) && count($_SESSION['saved']) > 0){
 
 <table id="jsrows">
 	<tr>
-		<td colspan="11" style="padding-bottom:2em;"><input id="scheduleName" type="text" class="required" value="Schedule Name" name="postData[name]" />
+		<td colspan="11" style="padding-bottom:2em;"><input id="scheduleName" class="defText" type="text" class="required" title="Schedule Name" name="postData[name]" />
 			<em>(For example: Fall <?php echo Date("Y"); ?>)</em>
 		</td>
 	</tr>
