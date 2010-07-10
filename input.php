@@ -253,12 +253,13 @@ else
 <form method="post" action="process.php" id="scheduleForm">
 
 <table id="jsrows">
-<!--	<tr>
+	<tr id="namecol">
 		<td colspan="11">Name this schedule:
 			<input type="text" class="required" name="postData[name]" />
 			(For example: Fall <?php echo Date("Y"); ?>)
 		</td>
-	</tr>-->
+	</tr>
+
 <!-- Header -->
 	<tr>
 		<td>Class</td>

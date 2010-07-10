@@ -68,17 +68,20 @@ if(!$DEBUG){
 		$savedSched->writeoutTables();
 	}
 	else{
-		$allClasses = new Schedule("Fall 2010");
+		$allClasses = new Schedule($_POST['postData']['name']);
 	
 		foreach(sortInputs($_POST) as $class)
 		{
-			$allClasses->addClass($class['name']);
-	
-			foreach($class as $section)
-				if(is_array($section)) // Skip the name, which isn't a section
-				{
-			             $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days']));
-				}
+			if(is_array($class)) // Skip the schedule name
+			{
+				$allClasses->addClass($class['name']);
+		
+				foreach($class as $section)
+					if(is_array($section)) // Skip the section name, which isn't a section
+					{
+				             $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days']));
+					}
+			}
 		}
 		$allClasses->findPossibilities();
 		$allClasses->writeoutTables();
