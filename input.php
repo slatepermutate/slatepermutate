@@ -1,4 +1,12 @@
-<?php session_start() ?>
+<?php 
+
+session_start();
+
+include_once 'errors.php';
+include_once 'class.schedule.php';
+include_once 'class.class.php';
+include_once 'class.section.php';
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
@@ -8,6 +16,14 @@
 		width: 80%;
 		margin:auto;
 		font-family: sans-serif;
+	}
+	#savedBox {
+		width: 15em;
+		padding: 1em;
+		border: 1px solid #000;
+		float:right;
+		background: #DDD;
+		font-size: .8em;
 	}
 	#header {
 		text-align: left;
@@ -218,6 +234,10 @@
 		jQuery('#scheduleForm').resetForm();
     });
 
+	jQuery('#scheduleName').hover(function() {
+		jQuery(this).val('');
+	});
+
 });
 
 </script>
@@ -235,17 +255,17 @@
 </div>
 
 <div id="content">
-	<h3>
-		Saved Schedules:
-	</h3>
 	<p>
 
-<?php
-if(isset($_SESSION['saved']))
-	foreach($_SESSION['saved'] as $key => $schedule)
-		echo "<a href=\"process.php?savedkey=$key\">Saved Schedule $key</a><br />";
-else
-	echo "No saved schedules!<br />";
+<?
+if(isset($_SESSION['saved']) && count($_SESSION['saved']) > 0){
+	echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
+	foreach($_SESSION['saved'] as $key => $schedule){
+		$sch = unserialize($schedule);
+		echo "<a href=\"process.php?savedkey=$key\">#" . ($key + 1) . " - " . $sch->getName() . "</a> <em><a href=\"process.php?delsaved=$key\"><img src=\"images/close.png\" style=\"border:0;\" /></a></em><br />";
+	}
+	echo '</div>';
+}
 ?>
 
 	</p>
@@ -253,10 +273,9 @@ else
 <form method="post" action="process.php" id="scheduleForm">
 
 <table id="jsrows">
-	<tr id="namecol">
-		<td colspan="11">Name this schedule:
-			<input type="text" class="required" name="postData[name]" />
-			(For example: Fall <?php echo Date("Y"); ?>)
+	<tr>
+		<td colspan="11" style="padding-bottom:2em;"><input id="scheduleName" type="text" class="required" value="Schedule Name" name="postData[name]" />
+			<em>(For example: Fall <?php echo Date("Y"); ?>)</em>
 		</td>
 	</tr>
 
@@ -300,7 +319,6 @@ else
 	<li>Check the saved schedule function. After input my default schedule, the output was the same
 		as that of the demo. However, when I went back and clicked the "Saved Schedule 0" link, there 
 		were then 48 possible schedules. It seems that the classes were added twice for some reason.</li>
-	<li>Attempted to add schedule name field but was unsure of where to send the variable.</li>
 </ul>
 
 </div>

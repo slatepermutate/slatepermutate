@@ -30,7 +30,15 @@ class Schedule
         $this->nclasses = 0;
         $this->scheduleName = $n; 
     }
-    
+
+	//--------------------------------------------------
+	// Mutators and Accessors
+	//--------------------------------------------------
+	public function getName()
+	{
+		return $this->scheduleName;
+	}    
+
 	//--------------------------------------------------
 	// Adds a new class to the schedule.
 	//--------------------------------------------------

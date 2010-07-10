@@ -67,6 +67,12 @@ if(!$DEBUG){
                 $savedSched->findPossibilities();
 		$savedSched->writeoutTables();
 	}
+	else if(isset($_GET['delsaved'])){
+		$_SESSION['saved'][$_GET['delsaved']] = '';
+		$_SESSION['saved'] = array_filter($_SESSION['saved']); // Remove null entries
+              header( 'Location: input.php' ) ;
+
+	}
 	else{
 		$allClasses = new Schedule($_POST['postData']['name']);
 	
