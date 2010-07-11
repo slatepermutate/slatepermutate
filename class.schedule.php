@@ -211,7 +211,7 @@ class Schedule
 
 		// Reminder:
 		// border-style:top right bottom left
-		$header .= "<html><head><title>" . $this->title . "</title>\n\n<style type=\"text/css\">".
+		$header .= "<html><head><title>" . $this->getName() . " :: " . $this->title . "</title>\n\n<style type=\"text/css\">".
 				"\n.top{\n\tborder-style:solid solid none solid;\nbackground-color:#dddddd;\n}".
 				"\n.mid{\n\tborder-style:none solid none solid;\nbackground-color:#dddddd;\n}".
 				"\n.end{\n\tborder-style:none solid solid solid;\nbackground-color:#dddddd;\n}".
@@ -240,7 +240,7 @@ class Schedule
 
 			"<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>".
 
-			"\n\n<div id=\"header\">\n<h1><em>SlatePermutate</em> - Scheduler</h1>\n</div><div id=\"content\">";
+			"\n\n<div id=\"header\">\n<h1><em>SlatePermutate</em> - Scheduler</h1><h3>Schedule name: " . $this->getName() . "</h3>\n</div><div id=\"content\">";
 			
 		$footer .="</div></div><script type=\"text/javascript\" charset=\"utf-8\">". 
 			"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
