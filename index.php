@@ -37,6 +37,8 @@
 </head>
 <body>
 
+<?php include_once("analyticstracking.php") ?>
+
 <div id="header">
 <h1><em>SlatePermutate</em> -  Scheduler</h1>
 </div>
@@ -47,8 +49,8 @@
 </div>
 
 <div id="footer">
-<h5>&copy; <?php echo Date("Y"); ?> <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
-with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5>
+<h5>&copy; <?php echo Date("Y") . ' ' . Date("n") . ' ' . Date("j"); ?> <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
+with special thanks to <a href="http://ethanzonca.com">Ethan <?php if((Date("n")==7)&&(Date("j")==11)){echo '"the Birthday Boy" ';} ?>Zonca</a></h5>
 </div>
 
 </body>

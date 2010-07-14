@@ -268,6 +268,8 @@ include_once 'class.section.php';
 </head>
 <body>
 
+<?php include_once("analyticstracking.php") ?>
+
 <div id="header">
 	<h1>
 		<em>
@@ -342,6 +344,11 @@ if(isset($_SESSION['saved']) && count($_SESSION['saved']) > 0){
 	<li>Check the saved schedule function. After input my default schedule, the output was the same
 		as that of the demo. However, when I went back and clicked the "Saved Schedule 0" link, there 
 		were then 48 possible schedules. It seems that the classes were added twice for some reason.</li>
+	<li>Is there some way to automatically populate the fields when a user clicks on a saved schedule?
+		This would probably be very useful, in the case that the individual would like to edit a saved
+		schedule. Right now, it is only possible to edit the most previous schedule using the back button
+		in the browser and this still requires the user to add the classes and schedules (although they
+		already populated as soon as they are added).</li>
 </ul>
 
 </div>
