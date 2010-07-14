@@ -16,7 +16,16 @@ class page {
 
   private $indexpath = 'http://protofusion.org/SlatePermutate/'; // full url to index for php header redirection
 
-  private $trackingcode = ''; // Google analytics ga.js tracking code
+  private $trackingcode = '<script type="text/javascript">
+				  var _gaq = _gaq || [];
+				  _gaq.push([\'_setAccount\', \'UA-17441156-1\']);
+				  _gaq.push([\'_trackPageview\']);
+				  (function() {
+				    var ga = document.createElement(\'script\'); ga.type = \'text/javascript\'; ga.async = true;
+				    ga.src = (\'https:\' == document.location.protocol ? \'https://ssl\' : \'http://www\') + \'.google-analytics.com/ga.js\';
+				    var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(ga, s);
+				  })();
+				</script>'; // Google analytics ga.js tracking code
 
   public $tablestripe = '<script type="text/javascript">
 			  $(document).ready(function(){

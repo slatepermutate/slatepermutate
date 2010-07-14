@@ -268,8 +268,6 @@ include_once 'class.section.php';
 </head>
 <body>
 
-<?php include_once("analyticstracking.php") ?>
-
 <div id="header">
 	<h1>
 		<em>
