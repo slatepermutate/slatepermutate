@@ -1,20 +1,18 @@
 <?php
 
+/* Class for general page generation */
 class page {
-
-// Private functions/variables
 
   private $base_title = 'SlatePermutate';
   private $doctype = 'html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"';
   private $htmlargs = 'xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"';
   private $bodyargs = '';
   public $lastJobTable = '';
-
-  private $isMobile = false; // Have a basic view when this is true
-
   private $pageGenTime = 0;
-
   private $indexpath = 'http://protofusion.org/SlatePermutate/'; // full url to index for php header redirection
+
+  // Scripts and styles
+  private $headCode = array();
 
   private $trackingcode = '<script type="text/javascript">
 				  var _gaq = _gaq || [];
@@ -27,14 +25,6 @@ class page {
 				  })();
 				</script>'; // Google analytics ga.js tracking code
 
-  public $tablestripe = '<script type="text/javascript">
-			  $(document).ready(function(){
-			    $(".tablestripe tr").mouseover(function() {$(this).addClass("over");}).mouseout(function() {$(this).removeClass("over");});
-			    $(".tablestripe tr:even").addClass("alt");
-			    $(".tablestripe tr:odd").addClass("alto");
-			  });
-			  </script>';
-
   private $title = ''; // Title of page
   private $scripts = ''; // Scripts to include on page
 
@@ -43,6 +33,10 @@ class page {
     $this->scripts .= $nscripts;
     if($ntitle != "NOHEAD")
       $this->head();
+
+    $headCode['jquery'] = '<script src="http://www.google.com/jsapi"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
+    $headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
+    $headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
   }
 
   private function top(){
@@ -54,37 +48,32 @@ class page {
 
 // Public functions/vars
 
-  public function head(){
+  private function head(){
     session_start();
-
-    // @TODO: Add capability to load additional javascripts and stylesheets in array form
-
     $this->pageGenTime = round(microtime(), 3);
 
     echo '<!DOCTYPE ' . $this->doctype . '>
 	  <html ' . $this->htmlargs . '>
 	  <head>
 	    <title>' . $this->title . ' :: ' . $this->base_title . '</title>
+           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8">';
 
-         <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8">';
+    // Write out all passed scripts
+    foreach ($this->scripts as $script)
+    	echo $headCode[$script];
 
-	echo $this->scripts;
-	echo '</head>
+    echo '</head>
 	  <body '.$this->bodyargs.' >';
     echo $this->top(); // Write out top
   }
 
-
   public function foot(){
     echo '</div>';
     $this->pageGenTime = round(microtime(), 3);
-    echo '<div id="footer"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
-                           with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5>
-          </div>';
+    echo '<div id="footer"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /> with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5></div>';
     echo $this->trackingcode;
     echo '</body></html>';
   }
-
 
   public function secondsToCompound($seconds) {
       $ret = "";
