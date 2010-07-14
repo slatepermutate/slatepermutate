@@ -236,7 +236,7 @@ class Schedule
 			"\n<script src=\"scripts/effects.js\" type=\"text/javascript\" charset=\"utf-8\"></script>".
 			"\n<script src=\"scripts/glider.js\" type=\"text/javascript\" charset=\"utf-8\"></script>".
 			
-			"\n</head><body>".
+			"\n</head><body><?php include_once("analyticstracking.php") ?>".
 
 			"<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>".
 

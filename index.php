@@ -37,6 +37,8 @@
 </head>
 <body>
 
+<?php include_once("analyticstracking.php") ?>
+
 <div id="header">
 <h1><em>SlatePermutate</em> -  Scheduler</h1>
 </div>
