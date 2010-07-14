@@ -26,18 +26,20 @@ class page {
 				</script>'; // Google analytics ga.js tracking code
 
   private $title = ''; // Title of page
-  private $scripts = ''; // Scripts to include on page
+  private $scripts = array(); // Scripts to include on page
 
-  public function __construct($ntitle, $nscripts = ''){
-    $this->title = $ntitle;
-    $this->scripts .= $nscripts;
+  public function __construct($ntitle, $nscripts = array() ){
+    // Scripts and styles available to include
+    $this->headCode['jQuery'] = '<script src="http://www.google.com/jsapi"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
+    $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
+    $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
+  
+   $this->title = $ntitle;
+    $this->scripts = $nscripts;
     if($ntitle != "NOHEAD")
       $this->head();
 
-    $headCode['jquery'] = '<script src="http://www.google.com/jsapi"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
-    $headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
-    $headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
-  }
+ }
 
   private function top(){
     echo '<div id="header">
@@ -59,8 +61,9 @@ class page {
            <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8">';
 
     // Write out all passed scripts
-    foreach ($this->scripts as $script)
-    	echo $headCode[$script];
+    foreach ($this->scripts as $i){
+    	echo $this->headCode["$i"];
+    }
 
     echo '</head>
 	  <body '.$this->bodyargs.' >';
@@ -85,6 +88,19 @@ class page {
       $ret .= "$seconds";
       return $ret;
   }
+
+  public function showSavedScheds($session) {
+       echo '<p>';
+	if(isset($session['saved']) && count($session['saved']) > 0){
+		echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
+		foreach($session['saved'] as $key => $schedule){
+			$sch = unserialize($schedule);
+			echo "<a href=\"process.php?savedkey=$key\">#" . ($key + 1) . " - " . $sch->getName() . "</a> <em><a href=\"process.php?delsaved=$key\"><img src=\"images/close.png\" style=\"border:0;\" /></a></em><br />";
+		}
+		echo '</div>';
+	}
+       echo '</p>';
+}
 
 }
 
