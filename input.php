@@ -50,4 +50,5 @@ $inputPage->showSavedScheds($_SESSION);
 	<li>Auto-populate form based on saved schedule?</li>
 </ul>
 
-<? $inputPage->foot(); ?>
+<?php
+$inputPage->foot();
