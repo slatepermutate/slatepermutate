@@ -19,11 +19,13 @@ $inputPage->showSavedScheds($_SESSION);
 			<em>(For example: Fall <?php echo Date("Y"); ?>)</em>
 		</td>
 	</tr>
+	<tr>
+		<td colspan="11" style="padding-bottom: 2em;">Sections at my school are <select id="isNumeric" type="text" class="required" name="isnumbered" ><option value="numbered">Numbered</option><option value="lettered">Lettered</option></select>
 
 	<!-- Header -->
 	<tr>
 		<td>Class</td>
-		<td class="center">Letter</td>
+		<td class="center" id="letterNumber">Number</td>
 		<td class="center">Start Time</td>
 		<td class="center">End Time</td>
 		<td class="center">M</td>
