@@ -33,6 +33,7 @@ class page {
     $this->headCode['jQuery'] = '<script src="http://www.google.com/jsapi"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
+    $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css" type="text/css" media="screen" charset="utf-8">';
     $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css" type="text/css" media="screen" charset="utf-8">'; 
     $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8"><script src="scripts/prototype.js" type="text/javascript" charset="utf-8"></script><script src="scripts/effects.js" type="text/javascript" charset="utf-8"></script><script src="scripts/glider.js" type="text/javascript" charset="utf-8"></script>'; 
 

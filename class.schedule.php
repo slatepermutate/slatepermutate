@@ -245,28 +245,29 @@ class Schedule
 			"\n\n<div id=\"header\">\n<h1><em>SlatePermutate</em> - Scheduler</h1><h3>Schedule name: " . $this->getName() . "</h3>\n</div><div id=\"content\">".
 
 			*/
-		$headcode = array('outputStyle', 'gliderHeadcode');
+		$footcloser = '';
+
+                if(isset($_REQUEST['print'])){
+	                $headcode = array('outputStyle', 'outputPrintStyle');
+		}
+		else {
+			$footcloser .="</div></div><script type=\"text/javascript\" charset=\"utf-8\">". 
+				"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
+				"\n</script>";
+			$headcode = array('outputStyle', 'gliderHeadcode');
+		}
 		$outputPage = new page($this->getName(), $headcode);
 
-
-
-
-
-
-
-
-
-
-
-
-
+		if(isset($_REQUEST['print'])){
+			echo '<script type="text/javascript">window.print();</script>';
+			echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0">Return to normal view</a> :: <a href="input.php">Home</a></p>';
+		}
+		else {
+			echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0&print=1">Print</a> :: <a href="input.php">Home</a></p>';
+		}
 
 		echo "<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
-			
-		$footcloser .="</div></div><script type=\"text/javascript\" charset=\"utf-8\">". 
-			"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
-			"\n</script>";
-
+		
 
 		if($this->nPermutations > 0)
 		{
