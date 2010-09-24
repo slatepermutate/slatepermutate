@@ -16,17 +16,15 @@ class page {
 
   private $trackingcode = '<script type="text/javascript">
 				var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-				document.write(unescape("%3Cscript src=’" + gaJsHost + "google-analytics.com/ga.js’ type=’text/javascript’%3E%3C/script%3E"));
-				</script>
-				<script type="text/javascript">
-				var firstTracker = _gat._getTracker("UA-17441156-1");
-				firstTracker._initData();
-				firstTracker._trackPageview();
-				var secondTracker = _gat._getTracker("UA-2800455-1");
-				secondTracker._setDomainName("none");
-				secondTracker._setAllowLinker(true);
-				secondTracker._initData();
-				secondTracker._trackPageview();
+				document.write(unescape("%3Cscript src=\'" + gaJsHost + "google-analytics.com/ga.js\' type=\'text/javascript\'%3E%3C/script%3E"));
+        		   </script>
+
+			  <script type="text/javascript">
+				var nathangPageTracker = _gat._getTracker("UA-17441156-1");
+				nathangPageTracker._trackPageview();
+				
+				var ethanzPageTracker = _gat._getTracker("UA-2800455-1");
+				ethanzPageTracker._trackPageview();
 			</script>'; // Google analytics ga.js tracking code
 
   private $pagetitle = ''; // Title of page
