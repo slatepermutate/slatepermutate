@@ -81,20 +81,11 @@
 
 		var result = '';
 		if(jQuery('#isNumeric').val() == "lettered"){
-			result = result + letteredIds('postData[' + cnum + '][' + snum + '][letter]') /* '<td class="sectionIdentifier">\
-				<select name="postData[' + cnum + '][' + snum + '][letter]"><option value="-">-</option><option value="A">A</option><option value="B">B</option>\
-				<option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>\
-				<option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option></select></td>\
-				</select></td>'*/;
+			result = result + letteredIds('postData[' + cnum + '][' + snum + '][letter]');
 		}
 		else {
-                        result = result + numberedIds('postData[' + cnum + '][' + snum + '][letter]') /* '<td class="sectionIdentifier">\
-                                <select name="postData[' + cnum + '][' + snum + '][letter]"><option value="-">-</option><option value="1">1</option><option value="2">2</option>\
-                                <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>\
-                                <option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select></td>\
-                                </select></td>' */;
+                        result = result + numberedIds('postData[' + cnum + '][' + snum + '][letter]');
 		}
-
 
 		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>\
 				<option value="700">7:00 am</option><option value="730">7:30 am</option>\
