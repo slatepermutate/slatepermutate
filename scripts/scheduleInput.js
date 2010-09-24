@@ -71,7 +71,9 @@
                                 <option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option></select></td>\
                                 </select></td>';
 	}
-
+	function customIds(name){
+		return '<td class="sectionIdentifier"><input type="text" size="1" class="required" title="Schedule Name" name="' + name + '" /></td>';
+	}
 
 	//--------------------------------------------------
 	// Returns the common inputs for each new section.
@@ -83,8 +85,11 @@
 		if(jQuery('#isNumeric').val() == "lettered"){
 			result = result + letteredIds('postData[' + cnum + '][' + snum + '][letter]');
 		}
-		else {
+		else if(jQuery('#isNumeric').val() == "numbered") {
                         result = result + numberedIds('postData[' + cnum + '][' + snum + '][letter]');
+		}
+		else {
+                        result = result + customIds('postData[' + cnum + '][' + snum + '][letter]');
 		}
 
 		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>\
@@ -133,7 +138,7 @@
 	//--------------------------------------------------
 	function addRow(){
 		sectionsOfClass[classNum] = 0; // This is class 0, initialize at 0
-		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + '"><td><input type="text" class="required defText" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="8"></td><td><div class="addSection"><input type="button" value="Add section" /></div></td><td><div class="deleteClass"><input type="button" value="Delete" /></div></td></tr>');
+		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + '"><td><input type="text" class="required defText" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="8"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add section" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" /></div></td></tr>');
 		classNum++;
 	};
 	
@@ -151,6 +156,7 @@
 	// Deletes the selected class from input.
 	//--------------------------------------------------
 	jQuery('.deleteClass').live('click', function() {
+		alert('Delete class and all sections of this class?');
 		jQuery('.class'+ jQuery(this).parent().parent().attr("title")).remove();
 	});
 
@@ -167,7 +173,7 @@
 	//--------------------------------------------------
 	jQuery('.addSection').live('click', function() {
 		sectionsOfClass[jQuery(this).parent().parent().attr("title")]++; // Increases sectionsOfClass[classNum]
-		jQuery(this).parent().parent().after('<tr class="section class' + jQuery(this).parent().parent().attr("title") + '"><td class="none"></td>' + getCommonInputs(jQuery(this).parent().parent().attr("title")) + '<td></td><td><div class="deleteSection"><input type="button" value="Delete" /></div></td></tr>');
+		jQuery(this).parent().parent().after('<tr class="section class' + jQuery(this).parent().parent().attr("title") + '"><td class="none"></td>' + getCommonInputs(jQuery(this).parent().parent().attr("title")) + '<td></td><td><div class="deleteSection"><input type="button" value="X" /></div></td></tr>');
 	});
 
 	//--------------------------------------------------
@@ -209,20 +215,26 @@
            var name = jQuery("select", this).attr("name");
            jQuery(this).empty();
            jQuery(this).append(letteredIds(name));
-           jQuery("#letterNumber").empty();
-           jQuery("#letterNumber").append("Letter");
          });
       }
-      else {
+      else if(this.value == "numbered"){
          /* Replace with numbered */
          jQuery(".sectionIdentifier").each( function(index) {
            var name = jQuery("select", this).attr("name");
            jQuery(this).empty();
            jQuery(this).append(numberedIds(name));
-           jQuery("#letterNumber").empty();
-           jQuery("#letterNumber").append("Number");
          });
       }
+      else {
+         /* Replace with custom */
+         jQuery(".sectionIdentifier").each( function(index) {
+           var name = jQuery("select", this).attr("name");
+           jQuery(this).empty();
+           jQuery(this).append(customIds(name));
+         });
+
+      }
+
     });
     
 
