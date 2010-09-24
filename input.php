@@ -40,11 +40,11 @@ $inputPage->showSavedScheds($_SESSION);
 	</tr>
     </table>
   </tr>
-  <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td></tr>
+  <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class - This row should be just as wide as the one above someday</span></td></tr>
 </table>
 
 <!-- <div class="paddingtop" id="classage"><input type="button" value="Add class" /></div> -->
-<div class="paddingtop"><input style="float:left;" type="submit" value="Submit" /></div>
+<div class="paddingtop"><input style="float:left;" type="submit" value="Find me a schedule!" /></div>
 
 </form>
 

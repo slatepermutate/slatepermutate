@@ -174,7 +174,7 @@
 	//--------------------------------------------------
 	jQuery('.addSection').live('click', function() {
 		sectionsOfClass[jQuery(this).parent().parent().attr("title")]++; // Increases sectionsOfClass[classNum]
-		jQuery(this).parent().parent().after('<tr class="section class' + jQuery(this).parent().parent().attr("title") + '"><td class="none"></td>' + getCommonInputs(jQuery(this).parent().parent().attr("title")) + '<td></td><td><div class="deleteSection"><input type="button" value="X" /></div></td></tr>');
+		jQuery(this).parent().parent().after('<tr class="section class' + jQuery(this).parent().parent().attr("title") + '"><td class="none"></td>' + getCommonInputs(jQuery(this).parent().parent().attr("title")) + '<td><div class="deleteSection"><input type="button" value="X" /></div></td><td></td></tr>');
 	});
 
 	//--------------------------------------------------
