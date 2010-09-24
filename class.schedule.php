@@ -11,6 +11,7 @@
 include_once 'errors.php';
 include_once 'class.class.php';
 include_once 'class.section.php';
+include_once 'inc/class.page.php';
 
 class Schedule
 {
@@ -209,9 +210,10 @@ class Schedule
 		$filled = false;
 		$time = array(700,730,800,830,900,930,1000,1030,1100,1130,1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,1800,1830,1900,1930,2000,2030,2100,2130, 2200);
 
+
 		// Reminder:
 		// border-style:top right bottom left
-		$header .= "<html><head><title>" . $this->getName() . " :: " . $this->title . "</title>\n\n<style type=\"text/css\">".
+		/* $header .= "<html><head><title>" . $this->getName() . " :: " . $this->title . "</title>\n\n<style type=\"text/css\">".
 				"\n.top{\n\tborder-style:solid solid none solid;\nbackground-color:#dddddd;\n}".
 				"\n.mid{\n\tborder-style:none solid none solid;\nbackground-color:#dddddd;\n}".
 				"\n.end{\n\tborder-style:none solid solid solid;\nbackground-color:#dddddd;\n}".
@@ -238,16 +240,33 @@ class Schedule
 			
 			"\n</head><body>".
 
-			"<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>".
-
-			"\n\n<div id=\"header\">\n<h1><em>SlatePermutate</em> - Scheduler</h1><h3>Schedule name: " . $this->getName() . "</h3>\n</div><div id=\"content\">";
 			
-		$footer .="</div></div><script type=\"text/javascript\" charset=\"utf-8\">". 
-			"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
-			"\n</script>\n\n</div><div id=\"footer\">\n<h5>&copy; " . Date("Y") . " <a href=\"http://protofusion.org/~nathang/\">Nathan Gelderloos</a><br />".
-			"\nwith special thanks to <a href=\"http://ethanzonca.com\">Ethan Zonca</a></h5>\n</div>";
 
-		$footer .="\n\n</body></html>";
+			"\n\n<div id=\"header\">\n<h1><em>SlatePermutate</em> - Scheduler</h1><h3>Schedule name: " . $this->getName() . "</h3>\n</div><div id=\"content\">".
+
+			*/
+		$headcode = array('outputStyle', 'gliderHeadcode');
+		$outputPage = new page($this->getName(), $headcode);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		echo "<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
+			
+		$footcloser .="</div></div><script type=\"text/javascript\" charset=\"utf-8\">". 
+			"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
+			"\n</script>";
+
 
 		if($this->nPermutations > 0)
 		{
@@ -504,10 +523,11 @@ class Schedule
 				$table .= "</table></div>";
 			}
 
-			echo $header . $table . $footer;   
+			echo $table . $footcloser;   
 		} else {
 			echo '<html><body><p>There are no possible schedules. Please try again.</p></body></html>';
 		}
+		$outputPage->foot();
 	}
 
 	//--------------------------------------------------

@@ -25,7 +25,7 @@ class page {
 				  })();
 				</script>'; // Google analytics ga.js tracking code
 
-  private $title = ''; // Title of page
+  private $pagetitle = ''; // Title of page
   private $scripts = array(); // Scripts to include on page
 
   public function __construct($ntitle, $nscripts = array() ){
@@ -33,8 +33,10 @@ class page {
     $this->headCode['jQuery'] = '<script src="http://www.google.com/jsapi"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
-  
-   $this->title = $ntitle;
+    $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css" type="text/css" media="screen" charset="utf-8">'; 
+    $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8"><script src="scripts/prototype.js" type="text/javascript" charset="utf-8"></script><script src="scripts/effects.js" type="text/javascript" charset="utf-8"></script><script src="scripts/glider.js" type="text/javascript" charset="utf-8"></script>'; 
+
+   $this->pagetitle = $ntitle;
     $this->scripts = $nscripts;
     if($ntitle != "NOHEAD")
       $this->head();
@@ -43,7 +45,7 @@ class page {
 
   private function top(){
     echo '<div id="header">
-          <h1><em>SlatePermutate</em> -  Scheduler</h1>
+          <h1><em>SlatePermutate</em> - '.$this->pagetitle.'</h1>
           </div>
           <div id="content">';
   }
@@ -57,7 +59,7 @@ class page {
     echo '<!DOCTYPE ' . $this->doctype . '>
 	  <html ' . $this->htmlargs . '>
 	  <head>
-	    <title>' . $this->title . ' :: ' . $this->base_title . '</title>
+	    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>
            <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8">';
 
     // Write out all passed scripts

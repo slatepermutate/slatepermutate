@@ -50,6 +50,7 @@ $inputPage->showSavedScheds($_SESSION);
 <ul>
 	<li>Form validation to ensure endtime is after starttime, at least one day is checked.</li>
 	<li>Auto-populate form based on saved schedule?</li>
+        <li>Grab data from school sites such as <a href="http://www.cedarville.edu/courses/schedule/2010fa_be_bebl.htm" target="_blank">this?</a></li>
 </ul>
 
 <?php
