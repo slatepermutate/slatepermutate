@@ -1,0 +1,29 @@
+div.scroller { 
+	border:0;
+	padding:0;
+	margin:0;
+}
+
+div.scroller div.section {
+	padding:0;
+	margin-bottom: 2em;		
+}
+
+div.scroller div.section div.txt {
+	padding: 1em;
+}
+
+
+.controls {
+	text-align: left;
+	margin-top: 10px;
+	margin-bottom: 2px;
+}
+
+.controls {
+	display: none;
+}
+
+.section {
+	background: #fff!important;
+}

@@ -1,0 +1,31 @@
+/* Output Table Styling */
+.top{
+        border-style:solid solid none solid;
+background-color:#dddddd;
+}
+.mid{
+        border-style:none solid none solid;
+background-color:#dddddd;
+}
+.end{
+        border-style:none solid solid solid;
+background-color:#dddddd;
+}
+.none{
+        border-style:none;
+}
+.single{
+        border-style:solid;
+        background-color:#dddddd;
+}
+td{
+        text-align:center;
+width:7em;
+}
+.time{
+        border-style:none none solid none;
+}
+.day{
+        border-style:none none solid solid;
+}
+
