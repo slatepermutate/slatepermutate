@@ -72,7 +72,7 @@
                                 </select></td>';
 	}
 	function customIds(name){
-		return '<td class="sectionIdentifier"><input type="text" size="1" class="required" title="Schedule Name" name="' + name + '" /></td>';
+		return '<td class="sectionIdentifier center"><input type="text" size="1" class="required" title="Schedule Name" name="' + name + '" /></td>';
 	}
 
 	//--------------------------------------------------
@@ -148,7 +148,7 @@
 	// Adds a new class when the add class button is 
 	// clicked.
 	//--------------------------------------------------
-	jQuery('#classage').click(function() {
+	jQuery('#addclass').click(function() {
 		addRow();
 	});
 
@@ -156,8 +156,9 @@
 	// Deletes the selected class from input.
 	//--------------------------------------------------
 	jQuery('.deleteClass').live('click', function() {
-		alert('Delete class and all sections of this class?');
-		jQuery('.class'+ jQuery(this).parent().parent().attr("title")).remove();
+		if(confirm('Delete class and all sections of this class?')) {
+			jQuery('.class'+ jQuery(this).parent().parent().attr("title")).remove();
+		}
 	});
 
 	//--------------------------------------------------

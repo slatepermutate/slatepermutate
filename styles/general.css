@@ -57,3 +57,17 @@
 .tdInput {
   background: #fff;
 }
+
+.addClassRow {
+  padding: 2px;
+  width: 30em;
+
+}
+.gray {
+  text-align: center!important;
+  background: #BBB!important;
+  cursor:default;
+}
+.gray:hover {
+  background: #CCC!important;
+}

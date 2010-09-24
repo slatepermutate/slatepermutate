@@ -13,7 +13,9 @@ $inputPage->showSavedScheds($_SESSION);
 ?>
 
 <form method="post" action="process.php" id="scheduleForm">
-<table id="jsrows">
+<table>
+  <tr>
+    <table id="jsrows">
 	<tr>
 		<td colspan="11" style="padding-bottom:2em;"><input id="scheduleName" class="defText" type="text" class="required" title="Schedule Name" name="postData[name]" />
 			<em>(For example: Fall <?php echo Date("Y"); ?>)</em>
@@ -36,9 +38,12 @@ $inputPage->showSavedScheds($_SESSION);
 		<td class="center"></td>
 		<td class="center"></td>
 	</tr>
+    </table>
+  </tr>
+  <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td></tr>
 </table>
 
-<div class="paddingtop" id="classage"><input type="button" value="Add class" /></div>
+<!-- <div class="paddingtop" id="classage"><input type="button" value="Add class" /></div> -->
 <div class="paddingtop"><input style="float:left;" type="submit" value="Submit" /></div>
 
 </form>
@@ -52,7 +57,6 @@ $inputPage->showSavedScheds($_SESSION);
 	<li>After selecting a start time, set the end time to one hour after the start time</li>
         <li><strong>Append</strong> sections</li>
         <li>Move the add class button to somewhere nicer, maybe a gray row at the bottom. Make the submit button more obvious.</li>
-	<li><strong>Switch from dropdown for section identifier to entry field</strong></li>
 	<li>Form validation to ensure endtime is after starttime, at least one day is checked.</li>
 	<li>Auto-populate form based on saved schedule?</li>
         <li>Grab data from school sites such as <a href="http://www.cedarville.edu/courses/schedule/2010fa_be_bebl.htm" target="_blank">this?</a></li>
