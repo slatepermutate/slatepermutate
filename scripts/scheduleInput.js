@@ -218,6 +218,8 @@
            var name = jQuery("select", this).attr("name");
            jQuery(this).empty();
            jQuery(this).append(letteredIds(name));
+           jQuery("#letterNumber").empty();
+           jQuery("#letterNumber").append("Letter");
          });
       }
       else {
@@ -226,6 +228,8 @@
            var name = jQuery("select", this).attr("name");
            jQuery(this).empty();
            jQuery(this).append(numberedIds(name));
+           jQuery("#letterNumber").empty();
+           jQuery("#letterNumber").append("Number");
          });
       }
     });

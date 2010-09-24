@@ -25,7 +25,7 @@ $inputPage->showSavedScheds($_SESSION);
 	<!-- Header -->
 	<tr>
 		<td>Class</td>
-		<td class="center">Letter</td>
+		<td class="center" id="letterNumber">Number</td>
 		<td class="center">Start Time</td>
 		<td class="center">End Time</td>
 		<td class="center">M</td>
