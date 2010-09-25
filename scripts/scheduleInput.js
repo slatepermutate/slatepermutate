@@ -30,28 +30,6 @@
 		"<p class=\"error\">Pick a day!</p>" 
 	); 
 
-/* Doesn't work right now:  */ /*
-	jQuery.validator.addMethod( 
-		"daysRequired", 
-		function(value, element) { 
-			var numChecked = 0;
-			jQuery(document).find('.daysRequire').each(function () {
-				jQuery('#scheduleForm').append('<p>Found something!</p>');
-				if(this.value != "none")
-					numChecked++;
-			});
-			jQuery('#scheduleForm').append('<p>Finished each loop, found ' + numChecked + ' checked boxes</p>');
-
-			if (numChecked >= 1) 
-			{ 
-				return false; 
-			} 
-			else return true; 
-		}, 
-		"<p class=\"error\">Please select one or more days!.</p>" 
-	); 
-*/
-
 	jQuery.validator.addClassRules("selectRequired", {
 		selectNone: true
 	});
