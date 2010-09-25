@@ -233,6 +233,9 @@ function getF()
 	  . "  </td>\n";
       }
 
+    $out .= '  <td><div class="deleteSection"><input type="button" value="X" /></div></td>' . $n;
+    $out .= '  <td></td>' . $n;
+
     $out .= "</tr>\n";
 
     return $out;
