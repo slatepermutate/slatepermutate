@@ -123,7 +123,7 @@ class page {
 			echo "<a href=\"process.php?savedkey=$key\">#" . ($key + 1) . " - " . $sch->getName()
 			  . '</a> <form style="display: inline" method="get" action="input.php"><input type="hidden" name="savedkey" value="' . $key . '" /><input type="submit" value="edit"/></form>'
 			  . "<em><a href=\"process.php?delsaved=$key\"><img src=\"images/close.png\" style=\"border:0;\" alt=\"[del]\"/></a></em>"
-			  . "<br />\n";
+			  . "<br /><br />\n";
 		}
 		echo '</div>';
 	}
