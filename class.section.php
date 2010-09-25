@@ -147,5 +147,3 @@ function getF()
 }
 
 }
-
-?>

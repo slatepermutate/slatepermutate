@@ -66,5 +66,3 @@ class Classes
         return $this->name;
     }
 }
-
-?>

@@ -53,4 +53,3 @@ include_once 'class.section.php';
       	       
          $allClasses->findPossibilities();
          $allClasses->writeoutTables();
-?>
