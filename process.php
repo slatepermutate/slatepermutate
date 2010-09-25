@@ -64,7 +64,6 @@ if(!$DEBUG){
 
 	if(isset($_GET['savedkey'])){
 		$savedSched = unserialize($_SESSION['saved'][$_GET['savedkey']]);
-                $savedSched->findPossibilities();
 		$savedSched->writeoutTables();
 	}
 	else if(isset($_GET['delsaved'])){
