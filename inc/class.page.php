@@ -41,12 +41,12 @@ class page {
     $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8"><script src="scripts/prototype.js" type="text/javascript" charset="utf-8"></script><script src="scripts/effects.js" type="text/javascript" charset="utf-8"></script><script src="scripts/glider.js" type="text/javascript" charset="utf-8"></script>'; 
 
    $this->pagetitle = $ntitle;
-    $this->scripts = $nscripts;
+   $this->scripts = $nscripts;
+
+    session_start();
     if($immediate
        && $ntitle != "NOHEAD")
       $this->head();
-
-    session_start();
  }
 
   /**
@@ -60,7 +60,7 @@ class page {
    * \param $enable
    *   Whether or not to enable this code while adding it.
    */
-  function headcode_add($key, $code, $enable = FALSE)
+  public function headcode_add($key, $code, $enable = FALSE)
   {
     $this->headCode[$key] = $code;
     if ($enable)
@@ -76,7 +76,7 @@ class page {
 
 // Public functions/vars
 
-  function head(){
+  public function head(){
     $this->pageGenTime = round(microtime(), 3);
 
     echo '<!DOCTYPE ' . $this->doctype . '>

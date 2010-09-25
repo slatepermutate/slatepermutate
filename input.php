@@ -49,18 +49,17 @@ $inputPage->showSavedScheds($_SESSION);
     <table id="jsrows">
       <tr>
 	<td colspan="11">
-	  <input id="scheduleName" style="margin-bottom: 2em;" class="defText required" type="text" class="required" size="25" title="Schedule Name (e.g., Spring 2011)" name="postData[name]"
+	  <input id="scheduleName" style="margin-bottom: 2em;" class="defText required" type="text" class="required" size="25" title="Schedule Name (e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
 		 <?php if ($sch) echo 'value="' . str_replace('"', '&quot;', $sch->getName()) . '"'; /*"*/ ?>
 		 />
-	  <em>(For example: Fall <?php echo Date("Y"); ?>)</em>
 	</td>
       </tr>
       <tr>
-	<td colspan="11" style="padding-bottom: 2em;">
-	  <select id="isNumeric" type="text" class="required" name="isnumbered" value="<?php if ($sch) echo $sch->section_format; else echo 'numerous'; ?>" >
-	    <option value="numerous">Custom Section Labels</option>
-	    <option value="numbered">Numbered Section Labels</option>
-	    <option value="lettered">Lettered Section Labels</option>
+	<td class="advanced" colspan="11" style="padding-bottom: 2em;">
+	  Section Labels are <select id="isNumeric" type="text" class="required" name="isnumbered" value="<?php if ($sch) echo $sch->section_format; else echo 'numerous'; ?>" >
+	    <option value="numerous">Custom</option>
+	    <option value="numbered">Numbered</option>
+	    <option value="lettered">Lettered</option>
 	  </select>
 
 	<!-- Header -->
