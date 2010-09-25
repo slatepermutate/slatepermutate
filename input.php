@@ -49,7 +49,7 @@ $inputPage->showSavedScheds($_SESSION);
     <table id="jsrows">
       <tr>
 	<td colspan="11">
-	  <input id="scheduleName" style="margin-bottom: 2em;" class="defText required" type="text" class="required" size="25" title="Schedule Name (e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
+	  <input id="scheduleName" style="margin-bottom: 2em;" class="defText required" type="text" size="25" title="Schedule Name (e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
 		 <?php if ($sch) echo 'value="' . str_replace('"', '&quot;', $sch->getName()) . '"'; /*"*/ ?>
 		 />
 	</td>
