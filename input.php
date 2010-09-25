@@ -42,14 +42,14 @@ var sectionsOfClass = Array();
 $inputPage->head();
 $inputPage->showSavedScheds($_SESSION);
 ?>
-
+<p>Welcome to SlatePermutate! To get started, enter in some of your classes, and add available sections for each class.</p>
 <form method="post" action="process.php" id="scheduleForm">
 <table>
   <tr>
     <table id="jsrows">
       <tr>
-	<td colspan="11" style="padding-bottom:2em;">
-	  <input id="scheduleName" class="defText" type="text" class="required" title="Schedule Name" name="postData[name]"
+	<td colspan="11">
+	  <input id="scheduleName" style="margin-bottom: 2em;" class="defText required" type="text" class="required" size="25" title="Schedule Name (e.g., Spring 2011)" name="postData[name]"
 		 <?php if ($sch) echo 'value="' . str_replace('"', '&quot;', $sch->getName()) . '"'; /*"*/ ?>
 		 />
 	  <em>(For example: Fall <?php echo Date("Y"); ?>)</em>
@@ -80,16 +80,17 @@ $inputPage->showSavedScheds($_SESSION);
 	<?php if ($sch) echo $sch->input_form_render(); ?>
     </table>
   </tr>
-  <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class - This row should be just as wide as the one above someday</span></td></tr>
+  <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td></tr>
 </table>
 
 <!-- <div class="paddingtop" id="classage"><input type="button" value="Add class" /></div> -->
-<div class="paddingtop"><input style="float:left;" type="submit" value="Find me a schedule!" /></div>
+<div class="paddingtop"><input style="float:left;" type="submit" value="Find a schedule" /></div>
 
 </form>
 
 <p>&nbsp;<br /></p>
-
+<p><span id="showadvanced"><a href="#">Show Advanced Options</a></span></p>
+<span class="advanced">
 <h3>TODO:</h3>
 
 <ul>

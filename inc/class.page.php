@@ -98,7 +98,7 @@ class page {
   public function foot(){
     echo '</div>';
     $this->pageGenTime = round(microtime(), 3);
-    echo '<div id="footer"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /> with special thanks to <a href="http://ethanzonca.com">Ethan Zonca</a></h5></div>';
+    echo '<div id="footer"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a> <br /> <a href="http://ethanzonca.com">Ethan Zonca</a></h5></div>';
     echo $this->trackingcode;
     echo '</body></html>';
   }

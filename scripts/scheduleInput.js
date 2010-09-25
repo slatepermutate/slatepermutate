@@ -14,6 +14,21 @@
 		}, 
 		"<p class=\"error\">Please select a time</p>" 
 	); 
+	jQuery.validator.addMethod( 
+		"daysRequired", 
+		function(value, element) { 
+			var checkedCount = 0;
+			jQuery(element).parent().children('.daysRequired:checked').each( function() {
+				checkedCount++;
+			});
+			if (checkedCount == 0) 
+			{ 
+				return false; 
+			} 
+			else return true; 
+		}, 
+		"<p class=\"error\">Pick a day!</p>" 
+	); 
 
 /* Doesn't work right now:  */ /*
 	jQuery.validator.addMethod( 
@@ -41,7 +56,7 @@
 		selectNone: true
 	});
 	
-	jQuery.validator.addClassRules("daysRequire", {
+	jQuery.validator.addClassRules("daysRequired", {
 		daysRequired: true
 	});
 
@@ -72,7 +87,7 @@
                                 </select></td>';
 	}
 	function customIds(name){
-		return '<td class="sectionIdentifier center"><input type="text" size="1" class="required" title="Section Name" name="' + name + '" /></td>';
+		return '<td class="sectionIdentifier center"><input type="text" size="1" class="required" name="' + name + '" /></td>';
 	}
 
 	//--------------------------------------------------
@@ -124,11 +139,11 @@
 				<option value="1920">7:20 pm</option><option value="1950">7:50 pm</option>\
 				<option value="2020">8:20 pm</option><option value="2050">8:50 pm</option>\
 				<option value="2120">9:20 pm</option></select></td>\
-			<td><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][0]" value="1" /></td>\
-			<td><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][1]" value="1" /></td>\
-			<td><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][2]" value="1" /></td>\
-			<td><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][3]" value="1" /></td>\
-			<td><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][4]" value="1" /></td>';
+			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][0]" value="1" /></td>\
+			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][1]" value="1" /></td>\
+			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][2]" value="1" /></td>\
+			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][3]" value="1" /></td>\
+			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][4]" value="1" /></td>';
 	
 		return result;
 	}
@@ -237,7 +252,11 @@
       }
 
     });
-    
 
+  jQuery('.advanced').hide();    
+  jQuery('#showadvanced').click( function() {
+    jQuery('#showadvanced').hide();
+    jQuery('.advanced').slideToggle();
+  });
 });
 
