@@ -30,7 +30,8 @@ class page {
   private $pagetitle = ''; // Title of page
   private $scripts = array(); // Scripts to include on page
 
-  public function __construct($ntitle, $nscripts = array() ){
+  public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
+  {
     // Scripts and styles available to include
     $this->headCode['jQuery'] = '<script src="http://www.google.com/jsapi"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
@@ -41,10 +42,30 @@ class page {
 
    $this->pagetitle = $ntitle;
     $this->scripts = $nscripts;
-    if($ntitle != "NOHEAD")
+    if($immediate
+       && $ntitle != "NOHEAD")
       $this->head();
 
+    session_start();
  }
+
+  /**
+   * \brief
+   *   Adds some headcode to this page.
+   *
+   * \param $key
+   *   The key to register this headcode under.
+   * \param $code
+   *   The actuall code, such as a <script/>.
+   * \param $enable
+   *   Whether or not to enable this code while adding it.
+   */
+  function headcode_add($key, $code, $enable = FALSE)
+  {
+    $this->headCode[$key] = $code;
+    if ($enable)
+      $this->scripts[] = $key;
+  }
 
   private function top(){
     echo '<div id="header">
@@ -55,8 +76,7 @@ class page {
 
 // Public functions/vars
 
-  private function head(){
-    session_start();
+  function head(){
     $this->pageGenTime = round(microtime(), 3);
 
     echo '<!DOCTYPE ' . $this->doctype . '>
@@ -100,7 +120,10 @@ class page {
 		echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
 		foreach($session['saved'] as $key => $schedule){
 			$sch = unserialize($schedule);
-			echo "<a href=\"process.php?savedkey=$key\">#" . ($key + 1) . " - " . $sch->getName() . "</a> <em><a href=\"process.php?delsaved=$key\"><img src=\"images/close.png\" style=\"border:0;\" /></a></em><br />";
+			echo "<a href=\"process.php?savedkey=$key\">#" . ($key + 1) . " - " . $sch->getName()
+			  . '</a> <form style="display: inline" method="get" action="input.php"><input type="hidden" name="savedkey" value="' . $key . '" /><input type="submit" value="edit"/></form>'
+			  . "<em><a href=\"process.php?delsaved=$key\"><img src=\"images/close.png\" style=\"border:0;\" alt=\"[del]\"/></a></em>"
+			  . "<br />\n";
 		}
 		echo '</div>';
 	}

@@ -146,4 +146,95 @@ function getF()
    return $this->bdays[4];
 }
 
+  /**
+   * \brief
+   *   Create output suitable for editing on input.php.
+   *
+   * \see Classes::input_form_render()
+   *
+   * \param $class_key
+   *   The same $class_key passed to Classes::input_form_render().
+   * \param $section_key
+   *   The index of this section.
+   * \param $section_format
+   *   The type of input method used for this section. Valid values
+   *   are 'numerous', 'numbered', and 'lettered'
+   */
+  function input_form_render($class_key, $section_key, $section_format = 'numerous')
+  {
+    static $n = "\n";
+    $out = '<tr class="section class' . $class_key . '">' . $n
+      . '  <td class="none"></td>' . $n;
+    switch ($section_format)
+      {
+      case 'numerous':
+      default:
+	/* see customIds() in scheduleInput.js */
+	$out .= '  <td class="sectionIdentifier center">' . $n
+	. '    <input type="text" size="1" class="required" title="Section Name"' . $n
+	. '           name="postData[' . $class_key . '][' . $section_key . '][letter]"' . $n
+	. '           value="' . $this->letter . '" />' . $n
+	. "  </td>\n";
+	break;
+      }
+
+    $out .= "  <td>\n"
+      . '    <select class="selectRequired" name="postData[' . $class_key . '][' . $section_key . '][start]">' . $n;
+    for ($h = 7; $h <= 21; $h ++)
+      {
+	$val = $h . '00';
+	$nm = 'p';
+	$hr = $h;
+	if ($h < 12)
+	  $nm = 'a';
+	elseif ($h > 12)
+	  $hr -= 12;
+
+	foreach (array('00', '30') as $m)
+	  {
+	    $label = $hr . ':' . $m . $nm . 'm';
+	    $out .= '      <option value="' . $val . '">' . $label . '</option>' . $n;
+	  }
+      }
+    $out .= "    </select>\n"
+      . "  </td>\n";
+
+    /* ugh, code duplication :-(  --binki commenting on his own code*/
+    $out .= "  <td>\n"
+      . '    <select class="selectRequired" name="postData[' . $class_key . '][' . $section_key . '][end]">' . $n;
+    for ($h = 7; $h <= 21; $h ++)
+      {
+	$val = $h . '00';
+	$nm = 'p';
+	$hr = $h;
+	if ($h < 12)
+	  $nm = 'a';
+	elseif ($h > 12)
+	  $hr -= 12;
+
+	foreach (array('20', '50') as $m)
+	  {
+	    $label = $hr . ':' . $m . $nm . 'm';
+	    $out .= '      <option value="' . $val . '">' . $label . '</option>' . $n;
+	  }
+      }
+    $out .= "    </select>\n"
+      . "  </td>\n";
+
+    foreach ($this->bdays as $day_key => $day_enabled)
+      {
+	if ($day_enabled)
+	  $day_enabled = 'checked="checked"';
+	else
+	  $day_enabled = '';
+	$out .= "  <td>\n"
+	  . '    <input type="checkbox" class="daysRequired"'
+	  . '           name="postData[' . $class_key . '][' . $section_key . '][days][' . $day_key . ']" ' . $day_enabled . ' />' . $n
+	  . "  </td>\n";
+      }
+
+    $out .= "</tr>\n";
+
+    return $out;
+  }
 }

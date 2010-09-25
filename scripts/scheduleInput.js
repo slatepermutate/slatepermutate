@@ -54,8 +54,8 @@
 		}); 
 
 
-	var classNum = 0;
-	var sectionsOfClass = new Array(); // holds number of sections for each class
+	/* classNum is declared in the <head/> to enable loading of saved classes */
+	/* sectionsOfClass is declared in the <head/> to enable loading of saved sections */
 
         function numberedIds(name){
 		return '<td class="sectionIdentifier">\
@@ -72,7 +72,7 @@
                                 </select></td>';
 	}
 	function customIds(name){
-		return '<td class="sectionIdentifier center"><input type="text" size="1" class="required" title="Schedule Name" name="' + name + '" /></td>';
+		return '<td class="sectionIdentifier center"><input type="text" size="1" class="required" title="Section Name" name="' + name + '" /></td>';
 	}
 
 	//--------------------------------------------------

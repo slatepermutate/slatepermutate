@@ -78,12 +78,19 @@ if(!$DEBUG){
 	
 		foreach(sortInputs($_POST) as $class)
 		{
-			if(is_array($class)) // Skip the schedule name
+		  /*
+		   * Only add classes if the user added at least one
+		   * section to the class. We know that $class['name']
+		   * is not a section, so count() needs to be > 1 and
+		   * we need to skip over 'name' in our loop.
+		   */
+			if(is_array($class) && count($class) > 1)
 			{
 				$allClasses->addClass($class['name']);
 		
 				foreach($class as $section)
-					if(is_array($section)) // Skip the section name, which isn't a section
+				  /* Skip the section name, which isn't a section */
+					if(is_array($section))
 					{
 				             $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days']));
 					}
@@ -95,7 +102,6 @@ if(!$DEBUG){
 			$_SESSION['saved'] = array();
 		array_push ( $_SESSION['saved'], serialize($allClasses));
 	}
-
 } else {
 
 

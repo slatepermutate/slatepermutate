@@ -7,22 +7,61 @@ include_once 'class.section.php';
 include_once 'inc/class.page.php';
 
 $scripts = array('jQuery','jValidate','schedInput');
-$inputPage = new page('Scheduler', $scripts);
-$inputPage->showSavedScheds($_SESSION);
+$inputPage = new page('Scheduler', $scripts, FALSE);
 
+$sch = FALSE;
+if (isset($_REQUEST['savedkey']) && isset($_SESSION['saved']))
+  {
+    $savedkey = (int)$_REQUEST['savedkey'];
+    if (isset($_SESSION['saved'][$savedkey]))
+      {
+	$sch = unserialize($_SESSION['saved'][$savedkey]);
+      }
+  }
+
+if ($sch)
+{
+  $nclasses = $sch->nclasses_get();
+  $my_hc = '<script type="text/javascript">
+var classNum = ' . $nclasses . ';
+/* holds number of sections for each class */
+var sectionsOfClass = new Array();
+';
+  for ($class_key = 0; $class_key < $nclasses; $class_key ++)
+    $my_hc .= 'sectionsOfClass[' . $class_key . '] = ' . $sch->class_get($class_key)->getnsections() . ";\n";
+  $my_hc .= '// </script>';
+  $inputPage->headcode_add('scheduleInput', $my_hc, TRUE);
+}
+else
+  $inputPage->headcode_add('schduleInput', '<script type="text/javascript">
+var classNum = 0;
+/* holds number of sections for each class */
+var sectionsOfClass = Array();
+// </script>', TRUE);
+
+$inputPage->head();
+$inputPage->showSavedScheds($_SESSION);
 ?>
 
 <form method="post" action="process.php" id="scheduleForm">
 <table>
   <tr>
     <table id="jsrows">
-	<tr>
-		<td colspan="11" style="padding-bottom:2em;"><input id="scheduleName" class="defText" type="text" class="required" title="Schedule Name" name="postData[name]" />
-			<em>(For example: Fall <?php echo Date("Y"); ?>)</em>
-		</td>
-	</tr>
-	<tr>
-		<td colspan="11" style="padding-bottom: 2em;"><select id="isNumeric" type="text" class="required" name="isnumbered" ><option value="numerous">Custom Section Labels</option><option value="numbered">Numbered Section Labels</option><option value="lettered">Lettered Section Labels</option></select>
+      <tr>
+	<td colspan="11" style="padding-bottom:2em;">
+	  <input id="scheduleName" class="defText" type="text" class="required" title="Schedule Name" name="postData[name]"
+		 <?php if ($sch) echo 'value="' . str_replace('"', '&quot;', $sch->getName()) . '"'; /*"*/ ?>
+		 />
+	  <em>(For example: Fall <?php echo Date("Y"); ?>)</em>
+	</td>
+      </tr>
+      <tr>
+	<td colspan="11" style="padding-bottom: 2em;">
+	  <select id="isNumeric" type="text" class="required" name="isnumbered" value="<?php if ($sch) echo $sch->section_format; else echo 'numerous'; ?>" >
+	    <option value="numerous">Custom Section Labels</option>
+	    <option value="numbered">Numbered Section Labels</option>
+	    <option value="lettered">Lettered Section Labels</option>
+	  </select>
 
 	<!-- Header -->
 	<tr>
@@ -38,6 +77,7 @@ $inputPage->showSavedScheds($_SESSION);
 		<td class="center"></td>
 		<td class="center"></td>
 	</tr>
+	<?php if ($sch) echo $sch->input_form_render(); ?>
     </table>
   </tr>
   <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class - This row should be just as wide as the one above someday</span></td></tr>

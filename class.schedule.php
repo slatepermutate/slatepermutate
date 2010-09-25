@@ -21,15 +21,24 @@ class Schedule
     private $possiblePermutations;	// Integer number of possible permutations
     private $scheduleName;			// String name of schedule
     private $storage;				// Integer array of valid schedules
-    private $title = "SlatePermutate - Scheduler";
+    private $title;
+    /**
+     * The input format of the sections. Only used for the UI. Valid
+     * values are 'numerous' for custom, 'numbered' for numeric, and 'lettered' for
+     * alphabetical.
+     */
+    public $section_format;
 
-	//--------------------------------------------------
-	// Creates a schedule with the given name.
-	//--------------------------------------------------
-	function __construct($n)
-	{
-        $this->nclasses = 0;
-        $this->scheduleName = $n; 
+    /**
+     * \brief
+     *   Create a schedule with the given name.
+     */
+    function __construct($name)
+    {
+      $this->nclasses = 0;
+      $this->scheduleName = $name;
+      $this->title = "SlatePermutate - Scheduler";
+      $this->section_format = 'numerous';
     }
 
 	//--------------------------------------------------
@@ -528,7 +537,40 @@ class Schedule
 		} else {
 			echo '<html><body><p>There are no possible schedules. Please try again.</p></body></html>';
 		}
+
+		/* edit button */
+		if (!isset($savedkey))
+		  {
+		    if (isset($_REQUEST['savedkey']))
+		      $savedkey = (int)$_REQUEST['savedkey'];
+		    else
+		      /*
+		       * if this is a new saved schedule, it'll be the
+		       * next item added to $_SESSION['saved']
+		       */
+		      $savedkey = max(array_keys($_SESSION['saved'])) + 1;
+		  }
+		echo '<form method="get" action="input.php"><input type="hidden" name="savedkey" value="' . $savedkey . '" /><input type="submit" value="edit" /></form>';
+
 		$outputPage->foot();
+	}
+
+	/**
+	 * \brief
+	 *   Render the input table form for editing a saved schedule in input.php.
+	 *
+	 * This function's output must be synchronized with the
+	 * associated javascript in scripts/scheduleInput.js.
+	 */
+	function input_form_render()
+	{
+	  $out = '';
+	  static $n = "\n";
+
+	  foreach ($this->classStorage as $class_key => $class)
+	    $out .= $class->input_form_render($class_key);
+
+	  return $out;
 	}
 
 	//--------------------------------------------------
@@ -552,4 +594,21 @@ class Schedule
 		}
 	}
 
+  /**
+   * \brief
+   *   fetch the number of classes
+   */
+  function nclasses_get()
+  {
+    return $this->nclasses;
+  }
+
+  /*
+   * \brief
+   *   fetch a specified class by its key
+   */
+  function class_get($class_key)
+  {
+    return $this->classStorage[$class_key];
+  }
 }
