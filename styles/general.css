@@ -64,6 +64,7 @@
 
 }
 .gray {
+  border: 1px dashed #999;
   text-align: center!important;
   background: #BBB!important;
   cursor:default;
