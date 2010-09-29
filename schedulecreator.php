@@ -13,9 +13,7 @@ include_once 'class.section.php';
 
    
          $allClasses = new Schedule("Fall 2010");
-
-	  $allClasses->title = "Demonstration :: SlatePermutate - Scheduler";
-      	
+  	
          $allClasses->addClass("CS 104");
          $allClasses->addSection("CS 104", "A", 1030, 1120, 24);
       	
