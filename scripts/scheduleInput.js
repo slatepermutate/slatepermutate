@@ -18,7 +18,7 @@
 		"daysRequired", 
 		function(value, element) { 
 			var checkedCount = 0;
-			jQuery(element).parent().children('.daysRequired:checked').each( function() {
+			jQuery(element).parent().parent().children().children('.daysRequired:checked').each( function() {
 				checkedCount++;
 			});
 			if (checkedCount == 0) 
