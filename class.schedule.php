@@ -306,10 +306,7 @@ class Schedule
 		}
 		else {
 			echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0&amp;print=all">Print</a> :: <a href="input.php">Home</a></p>';
-		}
-
-		echo "<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
-		
+		}		
 
 		if($this->nPermutations > 0)
 		{
@@ -591,6 +588,8 @@ class Schedule
 		      $savedkey = max(array_keys($_SESSION['saved'])) + 1;
 		  }
 		echo '<form method="get" action="input.php"><p><input type="hidden" name="savedkey" value="' . $savedkey . '" /><input type="submit" value="edit" /></p></form>';
+
+		echo "<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
 
 		$outputPage->foot();
 	}
