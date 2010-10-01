@@ -302,7 +302,7 @@ class Schedule
 			echo 'window.print();
 			      </script>';
 			echo '<p><span id="selectItems"><a href="#">Select Schedules to Print</a></span> :: <a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0">Return to normal view</a> :: <a href="input.php">Home</a></p>';
-			echo '<div  id="selectItemsInput"><p><form action="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0"><label><strong>Schedules to Print</strong> <em>(seperate with commas, "all" for all)</em></label><br /><input type="text" name="print" /><input type="submit" value="submit" /><span id="cancelItems"><input type="button" value="cancel" /></span></form></p></div>';
+			echo '<div  id="selectItemsInput"><p><form action="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0"><label><strong>Schedules to Print</strong> <em>(seperate with commas, "all" for all)</em></label><br /><input type="text" name="print" value="'.$_REQUEST['print'].'" /><input type="submit" value="submit" /><span id="cancelItems"><input type="button" value="cancel" /></span></form></p></div>';
 		}
 		else {
 			echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0&amp;print=all">Print</a> :: <a href="input.php">Home</a></p>';
