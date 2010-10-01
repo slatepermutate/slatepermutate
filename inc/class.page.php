@@ -10,15 +10,14 @@ class page {
   public $lastJobTable = '';
   private $pageGenTime = 0;
   private $indexpath = 'http://protofusion.org/SlatePermutate/'; // full url to index for php header redirection
+  /* whether or not to output valid XHTML */
+  public $xhtml = FALSE;
 
   // Scripts and styles
   private $headCode = array();
 
-  private $trackingcode = '<script type="text/javascript">
-				var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-				document.write(unescape("%3Cscript src=\'" + gaJsHost + "google-analytics.com/ga.js\' type=\'text/javascript\'%3E%3C/script%3E"));
-        		   </script>
-
+  /* the inclusion of ga.js is augmented in __construct(). */
+  private $trackingcode = '
 			  <script type="text/javascript">
 				var nathangPageTracker = _gat._getTracker("UA-17441156-1");
 				nathangPageTracker._trackPageview();
@@ -42,6 +41,21 @@ class page {
 
    $this->pagetitle = $ntitle;
    $this->scripts = $nscripts;
+
+   /* compliant browsers which care, such as gecko, explicitly request xhtml: */
+   if(!empty($_SERVER['HTTP_ACCEPT'])
+      && strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== FALSE
+      || !strlen($_SERVER['HTTP_ACCEPT']) /* then the browser doesn't care :-) */)
+     {
+       $this->xhtml = TRUE;
+       header('Content-type: application/xhtml+xml');
+     }
+
+   $ga_www = 'http://www.';
+   if ($_SERVER['SERVER_PORT'] != 80)
+     $ga_www = 'https://ssl.';
+   $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js"' . ($this->xhtml ? '/' : '') . ">\n"
+     . $this->trackingcode;
 
     session_start();
     if($immediate
@@ -83,12 +97,14 @@ class page {
   public function head(){
     $this->pageGenTime = round(microtime(), 3);
 
+    if ($this->xhtml)
+       echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
+
     echo '<!DOCTYPE ' . $this->doctype . '>
 	  <html ' . $this->htmlargs . '>
 	  <head>
 	    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>
-	    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />';
+           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8"' . ($this->xhtml ? '/' : '') . '>';
 
     // Write out all passed scripts
     foreach ($this->scripts as $i){
@@ -126,7 +142,7 @@ class page {
 		foreach($session['saved'] as $key => $schedule){
 			$sch = unserialize($schedule);
 			echo "#" . ($key + 1) . " - " . $sch->getName()
-			  . " - <a href=\"process.php?savedkey=$key\">view</a>" .'</a> <a href="input.php?savedkey="' . $key . '">edit</a> '
+			  . " - <a href=\"process.php?savedkey=$key\">view</a>" .' <a href="input.php?savedkey="' . $key . '">edit</a> '
 			  . "<a href=\"process.php?delsaved=$key\">delete</a>"
 			  . "<br /><br />\n";
 		}

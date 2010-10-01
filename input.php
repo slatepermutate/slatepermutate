@@ -58,9 +58,9 @@ $inputPage->showSavedScheds($_SESSION);
 	<td class="advanced" colspan="11" style="padding-bottom: 2em;">
 	  Section Labels are <select id="isNumeric" class="required" name="isnumbered">
 	    <?php $isSelected = 'selected="selected"'; ?>
-	    <option value="numerous" <? if(!$sch || $sch->section_format == "numerous") echo $isSelected ?> >Custom</option>
-	    <option value="numbered" <? if($sch && $sch->section_format == "numbered") echo $isSelected ?> >Numbered</option>
-	    <option value="lettered" <? if($sch && $sch->section_format == "lettered") echo $isSelected ?> >Lettered</option>
+	    <option value="numerous" <?php if(!$sch || $sch->section_format == "numerous") echo $isSelected ?> >Custom</option>
+	    <option value="numbered" <?php if($sch && $sch->section_format == "numbered") echo $isSelected ?> >Numbered</option>
+	    <option value="lettered" <?php if($sch && $sch->section_format == "lettered") echo $isSelected ?> >Lettered</option>
 	  </select>
 	</td>
 	</tr>
