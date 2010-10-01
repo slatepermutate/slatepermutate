@@ -32,7 +32,8 @@ class page {
   public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
   {
     // Scripts and styles available to include
-    $this->headCode['jQuery'] = '<script src="http://www.google.com/jsapi" type="text/javascript"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
+    $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js" type="text/javascript" />';
+    $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/jquery-ui.min.js" type="text/javascript" />';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
     $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css" type="text/css" media="screen" charset="utf-8" />';
