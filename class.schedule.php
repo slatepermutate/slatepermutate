@@ -268,7 +268,7 @@ class Schedule
 		$footcloser = '';
 
                 if(isset($_REQUEST['print']) && $_REQUEST['print'] != ''){
-	                $headcode = array('jQuery', 'outputStyle', 'outputPrintStyle');
+			$headcode = array('jQuery', 'outputStyle', 'outputPrintStyle');
 		}
 		else {
 			$footcloser .="<script type=\"text/javascript\" charset=\"utf-8\">". 
@@ -313,7 +313,7 @@ class Schedule
 
 		if($this->nPermutations > 0)
 		{
-			$table .= "<div class=\"my-glider\">\n"
+			$table .= "<div id=\"my-glider\">\n"
 			  . "  <div class=\"controls\">\n";
 			
 			for($nn = 1; $nn <= $this->nPermutations; $nn++)

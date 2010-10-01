@@ -6,7 +6,7 @@ include_once 'class.class.php';
 include_once 'class.section.php';
 include_once 'inc/class.page.php';
 
-$scripts = array('jQuery','jValidate','schedInput');
+$scripts = array('jQuery', 'jQueryUI', 'jValidate','schedInput');
 $inputPage = new page('Scheduler', $scripts, FALSE);
 
 $sch = FALSE;
