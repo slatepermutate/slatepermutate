@@ -11,7 +11,7 @@ class page {
   private $pageGenTime = 0;
   private $indexpath = 'http://protofusion.org/SlatePermutate/'; // full url to index for php header redirection
   /* whether or not to output valid XHTML */
-  public $xhtml = FALSE;
+  private $xhtml = FALSE;
 
   // Scripts and styles
   private $headCode = array();
@@ -54,7 +54,7 @@ class page {
    $ga_www = 'http://www.';
    if ($_SERVER['SERVER_PORT'] != 80)
      $ga_www = 'https://ssl.';
-   $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js"' . ($this->xhtml ? '/' : '') . ">\n"
+   $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js" />' . "\n"
      . $this->trackingcode;
 
     session_start();
@@ -104,7 +104,7 @@ class page {
 	  <html ' . $this->htmlargs . '>
 	  <head>
 	    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>
-           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8"' . ($this->xhtml ? '/' : '') . '>';
+           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />';
 
     // Write out all passed scripts
     foreach ($this->scripts as $i){
