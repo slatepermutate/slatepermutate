@@ -271,7 +271,7 @@ class Schedule
 	                $headcode = array('jQuery', 'outputStyle', 'outputPrintStyle');
 		}
 		else {
-			$footcloser .="</div></div><script type=\"text/javascript\" charset=\"utf-8\">". 
+			$footcloser .="<script type=\"text/javascript\" charset=\"utf-8\">". 
 				"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
 				"\n</script>";
 			$headcode = array('outputStyle', 'gliderHeadcode');
@@ -313,14 +313,17 @@ class Schedule
 
 		if($this->nPermutations > 0)
 		{
-			$table .= "<div id=\"my-glider\"><div class=\"controls\">";
+			$table .= "<div class=\"my-glider\">\n"
+			  . "  <div class=\"controls\">\n";
 			
 			for($nn = 1; $nn <= $this->nPermutations; $nn++)
 			{
 			$table .= "<a href=\"#section" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a>";
 			}
 			
-			$table .= "</div><div class=\"scroller\"><div class=\"scontent\">";
+			$table .= "  </div> <!-- class=\"controls\" -->\n"
+			  . "  <div class=\"scroller\">"
+			  . "    <div class=\"scontent\">";
 		
 			for($i = 0; $i < $this->nPermutations; $i++)
 			{
@@ -563,10 +566,14 @@ class Schedule
 				}
 
 				// End of table
-				$table .= "</table></div>";
+				$table .= '</table></div> <!-- id="section' . ($i + 1) . "\" -->\n";
 			}
 
-			echo $table . "</div>" . $footcloser; // Closes off the content div
+			echo $table
+			  . "    </div> <!-- class=\"scontent\" -->\n"
+			  . "  </div> <!-- class=\"scroller\" -->\n"
+			  . "</div> <!-- id=\"my-glider\" -->\n"
+			  . $footcloser; // Closes off the content div
 		} else {
 			echo '<html><body><p>There are no possible schedules. Please try again.</p></body></html>';
 		}
