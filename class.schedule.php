@@ -35,8 +35,10 @@ class Schedule
      */
     function __construct($name)
     {
+      $this->classStorage = array();
       $this->nclasses = 0;
       $this->scheduleName = $name;
+      $this->storage = array();
       $this->title = "SlatePermutate - Scheduler";
       $this->section_format = 'numerous';
     }
@@ -93,7 +95,16 @@ class Schedule
 	//--------------------------------------------------
 	function findPossibilities()
 	{
-        $this->possiblePermutations = 1;
+	  $this->possiblePermutations = 1;
+	  /* special case: there is nothing entered into the schedule and thus there is one, NULL permutation */
+	  if (!$this->nclasses)
+	    {
+	      /* have an empty schedule */
+	      $this->classStorage[0] = array();
+	      $this->nPermutations = 1;
+	      return;
+	    }
+
 		$position = 0;
 		$counter = 0;
 
