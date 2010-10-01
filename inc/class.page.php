@@ -33,12 +33,12 @@ class page {
   public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
   {
     // Scripts and styles available to include
-    $this->headCode['jQuery'] = '<script src="http://www.google.com/jsapi"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
+    $this->headCode['jQuery'] = '<script src="http://www.google.com/jsapi" type="text/javascript"></script><script type="text/javascript" charset="utf-8"> google.load("jquery", "1.3.2"); google.load("jqueryui", "1.7.2");</script>';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
-    $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css" type="text/css" media="screen" charset="utf-8">';
-    $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css" type="text/css" media="screen" charset="utf-8">'; 
-    $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8"><script src="scripts/prototype.js" type="text/javascript" charset="utf-8"></script><script src="scripts/effects.js" type="text/javascript" charset="utf-8"></script><script src="scripts/glider.js" type="text/javascript" charset="utf-8"></script>'; 
+    $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css" type="text/css" media="screen" charset="utf-8" />';
+    $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css" type="text/css" media="screen" charset="utf-8" />'; 
+    $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8" /><script src="scripts/prototype.js" type="text/javascript" charset="utf-8"></script><script src="scripts/effects.js" type="text/javascript" charset="utf-8"></script><script src="scripts/glider.js" type="text/javascript" charset="utf-8"></script>'; 
 
    $this->pagetitle = $ntitle;
    $this->scripts = $nscripts;
@@ -69,8 +69,12 @@ class page {
 
   private function top(){
     echo '<div id="header">
-          <h1><em>SlatePermutate</em> - '.$this->pagetitle.'</h1>
-          </div>
+	    <h2 id="title"><a href="index.php"><img src="images/slatepermutate.png" alt="SlatePermutate" class="noborder" /></a><br /><span style="margin-left: 1em;">'.$this->pagetitle.'</span></h2>
+	    
+	    <span id="menu">
+	      <!-- <a href="index.php">Home</a> :: <a href="input.php">Scheduler</a> :: <a href="about.php">About</a> -->
+	    </span>
+	  </div>
           <div id="content">';
   }
 
@@ -83,7 +87,8 @@ class page {
 	  <html ' . $this->htmlargs . '>
 	  <head>
 	    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>
-           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8">';
+	    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />';
 
     // Write out all passed scripts
     foreach ($this->scripts as $i){
@@ -91,14 +96,14 @@ class page {
     }
 
     echo '</head>
-	  <body '.$this->bodyargs.' >';
+	  <body '.$this->bodyargs.' ><div id="page">';
     echo $this->top(); // Write out top
   }
 
   public function foot(){
     echo '</div>';
     $this->pageGenTime = round(microtime(), 3);
-    echo '<div id="footer"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a> <br /> <a href="http://ethanzonca.com">Ethan Zonca</a></h5></div>';
+    echo '<div id="footer"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a></h5></div></div>';
     echo $this->trackingcode;
     echo '</body></html>';
   }
@@ -120,9 +125,9 @@ class page {
 		echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
 		foreach($session['saved'] as $key => $schedule){
 			$sch = unserialize($schedule);
-			echo "<a href=\"process.php?savedkey=$key\">#" . ($key + 1) . " - " . $sch->getName()
-			  . '</a> <form style="display: inline" method="get" action="input.php"><input type="hidden" name="savedkey" value="' . $key . '" /><input type="submit" value="edit"/></form>'
-			  . "<em><a href=\"process.php?delsaved=$key\"><img src=\"images/close.png\" style=\"border:0;\" alt=\"[del]\"/></a></em>"
+			echo "#" . ($key + 1) . " - " . $sch->getName()
+			  . " - <a href=\"process.php?savedkey=$key\">view</a>" .'</a> <a href="input.php?savedkey="' . $key . '">edit</a> '
+			  . "<a href=\"process.php?delsaved=$key\">delete</a>"
 			  . "<br /><br />\n";
 		}
 		echo '</div>';

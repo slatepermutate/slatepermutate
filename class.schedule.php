@@ -256,8 +256,8 @@ class Schedule
 			*/
 		$footcloser = '';
 
-                if(isset($_REQUEST['print'])){
-	                $headcode = array('outputStyle', 'outputPrintStyle');
+                if(isset($_REQUEST['print']) && $_REQUEST['print'] != ''){
+	                $headcode = array('jQuery', 'outputStyle', 'outputPrintStyle');
 		}
 		else {
 			$footcloser .="</div></div><script type=\"text/javascript\" charset=\"utf-8\">". 
@@ -268,11 +268,33 @@ class Schedule
 		$outputPage = new page($this->getName(), $headcode);
 
 		if(isset($_REQUEST['print'])){
-			echo '<script type="text/javascript">window.print();</script>';
-			echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0">Return to normal view</a> :: <a href="input.php">Home</a></p>';
+			echo '<script type="text/javascript">';
+			echo 'jQuery(document).ready( function() {';
+
+			/* If user entered items to print */
+			if($_REQUEST['print'] != 'all'){
+			      echo 'jQuery(\'.section\').hide();';
+			      $items = explode(',', $_REQUEST['print']);
+			      foreach($items as $item){
+				echo 'jQuery(\'#section'.$item.'\').show();';
+			      }
+			}
+
+			echo 'jQuery(\'#selectItemsInput\').hide();
+			      jQuery(\'#selectItems\').click( function() {
+				jQuery(\'#selectItemsInput\').show();
+			      });
+			      jQuery(\'#cancelItems\').click( function() {
+				jQuery(\'#selectItemsInput\').hide();
+			      });';
+			echo '});'; /* Close document.ready */
+			echo 'window.print();
+			      </script>';
+			echo '<p><span id="selectItems"><a href="#">Select Schedules to Print</a></span> :: <a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0">Return to normal view</a> :: <a href="input.php">Home</a></p>';
+			echo '<div  id="selectItemsInput"><p><form action="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0"><label><strong>Schedules to Print</strong> <em>(seperate with commas, "all" for all)</em></label><br /><input type="text" name="print" /><input type="submit" value="submit" /><span id="cancelItems"><input type="button" value="cancel" /></span></form></p></div>';
 		}
 		else {
-			echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0&print=1">Print</a> :: <a href="input.php">Home</a></p>';
+			echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0&amp;print=all">Print</a> :: <a href="input.php">Home</a></p>';
 		}
 
 		echo "<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
@@ -533,7 +555,7 @@ class Schedule
 				$table .= "</table></div>";
 			}
 
-			echo $table . $footcloser;   
+			echo $table . "</div>" . $footcloser; // Closes off the content div
 		} else {
 			echo '<html><body><p>There are no possible schedules. Please try again.</p></body></html>';
 		}
@@ -550,7 +572,7 @@ class Schedule
 		       */
 		      $savedkey = max(array_keys($_SESSION['saved'])) + 1;
 		  }
-		echo '<form method="get" action="input.php"><input type="hidden" name="savedkey" value="' . $savedkey . '" /><input type="submit" value="edit" /></form>';
+		echo '<form method="get" action="input.php"><p><input type="hidden" name="savedkey" value="' . $savedkey . '" /><input type="submit" value="edit" /></p></form>';
 
 		$outputPage->foot();
 	}

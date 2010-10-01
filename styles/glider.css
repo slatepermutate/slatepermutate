@@ -34,12 +34,14 @@ margin-bottom: 2px;
 }
 .controls a{
   -moz-border-radius-topright: 10px;
+  border-top-right-radius: 10px;
   -moz-border-radius-topleft: 10px;
+  border-top-left-radius: 10px;
+
   text-decoration: none;
-  background: rgba(152,1,1,0.9);
+  background: rgb(0,35,0); /* Fallback */
+  background: rgba(0,35,0,0.9);
   padding: 2px;
-//OLD:  margin-left: 3px;
-//OLD:  margin-right: 3px;
 }
 .controls a:link{
 	color: rgba(255,255,255,1);
@@ -49,7 +51,7 @@ margin-bottom: 2px;
 }
 .controls a:hover{
 	background: rgba(255,255,255,1);
-	color: rgba(152,1,1,0.9);
+	color: rgb(0,0,0);
 }
 .controls a:active{
 	color: rgba(200,200,200,1);

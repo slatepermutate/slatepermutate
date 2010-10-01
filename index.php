@@ -1,6 +1,6 @@
 <?php 
 	include_once 'inc/class.page.php'; 
-	$mypage = new page('Scheduler');
+	$mypage = new page('Welcome');
 ?>
 
 <h3>Find the schedule that works for you!</h3>

@@ -27,3 +27,7 @@ div.scroller div.section div.txt {
 .section {
 	background: #fff!important;
 }
+
+#footer {
+  text-align: center;
+}

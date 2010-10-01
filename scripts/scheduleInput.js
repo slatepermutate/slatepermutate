@@ -1,8 +1,19 @@
-	/* Set all default error messages to this */
+
+    //--------------------------------------------------
+    // Validation Functions
+    //--------------------------------------------------      
+
+
+	//--------------------------------------------------
+	// Default Error Message
+	//--------------------------------------------------
 	jQuery.each(jQuery.validator.messages, function(i) {
 		jQuery.validator.messages[i] = "<p class=\"error\">Please fill the field</p>";
 	});
 
+	//--------------------------------------------------
+	// Time Selection Validation
+	//--------------------------------------------------
 	jQuery.validator.addMethod( 
 		"selectNone", 
 		function(value, element) { 
@@ -14,6 +25,10 @@
 		}, 
 		"<p class=\"error\">Please select a time</p>" 
 	); 
+	
+	//--------------------------------------------------
+	// Days of Week validation
+	//--------------------------------------------------
 	jQuery.validator.addMethod( 
 		"daysRequired", 
 		function(value, element) { 
@@ -27,16 +42,19 @@
 			} 
 			else return true; 
 		}, 
-		"<p class=\"error\">Pick a day!</p>" 
+		"<p class=\"error\">Select a day!</p>" 
 	); 
 
+	//--------------------------------------------------
+	// Add validation rules
+	//--------------------------------------------------
 	jQuery.validator.addClassRules("selectRequired", {
 		selectNone: true
 	});
-	
 	jQuery.validator.addClassRules("daysRequired", {
 		daysRequired: true
 	});
+
 
     jQuery(document).ready(function() {
 	//--------------------------------------------------
@@ -49,7 +67,6 @@
 
 	/* classNum is declared in the <head/> to enable loading of saved classes */
 	/* sectionsOfClass is declared in the <head/> to enable loading of saved sections */
-
         function numberedIds(name){
 		return '<td class="sectionIdentifier">\
                                 <select name="'+name+'"><option value="-">-</option><option value="1">1</option><option value="2">2</option>\
@@ -167,7 +184,7 @@
 	//--------------------------------------------------
 	jQuery('.addSection').live('click', function() {
 		sectionsOfClass[jQuery(this).parent().parent().attr("title")]++; // Increases sectionsOfClass[classNum]
-		jQuery(this).parent().parent().after('<tr class="section class' + jQuery(this).parent().parent().attr("title") + '"><td class="none"></td>' + getCommonInputs(jQuery(this).parent().parent().attr("title")) + '<td><div class="deleteSection"><input type="button" value="X" /></div></td><td></td></tr>');
+		jQuery(this).parent().parent().after('<tr class="section class' + jQuery(this).parent().parent().attr("title") + '"><td class="none"></td>' + getCommonInputs(jQuery(this).parent().parent().attr("title")) + '<td><div class="deleteSection"><input type="button" value="x" /></div></td><td></td></tr>');
 	});
 
 	//--------------------------------------------------
@@ -175,32 +192,32 @@
 	//--------------------------------------------------
 	jQuery('#reset').click(function() {
 		jQuery('#scheduleForm').resetForm();
-    });
+	});
 
 	//--------------------------------------------------
-	// Default text stuff
+	// Default text
 	//--------------------------------------------------
-    jQuery(".defText").focus(function(srcc)
-    {
-        if (jQuery(this).val() == jQuery(this)[0].title)
-        {
-            jQuery(this).removeClass("defaultTextActive");
-            jQuery(this).val("");
-        }
-    });
-    jQuery(".defText").blur(function()
-    {
-        if (jQuery(this).val() == "")
-        {
-            jQuery(this).addClass("defaultTextActive");
-            jQuery(this).val($(this)[0].title);
-        }
-    });
-    jQuery(".defText").blur();
+	jQuery(".defText").focus(function(srcc)
+	{
+	    if (jQuery(this).val() == jQuery(this)[0].title)
+	    {
+		jQuery(this).removeClass("defaultTextActive");
+		jQuery(this).val("");
+	    }
+	});
+	jQuery(".defText").blur(function()
+	{
+	    if (jQuery(this).val() == "")
+	    {
+		jQuery(this).addClass("defaultTextActive");
+		jQuery(this).val($(this)[0].title);
+	    }
+	});
+	jQuery(".defText").blur();
 
 
     //--------------------------------------------------
-    // Change between numbered and lettered on event
+    // Change section identifier type (from dropdown)
     //--------------------------------------------------
     jQuery("#isNumeric").live('change', function() {
       if(this.value == "lettered"){
@@ -231,10 +248,13 @@
 
     });
 
-  jQuery('.advanced').hide();    
-  jQuery('#showadvanced').click( function() {
-    jQuery('#showadvanced').hide();
-    jQuery('.advanced').slideToggle();
-  });
-});
+    //--------------------------------------------------
+    // Show/Hide advanced items
+    //--------------------------------------------------
+    jQuery('.advanced').hide();    
+    jQuery('#showadvanced').click( function() {
+      jQuery('#showadvanced').hide();
+      jQuery('.advanced').slideToggle();
+    });
 
+});

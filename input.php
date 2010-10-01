@@ -44,8 +44,8 @@ $inputPage->showSavedScheds($_SESSION);
 ?>
 <p>Welcome to SlatePermutate! To get started, enter in some of your classes, and add available sections for each class.</p>
 <form method="post" action="process.php" id="scheduleForm">
-<table>
-  <tr>
+<table id="container">
+  <tr><td>
     <table id="jsrows">
       <tr>
 	<td colspan="11">
@@ -56,12 +56,14 @@ $inputPage->showSavedScheds($_SESSION);
       </tr>
       <tr>
 	<td class="advanced" colspan="11" style="padding-bottom: 2em;">
-	  Section Labels are <select id="isNumeric" type="text" class="required" name="isnumbered" value="<?php if ($sch) echo $sch->section_format; else echo 'numerous'; ?>" >
-	    <option value="numerous">Custom</option>
-	    <option value="numbered">Numbered</option>
-	    <option value="lettered">Lettered</option>
+	  Section Labels are <select id="isNumeric" class="required" name="isnumbered">
+	    <?php $isSelected = 'selected="selected"'; ?>
+	    <option value="numerous" <? if(!$sch || $sch->section_format == "numerous") echo $isSelected ?> >Custom</option>
+	    <option value="numbered" <? if($sch && $sch->section_format == "numbered") echo $isSelected ?> >Numbered</option>
+	    <option value="lettered" <? if($sch && $sch->section_format == "lettered") echo $isSelected ?> >Lettered</option>
 	  </select>
-
+	</td>
+	</tr>
 	<!-- Header -->
 	<tr>
 		<td>Class</td>
@@ -78,7 +80,9 @@ $inputPage->showSavedScheds($_SESSION);
 	</tr>
 	<?php if ($sch) echo $sch->input_form_render(); ?>
     </table>
+  </td>
   </tr>
+  
   <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td></tr>
 </table>
 
@@ -87,9 +91,9 @@ $inputPage->showSavedScheds($_SESSION);
 
 </form>
 
-<p>&nbsp;<br /></p>
-<p><span id="showadvanced"><a href="#">Show Advanced Options</a></span></p>
-<span class="advanced">
+<p>&nbsp;<br /><br /><br /></p>
+<p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p>
+<div class="advanced">
 <h3>TODO:</h3>
 
 <ul>
@@ -101,8 +105,8 @@ $inputPage->showSavedScheds($_SESSION);
         <li>Move the add class button to somewhere nicer, maybe a gray row at the bottom. Make the submit button more obvious.</li>
 	<li>Form validation to ensure endtime is after starttime, at least one day is checked.</li>
 	<li>Auto-populate form based on saved schedule?</li>
-        <li>Grab data from school sites such as <a href="http://www.cedarville.edu/courses/schedule/2010fa_be_bebl.htm" target="_blank">this?</a></li>
+        <li>Grab data from school sites such as <a href="http://www.cedarville.edu/courses/schedule/2010fa_be_bebl.htm" rel="external">this?</a></li>
 </ul>
-
+</div>
 <?php
 $inputPage->foot();

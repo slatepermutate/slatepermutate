@@ -1,74 +1,127 @@
-  body {
-    width: 80%;
-    margin:auto;
-    font-family: sans-serif;
-  }
-	#savedBox {
-		width: 15em;
-		padding: 1em;
-		border: 1px solid #000;
-		float:right;
-		background: #DDD;
-		font-size: .8em;
-	}
-	#header {
-		text-align: left;
-		background: rgb(220,220,220); /* IE fallback */
-		background: rgba(200,200,200, .3);  
-	}
-	#footer {
-		text-align: right;
-		background: rgb(220,220,220); /* IE fallback */
-		background: rgba(200,200,200, .3); 
-	}
-	.defaultText { 
-		width: 300px; }
-	.defaultTextActive { 
-		color: #a1a1a1; 
-		font-style: italic; 
-	}
-	.error {
-		color: #F00; /* For validation errors */
-	} 
-	.error p {
-		padding: 0;
-		margin: 0;
-		font-size: .7em;
-	}
-	td.center {
-		text-align:center;
-	}
-	.section:nth-child(even) {
-		background: #DDDDDD;
-	}
-	.none {
-		background: #fff;
-	}
-	.class {
-		background: #99FF99;
-	}
-	#classage {
-		float:left;
-	}
-	.paddingtop {
-		padding: .5em;
-		padding-top: 1.5em;
-	}
-.tdInput {
+body {
   background: #fff;
 }
 
+
+/* Page Layout Styling */
+
+#page {
+  font: normal 14px sans-serif;
+  background: transparent;
+  width: 80%;
+  margin:auto;
+}
+#content {
+  background: #fff;
+  padding: 12px;
+}
+#header {
+  border-bottom: 1px dashed #888;
+  text-align: left;
+}
+#header h2 {
+  font:  italic 20px sans-serif;
+}
+#footer {
+  border-top: 1px dashed #888;
+  text-align: right;
+}
+#savedBox {
+  width: 20em;
+  padding: 1em;
+  border: 1px solid #CCC;
+  float:right;
+  background: #EEE;
+  font-size: .8em;
+}
+
+
+/* Link Styling */
+
+a:link, a:visited, a:active {
+  color: #777;
+}
+
+a:hover {
+  color: #AAA;
+}
+
+#footer a:link, #footer a:visited, #footer a:active, #footer a:hover {
+  color: #000;
+  text-decoration: none;
+}
+#footer a:hover {
+  text-decoration: underline;
+}
+
+
+/* Table Styling */
+
+td.center {
+  text-align:center;
+}
+.section:nth-child(even) {
+  background: #DDDDDD;
+}
+.none {
+  background: #fff;
+}
+.class {
+  /* background: #99FF99; */
+  background: #70a97c;
+}
+
+
+/* Input Formatting */
+
+.defaultText { 
+  width: 300px;
+}
+.defaultTextActive { 
+  color: #a1a1a1; 
+  font-style: italic; 
+}
+.error {
+  color: #F00; /* For validation errors */
+} 
+.error p {
+  padding: 0;
+  margin: 0;
+  font-size: .7em;
+}
+#classage {
+  float:left;
+}
+.paddingtop {
+  padding: .5em;
+  padding-top: 1.5em;
+}
+.tdInput {
+  background: #fff;
+}
 .addClassRow {
   padding: 2px;
   width: 30em;
-
 }
 .gray {
-  border: 1px dashed #999;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border: 1px solid #999;
   text-align: center!important;
-  background: #BBB!important;
+  background: #CCC!important;
   cursor:default;
 }
 .gray:hover {
-  background: #CCC!important;
+  background: #DDD!important;
+}
+
+
+/* General Classes */
+
+.clear {
+  clear: all;
+}
+.noborder {
+  border: none;
 }
