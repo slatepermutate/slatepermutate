@@ -6,7 +6,6 @@
 // Represents a class.
 //**************************************************
 
-include_once 'errors.php';
 include_once 'class.section.php';
 
 class Classes

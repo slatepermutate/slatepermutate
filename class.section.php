@@ -1,7 +1,5 @@
 <?php
 
-include_once 'errors.php';
-
 //--------------------------------------------------
 // class.section.php  Author:Nathan Gelderloos
 //
