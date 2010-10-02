@@ -148,7 +148,7 @@ class page {
 		foreach($session['saved'] as $key => $schedule){
 			$sch = unserialize($schedule);
 			echo "#" . ($key + 1) . " - " . $sch->getName()
-			  . " - <a href=\"process.php?savedkey=$key\">view</a>" .' <a href="input.php?savedkey="' . $key . '">edit</a> '
+			  . " - <a href=\"process.php?savedkey=$key\">view</a>" .' <a href="input.php?savedkey=' . $key . '">edit</a> '
 			  . "<a href=\"process.php?delsaved=$key\">delete</a>"
 			  . "<br /><br />\n";
 		}
