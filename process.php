@@ -2,6 +2,8 @@
 
 session_start();
 
+require_once('inc/schedule_store.inc');
+require_once('inc/class.page.php');
 include_once 'class.schedule.php';
 include_once 'class.class.php';
 include_once 'class.section.php';
@@ -55,23 +57,36 @@ function prettyTime($time){
 	return substr($time,0,strlen($time)-2) . ":" . substr($time,strlen($time)-2, strlen($time));
 }
 
-$DEBUG = false;
-if(isset($_GET['debug']))
-	$DEBUG = $_GET['debug'];
+$DEBUG = FALSE;
+if (isset($_GET['debug']))
+  $DEBUG = $_GET['debug'];
 
-if(!$DEBUG){
+$schedule_store = schedule_store_init();
 
-	if(isset($_GET['savedkey'])){
-		$savedSched = unserialize($_SESSION['saved'][$_GET['savedkey']]);
-		$savedSched->writeoutTables();
-	}
-	else if(isset($_GET['delsaved'])){
-		$_SESSION['saved'][$_GET['delsaved']] = '';
-		$_SESSION['saved'] = array_filter($_SESSION['saved']); // Remove null entries
-              header( 'Location: input.php' ) ;
+if(!$DEBUG)
+  {
+    if(isset($_GET['s']))
+      {
+	$savedSched = schedule_store_retrieve($schedule_store, $_GET['s']);
+	if ($savedSched)
+	  $savedSched->writeoutTables();
+	else
+	  Page::show_404('Unable to find a saved schedule with an ID of ' . $_GET['s'] . '.');
+      }
+    elseif(isset($_GET['del']))
+      {
+	/* Allow the user to delete schedules that he has stored in his session */
+	if ($_SESSION['saved'][(int)$_GET['del']])
+	  {
+	    /* user owns this schedule ID */
+	    schedule_store_delete($schedule_store, (int)$_GET['del']);
+	    unset($_SESSION['saved'][(int)$_GET['del']]);
+	  }
 
-	}
-	else{
+	header('Location: input.php');
+      }
+    else
+      {
 		$allClasses = new Schedule($_POST['postData']['name']);
 	
 		foreach(sortInputs($_POST) as $class)
@@ -95,14 +110,22 @@ if(!$DEBUG){
 			}
 		}
 		$allClasses->findPossibilities();
+		if (!isset($_SESSION['saved']))
+		  $_SESSION['saved'] = array();
+		$schedule_id = schedule_store_store($schedule_store, $allClasses);
+		if ($schedule_id != NULL)
+		  $_SESSION['saved'][$schedule_id] = $allClasses->getName();
+
+		/*
+		 * writeoutTables() needs to know $schedule_id, so it
+		 * has to be called after we save the schedule. See
+		 * schedule_store_store().
+		 */
 		$allClasses->writeoutTables();
-		if(!isset($_SESSION['saved']))
-			$_SESSION['saved'] = array();
-		array_push ( $_SESSION['saved'], serialize($allClasses));
-	}
-} else {
-
-
+      }
+  }
+else
+  {
 	echo '<pre>DEBUG OUTPUT: <br /><br />';
 	foreach(sortInputs($_POST) as $class) {
 		echo 'Class: ' . $class['name'] . '<br />';
