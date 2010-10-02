@@ -181,7 +181,6 @@ class Section
       . '    <select class="selectRequired" name="postData[' . $class_key . '][' . $section_key . '][start]">' . $n;
     for ($h = 7; $h <= 21; $h ++)
       {
-	$val = $h . '00';
 	$nm = 'p';
 	$hr = $h;
 	if ($h < 12)
@@ -191,8 +190,14 @@ class Section
 
 	foreach (array('00', '30') as $m)
 	  {
+	    $val = $h . $m;
+
+	    $selected = '';
+	    if ($this->start == $val)
+	      $selected = ' selected="selected"';
+
 	    $label = $hr . ':' . $m . $nm . 'm';
-	    $out .= '      <option value="' . $val . '">' . $label . '</option>' . $n;
+	    $out .= '      <option value="' . $val . '"' . $selected . '>' . $label . '</option>' . $n;
 	  }
       }
     $out .= "    </select>\n"
@@ -203,7 +208,6 @@ class Section
       . '    <select class="selectRequired" name="postData[' . $class_key . '][' . $section_key . '][end]">' . $n;
     for ($h = 7; $h <= 21; $h ++)
       {
-	$val = $h . '00';
 	$nm = 'p';
 	$hr = $h;
 	if ($h < 12)
@@ -213,8 +217,14 @@ class Section
 
 	foreach (array('20', '50') as $m)
 	  {
+	    $val = $h . $m;
+
+	    $selected = '';
+	    if ($this->tend == $val)
+	      $selected = ' selected="selected"';
+
 	    $label = $hr . ':' . $m . $nm . 'm';
-	    $out .= '      <option value="' . $val . '">' . $label . '</option>' . $n;
+	    $out .= '      <option value="' . $val . '"' . $selected . '>' . $label . '</option>' . $n;
 	  }
       }
     $out .= "    </select>\n"
