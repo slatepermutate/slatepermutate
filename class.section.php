@@ -238,7 +238,7 @@ class Section
 	  $day_enabled = '';
 	$out .= "  <td>\n"
 	  . '    <input type="checkbox" class="daysRequired"'
-	  . '           name="postData[' . $class_key . '][' . $section_key . '][days][' . $day_key . ']" ' . $day_enabled . ' />' . $n
+	  . '           name="postData[' . $class_key . '][' . $section_key . '][days][' . $day_key . ']" value="1" ' . $day_enabled . ' />' . $n
 	  . "  </td>\n";
       }
 
