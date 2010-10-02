@@ -93,20 +93,5 @@ $inputPage->showSavedScheds($_SESSION);
 
 <p>&nbsp;<br /><br /><br /></p>
 <p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p>
-<div class="advanced">
-<h3>TODO:</h3>
-
-<ul>
-	<li>Autoincrement section num/letter/custom labels</li>
-	<li>Make output and print output formatting look nicer</li>
-	<li>Make printing work for saved jobs where jobkey != 0</li>
-	<li>After selecting a start time, set the end time to one hour after the start time</li>
-        <li><strong>Append</strong> sections</li>
-        <li>Move the add class button to somewhere nicer, maybe a gray row at the bottom. Make the submit button more obvious.</li>
-	<li>Form validation to ensure endtime is after starttime, at least one day is checked.</li>
-	<li>Auto-populate form based on saved schedule?</li>
-        <li>Grab data from school sites such as <a href="http://www.cedarville.edu/courses/schedule/2010fa_be_bebl.htm" rel="external">this?</a></li>
-</ul>
-</div>
 <?php
 $inputPage->foot();
