@@ -1,6 +1,5 @@
 <?php
 
-include_once 'errors.php';
 include_once 'class.schedule.php';
 include_once 'class.class.php';
 include_once 'class.section.php';

@@ -8,7 +8,6 @@
 // all the possible permutations.
 //**************************************************
 
-include_once 'errors.php';
 include_once 'class.class.php';
 include_once 'class.section.php';
 include_once 'inc/class.page.php';
