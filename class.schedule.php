@@ -22,6 +22,12 @@ class Schedule
   private $storage;				// Integer array of valid schedules
   private $title;
   /**
+   * \brief
+   *   My global identification number. Not defined until the schedule
+   *   is processed and first saved.
+   */
+  private $id;
+  /**
    * The input format of the sections. Only used for the UI. Valid
    * values are 'numerous' for custom, 'numbered' for numeric, and 'lettered' for
    * alphabetical.
@@ -117,13 +123,16 @@ class Schedule
     do
       {
 	$conflict = false;
-	$upCounter = 0;
          
 	// Get first class to compare
-	while($upCounter < $this->nclasses)
+	for ($upCounter = 0;
+	     $upCounter < $this->nclasses && !$conflict;
+	     $upCounter ++)
 	  {
-	    $downCounter = $this->nclasses-1;
-	    while($downCounter > $upCounter)
+	    
+	    for ($downCounter = $this->nclasses - 1;
+		 $downCounter > $upCounter && !$conflict;
+		 $downCounter --)
 	      {
 		$start1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getStartTime();
 		$end1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getEndTime();
@@ -131,43 +140,49 @@ class Schedule
 		$end2 = $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getEndTime();
 					
 		// If the two times overlap, then check if days overlap.
-		if(!$conflict && ((($start1 >= $start2) && ($start1 <= $end2)) || (($start2 >= $start1) && ($start2 <= $end1))))
+		if ((($start1 >= $start2) && ($start1 <= $end2)) || (($start2 >= $start1) && ($start2 <= $end1)))
 		  {
 		    // Monday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getM() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getM()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getM()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getM()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 						
 		    // Tuesday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTu() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTu()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTu()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTu()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 						
 		    // Wednesday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getW() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getW()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getW()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getW()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 						
 		    // Thursday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTh() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTh()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTh()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTh()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 						
 		    // Friday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getF() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getF()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getF()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getF()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 		  }
-               
-		$downCounter--;
 	      }
-				
-	    $upCounter++;
 	  }
             
 	// Store to storage if no conflict is found.
@@ -300,11 +315,11 @@ class Schedule
       echo '});'; /* Close document.ready */
       echo 'window.print();
 			      </script>';
-      echo '<p><span id="selectItems"><a href="#">Select Schedules to Print</a></span> :: <a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0">Return to normal view</a> :: <a href="input.php">Home</a></p>';
-      echo '<div  id="selectItemsInput"><p><form action="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0"><label><strong>Schedules to Print</strong> <em>(seperate with commas, "all" for all)</em></label><br /><input type="text" name="print" value="'.$_REQUEST['print'].'" /><input type="submit" value="submit" /><span id="cancelItems"><input type="button" value="cancel" /></span></form></p></div>';
+      echo '<p><span id="selectItems"><a href="#">Select Schedules to Print</a></span> :: <a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">Return to normal view</a> :: <a href="input.php">Home</a></p>';
+      echo '<div  id="selectItemsInput"><p><form action="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '"><label><strong>Schedules to Print</strong> <em>(seperate with commas, "all" for all)</em></label><br /><input type="text" name="print" value="'.$_REQUEST['print'].'" /><input type="submit" value="submit" /><span id="cancelItems"><input type="button" value="cancel" /></span></form></p></div>';
     }
     else {
-      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?savedkey=0&amp;print=all">Print</a> :: <a href="input.php">Home</a></p>';
+      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <a href="input.php">Home</a></p>';
     }		
 
     if($this->nPermutations > 0)
@@ -575,18 +590,7 @@ class Schedule
     }
 
     /* edit button */
-    if (!isset($savedkey))
-      {
-	if (isset($_REQUEST['savedkey']))
-	  $savedkey = (int)$_REQUEST['savedkey'];
-	else
-	  /*
-	   * if this is a new saved schedule, it'll be the
-	   * next item added to $_SESSION['saved']
-	   */
-	  $savedkey = max(array_keys($_SESSION['saved'])) + 1;
-      }
-    echo '<form method="get" action="input.php"><p><input type="hidden" name="savedkey" value="' . $savedkey . '" /><input type="submit" value="edit" /></p></form>';
+    echo '<form method="get" action="input.php"><p><input type="hidden" name="s" value="' . $this->id_get() . '" /><input type="submit" value="edit" /></p></form>';
 
     echo "<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
 
@@ -648,5 +652,25 @@ class Schedule
   function class_get($class_key)
   {
     return $this->classStorage[$class_key];
+  }
+
+  /**
+   * \brief
+   *   Set my global ID.
+   *
+   * Only to be called by schedule_store_store().
+   */
+  function id_set($id)
+  { 
+    $this->id = $id;
+  }
+
+  /*
+   * \brief
+   *   Get my global ID.
+   */
+  function id_get()
+  {
+    return $this->id;
   }
 }

@@ -4,18 +4,18 @@ include_once 'class.schedule.php';
 include_once 'class.class.php';
 include_once 'class.section.php';
 include_once 'inc/class.page.php';
+require_once('inc/schedule_store.inc');
 
 $scripts = array('jQuery', 'jQueryUI', 'jValidate','schedInput');
 $inputPage = new page('Scheduler', $scripts, FALSE);
 
+$schedule_store = FALSE;
 $sch = FALSE;
-if (isset($_REQUEST['savedkey']) && isset($_SESSION['saved']))
+if (isset($_REQUEST['s']))
   {
-    $savedkey = (int)$_REQUEST['savedkey'];
-    if (isset($_SESSION['saved'][$savedkey]))
-      {
-	$sch = unserialize($_SESSION['saved'][$savedkey]);
-      }
+    $schedule_store = schedule_store_init();
+    $schedule_id = (int)$_REQUEST['s'];
+    $sch = schedule_store_retrieve($schedule_store, $schedule_id);
   }
 
 if ($sch)

@@ -1,8 +1,8 @@
 <?php
 
 /* Class for general page generation */
-class page {
-
+class page
+{
   private $base_title = 'SlatePermutate';
   private $doctype = 'html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"';
   private $htmlargs = 'xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"';
@@ -141,20 +141,48 @@ class page {
       return $ret;
   }
 
-  public function showSavedScheds($session) {
-       echo '<p>';
-	if(isset($session['saved']) && count($session['saved']) > 0){
-		echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
-		foreach($session['saved'] as $key => $schedule){
-			$sch = unserialize($schedule);
-			echo "#" . ($key + 1) . " - " . $sch->getName()
-			  . " - <a href=\"process.php?savedkey=$key\">view</a>" .' <a href="input.php?savedkey=' . $key . '">edit</a> '
-			  . "<a href=\"process.php?delsaved=$key\">delete</a>"
-			  . "<br /><br />\n";
-		}
-		echo '</div>';
-	}
-       echo '</p>';
-}
+  public function showSavedScheds($session)
+  {
+    echo '<p>';
+    if (isset($session['saved']) && count($session['saved']) > 0)
+      {
+	echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
+	foreach($session['saved'] as $key => $name)
+	  {
+	    echo '<a href="process.php?s=' . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:\n "
+	      . htmlentities($name)
+	      . ' <a href="input.php?s=' . $key . '">edit</a>'
+	      . ' <a href="process.php?del=' . $key . '">delete</a>'
+	      . "<br /><br />\n";
+	  }
+	echo '</div>';
+      }
+    echo '</p>';
+  }
 
+  /**
+   * \brief
+   *   Display a 404 page and halt the PHP interpreter.
+   *
+   * This function does not return. It handles the creation of a Page
+   * class with 404-ish stuff and then calls exit() after flushing the
+   * page out to the user.
+   *
+   * \param $message
+   *   A message consisting of valid XHTML to display to the user in
+   *   the 404 page.
+   */
+  public static function show_404($message = 'I couldn\'t find what you were looking for :-/.')
+  {
+    $page_404 = new Page('404: Content Not Found');
+
+    echo "<h2>404: Content Not Found</h2>\n"
+      . "<p>\n"
+      . '  ' . $message . "\n"
+      . "</p>\n";
+
+    $page_404->foot();
+
+    exit();
+  }
 }
