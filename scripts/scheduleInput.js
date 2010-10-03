@@ -215,46 +215,13 @@
 	});
 	jQuery(".defText").blur();
 
-
-    //--------------------------------------------------
-    // Change section identifier type (from dropdown)
-    //--------------------------------------------------
-    jQuery("#isNumeric").live('change', function() {
-      if(this.value == "lettered"){
-         /* Replace with lettered */
-         jQuery(".sectionIdentifier").each( function(index) {
-           var name = jQuery("select", this).attr("name");
-           jQuery(this).empty();
-           jQuery(this).append(letteredIds(name));
-         });
-      }
-      else if(this.value == "numbered"){
-         /* Replace with numbered */
-         jQuery(".sectionIdentifier").each( function(index) {
-           var name = jQuery("select", this).attr("name");
-           jQuery(this).empty();
-           jQuery(this).append(numberedIds(name));
-         });
-      }
-      else {
-         /* Replace with custom */
-         jQuery(".sectionIdentifier").each( function(index) {
-           var name = jQuery("select", this).attr("name");
-           jQuery(this).empty();
-           jQuery(this).append(customIds(name));
-         });
-
-      }
-
-    });
-
-    //--------------------------------------------------
-    // Show/Hide advanced items
-    //--------------------------------------------------
-    jQuery('.advanced').hide();    
-    jQuery('#showadvanced').click( function() {
-      jQuery('#showadvanced').hide();
-      jQuery('.advanced').slideToggle();
-    });
+	//--------------------------------------------------
+	// Show/Hide advanced items
+	//--------------------------------------------------
+	jQuery('.advanced').hide();    
+	jQuery('#showadvanced').click( function() {
+	  jQuery('#showadvanced').hide();
+	  jQuery('.advanced').slideToggle();
+	});
 
 });

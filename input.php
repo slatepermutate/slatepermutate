@@ -43,26 +43,15 @@ $inputPage->showSavedScheds($_SESSION);
 ?>
 <p>Welcome to SlatePermutate! To get started, enter in some of your classes, and add available sections for each class.</p>
 <form method="post" action="process.php" id="scheduleForm">
+<br />
+<label>Schedule Name</label><br />
+<input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="(e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
+<?php if ($sch) echo 'value="' . str_replace('"', '&quot;', $sch->getName()) . '"'; /*"*/ ?>
+/>
+
 <table id="container">
   <tr><td>
     <table id="jsrows">
-      <tr>
-	<td colspan="11">
-	  <input id="scheduleName" style="margin-bottom: 2em;" class="defText required" type="text" size="25" title="Schedule Name (e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
-		 <?php if ($sch) echo 'value="' . str_replace('"', '&quot;', $sch->getName()) . '"'; /*"*/ ?>
-		 />
-	</td>
-      </tr>
-      <tr>
-	<td class="advanced" colspan="11" style="padding-bottom: 2em;">
-	  Section Labels are <select id="isNumeric" class="required" name="isnumbered">
-	    <?php $isSelected = 'selected="selected"'; ?>
-	    <option value="numerous" <?php if(!$sch || $sch->section_format == "numerous") echo $isSelected ?> >Custom</option>
-	    <option value="numbered" <?php if($sch && $sch->section_format == "numbered") echo $isSelected ?> >Numbered</option>
-	    <option value="lettered" <?php if($sch && $sch->section_format == "lettered") echo $isSelected ?> >Lettered</option>
-	  </select>
-	</td>
-	</tr>
 	<!-- Header -->
 	<tr>
 		<td>Class</td>
@@ -85,12 +74,11 @@ $inputPage->showSavedScheds($_SESSION);
   <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td></tr>
 </table>
 
-<!-- <div class="paddingtop" id="classage"><input type="button" value="Add class" /></div> -->
-<div class="paddingtop"><input style="float:left;" type="submit" value="Find a schedule" /></div>
+<div class="paddingtop"><input class="green" style="margin:0;padding:0;" type="submit" value="Find a schedule" /></div>
 
 </form>
 
 <p>&nbsp;<br /><br /><br /></p>
-<p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p>
+<?php /* RE-enable if advanced options added: <p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p> */ ?>
 <?php
 $inputPage->foot();

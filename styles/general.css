@@ -10,6 +10,8 @@ body {
   background: transparent;
   width: 80%;
   margin:auto;
+  min-width: 900px;
+  max-width: 1100px;
 }
 #content {
   background: #fff;
@@ -74,6 +76,9 @@ td.center {
 
 /* Input Formatting */
 
+#container {
+  margin-left: 2em;
+}
 .defaultText { 
   width: 300px;
 }
@@ -116,6 +121,19 @@ td.center {
   background: #DDD!important;
 }
 
+.green {
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border: 1px solid #999;
+  text-align: center!important;
+  background: #92a689!important;
+  cursor:default;
+}
+.green:hover {
+  background: #68a64a!important;
+}
+
 
 /* General Classes */
 
@@ -123,5 +141,11 @@ td.center {
   clear: all;
 }
 .noborder {
-  border: none;
+  border: none!important;
+}
+.righttext {
+  text-align: right;
+}
+.centeredtext {
+  text-align: center;
 }
