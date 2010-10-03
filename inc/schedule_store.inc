@@ -125,7 +125,7 @@ function schedule_store_delete($schedule_store, $schedule_id)
   $remove_filename = $schedule_store['dir'] . DIRECTORY_SEPARATOR . $schedule_id;
   /* avoid an E_WARNING if the file doesn't exist */
   if (file_exists($remove_filename))
-    remove($remove_filename);
+    unlink($remove_filename);
 }
 
 /**
