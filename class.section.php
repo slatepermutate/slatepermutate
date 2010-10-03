@@ -28,7 +28,7 @@ class Section
 
   function setbdays()
   {
-    $result;
+    $result = array(FALSE, FALSE, FALSE, FALSE, FALSE);
 
     if($this->idays == 12345)
       {$result[0] = true; $result[1] = true; $result[2] = true; $result[3] = true; $result[4] = true;}

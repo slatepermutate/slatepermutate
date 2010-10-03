@@ -123,13 +123,16 @@ class Schedule
     do
       {
 	$conflict = false;
-	$upCounter = 0;
          
 	// Get first class to compare
-	while($upCounter < $this->nclasses)
+	for ($upCounter = 0;
+	     $upCounter < $this->nclasses && !$conflict;
+	     $upCounter ++)
 	  {
-	    $downCounter = $this->nclasses-1;
-	    while($downCounter > $upCounter)
+	    
+	    for ($downCounter = $this->nclasses - 1;
+		 $downCounter > $upCounter && !$conflict;
+		 $downCounter --)
 	      {
 		$start1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getStartTime();
 		$end1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getEndTime();
@@ -137,43 +140,49 @@ class Schedule
 		$end2 = $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getEndTime();
 					
 		// If the two times overlap, then check if days overlap.
-		if(!$conflict && ((($start1 >= $start2) && ($start1 <= $end2)) || (($start2 >= $start1) && ($start2 <= $end1))))
+		if ((($start1 >= $start2) && ($start1 <= $end2)) || (($start2 >= $start1) && ($start2 <= $end1)))
 		  {
 		    // Monday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getM() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getM()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getM()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getM()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 						
 		    // Tuesday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTu() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTu()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTu()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTu()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 						
 		    // Wednesday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getW() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getW()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getW()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getW()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 						
 		    // Thursday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTh() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTh()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTh()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTh()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 						
 		    // Friday
-		    if(!$conflict && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getF() == $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getF()))
+		    if(!$conflict
+		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getF()
+			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getF()))
 		      {
-			$conflict = true;
+			$conflict = TRUE;
 		      }
 		  }
-               
-		$downCounter--;
 	      }
-				
-	    $upCounter++;
 	  }
             
 	// Store to storage if no conflict is found.
