@@ -1,31 +1,55 @@
 /* Output Table Styling */
 .top{
-        border-style:solid solid none solid;
-background-color:#dddddd;
+  border-style:solid solid none solid;
+  background-color:#dddddd;
+  -moz-border-radius-topright: 5px;
+  border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  border-top-left-radius: 5px;
 }
 .mid{
-        border-style:none solid none solid;
-background-color:#dddddd;
+  border-style:none solid none solid;
+  background-color:#dddddd;
 }
 .end{
-        border-style:none solid solid solid;
-background-color:#dddddd;
+  border-style:none solid solid solid;
+  background-color:#dddddd;
+  -moz-border-radius-bottomright: 5px;
+  border-bottom-right-radius: 5px;
+  -moz-border-radius-bottomleft: 5px;
+  border-bottom-left-radius: 5px;
+
 }
 .none{
-        border-style:none;
+  border-style:none;
+  border-bottom: 1px solid #DDD;
 }
 .single{
-        border-style:solid;
-        background-color:#dddddd;
+  border-style:solid;
+  background-color:#dddddd;
 }
 td{
-        text-align:center;
-width:7em;
+  text-align:center;
+  width:7em;
 }
 .time{
-        border-style:none none solid none;
+  border-style:none none solid none;
 }
 .day{
-        border-style:none none solid solid;
+  border-style:none none solid solid;
 }
 
+/* Class Coloring */
+
+.class0 { background: #69c76f; }
+.class1 { background: #c5c769; }
+.class2 { background: #c76b69; }
+.class3 { background: #696fc7; }
+.class4 { background: #69a7c7; }
+.class5 { background: #c769c6; }
+.class6 { background: #989898; }
+.class7 { background: #e8e8e8; }
+.class8 { background: #111111; color: #fff; } 
+.class9 { background: #00437d; color: #fff; }
+.class10 { background: #7e2400; color: #fff; }
+.permuteNum { border-bottom: 1px solid #000; font-weight: bold; color: #fff; background: #222; }

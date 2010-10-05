@@ -344,7 +344,7 @@ class Schedule
 	    $table .= "<table style=\"empty-cells:show;\" border=\"1\" cellspacing=\"0\">";
 				
 	    // Header row
-	    $table .= "\n\t<tr>\n\t\t<td class=\"none\">" . ($i+1) . "</td>\n\t\t<td class=\"day\">Monday</td>\n\t\t<td class=\"day\">Tuesday</td>\n\t\t<td class=\"day\">Wednesday</td>\n\t\t<td class=\"day\">Thursday</td>\n\t\t<td class=\"day\">Friday</td>\n\t</tr>";
+	    $table .= "\n\t<tr>\n\t\t<td class=\"none permuteNum\">" . ($i+1) . "</td>\n\t\t<td class=\"day\">Monday</td>\n\t\t<td class=\"day\">Tuesday</td>\n\t\t<td class=\"day\">Wednesday</td>\n\t\t<td class=\"day\">Thursday</td>\n\t\t<td class=\"day\">Friday</td>\n\t</tr>";
 
 	    for($r = 0; $r < (count($time)-1); $r++)
 	      {
@@ -368,11 +368,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				    $M = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -382,10 +382,10 @@ class Schedule
 			{
 			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 			    {
-			      $table .= "\n\t\t<td class=\"mid\">&nbsp;</td>";
+			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
 			      $filled = true;
 			    } else {
-			    $table .= "\n\t\t<td class=\"end\">&nbsp;</td>";
+			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
 			    $M = -1;
 			    $filled = true;
 			  }
@@ -411,11 +411,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				    $Tu = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -425,10 +425,10 @@ class Schedule
 			{
 			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 			    {
-			      $table .= "\n\t\t<td class=\"mid\">&nbsp;</td>";
+			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
 			      $filled = true;
 			    } else {
-			    $table .= "\n\t\t<td class=\"end\">&nbsp;</td>";
+			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
 			    $Tu = -1;
 			    $filled = true;
 			  }
@@ -454,11 +454,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				    $W = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -468,10 +468,10 @@ class Schedule
 			{
 			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 			    {
-			      $table .= "\n\t\t<td class=\"mid\">&nbsp;</td>";
+			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
 			      $filled = true;
 			    } else {
-			    $table .= "\n\t\t<td class=\"end\">&nbsp;</td>";
+			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
 			    $W = -1;
 			    $filled = true;
 			  }
@@ -497,11 +497,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				    $Th = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -511,10 +511,10 @@ class Schedule
 			{
 			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 			    {
-			      $table .= "\n\t\t<td class=\"mid\">&nbsp;</td>";
+			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
 			      $filled = true;
 			    } else {
-			    $table .= "\n\t\t<td class=\"end\">&nbsp;</td>";
+			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
 			    $Th = -1;
 			    $filled = true;
 			  }
@@ -540,11 +540,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				    $F = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -554,10 +554,10 @@ class Schedule
 			{
 			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 			    {
-			      $table .= "\n\t\t<td class=\"mid\">&nbsp;</td>";
+			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
 			      $filled = true;
 			    } else {
-			    $table .= "\n\t\t<td class=\"end\">&nbsp;</td>";
+			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
 			    $F = -1;
 			    $filled = true;
 			  }

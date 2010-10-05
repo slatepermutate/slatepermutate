@@ -65,6 +65,9 @@ td.center {
 .section:nth-child(even) {
   background: #DDDDDD;
 }
+.section:nth-child(odd) {
+  background: #DDDDDD;
+}
 .none {
   background: #fff;
 }
