@@ -282,20 +282,23 @@ class Schedule
     $footcloser = '';
 
     if(isset($_REQUEST['print']) && $_REQUEST['print'] != ''){
-      $headcode = array('jQuery', 'outputStyle', 'outputPrintStyle');
+      $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'outputStyle', 'outputPrintStyle');
     }
     else {
-      $footcloser .="<script type=\"text/javascript\" charset=\"utf-8\">". 
+/*      $footcloser .="<script type=\"text/javascript\" charset=\"utf-8\">". 
 	"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
-	"\n</script>";
-      $headcode = array('outputStyle', 'gliderHeadcode');
+	"\n</script>"; */
+      $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'uiTabsKeyboard');
     }
     $outputPage = new page($this->getName(), $headcode);
 
-    if(isset($_REQUEST['print'])){
-      echo '<script type="text/javascript">';
-      echo 'jQuery(document).ready( function() {';
 
+
+    if(isset($_REQUEST['print'])){
+ 
+     echo '<script type="text/javascript">';
+      echo 'jQuery(document).ready( function() {';
+ 
       /* If user entered items to print */
       if($_REQUEST['print'] != 'all'){
 	echo 'jQuery(\'.section\').hide();';
@@ -312,33 +315,39 @@ class Schedule
 			      jQuery(\'#cancelItems\').click( function() {
 				jQuery(\'#selectItemsInput\').hide();
 			      });';
-      echo '});'; /* Close document.ready */
-      echo 'window.print();
-			      </script>';
+      echo '}); '; /* Close document.ready for jquery */
+      echo 'window.print(); </script>';
+
       echo '<p><span id="selectItems"><a href="#">Select Schedules to Print</a></span> :: <a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">Return to normal view</a> :: <a href="input.php">Home</a></p>';
       echo '<div  id="selectItemsInput"><p><form action="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '"><label><strong>Schedules to Print</strong> <em>(seperate with commas, "all" for all)</em></label><br /><input type="text" name="print" value="'.$_REQUEST['print'].'" /><input type="submit" value="submit" /><span id="cancelItems"><input type="button" value="cancel" /></span></form></p></div>';
     }
     else {
-      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <a href="input.php">Home</a></p>';
+      echo '<script type="text/javascript">';
+      echo 'jQuery(document).ready( function() {';
+      echo 'jQuery("#tabs").tabs();';
+      echo '});</script>'; /* Close document.ready for jquery */
+      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <a href="input.php">Home</a></p><p class="centeredtext"><em>Tip: You can use the left and right arrow keys to switch between schedules</em></p>';
     }		
+
+
 
     if($this->nPermutations > 0)
       {
-	$table .= "<div id=\"my-glider\">\n"
-	  . "  <div class=\"controls\">\n";
+	$table .= "<div id=\"tabs\">\n"
+	  . "  <ul>\n";
 			
 	for($nn = 1; $nn <= $this->nPermutations; $nn++)
 	  {
-	    $table .= "<a href=\"#section" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a>";
+	    $table .= "<li><a href=\"#tabs-" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a></li>\n";
 	  }
 			
-	$table .= "  </div> <!-- class=\"controls\" -->\n"
+	$table .= "    </ul><div class=\"clear\"><p> </p> </div>\n  \n"
 	  . "  <div class=\"scroller\">"
 	  . "    <div class=\"scontent\">";
 		
 	for($i = 0; $i < $this->nPermutations; $i++)
 	  {
-	    $table .= "<div class=\"section\" id=\"section" . ($i+1) . "\">";
+	    $table .= "<div class=\"section\" id=\"tabs-" . ($i+1) . "\">";
   
 	    // Beginning of table
 	    $table .= "<table style=\"empty-cells:show;\" border=\"1\" cellspacing=\"0\">";

@@ -13,14 +13,7 @@ div.scroller div.section div.txt {
 	padding: 1em;
 }
 
-
-.controls {
-	text-align: left;
-	margin-top: 10px;
-	margin-bottom: 2px;
-}
-
-.controls {
+#tabs ul {
 	display: none;
 }
 

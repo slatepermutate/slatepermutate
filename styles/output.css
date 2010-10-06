@@ -53,3 +53,46 @@ td{
 .class9 { background: #00437d; color: #fff; }
 .class10 { background: #7e2400; color: #fff; }
 .permuteNum { border-bottom: 1px solid #000; font-weight: bold; color: #fff; background: #222; }
+
+#tabs table {
+  clear: all;
+}
+
+#tabs ul {
+text-align: center;
+margin: auto;
+margin-top: 10px;
+margin-bottom: 2px; 
+}
+#tabs table {
+  margin: auto;
+}
+#tabs li a{
+  -moz-border-radius-topright: 10px;
+  border-top-right-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  border-top-left-radius: 10px;
+
+  text-decoration: none;
+  background: rgb(0,35,0); /* Fallback */
+  background: rgba(0,35,0,0.9);
+  padding: 2px;
+}
+#tabs li a:link {
+        color: rgba(255,255,255,1);
+}
+#tabs li a:visited {
+        color: rgba(255,255,255,1);
+}
+#tabs li a:hover, .ui-tabs-selected a  {
+        background: rgba(200,200,200,1)!important;
+        color: rgb(0,0,0)!important;
+}
+#tabs li a:active {
+        color: rgba(200,200,200,1);
+}
+#tabs {
+  min-width: 400px;
+  max-width: 650px;
+  margin: auto;
+}

@@ -66,7 +66,7 @@ td.center {
   background: #DDDDDD;
 }
 .section:nth-child(odd) {
-  background: #DDDDDD;
+  background: #AAAAAA;
 }
 .none {
   background: #fff;

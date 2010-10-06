@@ -6,8 +6,7 @@ div.scroller {
 	border:0;
 	padding:0;
 	margin:0;
-//OLD:	margin-left: -23px;
-	}
+}
 	div.scroller div.section {
 		/* modify width and height of each section as needed (should match the size of the scroller window)	*/		
 		width:626px;
@@ -16,10 +15,6 @@ div.scroller {
 		float:left;
 		padding:0;		
 		}
-//OLD:	img.header {
-//OLD:		padding-top: 15px;
-//OLD:		margin-top:-5px;
-//OLD:	 }
 	div.scroller div.section div.txt {
 		padding: 1em;
 	}
@@ -27,7 +22,6 @@ div.scroller {
 		width: 50000px;
 		}
 .controls {
-//OLD:text-align: center;
 text-align: left;
 margin-top: 10px;
 margin-bottom: 2px;
