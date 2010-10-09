@@ -42,24 +42,25 @@ $inputPage->head();
 
 /*
  * Force a student to choose a school or declare he's a generic
- * student before displaying the input form.
+ * student before displaying the input form. To do this, we need
+ * another variable in $_SESSION: $_SESSION['school_chosen'].
  */
 $school = $inputPage->get_school();
-if ($_REQUEST['setted'] == 1 || $school['id'] != 'default')
-  $_SESSION['school_setted'] = TRUE;
+if ($_REQUEST['school'] == 1 || $school['id'] != 'default')
+  $_SESSION['school_chosen'] = TRUE;
 if ($_REQUEST['selectschool'] == 1
-    || $school['id'] == 'default' && !isset($_SESSION['school_setted']))
+    || $school['id'] == 'default' && !isset($_SESSION['school_chosen']))
   {
 ?>
 <h2>School Selection</h2>
 <p>
   Choose the school you attend from the list below. <b>If you cannot
   find your school</b>, you may proceed using
-  the <a href="input.php?school=default&amp;setted=1">generic
+  the <a href="input.php?school=default">generic
   settings</a>.
 </p>
 <?php
-    $inputPage->showSchools('input.php?setted=1');
+    $inputPage->showSchools('input.php');
     $inputPage->foot();
     exit;
   }
