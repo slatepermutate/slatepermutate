@@ -2,6 +2,8 @@ style: regex
 
 # ignore all saved schedules, but keep track of the .keep file.
 ^saved_schedules/[^.]
+# ignore all of cache except for the .keep file
+^cache/[^.]
 
 # ignore common unwanted suffixes
 (~|\.orig|\.rej)$

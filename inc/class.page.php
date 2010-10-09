@@ -29,8 +29,13 @@ class page
   private $pagetitle = ''; // Title of page
   private $scripts = array(); // Scripts to include on page
 
+  /* the current school. See get_school(). */
+  private $school;
+
   public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
   {
+    require_once('school.inc');
+
     // Scripts and styles available to include
     $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js" type="text/javascript" />';
     $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7/jquery-ui.min.js" type="text/javascript" /><link rel="stylesheet" href="styles/jqueryui.css" type="text/css" media="screen" charset="utf-8" />';
@@ -62,6 +67,10 @@ class page
     if($immediate
        && $ntitle != "NOHEAD")
       $this->head();
+
+    /* everything that needs sessions started to work: */
+
+    $this->school = school_load_guess();
  }
 
   /**
@@ -162,6 +171,65 @@ class page
 
   /**
    * \brief
+   *   Display a list of schools the user might be from.
+   * \param $linkto
+   *   The to which a &school= or ?school= query string should be
+   *   appended.
+   */
+  public function showSchools($linkto)
+  {
+    echo "<p>\n";
+    echo "  <div id=\"schoolBox\">\n";
+    echo school_list_html($this->school['id'], $linkto);
+    echo "  </div> <!-- id=\"schoolBox\" -->\n";
+    echo "</p>\n";
+  }
+
+  /**
+   * \brief
+   *   Display school-specific instructions for using slate_permutate.
+   */
+  public function showSchoolInstructions()
+  {
+    echo "<div id=\"schoolInstructionsBox\">\n";
+    echo school_instructions_html($this->school);
+    echo "</div> <!-- id=\"schoolInstructionsBox\" -->\n";
+  }
+
+  /**
+   * \brief
+   *   Print out a vocative form of a student's identity. For example,
+   *   Dearborn Christin Schoolers are called ``Knights'' as are
+   *   Calvin College students.
+   *
+   * The third argument is used to determine whether or not this
+   * address _needs_ to be printed out. For example, in some sentences
+   * when addressing generic students, it makes no sense to say the
+   * standard ``Welcome, student'' or ``Dear generic person, how do
+   * you do today?''. If the third argument is false, we'll refrain
+   * from outputting anything at all.
+   *
+   * \param $prefix
+   *   If the address is to be printed, output this beforehand. Useful
+   *   if this prefix shouldn't be printed if the address itself isn't
+   *   to be printed. See $necessary.
+   * \param $postfix
+   *   Text to print after the address if it's printed.
+   * \param $necessary
+   *   Whether or not we might ignore the request that an address be
+   *   printed in certain cases. We default to always printing the
+   *   address.
+   */
+  public function addressStudent($prefix = '', $postfix = '', $necessary = TRUE)
+  {
+    if (!$necessary && $this->school['id'] == 'default')
+      return;
+
+    echo $prefix . $this->school['student_address'] . $postfix;
+  }
+
+  /**
+   * \brief
    *   Display a 404 page and halt the PHP interpreter.
    *
    * This function does not return. It handles the creation of a Page
@@ -184,5 +252,14 @@ class page
     $page_404->foot();
 
     exit();
+  }
+
+  /**
+   * \brief
+   *   Get the current school profile handle.
+   */
+  public function get_school()
+  {
+    return $this->school;
   }
 }

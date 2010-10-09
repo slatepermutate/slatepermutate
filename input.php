@@ -39,9 +39,39 @@ var sectionsOfClass = Array();
 // </script>', TRUE);
 
 $inputPage->head();
+
+/*
+ * Force a student to choose a school or declare he's a generic
+ * student before displaying the input form.
+ */
+$school = $inputPage->get_school();
+if ($_REQUEST['setted'] == 1 || $school['id'] != 'default')
+  $_SESSION['school_setted'] = TRUE;
+if ($_REQUEST['selectschool'] == 1
+    || $school['id'] == 'default' && !isset($_SESSION['school_setted']))
+  {
+?>
+<h2>School Selection</h2>
+<p>
+  Choose the school you attend from the list below. <b>If you cannot
+  find your school</b>, you may proceed using
+  the <a href="input.php?school=default&amp;setted=1">generic
+  settings</a>.
+</p>
+<?php
+    $inputPage->showSchools('input.php?setted=1');
+    $inputPage->foot();
+    exit;
+  }
+
 $inputPage->showSavedScheds($_SESSION);
 ?>
-<p>Welcome to SlatePermutate! To get started, enter in some of your classes, and add available sections for each class.</p>
+<p>
+  Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '',
+  FALSE); ?>! (<a href="input.php?selectschool=1">Not from <?php echo
+  $school['name']; ?>?</a>) To get started, enter in some of your
+  classes, and add available sections for each class.
+</p>
 <p style="color: #999"><em>Keyboard Shortcut: Press "c" to add a class</em></p>
 <form method="post" action="process.php" id="scheduleForm">
 <br />
@@ -82,4 +112,5 @@ $inputPage->showSavedScheds($_SESSION);
 <p>&nbsp;<br /><br /><br /></p>
 <?php /* RE-enable if advanced options added: <p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p> */ ?>
 <?php
+$inputPage->showSchoolInstructions();
 $inputPage->foot();
