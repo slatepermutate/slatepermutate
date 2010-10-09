@@ -40,7 +40,6 @@ class page
     $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css" type="text/css" media="screen" charset="utf-8" />'; 
     $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8" />'; 
    $this->headCode['uiTabsKeyboard'] = '<script type="text/javascript" src="scripts/uiTabsKeyboard.js"></script>'; 
-   $this->headCode['uiInputKeyboard'] = '<script type="text/javascript" src="scripts/uiInputKeyboard.js"></script>';
    $this->pagetitle = $ntitle;
    $this->scripts = $nscripts;
 

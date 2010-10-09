@@ -6,7 +6,7 @@ include_once 'class.section.php';
 include_once 'inc/class.page.php';
 require_once('inc/schedule_store.inc');
 
-$scripts = array('jQuery', 'jQueryUI', 'jValidate','schedInput','uiInputKeyboard');
+$scripts = array('jQuery', 'jQueryUI', 'jValidate','schedInput');
 $inputPage = new page('Scheduler', $scripts, FALSE);
 
 $schedule_store = FALSE;
