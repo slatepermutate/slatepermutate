@@ -9,7 +9,7 @@ class page
   private $bodyargs = '';
   public $lastJobTable = '';
   private $pageGenTime = 0;
-  private $indexpath = 'http://protofusion.org/SlatePermutate/'; // full url to index for php header redirection
+
   /* whether or not to output valid XHTML */
   private $xhtml = FALSE;
 
