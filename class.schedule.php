@@ -326,7 +326,7 @@ class Schedule
       echo 'jQuery(document).ready( function() {';
       echo 'jQuery("#tabs").tabs();';
       echo '});</script>'; /* Close document.ready for jquery */
-      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <a href="input.php">Home</a></p><p class="centeredtext"><em>Tip: You can use the left and right arrow keys to switch between schedules</em></p>';
+      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <a href="input.php">Home</a></p><p class="centeredtext" style="color: #999;"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
     }		
 
 
