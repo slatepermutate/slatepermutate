@@ -46,7 +46,7 @@ $inputPage->head();
  * another variable in $_SESSION: $_SESSION['school_chosen'].
  */
 $school = $inputPage->get_school();
-if ($_REQUEST['school'] == 1 || $school['id'] != 'default')
+if ($school && (!empty($_REQUEST['school']) || $school['id'] != 'default'))
   $_SESSION['school_chosen'] = TRUE;
 if ($_REQUEST['selectschool'] == 1
     || $school['id'] == 'default' && !isset($_SESSION['school_chosen']))
