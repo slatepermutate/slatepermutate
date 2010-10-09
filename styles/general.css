@@ -63,10 +63,10 @@ td.center {
   text-align:center;
 }
 .section:nth-child(even) {
-  background: #DDDDDD;
+  background: #CCC;
 }
 .section:nth-child(odd) {
-  background: #AAAAAA;
+  background: #EEE;
 }
 .none {
   background: #fff;
@@ -130,7 +130,9 @@ td.center {
   -webkit-border-radius: 5px;
   border: 1px solid #999;
   text-align: center!important;
-  background: #92a689!important;
+//  background: #92a689!important;
+  background: #EEE;
+
   cursor:default;
 }
 .green:hover {

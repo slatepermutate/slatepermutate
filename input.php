@@ -6,7 +6,7 @@ include_once 'class.section.php';
 include_once 'inc/class.page.php';
 require_once('inc/schedule_store.inc');
 
-$scripts = array('jQuery', 'jQueryUI', 'jValidate','schedInput');
+$scripts = array('jQuery', 'jQueryUI', 'jValidate','schedInput','uiInputKeyboard');
 $inputPage = new page('Scheduler', $scripts, FALSE);
 
 $schedule_store = FALSE;
@@ -42,6 +42,7 @@ $inputPage->head();
 $inputPage->showSavedScheds($_SESSION);
 ?>
 <p>Welcome to SlatePermutate! To get started, enter in some of your classes, and add available sections for each class.</p>
+<p style="color: #CCC"><em>Keyboard Shortcut: Press "c" to add a class</em></p>
 <form method="post" action="process.php" id="scheduleForm">
 <br />
 <label>Schedule Name</label><br />
