@@ -5,6 +5,7 @@
 
 <h3>Items to Consider:</h3>
 <ul>
+	<li>Add place to put prof name</li>
 	<li>Autoincrement section num/letter/custom labels</li>
 	<li>Make output and print output formatting look nicer</li>
 	<li>Make printing work for saved jobs where jobkey != 0</li>
