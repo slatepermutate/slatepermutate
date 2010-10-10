@@ -35,4 +35,4 @@
  * analyze access to your slate_permutate installation.
  */
 /* $ga_trackers = array(); */
-/* $ga_trackers = array('UA-XXXXXXXX-1'); */
+/* $ga_trackers = array('UA-XXXXXXXX-X'); */
