@@ -62,13 +62,17 @@ $schedule_store = schedule_store_init();
 
 if(!$DEBUG)
   {
-    if(isset($_GET['s']))
+    $s = FALSE;
+    if (isset($_GET['s']))
+      $s = $_GET['s'];
+
+    if($s !== FALSE)
       {
-	$savedSched = schedule_store_retrieve($schedule_store, $_GET['s']);
+	$savedSched = schedule_store_retrieve($schedule_store, $s);
 	if ($savedSched)
 	  $savedSched->writeoutTables();
 	else
-	  Page::show_404('Unable to find a saved schedule with an ID of ' . $_GET['s'] . '.');
+	  page::show_404('Unable to find a saved schedule with an ID of ' . $s . '.');
       }
     elseif(isset($_GET['del']))
       {
@@ -80,11 +84,21 @@ if(!$DEBUG)
 	    unset($_SESSION['saved'][(int)$_GET['del']]);
 	  }
 
-	header('Location: input.php');
+	page::redirect('input.php');
+	exit;
+      }
+    elseif (!isset($_POST['postData']))
+      {
+	page::redirect('input.php');
 	exit;
       }
     else
       {
+	/*
+	 * we probably have input from the user and should interpret
+	 * it as a schedule to permutate. Then we should redirect the
+	 * user to the canonical URL for that schedule.
+	 */
 		$allClasses = new Schedule($_POST['postData']['name']);
 	
 		foreach($_POST['postData'] as $class)
@@ -114,12 +128,11 @@ if(!$DEBUG)
 		if ($schedule_id != NULL)
 		  $_SESSION['saved'][$schedule_id] = $allClasses->getName();
 
-		/*
-		 * writeoutTables() needs to know $schedule_id, so it
-		 * has to be called after we save the schedule. See
-		 * schedule_store_store().
-		 */
-		$allClasses->writeoutTables();
+		$process_php_s = '';
+		if (!$clean_urls)
+		  $process_php_s = 'process.php?s=';
+		page::redirect($process_php_s . $schedule_id);
+		exit;
       }
   }
 else

@@ -5,5 +5,12 @@ style: regex
 # ignore all of cache except for the .keep file
 ^cache/[^.]
 
+# ignore .htaccess because we only want .htaccess.example in the repo
+^\.htaccess$
+
+# ignore inc/config.inc because we only want inc/config.inc.example in
+# the repo
+^inc/config\.inc$
+
 # ignore common unwanted suffixes
 (~|\.orig|\.rej)$

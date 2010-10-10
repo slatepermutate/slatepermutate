@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Not sure if there's a better place for this... it'd be a pita to
+ * make a new include file like doconfig.inc but maybe that'll make
+ * sense soon.
+ */
+$clean_urls = FALSE;
+$config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
+if (file_exists($config_inc))
+  require_once($config_inc);
+
 /* Class for general page generation */
 class page
 {
@@ -63,7 +73,7 @@ class page
    $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js" />' . "\n"
      . $this->trackingcode;
 
-   page::session_start();
+   self::session_start();
     if($immediate
        && $ntitle != "NOHEAD")
       $this->head();
@@ -161,13 +171,19 @@ class page
 
   public function showSavedScheds($session)
   {
+    global $clean_urls;
+
     echo '<p>';
     if (isset($session['saved']) && count($session['saved']) > 0)
       {
+	$process_php_s = 'process.php?s=';
+	if ($clean_urls)
+	  $process_php_s = '';
+
 	echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
 	foreach($session['saved'] as $key => $name)
 	  {
-	    echo '<a href="process.php?s=' . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:\n "
+	    echo '<a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:\n "
 	      . htmlentities($name)
 	      . ' <a href="input.php?s=' . $key . '">edit</a>'
 	      . ' <a href="process.php?del=' . $key . '">delete</a>'
@@ -281,6 +297,58 @@ class page
 	session_start();
 	$session_started = TRUE;
       }
+  }
+
+  /**
+   * \brief
+   *   Perform a redirect.
+   *
+   * By consolidating all redirects here, we're hopefully able to do
+   * it in a somewhat compliant and portablish way ;-).
+   *
+   * This function does not return. It calls exit().
+   *
+   * \param $dest
+   *   A URL relative to the slate_permutate root. For example,
+   *   'input.php' or '44' (for clean urls, for example).
+   * \param $http_code
+   *   The redirection code to use, if any. For example, this can be
+   *   used to implement ``permanent'' redirects if necessary.
+   */
+  public static function redirect($dest, $http_code = NULL)
+  {
+    if ($http_code)
+      header('HTTP/1.1 ' . $http_code);
+
+    $uri = '';
+
+    $host = '';
+    if (isset($_SERVER['SERVER_NAME']))
+      $host = $_SERVER['SERVER_NAME'];
+    if (isset($_SERvER['HTTP_HOST']))
+      $host = $_SERVER['HTTP_HOST'];
+
+    if (strlen($host))
+      {
+	$proto = 'http';
+	$port = NULL;
+	if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 80)
+	  {
+	    if ($_SERVER['SERVER_PORT'] == 443 || !empty($_SERVER['HTTPS']))
+	      $proto .= 's';
+	    if ($_SERVER['SERVER_PORT'] != 433)
+	      $port = $_SERVER['SERVER_PORT'];
+	  }
+
+	$uri = $proto . '://' . $host;
+	if ($port !== NULL)
+	  $uri .= ':' . $port;
+	$uri .= dirname($_SERVER['REQUEST_URI']) . '/';
+      }
+
+    header('Location: ' . $uri . $dest);
+
+    exit();
   }
 
   /**
