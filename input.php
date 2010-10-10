@@ -48,7 +48,7 @@ $inputPage->head();
 $school = $inputPage->get_school();
 if ($school && (!empty($_REQUEST['school']) || $school['id'] != 'default'))
   $_SESSION['school_chosen'] = TRUE;
-if ($_REQUEST['selectschool'] == 1
+if (!empty($_REQUEST['selectschool'])
     || $school['id'] == 'default' && !isset($_SESSION['school_chosen']))
   {
 ?>

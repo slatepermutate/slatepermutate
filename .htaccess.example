@@ -1,0 +1,16 @@
+# The following would be used to enable friendly pastebin-style
+# URLs. To enable support for these URLs in slate_permutate, set
+# $clean_urls = TRUE in inc/config.inc.
+
+RewriteEngine on
+
+# If you are serving this out of your home directory, there's a good chance you'll have to uncomment and edit one of the lines below:
+
+# For http://csx.calvin.edu/slate_permutate:
+# RewriteBase /slate_permutate
+
+# For http://ohnopub.net/~ohnobinki/slate_permutate:
+# RewriteBase /~ohnobinki/slate_permutate
+
+RewriteCond %{QUERY_STRING} ^(.*)?$
+RewriteRule ^([0-9]+)$ process.php?s=$1&%1 [L]

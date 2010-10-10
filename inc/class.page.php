@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Not sure if there's a better place for this... it'd be a pita to
+ * make a new include file like doconfig.inc but maybe that'll make
+ * sense soon.
+ */
+$clean_urls = FALSE;
+$config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
+if (file_exists($config_inc))
+  require_once($config_inc);
+
 /* Class for general page generation */
 class page
 {
@@ -63,7 +73,7 @@ class page
    $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js" />' . "\n"
      . $this->trackingcode;
 
-   page::session_start();
+   self::session_start();
     if($immediate
        && $ntitle != "NOHEAD")
       $this->head();
@@ -161,13 +171,19 @@ class page
 
   public function showSavedScheds($session)
   {
+    global $clean_urls;
+
     echo '<p>';
     if (isset($session['saved']) && count($session['saved']) > 0)
       {
+	$process_php_s = 'process.php?s=';
+	if ($clean_urls)
+	  $process_php_s = '';
+
 	echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
 	foreach($session['saved'] as $key => $name)
 	  {
-	    echo '<a href="process.php?s=' . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:\n "
+	    echo '<a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:\n "
 	      . htmlentities($name)
 	      . ' <a href="input.php?s=' . $key . '">edit</a>'
 	      . ' <a href="process.php?del=' . $key . '">delete</a>'
