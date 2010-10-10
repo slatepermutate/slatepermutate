@@ -84,12 +84,12 @@ if(!$DEBUG)
 	    unset($_SESSION['saved'][(int)$_GET['del']]);
 	  }
 
-	header('Location: input.php');
+	page::redirect('input.php');
 	exit;
       }
     elseif (!isset($_POST['postData']))
       {
-	header('Location: input.php');
+	page::redirect('input.php');
 	exit;
       }
     else
@@ -131,14 +131,8 @@ if(!$DEBUG)
 		$process_php_s = '';
 		if (!$clean_urls)
 		  $process_php_s = 'process.php?s=';
-		header('Location: ' . $process_php_s . $schedule_id);
+		page::redirect($process_php_s . $schedule_id);
 		exit;
-		/*
-		 * writeoutTables() needs to know $schedule_id, so it
-		 * has to be called after we save the schedule. See
-		 * schedule_store_store().
-		 */
-		$allClasses->writeoutTables();
       }
   }
 else

@@ -301,6 +301,58 @@ class page
 
   /**
    * \brief
+   *   Perform a redirect.
+   *
+   * By consolidating all redirects here, we're hopefully able to do
+   * it in a somewhat compliant and portablish way ;-).
+   *
+   * This function does not return. It calls exit().
+   *
+   * \param $dest
+   *   A URL relative to the slate_permutate root. For example,
+   *   'input.php' or '44' (for clean urls, for example).
+   * \param $http_code
+   *   The redirection code to use, if any. For example, this can be
+   *   used to implement ``permanent'' redirects if necessary.
+   */
+  public static function redirect($dest, $http_code = NULL)
+  {
+    if ($http_code)
+      header('HTTP/1.1 ' . $http_code);
+
+    $uri = '';
+
+    $host = '';
+    if (isset($_SERVER['SERVER_NAME']))
+      $host = $_SERVER['SERVER_NAME'];
+    if (isset($_SERvER['HTTP_HOST']))
+      $host = $_SERVER['HTTP_HOST'];
+
+    if (strlen($host))
+      {
+	$proto = 'http';
+	$port = NULL;
+	if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 80)
+	  {
+	    if ($_SERVER['SERVER_PORT'] == 443 || !empty($_SERVER['HTTPS']))
+	      $proto .= 's';
+	    if ($_SERVER['SERVER_PORT'] != 433)
+	      $port = $_SERVER['SERVER_PORT'];
+	  }
+
+	$uri = $proto . '://' . $host;
+	if ($port !== NULL)
+	  $uri .= ':' . $port;
+	$uri .= dirname($_SERVER['REQUEST_URI']) . '/';
+      }
+
+    header('Location: ' . $uri . $dest);
+
+    exit();
+  }
+
+  /**
+   * \brief
    *   Get the current school profile handle.
    */
   public function get_school()
