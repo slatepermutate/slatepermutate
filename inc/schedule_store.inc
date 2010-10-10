@@ -101,7 +101,11 @@ function schedule_store_retrieve($schedule_store, $schedule_id)
     return NULL;
   $schedule_id = (int)$schedule_id;
 
-  $schedule_serialized = file_get_contents($schedule_store['dir'] . DIRECTORY_SEPARATOR . $schedule_id);
+  $schedule_file_name = $schedule_store['dir'] . DIRECTORY_SEPARATOR . $schedule_id;
+  if (!file_exists($schedule_file_name))
+    return NULL;
+
+  $schedule_serialized = file_get_contents($schedule_file_name);
   if ($schedule_serialized === FALSE)
     return NULL;
 
