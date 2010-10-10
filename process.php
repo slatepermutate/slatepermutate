@@ -1,18 +1,10 @@
 <?php
 
-session_start();
-
 require_once('inc/schedule_store.inc');
 require_once('inc/class.page.php');
 include_once 'class.schedule.php';
 include_once 'class.class.php';
 include_once 'class.section.php';
-
-function sortInputs($post){
-//	return array_filter($post['postData']); // Remove any null or unset items. Disabled as it kills day stuff, @FIXME and add day unset setting here (==0).
-	return $post['postData'];
-}
-
 
 // Converts a 5-element array into a nice string.
 // Supports multiple modes, prettiness, and searching for different indicators
@@ -57,6 +49,11 @@ function prettyTime($time){
 	return substr($time,0,strlen($time)-2) . ":" . substr($time,strlen($time)-2, strlen($time));
 }
 
+/*
+ * The below code relies on sessions being started already.
+ */
+page::session_start();
+
 $DEBUG = FALSE;
 if (isset($_GET['debug']))
   $DEBUG = $_GET['debug'];
@@ -84,12 +81,13 @@ if(!$DEBUG)
 	  }
 
 	header('Location: input.php');
+	exit;
       }
     else
       {
 		$allClasses = new Schedule($_POST['postData']['name']);
 	
-		foreach(sortInputs($_POST) as $class)
+		foreach($_POST['postData'] as $class)
 		{
 		  /*
 		   * Only add classes if the user added at least one
@@ -127,7 +125,7 @@ if(!$DEBUG)
 else
   {
 	echo '<pre>DEBUG OUTPUT: <br /><br />';
-	foreach(sortInputs($_POST) as $class) {
+	foreach($_POST['postData'] as $class) {
 		echo 'Class: ' . $class['name'] . '<br />';
 		foreach($class as $section)
 			if(is_array($section))

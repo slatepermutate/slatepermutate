@@ -63,7 +63,7 @@ class page
    $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js" />' . "\n"
      . $this->trackingcode;
 
-    session_start();
+   page::session_start();
     if($immediate
        && $ntitle != "NOHEAD")
       $this->head();
@@ -261,6 +261,26 @@ class page
     $page_404->foot();
 
     exit();
+  }
+
+  /**
+   * \brief
+   *   Start the PHP session by calling session_start().
+   *
+   * Used to make sure that different areas of our code don't call
+   * session_start() multiple times and to make it easier to ensure
+   * that session_start() is called at least before it's needed.
+   */
+  public static function session_start()
+  {
+    static $session_started = FALSE;
+
+    if (!$session_started)
+      {
+	session_name('slate_permutate');
+	session_start();
+	$session_started = TRUE;
+      }
   }
 
   /**
