@@ -80,7 +80,7 @@ class page
    * \param $key
    *   The key to register this headcode under.
    * \param $code
-   *   The actuall code, such as a <script/>.
+   *   The actual code, such as a <script/>.
    * \param $enable
    *   Whether or not to enable this code while adding it.
    */
@@ -89,17 +89,6 @@ class page
     $this->headCode[$key] = $code;
     if ($enable)
       $this->scripts[] = $key;
-  }
-
-  private function top(){
-    echo '<div id="header">
-	    <h2 id="title"><a href="index.php"><img src="images/slatepermutate.png" alt="SlatePermutate" class="noborder" /></a><br /><span style="margin-left: 1em;">'.$this->pagetitle.'</span></h2>
-	    
-	    <span id="menu">
-	      <!-- <a href="index.php">Home</a> :: <a href="input.php">Scheduler</a> :: <a href="about.php">About</a> -->
-	    </span>
-	  </div>
-          <div id="content">';
   }
 
 // Public functions/vars
@@ -126,15 +115,35 @@ class page
     echo $this->top(); // Write out top
   }
 
+  private function top(){
+    echo '<div id="header">
+
+	    <div id="title">
+              <h1><a href="index.php"><img src="images/slatepermutate.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>
+              <p><span id="subtitle">'.$this->pagetitle.'</span>
+  	      <span id="menu">Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a></span>
+
+              </p>
+
+
+
+            </div>
+
+	  </div>
+          <div id="content">';
+  }
+
+
+
   public function foot(){
     echo '</div> <!-- id="content" -->';
     $this->pageGenTime = round(microtime(), 3);
     echo '  <div id="footer">
-    <h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
-      <a href="http://ethanzonca.com">Ethan Zonca</a>
-    </h5>
-  </div> <!-- id="footer" -->
-</div>';
+          <h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
+            <a href="http://ethanzonca.com">Ethan Zonca</a>
+          </h5>
+        </div> <!-- id="footer" -->
+      </div>';
     echo $this->trackingcode;
     echo '</body></html>';
   }

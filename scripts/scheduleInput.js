@@ -224,34 +224,4 @@
 	  jQuery('.advanced').slideToggle();
 	});
 
-
-
-
-
-
-
-  jQuery(document).keydown(function(e) {
-
-    var direction = null;
-
-   // handle cursor keys
-   if (e.keyCode == 67) {
-     // slide left
-     direction = 'addrow';
-   } 
-   if (direction != null) {
-    if (direction == 'addrow') {
-       addRow();
-    }
-  }
- });
-
-
-
-
-
-
-
-
-
 });

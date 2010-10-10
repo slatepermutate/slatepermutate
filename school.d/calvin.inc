@@ -38,14 +38,14 @@ function calvin_instructions_html()
   return <<<EOF
 <h2>Calvin-specific Instructions</h2>
 <p>
-  <tt>slate_permutate</tt> can be a useful tool for scheduling your next semester at <a href="http://calvin.edu/">Calvin College</a>.
+  SlatePermutate can be a useful tool for scheduling your next semester at <a href="http://calvin.edu/">Calvin College</a>.
 </p>
 <ol>
   <li>Get in touch with your advisor during advising/reading recess.</li>
   <li>Look up each class your advisor specified in Calvin's registration page of <a href="http://kv.calvin.edu/">KnightVision</a> (soon to be <a href="http://moodle.calvin.edu">moo</a>).</li>
   <li>Enter each class into a <tt>slate_permutate</tt> schedule and add each section that is listed that you are willing to take.</li>
   <li>Submit your schedule and view all of the different permutations of your schedule which would work with the sections you specified.</li>
-  <li>Print our your preferred schedule by selecting a schedule an choosing your User-Agent's print option.</li>
+  <li>Print out your preferred schedule by choosing "print" and selecting a schedule.</li>
   <li>Wait until it's your turn to register and grab your preferred sections before they fill up!</li>
 </ol>
 EOF;

@@ -20,9 +20,12 @@ body {
 #header {
   border-bottom: 1px dashed #888;
   text-align: left;
+  width: 100%;
 }
 #header h2 {
   font:  italic 20px sans-serif;
+  margin: 0;
+  padding: 0;
 }
 #footer {
   border-top: 1px dashed #888;
@@ -35,6 +38,26 @@ body {
   float:right;
   background: #EEE;
   font-size: .8em;
+}
+#title p {
+  margin-top: -1.5em;
+  margin-left: 1em;
+  margin-bottom: .5em;;
+  padding:0;
+}
+#menu {
+  float: right;
+  text-align: right;
+  margin-top: 1em;
+}
+#menu a {
+  text-decoration: none;
+}
+#subtitle {
+  font:  italic 20px sans-serif;
+  margin-left: 1em;
+  margin: 0;
+  padding:0;
 }
 
 
