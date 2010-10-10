@@ -26,3 +26,13 @@
  * understood ../.htaccess.example and copied it to ../.htaccess .
  */
 /* $clean_urls = FALSE; */
+
+/**
+ * \brief
+ *   List of Google Analytics trackers to enable. Default: empty list.
+ *
+ * Set this to an array of Google Analytics tracker IDs if you want to
+ * analyze access to your slate_permutate installation.
+ */
+/* $ga_trackers = array(); */
+/* $ga_trackers = array('UA-XXXXXXXX-1'); */

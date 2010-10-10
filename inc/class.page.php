@@ -5,7 +5,10 @@
  * make a new include file like doconfig.inc but maybe that'll make
  * sense soon.
  */
+/* defaults */
 $clean_urls = FALSE;
+$ga_trackers = array();
+
 $config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
 if (file_exists($config_inc))
   require_once($config_inc);
@@ -26,15 +29,10 @@ class page
   // Scripts and styles
   private $headCode = array();
 
-  /* the inclusion of ga.js is augmented in __construct(). */
-  private $trackingcode = '
-			  <script type="text/javascript">
-				var nathangPageTracker = _gat._getTracker("UA-17441156-1");
-				nathangPageTracker._trackPageview();
-				
-				var ethanzPageTracker = _gat._getTracker("UA-2800455-1");
-				ethanzPageTracker._trackPageview();
-			</script>'; // Google analytics ga.js tracking code
+  /*
+   * Google analytics ga.js tracking code. Expanded in __construct().
+   */
+  private $trackingcode = '';
 
   private $pagetitle = ''; // Title of page
   private $scripts = array(); // Scripts to include on page
@@ -44,6 +42,8 @@ class page
 
   public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
   {
+    global $ga_trackers;
+
     require_once('school.inc');
 
     // Scripts and styles available to include
@@ -67,11 +67,29 @@ class page
        header('Content-type: application/xhtml+xml');
      }
 
-   $ga_www = 'http://www.';
-   if ($_SERVER['SERVER_PORT'] != 80)
-     $ga_www = 'https://ssl.';
-   $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js" />' . "\n"
-     . $this->trackingcode;
+   if (count($ga_trackers))
+     {
+       $ga_www = 'http://www.';
+       if ($_SERVER['SERVER_PORT'] != 80)
+	 $ga_www = 'https://ssl.';
+
+       $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js" />' . "\n"
+	 . $this->trackingcode
+	 . '  <script type="text/javascript">' . "\n"
+	 . '  ' . ($this->xhtml ? '<![CDATA[' : '') . "\n"
+	 . "     var mytrackers = new Array();";
+
+       $i = 0;
+       foreach ($ga_trackers as $ga_tracker)
+	 {
+	   $this->trackingcode .= "\n"
+	     . '      mytrackers[' . $i . '] = _gat._getTracker(\'' . $ga_tracker . "');\n"
+	     . '      mytrackers[' . $i . "]._trackPageview();\n";
+	 }
+
+       $this->trackingcode .= '  ' . ($this->xhtml ? ']]>'       : '') . "\n"
+	 . "  </script>\n";
+     }
 
    self::session_start();
     if($immediate
