@@ -1,0 +1,34 @@
+slate_permutate: the semester scheduling assistant.
+
+Authors:
+  Nathan Allen Gelderloos <ngelderloos7@gmail.com>
+  Ethan Michael Zonca <ethanzonca@gmail.com>
+  Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
+
+Resources:
+  Support: irc://irc.ohnopub.net/slatepermutate
+  Mercurial repo: http://protofusion.org/hg/SlatePermutate/
+  Bugzilla: http://protofusion.org/bugzilla/
+
+Installation Requirements:
+  - PHP-enabled httpd (tested with apache, patches for supporting others welcome).
+  - Access to PHP's CLI interface
+
+Installation:
+  - Get a copy of slate_permutate.
+    - development version:
+      $ hg clone http://hg/protofusion.org/hg/SlatePermutate slate_permutate
+    - stable: not yet available.
+  - copy inc/config.inc.example to inc/config.inc. Read and adjust
+    settings as necessary.
+  - copy .htaccess.example to .htaccess if you're interested in
+    ``clean urls'' (corresponding to the $clean_urls option in
+    config.inc).
+  - run admin/rehash.php to populate the cache/ directory with
+    information such as the list and rDNS information for schools in
+    school.d.
+  - ensure that the webserver has write-access to the saved_schedules/
+    folder because schedule storage is filesystem-based.
+
+License:
+  - undetermined as of yet.
