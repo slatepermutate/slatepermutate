@@ -91,14 +91,14 @@ class page
 	 . "  </script>\n";
      }
 
-   self::session_start();
-    if($immediate
-       && $ntitle != "NOHEAD")
-      $this->head();
-
+    self::session_start();
     /* everything that needs sessions started to work: */
 
     $this->school = school_load_guess();
+
+    if($immediate
+       && $ntitle != "NOHEAD")
+      $this->head();
  }
 
   /**
