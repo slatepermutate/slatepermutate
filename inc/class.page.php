@@ -167,9 +167,13 @@ class page
     echo '</div> <!-- id="content" -->';
     $this->pageGenTime = round(microtime(), 3);
     echo '  <div id="footer">
-          <h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
-            <a href="http://ethanzonca.com">Ethan Zonca</a>
-          </h5>
+  	    <div id="leftfoot" style="float:left; margin-top: 1em;">
+		<a href="feedback.php">Submit Feedback</a>
+            </div>
+            <div id="rightfoot"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
+              <a href="http://ethanzonca.com">Ethan Zonca</a>
+            </h5>
+	  </div>
         </div> <!-- id="footer" -->
       </div>';
     echo $this->trackingcode;

@@ -166,7 +166,7 @@ td.center {
 /* General Classes */
 
 .clear {
-  clear: all;
+  clear: both;
 }
 .noborder {
   border: none!important;
