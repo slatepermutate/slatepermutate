@@ -171,7 +171,8 @@ class page
 		<a href="feedback.php">Submit Feedback</a>
             </div>
             <div id="rightfoot"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
-              <a href="http://ethanzonca.com">Ethan Zonca</a>
+              <a href="http://ethanzonca.com">Ethan Zonca</a><br />
+			  <a href="http://ohnopub.net">Nathan Phillip Brink</a>
             </h5>
 	  </div>
         </div> <!-- id="footer" -->
