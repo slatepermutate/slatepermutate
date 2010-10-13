@@ -290,7 +290,7 @@ class Schedule
 	"\n</script>"; */
       $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'uiTabsKeyboard');
     }
-    $outputPage = new page($this->getName(), $headcode);
+    $outputPage = new Page(htmlentities($this->getName()), $headcode);
 
 
 
@@ -377,11 +377,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				    $M = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -420,11 +420,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				    $Tu = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -463,11 +463,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				    $W = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -506,11 +506,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				    $Th = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				  $filled = true;
 				}
 			      }
@@ -549,11 +549,11 @@ class Schedule
 			      {
 				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
 				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				    $F = $j;
 				    $filled = true;
 				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . $this->classStorage[$j]->getName() . " " . $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() . "</td>";
+				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
 				  $filled = true;
 				}
 			      }

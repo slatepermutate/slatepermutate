@@ -40,6 +40,10 @@ class page
   /* the current school. See get_school(). */
   private $school;
 
+  /**
+   * \param $ntitle
+   *   Must be a valid HTML string (i.e., escaped with htmlentities()).
+   */
   public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
   {
     global $ga_trackers;

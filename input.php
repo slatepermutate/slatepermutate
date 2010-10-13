@@ -79,7 +79,7 @@ $inputPage->showSavedScheds($_SESSION);
 <br />
 <label>Schedule Name</label><br />
 <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="(e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
-<?php if ($sch) echo 'value="' . str_replace('"', '&quot;', $sch->getName()) . '"'; /*"*/ ?>
+<?php if ($sch) echo 'value="' . htmlentities($sch->getName()) . '"'; /*"*/ ?>
 />
 
 <table id="container">

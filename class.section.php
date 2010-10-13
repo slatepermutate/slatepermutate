@@ -172,7 +172,7 @@ class Section
 	$out .= '  <td class="sectionIdentifier center">' . $n
 	. '    <input type="text" size="1" class="required" title="Section Name"' . $n
 	. '           name="postData[' . $class_key . '][' . $section_key . '][letter]"' . $n
-	. '           value="' . $this->letter . '" />' . $n
+	. '           value="' . htmlentities($this->letter) . '" />' . $n
 	. "  </td>\n";
       break;
       }
