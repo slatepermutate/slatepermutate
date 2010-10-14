@@ -41,11 +41,11 @@ function default_instructions_html()
 </p>
 <ol>
   <li>Get in touch with your advisor and find out what courses you need to take next semester.</li>
-  <li>Look up each course which your advisor specified in your college's course catalog. Note the different sectxions for each course..</li>
+  <li>Look up each course which your advisor specified in your college's course catalog. Note the different sections for each course..</li>
   <li>Enter each course into a <tt>slate_permutate</tt> schedule. For each course, add the sections listed in your school's course catalogue (at your discretion).</li>
   <li>Submit your list of courses and their sections. Let <tt>slate_permutate</tt> perform its magic.</li>
   <li>View all of the different permutations of your schedule and find a few that work for you.</li>
-  <li>Print our your preferred schedule by selecting a schedule an choosing your User-Agent's print option.</li>
+  <li>Print out your preferred schedule by selecting a schedule an choosing your User-Agent's print option.</li>
   <li>Wait until it's your turn to register and grab your preferred sections before they fill up!</li>
 </ol>
 EOF;

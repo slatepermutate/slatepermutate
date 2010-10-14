@@ -51,16 +51,19 @@ if ($school && (!empty($_REQUEST['school']) || $school['id'] != 'default'))
 if (!empty($_REQUEST['selectschool'])
     || $school['id'] == 'default' && !isset($_SESSION['school_chosen']))
   {
+    $next_page = 'input.php';
+    if (isset($_GET['s']))
+      $next_page .= '?s=' . (int)$_GET['s'];
 ?>
 <h2>School Selection</h2>
 <p>
   Choose the school you attend from the list below. <b>If you cannot
   find your school</b>, you may proceed using
-  the <a href="input.php?school=default">generic
+  the <a href="<?php echo $next_page . (strpos($next_page, '?') === FALSE ? '?' : '&amp;'); ?>school=default">generic
   settings</a>.
 </p>
 <?php
-    $inputPage->showSchools('input.php');
+    $inputPage->showSchools($next_page);
     $inputPage->foot();
     exit;
   }
@@ -76,7 +79,7 @@ $inputPage->showSavedScheds($_SESSION);
 <br />
 <label>Schedule Name</label><br />
 <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="(e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
-<?php if ($sch) echo 'value="' . str_replace('"', '&quot;', $sch->getName()) . '"'; /*"*/ ?>
+<?php if ($sch) echo 'value="' . htmlentities($sch->getName()) . '"'; /*"*/ ?>
 />
 
 <table id="container">

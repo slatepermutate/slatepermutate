@@ -40,6 +40,10 @@ class page
   /* the current school. See get_school(). */
   private $school;
 
+  /**
+   * \param $ntitle
+   *   Must be a valid HTML string (i.e., escaped with htmlentities()).
+   */
   public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
   {
     global $ga_trackers;
@@ -91,14 +95,14 @@ class page
 	 . "  </script>\n";
      }
 
-   self::session_start();
-    if($immediate
-       && $ntitle != "NOHEAD")
-      $this->head();
-
+    self::session_start();
     /* everything that needs sessions started to work: */
 
     $this->school = school_load_guess();
+
+    if($immediate
+       && $ntitle != "NOHEAD")
+      $this->head();
  }
 
   /**
@@ -171,7 +175,8 @@ class page
 		<a href="feedback.php">Submit Feedback</a>
             </div>
             <div id="rightfoot"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
-              <a href="http://ethanzonca.com">Ethan Zonca</a>
+              <a href="http://ethanzonca.com">Ethan Zonca</a><br />
+			  <a href="http://ohnopub.net">Nathan Phillip Brink</a>
             </h5>
 	  </div>
         </div> <!-- id="footer" -->

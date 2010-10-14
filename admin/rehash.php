@@ -92,6 +92,17 @@ function school_list()
 
 /**
  * \brief
+ *   Compare the two schools by their names.
+ *
+ * \see strcmp()
+ */
+function school_cmp($school_a, $school_b)
+{
+  return strcmp($school_a['name'], $school_b['name']);
+}
+
+/**
+ * \brief
  *   Write out the cache file which remembers the list of available
  *   schools.
  *
@@ -133,6 +144,7 @@ function school_cache($schools)
 	  $domain_cache_ptr[$domain_part] = $school['id'];
 	}
     }
+  uasort($list_cache, 'school_cmp');
 
   $cache = array('list' => $list_cache, 'domains' => $domain_cache);
 

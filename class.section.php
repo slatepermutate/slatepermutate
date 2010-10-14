@@ -172,7 +172,7 @@ class Section
 	$out .= '  <td class="sectionIdentifier center">' . $n
 	. '    <input type="text" size="1" class="required" title="Section Name"' . $n
 	. '           name="postData[' . $class_key . '][' . $section_key . '][letter]"' . $n
-	. '           value="' . $this->letter . '" />' . $n
+	. '           value="' . htmlentities($this->letter) . '" />' . $n
 	. "  </td>\n";
       break;
       }
@@ -242,7 +242,7 @@ class Section
 	  . "  </td>\n";
       }
 
-    $out .= '  <td><div class="deleteSection"><input type="button" value="X" /></div></td>' . $n;
+    $out .= '  <td><div class="deleteSection"><input type="button" value="X" class="gray" /></div></td>' . $n;
     $out .= '  <td></td>' . $n;
 
     $out .= "</tr>\n";
