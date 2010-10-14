@@ -92,15 +92,7 @@
 		var snum = sectionsOfClass[cnum];
 
 		var result = '';
-		if(jQuery('#isNumeric').val() == "lettered"){
-			result = result + letteredIds('postData[' + cnum + '][' + snum + '][letter]');
-		}
-		else if(jQuery('#isNumeric').val() == "numbered") {
-                        result = result + numberedIds('postData[' + cnum + '][' + snum + '][letter]');
-		}
-		else {
-                        result = result + customIds('postData[' + cnum + '][' + snum + '][letter]');
-		}
+	        result = result + customIds('postData[' + cnum + '][' + snum + '][letter]');
 
 		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>\
 				<option value="700">7:00 am</option><option value="730">7:30 am</option>\
