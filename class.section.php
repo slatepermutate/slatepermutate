@@ -145,6 +145,11 @@ class Section
     return $this->bdays[4];
   }
 
+  function getDay($i)
+  {
+	return $this->bdays[$i];
+	}
+  
   /**
    * \brief
    *   Create output suitable for editing on input.php.

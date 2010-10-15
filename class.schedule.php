@@ -21,6 +21,9 @@ class Schedule
   private $scheduleName;			// String name of schedule
   private $storage;				// Integer array of valid schedules
   private $title;
+
+	private $classContinue = array(-1, -1, -1, -1, -1);
+  
   /**
    * \brief
    *   My global identification number. Not defined until the schedule
@@ -98,92 +101,60 @@ class Schedule
   // Finds all of the possible permutations and stores
   // the results in the storage array.
   //--------------------------------------------------
-  function findPossibilities()
-  {
-    $this->possiblePermutations = 1;
-    /* special case: there is nothing entered into the schedule and thus there is one, NULL permutation */
-    if (!$this->nclasses)
-      {
-	/* have an empty schedule */
-	$this->classStorage[0] = array();
-	$this->nPermutations = 1;
-	return;
-      }
+	function findPossibilities()
+	{
+		$this->possiblePermutations = 1;
+		/* special case: there is nothing entered into the schedule and thus there is one, NULL permutation */
+		if (!$this->nclasses)
+		{
+			/* have an empty schedule */
+			$this->classStorage[0] = array();
+			$this->nPermutations = 1;
+			return;
+		}
 
-    $position = 0;
-    $counter = 0;
+		$position = 0;
+		$counter = 0;
 
-    for($i = 0; $i < $this->nclasses; $i++)
-      {
-	$this->possiblePermutations = $this->possiblePermutations * $this->classStorage[$i]->getnsections();
-	$cs[$i] = 0;	// Sets the counter array to all zeroes.
-      }
+		for($i = 0; $i < $this->nclasses; $i++)
+		{
+			$this->possiblePermutations = $this->possiblePermutations * $this->classStorage[$i]->getnsections();
+			$cs[$i] = 0;	// Sets the counter array to all zeroes.
+		}
         
-    // Checks for conflicts in given classes, stores if none found
-    do
-      {
-	$conflict = false;
+		// Checks for conflicts in given classes, stores if none found
+		do
+		{
+			$conflict = false;
          
-	// Get first class to compare
-	for ($upCounter = 0;
-	     $upCounter < $this->nclasses && !$conflict;
-	     $upCounter ++)
-	  {
+			// Get first class to compare
+			for ($upCounter = 0; $upCounter < $this->nclasses && !$conflict; $upCounter ++)
+			{
 	    
-	    for ($downCounter = $this->nclasses - 1;
-		 $downCounter > $upCounter && !$conflict;
-		 $downCounter --)
-	      {
-		$start1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getStartTime();
-		$end1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getEndTime();
-		$start2 = $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getStartTime();
-		$end2 = $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getEndTime();
+				for ($downCounter = $this->nclasses - 1; $downCounter > $upCounter && !$conflict; $downCounter --)
+				{
+					$start1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getStartTime();
+					$end1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getEndTime();
+					$start2 = $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getStartTime();
+					$end2 = $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getEndTime();
 					
-		// If the two times overlap, then check if days overlap.
-		if ((($start1 >= $start2) && ($start1 <= $end2)) || (($start2 >= $start1) && ($start2 <= $end1)))
-		  {
-		    // Monday
-		    if(!$conflict
-		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getM()
-			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getM()))
-		      {
-			$conflict = TRUE;
-		      }
-						
-		    // Tuesday
-		    if(!$conflict
-		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTu()
-			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTu()))
-		      {
-			$conflict = TRUE;
-		      }
-						
-		    // Wednesday
-		    if(!$conflict
-		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getW()
-			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getW()))
-		      {
-			$conflict = TRUE;
-		      }
-						
-		    // Thursday
-		    if(!$conflict
-		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getTh()
-			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getTh()))
-		      {
-			$conflict = TRUE;
-		      }
-						
-		    // Friday
-		    if(!$conflict
-		       && ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getF()
-			   && $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getF()))
-		      {
-			$conflict = TRUE;
-		      }
-		  }
-	      }
-	  }
+					// If the two times overlap, then check if days overlap.
+					if ((($start1 >= $start2) && ($start1 <= $end2)) || (($start2 >= $start1) && ($start2 <= $end1)))
+					{
+				
+					for($day=0; $day<5; $day++)
+						{
+							if(!$conflict
+								&& ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getDay($day)
+								&& $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getDay($day)))
+							{
+								$conflict = TRUE;
+							}
+						}
+		
+				}
+			}
+		}
             
 	// Store to storage if no conflict is found.
 	if(!$conflict)
@@ -234,60 +205,15 @@ class Schedule
   function writeoutTables()
   {
     $table = "";
-    $header = "";
-    $footer = "";
-    $M = -1;
-    $Tu = -1;
-    $W = -1;
-    $Th = -1;
-    $F = -1;
     $filled = false;
     $time = array(700,730,800,830,900,930,1000,1030,1100,1130,1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,1800,1830,1900,1930,2000,2030,2100,2130, 2200);
 
-
-    // Reminder:
-    // border-style:top right bottom left
-    /* $header .= "<html><head><title>" . $this->getName() . " :: " . $this->title . "</title>\n\n<style type=\"text/css\">".
-       "\n.top{\n\tborder-style:solid solid none solid;\nbackground-color:#dddddd;\n}".
-       "\n.mid{\n\tborder-style:none solid none solid;\nbackground-color:#dddddd;\n}".
-       "\n.end{\n\tborder-style:none solid solid solid;\nbackground-color:#dddddd;\n}".
-       "\n.none{\n\tborder-style:none;\n}".
-       "\n.single{\n\tborder-style:solid;\n\tbackground-color:#dddddd;\n}".
-       "\ntd{\n\ttext-align:center;\nwidth:7em;\n}".
-       "\n.time{\n\tborder-style:none none solid none;\n}".
-       "\n.day{\n\tborder-style:none none solid solid;\n}".
-				
-       "\n</style>".
-
-       "\n<script src=\"http://www.google.com/jsapi\"></script>".
-       "\n<script type=\"text/javascript\" charset=\"utf-8\">".
-       "\n\tgoogle.load(\"jquery\", \"1.3.2\");".
-       "\n\tgoogle.load(\"jqueryui\", \"1.7.2\");".
-       "\n</script>".
-
-       "\n<link rel=\"stylesheet\" href=\"styles/general.css\" type=\"text/css\" media=\"screen\" charset=\"utf-8\">".
-
-       "\n<link rel=\"stylesheet\" href=\"styles/glider.css\" type=\"text/css\" media=\"screen\" charset=\"utf-8\">".
-       "\n<script src=\"scripts/prototype.js\" type=\"text/javascript\" charset=\"utf-8\"></script>". 
-       "\n<script src=\"scripts/effects.js\" type=\"text/javascript\" charset=\"utf-8\"></script>".
-       "\n<script src=\"scripts/glider.js\" type=\"text/javascript\" charset=\"utf-8\"></script>".
-			
-       "\n</head><body>".
-
-			
-
-       "\n\n<div id=\"header\">\n<h1><em>SlatePermutate</em> - Scheduler</h1><h3>Schedule name: " . $this->getName() . "</h3>\n</div><div id=\"content\">".
-
-    */
     $footcloser = '';
 
     if(isset($_REQUEST['print']) && $_REQUEST['print'] != ''){
       $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'outputStyle', 'outputPrintStyle');
     }
     else {
-/*      $footcloser .="<script type=\"text/javascript\" charset=\"utf-8\">". 
-	"\n\tvar my_glider = new Glider('my-glider', {duration:0});".
-	"\n</script>"; */
       $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'uiTabsKeyboard');
     }
     $outputPage = new Page(htmlentities($this->getName()), $headcode);
@@ -329,8 +255,6 @@ class Schedule
       echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <a href="input.php">Home</a></p><p class="centeredtext" style="color: #999;"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
     }		
 
-
-
     if($this->nPermutations > 0)
       {
 	$table .= "<div id=\"tabs\">\n"
@@ -357,230 +281,58 @@ class Schedule
 
 	    for($r = 0; $r < (count($time)-1); $r++)
 	      {
-		// Beginning of new row
-		$temp = $time[$r];
-		if($temp > 1259)
-		  {
-		    $temp = $temp-1200;
-		  }
 
 		$table .= "\n\t<tr>\n\t\t<td class=\"time\">" . $this->prettyTime($time[$r]) . "</td>";
 
-		//---------------MONDAY---------------
-		for($j = 0; $j < $this->nclasses; $j++)
-		  {
-		    if($M == -1)
-		      {
-			if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getM())
-			  {
-			    if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() >= $time[$r]) && ($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() < $time[$r+1]))
-			      {
-				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				    $M = $j;
-				    $filled = true;
-				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				  $filled = true;
-				}
-			      }
-			  }
-		      } else {
-		      if($j == $M)
+		for($dayLoop = 0; $dayLoop < 5; $dayLoop++)
+		{
+			for($j = 0; $j < $this->nclasses; $j++)
 			{
-			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-			    {
-			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
-			      $filled = true;
-			    } else {
-			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
-			    $M = -1;
-			    $filled = true;
-			  }
-			}
-		    }
-		  }
-					
-		// If the cell was not filled, fill it with an empty cell.
-		if(!$filled)
-		  {
-		    $table .= "\n\t\t<td class=\"none\">&nbsp;</td>";
-		  }
-		$filled = false;
-               	                     
-		//---------------TUESDAY---------------
-		for($j = 0; $j < $this->nclasses; $j++)
-		  {
-		    if($Tu == -1)
-		      {
-			if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getTu())
-			  {
-			    if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() >= $time[$r]) && ($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() < $time[$r+1]))
-			      {
-				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				    $Tu = $j;
-				    $filled = true;
-				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				  $filled = true;
+				// Makes sure there is not a class already in progress
+				if($this->getClassCont($dayLoop) == -1)
+				{
+					// Checks if the class meets on the given day
+					if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getDay($dayLoop)))
+					{
+						// Checks if the class meets at the given time
+						if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() >= $time[$r]) && ($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() < $time[$r+1]))
+						{
+							// Checks if the class continues after the given time
+							if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
+							{
+								$table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities($this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter()) . "</td>";
+								$this->setClassCont($dayLoop, $j);
+								$filled = true;
+							}else{
+								$table .= "\n\n\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities($this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter()) . "</td>";
+								$filled = true;
+							}
+						}
+					}
+				}else{
+					if($j == $this->getClassCont($dayLoop))
+					{
+						if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
+						{
+							$table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
+							$filled = true;
+						}else{
+							$table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
+							$this->setClassCont($dayLoop, -1);
+							$filled = true;
+						}
+					}
 				}
-			      }
-			  }
-		      } else {
-		      if($j == $Tu)
-			{
-			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-			    {
-			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
-			      $filled = true;
-			    } else {
-			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
-			    $Tu = -1;
-			    $filled = true;
-			  }
 			}
-		    }
-		  }
-					
-		// If the cell was not filled, fill it with an empty cell.
-		if(!$filled)
-		  {
-		    $table .= "\n\t\t<td class=\"none\">&nbsp;</td>";
-		  }
-		$filled = false;
-	
-		//---------------WEDNESDAY---------------
-		for($j = 0; $j < $this->nclasses; $j++)
-		  {
-		    if($W == -1)
-		      {
-			if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getW())
-			  {
-			    if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() >= $time[$r]) && ($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() < $time[$r+1]))
-			      {
-				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				    $W = $j;
-				    $filled = true;
-				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				  $filled = true;
-				}
-			      }
-			  }
-		      } else {
-		      if($j == $W)
+			
+			// If the cell was not filled, fill it with an empty cell.
+			if(!$filled)
 			{
-			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-			    {
-			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
-			      $filled = true;
-			    } else {
-			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
-			    $W = -1;
-			    $filled = true;
-			  }
+				$table .= "\n\t\t<td class=\"none\">&nbsp;</td>";
 			}
-		    }
-		  }
-					
-		// If the cell was not filled, fill it with an empty cell.
-		if(!$filled)
-		  {
-		    $table .= "\n\t\t<td class=\"none\">&nbsp;</td>";
-		  }
-		$filled = false;
-
-		//---------------THURSDAY---------------
-		for($j = 0; $j < $this->nclasses; $j++)
-		  {
-		    if($Th == -1)
-		      {
-			if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getTh())
-			  {
-			    if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() >= $time[$r]) && ($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() < $time[$r+1]))
-			      {
-				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				    $Th = $j;
-				    $filled = true;
-				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				  $filled = true;
-				}
-			      }
-			  }
-		      } else {
-		      if($j == $Th)
-			{
-			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-			    {
-			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
-			      $filled = true;
-			    } else {
-			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
-			    $Th = -1;
-			    $filled = true;
-			  }
-			}
-		    }
-		  }
-					
-		// If the cell was not filled, fill it with an empty cell.
-		if(!$filled)
-		  {
-		    $table .= "\n\t\t<td class=\"none\">&nbsp;</td>";
-		  }
-		$filled = false;
-
-		//---------------FRIDAY---------------
-		for($j = 0; $j < $this->nclasses; $j++)
-		  {
-		    if($F == -1)
-		      {
-			if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getF())
-			  {
-			    if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() >= $time[$r]) && ($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() < $time[$r+1]))
-			      {
-				if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-				  {
-				    $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				    $F = $j;
-				    $filled = true;
-				  } else {
-				  $table .= "\n\t\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities( $this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter() ) . "</td>";
-				  $filled = true;
-				}
-			      }
-			  }
-		      } else {
-		      if($j == $F)
-			{
-			  if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-			    {
-			      $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
-			      $filled = true;
-			    } else {
-			    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
-			    $F = -1;
-			    $filled = true;
-			  }
-			}
-		    }
-		  }
-					
-		// If the cell was not filled, fill it with an empty cell.
-		if(!$filled)
-		  {
-		    $table .= "\n\t\t<td class=\"none\">&nbsp;</td>";
-		  }
-		$filled = false;
-
+			$filled = false;
+		}
+		
 		// End of row
 		$table .= "\n\t</tr>";
 	      }
@@ -682,4 +434,15 @@ class Schedule
   {
     return $this->id;
   }
+
+  
+	function getClassCont($day)
+	{
+		return $this->classContinue[$day];
+	}
+	
+	function setClassCont($day, $i)
+	{
+		$this->classContinue[$day] = $i;
+	}
 }
