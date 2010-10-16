@@ -73,10 +73,10 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
     $dept_file = $cache_dir . '-depts';
     if (!file_exists($dept_file))
       clean_empty_exit();
-    $deptartments = unserialize(file_get_contents($dept_file));
-    foreach ($deptartments as $key => $department)
+    $departments = unserialize(file_get_contents($dept_file));
+    foreach ($departments as $key => $department)
       {
-	if (!strncmp($department, $dept, $term_strlen))
+	if (!strncmp($department, $dept, $dept_strlen))
 	  $departments[$key] = $department;
 	else
 	  unset($departments[$key]);
