@@ -26,16 +26,19 @@ class Section
    * \param $prof
    *   The faculty person(s) who teaches this section.
    * \param $time_start
-   *   The time of day when this section meets.
+   *   The time of day when this section meets. Formatted as a string,
+   *   with the 24-hr representation of the hour taking the first two
+   *   characters and a two-digit representation of minutes taking the
+   *   next two characters.
    * \param $time_end
    *   The time of day when this section's meeting is over.
    * \param $days
    *   A string representing the days that this section meets. The
    *   format of this string is an ordered series of numerals less
-   *   than 5. Each numeral from 0 through 4 represents one of Monday,
-   *   Tuesday, Wednesday, Thursday, and Friday. For example, '024'
-   *   would be for a course which meets on Monday, Wednesday, and
-   *   Friday.
+   *   than or equal to 5. Each numeral from 1 through 5 represents
+   *   one of Monday, Tuesday, Wednesday, Thursday, and Friday. For
+   *   example, '135' would be for a course which meets on Monday,
+   *   Wednesday, and Friday.
    */
   function __construct ($letter, $prof, $time_start, $time_end, $days)
   {
