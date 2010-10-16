@@ -39,11 +39,25 @@ function main($argc, $argv)
   $crawl_semester_year = '2011';
   $crawl_semester_season = Semester::SEASON_SPRING;
 
+  $opts = getopt('h', array('no-crawl', 'crawl-only:', 'help'));
+
+  if (isset($opts['help']) || isset($opts['h']))
+    {
+      usage($argv[0]);
+      return 0;
+    }
+
+  if (isset($opts['no-crawl']))
+    $crawl = FALSE;
+  if (isset($opts['crawl-only']))
+    $crawl_only = split(',', $opts['crawl-only']);
+
   $school_id_list = school_list();
   if (!$school_id_list)
     return 1;
 
   $schools = array();
+  $old_school_cache = _school_cache_load();
   foreach ($school_id_list as $school_id)
     {
       $school = school_load($school_id, TRUE);
@@ -54,7 +68,27 @@ function main($argc, $argv)
 	  return 1;
 	}
 
-      school_crawl($school, $crawl_semester_year, $crawl_semester_season);
+      if ($crawl
+	  && (!isset($crawl_only) || in_array($school['id'], $crawl_only)))
+	{
+	  school_crawl($school, $crawl_semester_year, $crawl_semester_season);
+	}
+      else
+	{
+	  /*
+	   * try to allow incremental crawling by not wiping out old
+	   * data and preserving the cached $school['crawled'].
+	   */
+	  if ($old_school_cache && isset($old_school_cache['list'][$school['id']]))
+	    {
+	      $old_school = $old_school_cache['list'][$school['id']];
+	      $school['crawled'] = FALSE;
+	      if (isset($old_school['crawled']))
+		$school['crawled'] = $old_school['crawled'];
+	      if ($school['crawled'])
+		$school['crawled_notreally'] = TRUE;
+	    }
+	}
 
       $schools[] = $school;
     }
@@ -158,8 +192,15 @@ function school_cache($schools)
 	}
 
 
-      /* autocomplete stuff -- per school */
-      if ($school['crawled'])
+      /*
+       * autocomplete stuff -- per school
+       *
+       * We don't do anything if crawled_notreally is set because this
+       * way we can get incremental crawling. Really useful if one's
+       * just debugging one of the school crawling scripts and doesn't
+       * want to run all crawlers ;-).
+       */
+      if ($school['crawled'] && !isset($school['crawled_notreally']))
 	{
 	  $semester = $school['crawled_semester'];
 
@@ -275,4 +316,22 @@ function school_crawl(&$school, $semester_year, $semester_season, $verbosity = 1
 
   if ($verbosity > 0)
     fwrite(STDERR, "\n");
+}
+
+/**
+ * \brief
+ *   Display CLI interface usage.
+ */
+function usage($progname)
+{
+  fprintf(STDERR, "Usage: %s [--no-crawl] [--crawl-only=<school_id1>,<school_id2>,...] [--help] [-h]\n"
+	  . "\n"
+	  . " -h, --help   Show this usage information and exit.\n"
+	  . "\n"
+	  . " --no-crawl   Disable crawling during this rehash but preserve\n"
+	  . "              previous cached crawl data.\n"
+	  . " --crawl-only Takes a comma-separated list of school_ids whose\n"
+	  . "              registration systems should be crawled for autofill\n"
+	  . "              data. Cached data from schools not listed is preserved\n",
+	  $progname);
 }
