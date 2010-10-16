@@ -46,26 +46,47 @@
  * \param $school_id
  *   The school's alphanumeric identifier (which determines the name
  *   of the school's *.inc file).
+ * \param $load_all_inc
+ *   Asks for a school's extraneous .inc files to be loaded
+ *   to. Intended for use by rehash.php only.
  * \return
  *   A school_profile handle or NULL on error.
  */
-function school_load($school_id)
+function school_load($school_id, $load_all_inc = FALSE)
 {
   $school = array('id' => $school_id);
 
   /* guard against cracking attempts (protects against '../' and friends) */
   if (!preg_match('/^[0-9a-z]+$/', $school_id))
     return NULL;
-  $school_file_name = dirname(__FILE__) . DIRECTORY_SEPARATOR
-    . '..' . DIRECTORY_SEPARATOR . 'school.d' . DIRECTORY_SEPARATOR . $school_id . '.inc';
+  $school_file_name_base = dirname(__FILE__) . DIRECTORY_SEPARATOR
+    . '..' . DIRECTORY_SEPARATOR . 'school.d' . DIRECTORY_SEPARATOR;
+  $school_file_name = $school_file_name_base . $school_id . '.inc';
 
   if (!file_exists($school_file_name))
     return NULL;
 
   require_once($school_file_name);
+  if ($load_all_inc)
+    {
+      $school_crawl_file_name = $school_file_name_base . $school_id . '.crawl.inc';
+      if (file_exists($school_crawl_file_name))
+	require_once($school_crawl_file_name);
+    }
 
   $school_info = $school_id . '_info';
   $school += $school_info();
+
+  /*
+   * append small amount of info from the cache entry for this school:
+   * whether or not it was crawled.
+   *
+   * Perhaps this stuff should be just moved into the _info function
+   * for efficiency.
+   */
+  $cache = _school_cache_load();
+  if ($cache && count($cache['list']))
+    $school['crawled'] = $cache['list'][$school['id']]['crawled'];
 
   return $school;
 }

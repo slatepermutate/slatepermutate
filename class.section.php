@@ -278,4 +278,82 @@ class Section
 
     return $out;
   }
+
+  /**
+   * \brief
+   *   Splits up a section specifier into dept, course number, and
+   *   section.
+   *
+   * For example, will return array('CS', '262', 'A') for 'CS-262-A'
+   * or 'CS262A' or 'cs-262a'. This function is not for dealing with
+   * course synonyms.
+   *
+   * \param $section_spec
+   *   A string starting with a section specifier. If only the
+   *   department is found, an array of size one is returned. If the
+   *   course number is also found, both department and course id are
+   *   returned. If all three are found, the array has three elements.
+   *
+   *   This array is keyed, so the found items may be referred to as
+   *   'deptartment', 'course', and 'section'.
+   *
+   * \return
+   *   An array with the department, course number, and section
+   *   identifier. This array may be empty or have from one through
+   *   three elements depending on the validity and precision of the
+   *   $section_spec.
+   */
+  public static function parse($section_spec)
+  {
+    $ret = array();
+
+    $section_spec = trim($section_spec);
+    if (!preg_match(';([a-zA-Z]+)[^0-9]*;', $section_spec, $dept_matches))
+      return $ret;
+
+    /*
+     * remove away the already-parsed stuff, including gunk between the
+     * dept and the course num.
+     */
+    $section_spec = trim(substr($section_spec, strlen($dept_matches[0])));
+    $ret['department'] = strtoupper($dept_matches[1]);
+
+    if (!preg_match(';([0-9]+)[^a-zA-Z0-9]*;', $section_spec, $course_matches))
+      return $ret;
+
+    /* skip gunk */
+    $section_spec = trim(substr($section_spec, strlen($course_matches[0])));
+    $ret['course'] = $course_matches[1];
+
+    /*
+     * we accept _either_ alphabetic section _or_ numeric section (the
+     * latter is for cedarville, particulaly)
+     */
+    if (!preg_match(';([0-9]+|[a-zA-Z]+);', $section_spec, $section_matches))
+      return $ret;
+
+    $ret['section'] = strtoupper($section_matches[1]);
+
+    return $ret;
+  }
+
+  /**
+   * \brief
+   *   Get an array of information needed by the AJAX stuff.
+   */
+  public function to_json_array()
+  {
+    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'u', 4 => 'f');
+
+    $json_array = array('section' => $this->letter,
+			'prof' => $this->prof,
+			'time_start' => $this->start,
+			'time_end' => $this->tend,
+			'days' => array(),
+			);
+    for ($day = 0; $day < 5; $day ++)
+      $json_array['days'][$daymap[$day]] = $this->getDay($day);
+
+    return $json_array;
+  }
 }

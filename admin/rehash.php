@@ -26,11 +26,19 @@
  * school listing used for the ``choose your school list''.
  */
 
-require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'school.inc');
+$inc_base = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR;
+require_once($inc_base . 'school.inc');
+require_once($inc_base . 'school.crawl.inc');
+require_once($inc_base . 'class.semester.inc');
+
 return main($argc, $argv);
 
 function main($argc, $argv)
 {
+  $crawl = TRUE;
+  $crawl_semester_year = '2011';
+  $crawl_semester_season = Semester::SEASON_SPRING;
+
   $school_id_list = school_list();
   if (!$school_id_list)
     return 1;
@@ -38,13 +46,16 @@ function main($argc, $argv)
   $schools = array();
   foreach ($school_id_list as $school_id)
     {
-      $school = school_load($school_id);
+      $school = school_load($school_id, TRUE);
       if (!$school)
 	{
 	  fprintf(STDERR, "Error loading school with school_id=%s\n",
 		  $school_id);
 	  return 1;
 	}
+
+      school_crawl($school, $crawl_semester_year, $crawl_semester_season);
+
       $schools[] = $school;
     }
 
@@ -106,10 +117,6 @@ function school_cmp($school_a, $school_b)
  *   Write out the cache file which remembers the list of available
  *   schools.
  *
- * \todo
- *   If the list of displayed schools is to be sorted, this is the
- *   place to do it.
- *
  * \param $schools
  *   An array of school handles.
  */
@@ -117,11 +124,17 @@ function school_cache($schools)
 {
   $list_cache = array();
   $domain_cache = array();
+
+  $cache_dir_name = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
+    . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
+  $cache_auto_dir_name = $cache_dir_name . 'auto' . DIRECTORY_SEPARATOR;
+
   foreach ($schools as $school)
     {
       $list_cache[$school['id']] = array(
 					 'name' => $school['name'],
 					 'url' => $school['url'],
+					 'crawled' => $school['crawled'],
 					 );
       foreach ($school['domains'] as $school_domain)
 	{
@@ -143,14 +156,54 @@ function school_cache($schools)
 	  $domain_part = array_shift($domain_parts);
 	  $domain_cache_ptr[$domain_part] = $school['id'];
 	}
+
+
+      /* autocomplete stuff -- per school */
+      if ($school['crawled'])
+	{
+	  $semester = $school['crawled_semester'];
+
+	  $cache_auto_school_dir_name = $cache_auto_dir_name . $school['id'] . DIRECTORY_SEPARATOR;
+	  if (!is_dir($cache_auto_school_dir_name))
+	    {
+	      if (!mkdir($cache_auto_school_dir_name, 0777, TRUE))
+		error_log('Unable to create needed directory: `' . $cache_auto_dir_name . '\'');
+	    }
+
+	  $departments = $semester->departments_get();
+	  sort($departments);
+
+	  $dept_file = fopen($cache_auto_school_dir_name . '-depts', 'wb');
+	  fwrite($dept_file, serialize($departments));
+	  fclose($dept_file);
+
+	  /* now per-department autocomplete */
+	  foreach ($departments as $department)
+	    {
+	      $classes = $semester->department_classes_get($department);
+	      $classes_file = fopen($cache_auto_school_dir_name . $department . '.sects', 'wb');
+	      fwrite($classes_file, serialize($classes));
+	      fclose($classes_file);
+
+	      /* now individual section informations, pre-JSON-ized */
+	      foreach ($classes as $class)
+		{
+		  if (!is_dir($cache_auto_school_dir_name . $department))
+		    mkdir($cache_auto_school_dir_name . $department);
+		  $class_file = fopen($cache_auto_school_dir_name . $department . DIRECTORY_SEPARATOR . $class, 'wb');
+		  fwrite($class_file, json_encode($semester->class_get($department, $class)->to_json_array()));
+		  fclose($class_file);
+		}
+	    }
+	}
+
+
     }
   uasort($list_cache, 'school_cmp');
 
   $cache = array('list' => $list_cache, 'domains' => $domain_cache);
 
-
-  $cache_file_name = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
-    . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'schools';
+  $cache_file_name =  $cache_dir_name . 'schools';
   $cache_file = fopen($cache_file_name, 'wb');
   if ($cache_file === FALSE)
     {
@@ -162,4 +215,64 @@ function school_cache($schools)
   fclose($cache_file);
 
   return 0;
+}
+
+/**
+ * \brief
+ *   Invoke a school's registration data crawler.
+ *
+ * Each school may export registration data on publically accessible
+ * websites. Thus, we populate some autocomplete information by
+ * crawling these pages and storing the information in a special set
+ * of caches.
+ *
+ * Because crawling code can be non-trivial, it should be separated
+ * from a school's main .inc file. Thus, if a school supports
+ * crawling, it will have a file called
+ * schools.d/<school_id>.crawl.inc. In this file, a function called
+ * <school_id>_crawl($semester) must be defined. It must accept one
+ * argument, the Semester object which defines the time of year for
+ * which courses should be retrieved. It must populate this empty
+ * Semester object with Course object and populate those courses with
+ * the sections with as much detail as possible.
+ *
+ * If the crawling is successful, a 'crawl' key is added to the
+ * $school handle. school_cache() will use this to help indicate that
+ * a school _has_ autocomplete information, which might affect the
+ * appearance and JS stuff for the input.php page.
+ *
+ * \param $school
+ *   The school which should be checked for crawl functionality and
+ *   crawled.
+ * \param $semester_year
+ *   The year of the semester for which we should grab data.
+ * \param $semester_season
+ *   The season of the year of the semester for which we should grab
+ *   data.
+ */
+function school_crawl(&$school, $semester_year, $semester_season, $verbosity = 1)
+{
+  $school['crawled'] = FALSE;
+
+  $school_crawl_func = $school['id'] . '_crawl';
+  if (!function_exists($school_crawl_func))
+    return;
+
+  $semester = new Semester($semester_year, $semester_season);
+
+  if ($verbosity > 0)
+    fprintf(STDERR, "%s()\n", $school_crawl_func);
+  $ret = $school_crawl_func($semester, $verbosity);
+  if ($ret)
+    {
+      fprintf(STDERR, "Crawling %s failed: %s() returned nonzero\n",
+	      $school['id'], $school_crawl_func);
+      fwrite(STDERR, "\n");
+      return;
+    }
+  $school['crawled'] = TRUE;
+  $school['crawled_semester'] = $semester;
+
+  if ($verbosity > 0)
+    fwrite(STDERR, "\n");
 }

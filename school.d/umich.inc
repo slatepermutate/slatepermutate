@@ -25,7 +25,7 @@ function umich_instructions_html()
   <li>Submit your schedule and view all of the different permutations of your schedule which would work with the sections you specified.</li>
   <li>Print out your preferred schedule by choosing "print" and selecting a schedule.</li>
   <li>Wait until it's your turn to register and grab your preferred sections before they fill up!</li>
-</ol>
+</ol> <!-- ' -->
 EOF;
 }
 
@@ -75,7 +75,11 @@ function umich_table_parse($url) {
 }
 
 /** Crawls uMich course listings. $season is "f" or "s", year is 2-digit year */
-function umich_crawl($season, $year) {
+function umich_crawl($semester)
+{
+  $year = substr($semester->year_get(), 2);
+  $season = strtolower(substr($semester->season_get(), 0, 1));
+
   /* Current academic departments. Update as needed. */
   $departments = array('AAPTIS','ACABS','AERO','AEROSP','AMCULT','ANTHRARC','ANTHRBIO','ANTHRCUL','AOSS','APPPHYS','ARCH','ARMENIAN','ARTDES','ASIAN','ASIANLAN','ASTRO','AUTO','BCS','BIOINF','BIOLCHEM','BIOLOGY','BIOMEDE','BIOPHYS','CAAS','CEE','CHE','CHEM','CIC','CICS','CJS','CLARCH','CLCIV','CMPLXSYS','COMM','COMP','COMPLIT','CSP','CZECH','DANCE','DUTCH','ECON','EDCURINS','EDUC','EEB','EECS','ELI','ENGLISH','ENGR','ENSCEN','ENVIRON','ESENG','FRENCH','GEOG','GEOSCI','GERMAN','GREEK','GTBOOKS','HBEHED','HISTART','HISTORY','HJCS','HMP','HONORS','INTMED','IOE','ITALIAN','JAZZ','JUDAIC','KINESLGY','LACS','LATIN','LHC','LHSP','LING','MACROMOL','MATH','MATSCIE','MCDB','MECHENG','MEDADM','MEDCHEM','MEMS','MENAS','MFG','MICROBIOL','MILSCI','MKT','MODGREEK','MOVESCI','MUSEUMS','MUSICOL','MUSMETH','MUSTHTRE','NAVARCH','NAVSCI','NERS','NEUROSCI','NRE','NURS','OMS','ORGSTUDY','PAT','PATH','PHARMACY','PHIL','PHRMACOL','PHYSICS','PHYSIOL','POLISH','POLSCI','PORTUG','PSYCH','PUBHLTH','PUBPOL','RCARTS','RCCORE','RCHUMS','RCIDIV','RCLANG','RCNSCI','RCSSCI','REEES','RELIGION','ROMLANG','ROMLING','RUSSIAN','SAC','SAS','SCAND','SEAS','SI','SLAVIC','SOC','SPANISH','STATS','STDABRD','SWC','TCHNCLCM','THEORY','THTREMUS','UC','UKRAINE','UP','WOMENSTD','YIDDISH');
 

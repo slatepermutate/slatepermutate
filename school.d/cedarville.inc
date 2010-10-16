@@ -24,7 +24,7 @@ function cedarville_instructions_html()
   <li>Submit your schedule and view all of the different permutations of your schedule which would work with the sections you specified.</li>
   <li>Print out your preferred schedule by choosing "print" and selecting a schedule.</li>
   <li>Wait until it's your turn to register and grab your preferred sections before they fill up!</li>
-</ol>
+</ol> <!--'-->
 EOF;
 }
 
@@ -50,7 +50,11 @@ function table_parse($url) {
 }
 
 /** Crawls Cedarville course listings. $season is "fa" or "sp", year is 4-digit year */
-function cedarville_crawl($season, $year) {
+function cedarville_crawl($semester)
+{  
+  $season = strtolower(substr($semester->season_get(), 0, 2));
+  $year = $semester->year_get();
+
   /* Current academic departments. Update as needed. */
   $departments = array('be','ba','ca','ed','eg','es','hg','id','ll','ms','mu','ns','ph','py','sm','sw');
   $basepath = "http://cedarville.edu/courses/schedule/";
