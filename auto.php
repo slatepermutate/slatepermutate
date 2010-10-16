@@ -74,14 +74,12 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
     if (!file_exists($dept_file))
       clean_empty_exit();
     $departments = unserialize(file_get_contents($dept_file));
+    $json_depts = array();
     foreach ($departments as $key => $department)
-      {
-	if (!strncmp($department, $dept, $dept_strlen))
-	  $departments[$key] = $department;
-	else
-	  unset($departments[$key]);
-      }
-    echo json_encode($departments);
+      if (!strncmp($department, $dept, $dept_strlen))
+	$json_depts[] = $department;
+
+    echo json_encode($json_depts);
     exit(0);
   }
 
