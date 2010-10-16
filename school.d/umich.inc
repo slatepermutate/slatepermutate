@@ -55,7 +55,7 @@ function umich_crawl($season, $year) {
   $departments = array('AAPTIS','ACABS','AERO','AEROSP','AMCULT','ANTHRARC','ANTHRBIO','ANTHRCUL','AOSS','APPPHYS','ARCH','ARMENIAN','ARTDES','ASIAN','ASIANLAN','ASTRO','AUTO','BCS','BIOINF','BIOLCHEM','BIOLOGY','BIOMEDE','BIOPHYS','CAAS','CEE','CHE','CHEM','CIC','CICS','CJS','CLARCH','CLCIV','CMPLXSYS','COMM','COMP','COMPLIT','CSP','CZECH','DANCE','DUTCH','ECON','EDCURINS','EDUC','EEB','EECS','ELI','ENGLISH','ENGR','ENSCEN','ENVIRON','ESENG','FRENCH','GEOG','GEOSCI','GERMAN','GREEK','GTBOOKS','HBEHED','HISTART','HISTORY','HJCS','HMP','HONORS','INTMED','IOE','ITALIAN','JAZZ','JUDAIC','KINESLGY','LACS','LATIN','LHC','LHSP','LING','MACROMOL','MATH','MATSCIE','MCDB','MECHENG','MEDADM','MEDCHEM','MEMS','MENAS','MFG','MICROBIOL','MILSCI','MKT','MODGREEK','MOVESCI','MUSEUMS','MUSICOL','MUSMETH','MUSTHTRE','NAVARCH','NAVSCI','NERS','NEUROSCI','NRE','NURS','OMS','ORGSTUDY','PAT','PATH','PHARMACY','PHIL','PHRMACOL','PHYSICS','PHYSIOL','POLISH','POLSCI','PORTUG','PSYCH','PUBHLTH','PUBPOL','RCARTS','RCCORE','RCHUMS','RCIDIV','RCLANG','RCNSCI','RCSSCI','REEES','RELIGION','ROMLANG','ROMLING','RUSSIAN','SAC','SAS','SCAND','SEAS','SI','SLAVIC','SOC','SPANISH','STATS','STDABRD','SWC','TCHNCLCM','THEORY','THTREMUS','UC','UKRAINE','UP','WOMENSTD','YIDDISH');
   $basepath = "http://www.lsa.umich.edu/cg/cg_results.aspx";
   $yearsyn = 1810 + $year; // Weird year synonym name where 2000 == 1800
-  $basepath .= "?termArray={$season}_{$year}_${yearsyn}&cgtype=ug"
+  $basepath .= "?termArray={$season}_{$year}_${yearsyn}&cgtype=ug";
   $season = strtolower($season);
   $tables = array();
   foreach($departments as $department) {
