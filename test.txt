@@ -1,1 +1,1 @@
-["test","asdf","meh","cat","calahan","colon"]
+["ART-1100","CS-1210","CS3410","EDEC-2100","COM-1100","ACCT-2110","BEBL-2510"]
