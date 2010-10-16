@@ -77,7 +77,7 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
     foreach ($deptartments as $key => $department)
       {
 	if (!strncmp($department, $dept, $term_strlen))
-	  $departments[$key] = $department . '-';
+	  $departments[$key] = $department;
 	else
 	  unset($departments[$key]);
       }
