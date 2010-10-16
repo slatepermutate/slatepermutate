@@ -140,7 +140,10 @@
 	//--------------------------------------------------
 	function addRow(){
 		sectionsOfClass[classNum] = 0; // This is class 0, initialize at 0
-		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + '"><td><input type="text" class="required defText" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="8"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
+		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + '"><td><input type="text" class="className required defText className'+classNum+'" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="8"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
+		jQuery('.className' + classNum).autocomplete({
+			source: "test.txt"
+		});
 		classNum++;
 	};
 	

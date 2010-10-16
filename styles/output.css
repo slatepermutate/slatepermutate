@@ -96,3 +96,4 @@ margin-bottom: 2px;
   max-width: 650px;
   margin: auto;
 }
+#tabs li, .ui-corner-all, .ui-corner-top { border: none;!important, background: none!important; }
