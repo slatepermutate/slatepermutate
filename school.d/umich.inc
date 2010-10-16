@@ -29,7 +29,7 @@ EOF;
 }
 
 /** Parse html at URL into array, first row is row headers */
-function table_parse($url) {
+function umich_table_parse($url) {
   $arr = array();
   $dom = new DOMDocument;
   $html = file_get_contents($url);
@@ -39,7 +39,7 @@ function table_parse($url) {
   $dom->loadHTML($html);
   $dom->preserveWhiteSpace = false;
   $tables = $dom->getElementsByTagName('table');
-  $rows = $tables->item(0)->getElementsByTagName('tr'); // Get first table on page 
+  $rows = $tables->item(2)->getElementsByTagName('tr'); // Get first table on page 
   foreach ($rows as $rownum => $row) {
     $cols = $row->getElementsByTagName('td');
     foreach($cols as $colnum => $col){
@@ -59,7 +59,7 @@ function umich_crawl($season, $year) {
   $season = strtolower($season);
   $tables = array();
   foreach($departments as $department) {
-    $tables[$department] = table_parse($basepath . '&department=' . $department . '&allsections=true&show=1000');
+    $tables[$department] = umich_table_parse($basepath . '&department=' . $department . '&allsections=true&show=1000');
   }
   return $tables;
 }
