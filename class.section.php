@@ -16,13 +16,34 @@ class Section
   private $idays;	// Integer version of meeting days
   private $bdays;	// Boolean array of meeting days
 
-  function __construct ($l, $p, $s, $e, $d)
+  /**
+   * \brief
+   *   Construct a Section.
+   *
+   * \param $letter
+   *   The identifier (often a letter or numeral) of this section. For
+   *   CS-262-A, this would be 'a'.
+   * \param $prof
+   *   The faculty person(s) who teaches this section.
+   * \param $time_start
+   *   The time of day when this section meets.
+   * \param $time_end
+   *   The time of day when this section's meeting is over.
+   * \param $days
+   *   A string representing the days that this section meets. The
+   *   format of this string is an ordered series of numerals less
+   *   than 5. Each numeral from 0 through 4 represents one of Monday,
+   *   Tuesday, Wednesday, Thursday, and Friday. For example, '024'
+   *   would be for a course which meets on Monday, Wednesday, and
+   *   Friday.
+   */
+  function __construct ($letter, $prof, $time_start, $time_end, $days)
   {
-    $this->letter = $l;
-    $this->prof = $p;
-    $this->start = $s;
-    $this->tend = $e;
-    $this->idays = $d;
+    $this->letter = $letter;
+    $this->prof = $prof;
+    $this->start = $time_start;
+    $this->tend = $time_end;
+    $this->idays = $days;
     $this->bdays = $this->setbdays();
   }
 
@@ -147,8 +168,8 @@ class Section
 
   function getDay($i)
   {
-	return $this->bdays[$i];
-	}
+    return $this->bdays[$i];
+  }
   
   /**
    * \brief
