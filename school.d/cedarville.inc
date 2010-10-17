@@ -204,7 +204,8 @@ function cedarville_crawl($semester, $verbosity = 1)
 	      $semester->section_add($section_parts['department'], $section_parts['course'],
 				     new Section($section_letter,
 						 $meeting['time_start'], $meeting['time_end'],
-						 $meeting['days'], $instructor));
+						 $meeting['days'], $synonym, $instructor,
+						 $meeting['room']));
 	    }
 	}
     }

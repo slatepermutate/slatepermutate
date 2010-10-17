@@ -71,7 +71,7 @@ class Schedule
   //--------------------------------------------------
   // Adds a section to the desired class.
   //--------------------------------------------------
-  function addSection($n, $l, $s, $e, $d)
+  function addSection($n, $l, $s, $e, $d, $synonym = NULL, $faculty = NULL, $room = NULL)
   {
     $found = false;
     $counter = 0;
@@ -92,7 +92,7 @@ class Schedule
       {
 	echo "Could not find class: " . $n . "<br />";
       } else {
-      $this->classStorage[$counter]->section_add(new Section($l, $s, $e, $d));
+      $this->classStorage[$counter]->section_add(new Section($l, $s, $e, $d, $synonym, $faculty, $room));
     }
   }
 

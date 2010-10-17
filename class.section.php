@@ -39,8 +39,11 @@ class Section
    *   Wednesday, and Friday.
    * \param $prof
    *   The faculty person(s) who teaches this section.
+   * \param $room
+   *   An identifier of the room within which the section is taught.
    */
-  function __construct ($letter, $time_start, $time_end, $days, $prof = '')
+  function __construct ($letter, $time_start, $time_end, $days,
+			$synonym = NULL, $prof = NULL, $room = NULL)
   {
     $this->letter = $letter;
     $this->start = $time_start;
@@ -49,10 +52,12 @@ class Section
     $this->idays = $days;
     $this->bdays = $this->setbdays();
 
+    $this->synonym = $synonym;
     $this->prof = $prof;
+    $this->room = $room;
   }
 
-  function setbdays()
+  private function setbdays()
   {
     $result = array(FALSE, FALSE, FALSE, FALSE, FALSE);
 
@@ -126,52 +131,71 @@ class Section
     return $result;
   }
 
-  function getLetter()
+  public function getLetter()
   {
     return $this->letter;
   }
 
-  function getProf()
+  public function getProf()
   {
     return $this->prof;
   }
 
-  function getStartTime()
+  /**
+   * \return
+   *   This Section's room or NULL if none is defined.
+   */
+  public function getRoom()
+  {
+    return $this->room;
+  }
+
+  /**
+   * \return
+   *   This section's synonym -- a unique numeric identifier for this
+   *   course. NULL if undefined.
+   */
+  public function getSynonym()
+  {
+    return $this->synonym;
+  }
+
+  public function getStartTime()
   {
     return $this->start;
   }
 
-  function getEndTime()
+  public function getEndTime()
   {
     return $this->tend;
   }
 
-  function getM()
+  public function getM()
   {
     return $this->bdays[0];
   }
 
-  function getTu()
+  public function getTu()
   {
     return $this->bdays[1];
   }
 
-  function getW()
+  public function getW()
   {
     return $this->bdays[2];
   }
 
-  function getTh()
+  public function getTh()
   {
     return $this->bdays[3];
   }
 
-  function getF()
+  public function getF()
   {
     return $this->bdays[4];
   }
 
-  function getDay($i)
+  public function getDay($i)
   {
     return $this->bdays[$i];
   }
@@ -190,7 +214,7 @@ class Section
    *   The type of input method used for this section. Valid values
    *   are 'numerous', 'numbered', and 'lettered'
    */
-  function input_form_render($class_key, $section_key, $section_format = 'numerous')
+  public function input_form_render($class_key, $section_key, $section_format = 'numerous')
   {
     static $n = "\n";
     $out = '<tr class="section class' . $class_key . '">' . $n
@@ -352,6 +376,8 @@ class Section
 			'time_start' => $this->start,
 			'time_end' => $this->tend,
 			'days' => array(),
+			'synonym' => $this->synonym,
+			'room' => $this->room,
 			);
     for ($day = 0; $day < 5; $day ++)
       $json_array['days'][$daymap[$day]] = $this->getDay($day);

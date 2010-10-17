@@ -259,6 +259,9 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 
 	  /* parse */
 	  $section_id = Section::parse($sec_short_title);
+	  $synonym = NULL;
+	  if (preg_match(';\(([0-9]+)\);', $sec_short_title, $matches))
+	    $synonym = $matches[1];
 
 	  if ($verbosity > 6)
 	    {
@@ -320,7 +323,7 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	    foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place') as $var)
 	      echo $var . ':' . ${$var} . "\n";
 
-	  $section = new Section($section_id['section'], $time_start, $time_end, $days, $faculty_name);
+	  $section = new Section($section_id['section'], $time_start, $time_end, $days, $synonym, $faculty_name, $meeting_place);
 	  $semester->section_add($section_id['department'], $section_id['course'], $section);
 	}
 
