@@ -1,8 +1,15 @@
 
     //--------------------------------------------------
+    // General Notes
+    //--------------------------------------------------
+
+	/* classNum is declared in the <head/> to enable loading of saved classes */
+	/* sectionsOfClass is declared in the <head/> to enable loading of saved sections */
+
+
+    //--------------------------------------------------
     // Validation Functions
     //--------------------------------------------------      
-
 
 	//--------------------------------------------------
 	// Default Error Message
@@ -17,8 +24,7 @@
 	jQuery.validator.addMethod( 
 		"selectNone", 
 		function(value, element) { 
-			if (element.value == "none") 
-			{ 
+			if (element.value == "none") { 
 				return false; 
 			} 
 			else return true; 
@@ -36,8 +42,7 @@
 			jQuery(element).parent().parent().children().children('.daysRequired:checked').each( function() {
 				checkedCount++;
 			});
-			if (checkedCount == 0) 
-			{ 
+			if (checkedCount == 0) { 
 				return false; 
 			} 
 			else return true; 
@@ -56,31 +61,14 @@
 	});
 
 
-    jQuery(document).ready(function() {
-	//--------------------------------------------------
-	// Validates the form (pre-submission check)
-	//--------------------------------------------------
-		jQuery('#scheduleForm').validate({
-			debug: false,
-		}); 
 
+    //--------------------------------------------------
+    // General Input Functions
+    //--------------------------------------------------
 
-	/* classNum is declared in the <head/> to enable loading of saved classes */
-	/* sectionsOfClass is declared in the <head/> to enable loading of saved sections */
-        function numberedIds(name){
-		return '<td class="sectionIdentifier">\
-                                <select name="'+name+'"><option value="-">-</option><option value="1">1</option><option value="2">2</option>\
-                                <option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>\
-                                <option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option></select></td>\
-                                </select></td>';
-        }
-	function letteredIds(name){
-		return '<td class="sectionIdentifier">\
-                                <select name="'+name+'"><option value="-">-</option><option value="A">A</option><option value="B">B</option>\
-                                <option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>\
-                                <option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option></select></td>\
-                                </select></td>';
-	}
+        //--------------------------------------------------
+        // Custom ID generator - @FIXME: un-abstract
+        //--------------------------------------------------
 	function customIds(name){
 		return '<td class="sectionIdentifier center"><input type="text" size="1" class="required" name="' + name + '" /></td>';
 	}
@@ -88,7 +76,11 @@
 	//--------------------------------------------------
 	// Returns the common inputs for each new section.
 	//--------------------------------------------------
-	function getCommonInputs(cnum) {
+        function getCommonInputs(cnum){
+		getCommonInputs(cnum,'','','','','','');
+	}
+
+	function getCommonInputs(cnum,name,synonym,stime,etime,days,prof) {
 		var snum = sectionsOfClass[cnum];
 
 		var result = '';
@@ -135,30 +127,47 @@
 		return result;
 	}
 
+        //--------------------------------------------------
+        // Add a section to a class
+        //--------------------------------------------------
+        function add_section(cnum) {
+		jQuery('.pclass'+cnum).after('<tr class="section class' + cnum + '"><td class="none"></td>' + getCommonInputs(cnum) + '<td><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td></td></tr>');
+        }
+
 	//--------------------------------------------------
 	// Adds a new class to the input.
 	//--------------------------------------------------
-	function addRow(){
-		sectionsOfClass[classNum] = 0; // This is class 0, initialize at 0
-		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + '"><td><input type="text" class="className required defText className'+classNum+'" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="8"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
+	function add_class(){
+		sectionsOfClass[classNum] = 0; // Initialize at 0
+		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td><input type="text" class="className required defText className'+classNum+'" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="8"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
 		jQuery('.className' + classNum).autocomplete({
 			source: "auto.php"
 		});
 		classNum++;
 	};
-	
-	addRow(); // Add initial row
+
+
+    //--------------------------------------------------
+    // Items bound to pageload/events
+    //--------------------------------------------------
+    jQuery(document).ready(function() {
 
 	//--------------------------------------------------
-	// Adds a new class when the add class button is 
-	// clicked.
+	// Validates the form (pre-submission check)
+	//--------------------------------------------------
+		jQuery('#scheduleForm').validate({
+			debug: false,
+		}); 
+
+	//--------------------------------------------------
+	// Bind the class-adding method
 	//--------------------------------------------------
 	jQuery('#addclass').click(function() {
-		addRow();
+		add_class();
 	});
 
 	//--------------------------------------------------
-	// Deletes the selected class from input.
+	// Deletes the selected class from input
 	//--------------------------------------------------
 	jQuery('.deleteClass').live('click', function() {
 		if(confirm('Delete class and all sections of this class?')) {
@@ -167,26 +176,19 @@
 	});
 
 	//--------------------------------------------------
-	// Deletes the selected section from the input.
+	// Deletes the selected section from the input
 	//--------------------------------------------------
 	jQuery('.deleteSection').live('click', function() {
-		sectionsOfClass[jQuery(this).parent().parent().attr("title")]--; // TODO: this only decreases the number of classes, so php should loop until this number of classes is found in the array
+		sectionsOfClass[jQuery(this).parent().parent().attr("title")]--; // Decreases the number of classes
 		jQuery(this).parent().parent().remove();
 	});
 
 	//--------------------------------------------------
-	// Adds a section to the selected class.
+	// Bind the section-adding method
 	//--------------------------------------------------
 	jQuery('.addSection').live('click', function() {
+		add_section(jQuery(this).parent().parent().attr("title"), sectionsOfClass[jQuery(this).parent().parent().attr("title")]);
 		sectionsOfClass[jQuery(this).parent().parent().attr("title")]++; // Increases sectionsOfClass[classNum]
-		jQuery(this).parent().parent().after('<tr class="section class' + jQuery(this).parent().parent().attr("title") + '"><td class="none"></td>' + getCommonInputs(jQuery(this).parent().parent().attr("title")) + '<td><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td></td></tr>');
-	});
-
-	//--------------------------------------------------
-	// Resets the form
-	//--------------------------------------------------
-	jQuery('#reset').click(function() {
-		jQuery('#scheduleForm').resetForm();
 	});
 
 	//--------------------------------------------------
@@ -215,8 +217,13 @@
 	//--------------------------------------------------
 	jQuery('.advanced').hide();    
 	jQuery('#showadvanced').click( function() {
-	  jQuery('#showadvanced').hide();
-	  jQuery('.advanced').slideToggle();
+		jQuery('#showadvanced').hide();
+		jQuery('.advanced').slideToggle();
 	});
+
+        //--------------------------------------------------
+        // Add initial class
+        //--------------------------------------------------
+	add_class();
 
 });
