@@ -206,8 +206,16 @@ class Section
    *   section.
    *
    * For example, will return array('CS', '262', 'A') for 'CS-262-A'
-   * or 'CS262A' or 'cs-262a'. This function is not for dealing with
+   * or 'CS262 A' or 'cs-262,a'. This function is not for dealing with
    * course synonyms.
+   *
+   * Note: Section specifiers where the section numeral/letter is
+   * directly adjacent to the course number is not valid. Calvin
+   * College distinguishes between normal courses and their labs by
+   * appending an `L' to the course number. Thus, 'CS262A' is not a
+   * valid specifier for 'CS-262-A' because there may exist another
+   * course called 'CS-262L-A' (which is likely the lab for the
+   * 'CS-262-A' class ;-)).
    *
    * \param $section_spec
    *   A string starting with a section specifier. If only the
@@ -239,12 +247,12 @@ class Section
     $section_spec = trim(substr($section_spec, strlen($dept_matches[0])));
     $ret['department'] = strtoupper($dept_matches[1]);
 
-    if (!preg_match(';([0-9]+)[^a-zA-Z0-9]*;', $section_spec, $course_matches))
+    if (!preg_match(';([0-9a-zA-Z]+)[^a-zA-Z0-9]*;', $section_spec, $course_matches))
       return $ret;
 
     /* skip gunk */
     $section_spec = trim(substr($section_spec, strlen($course_matches[0])));
-    $ret['course'] = $course_matches[1];
+    $ret['course'] = strtoupper($course_matches[1]);
 
     /*
      * we accept _either_ alphabetic section _or_ numeric section (the

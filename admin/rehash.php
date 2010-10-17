@@ -35,6 +35,14 @@ return main($argc, $argv);
 
 function main($argc, $argv)
 {
+  $n = test();
+  if ($n)
+    {
+      fprintf(STDERR, "%d tests failed; exiting\n",
+	      $n);
+      return 1;
+    }
+
   $crawl = TRUE;
   $crawl_semester_year = '2011';
   $crawl_semester_season = Semester::SEASON_SPRING;
@@ -334,4 +342,105 @@ function usage($progname)
 	  . "              registration systems should be crawled for autofill\n"
 	  . "              data. Cached data from schools not listed is preserved\n",
 	  $progname);
+}
+
+/**
+ * \brief
+ *   A small testsuite to help developers.
+ *
+ * \return
+ *   Number of failures.
+ */
+function test()
+{
+  $ideal = array('department' => 'CS',
+		 'course' => '262',
+		 'section' => 'A');
+  $ideal_c = $ideal;
+  unset($ideal_c['section']);
+  $n = 0;
+
+  $t1 = 'CS-262-A';
+  $n += assert_equal($t1, Section::parse($t1), $ideal);
+  $n += assert_equal($t1 . '_class', Classes::parse($t1), $ideal_c);
+  $t2 = 'cs262 a';
+  $n += assert_equal($t2, Section::parse($t2), $ideal);
+  $n += assert_equal($t2 . '_class', Classes::parse($t2), $ideal_c);
+  $t3 = 'cs 262 a';
+  $n += assert_equal($t3, Section::parse($t2), $ideal);
+  $n += assert_equal($t3 . '_class', Classes::parse($t3), $ideal_c);
+
+  $ideal['course'] .= 'L';
+  $ideal_c['course'] = $ideal['course'];
+
+  $t1 = 'CS-262L-A';
+  $n += assert_equal($t1, Section::parse($t1), $ideal);
+  $n += assert_equal($t1 . '_class', Classes::parse($t1), $ideal_c);
+  $t2 = 'cs262l a';
+  $n += assert_equal($t2, Section::parse($t2), $ideal);
+  $n += assert_equal($t2 . '_class', Classes::parse($t2), $ideal_c);
+  $t3 = 'cs 262l a';
+  $n += assert_equal($t3, Section::parse($t2), $ideal);
+  $n += assert_equal($t3 . '_class', Classes::parse($t3), $ideal_c);
+
+  return $n;
+}
+
+/**
+ * \brief
+ *   A reimplementation of a standard testsuite utility.
+ *
+ * \return
+ *   TRUE if the test failed.
+ */
+function assert_equal($name, $a, $b)
+{
+  if (is_array($a))
+    {
+      $bad = FALSE;
+      if (!is_array($b))
+	{
+	  fprintf(STDERR, "Test ``%s'' failed: \$a is an array while \$b isn't.\n",
+		  $name);
+	  return TRUE;
+	}
+
+      foreach ($a as $key => $val)
+	if (!$bad && isset($b[$key]))
+	  $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
+	else
+	  $bad = TRUE;
+      foreach ($b as $key => $val)
+	if (!$bad && isset($a[$key]))
+	  $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
+	else
+	  $bad = TRUE;
+
+      if ($bad)
+	{
+	  fprintf(STDERR, "Test ``%s'' failed, see previous error message\n",
+		  $name);
+	  return TRUE;
+	}
+
+      return FALSE;
+    }
+  elseif (is_array($b))
+    {
+      fprintf(STDERR, "Test ``%s'' failed: \$b is an array; \$a isn't.\n",
+	      $name);
+      return TRUE;
+    }
+  elseif ($a === $b
+	  && !strcmp($a, $b))
+    {
+      return FALSE;
+    }
+  else
+    {
+      fprintf(STDERR, "Test ``%s'' failed: `%s' !== `%s', strcmp() == %d\n",
+	      $name, $a, $b, strcmp($a, $b));
+      return TRUE;
+    }
+  return TRUE;
 }
