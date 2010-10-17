@@ -284,7 +284,13 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	   *
 	   * '01/31/2011-05/18/2011 Practicum Days to be Announced, Times to be AnnouncedTo Be Arranged, Room TBA'
 	   *
-	   * In this latter case.... we'll just ignore the section.
+	   * OR
+	   *
+	   * '01/31/2011-05/12/2011 Music Ensemble Monday, Wednesday, Thursday, Friday 03:30PM - 04:20PM, Covenant Fine Arts Center, Room 135'
+	   *
+	   * In the second case.... we'll just ignore the section. In
+	   * the last case, we have to be careful about parsing out
+	   * Monday.
 	   *
 	   * At this point, we don't parse most tokens. We group them
 	   * off. We get the first date, the second date, the type
@@ -303,7 +309,7 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	      continue;
 	    }
 
-	  if (!preg_match(';^([0-9]{2}/[0-9]{2}/[0-9]{4})-([0-9]{2}/[0-9]{2}/[0-9]{4}) ([^ ]+) ([^0-9]+) ([^ ]+) - ([^ ]+), (.*)$;', $sec_meeting_info, $meeting_info_matches))
+	  if (!preg_match(';^([0-9]{2}/[0-9]{2}/[0-9]{4})-([0-9]{2}/[0-9]{2}/[0-9]{4}) (([^ ,]+ )+)([^0-9]+) ([^ ]+) - ([^ ]+), (.*)$;', $sec_meeting_info, $meeting_info_matches))
 	    {
 	      error_log('Unable to parse calvin section meeting info string into start/end/days information for '
 			. implode('-', $section_id) . ': ``' . $sec_meeting_info . '\'\'');
@@ -314,10 +320,10 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	  $date_end = $meeting_info_matches[2];
 	  /* e.g., 'Lecture', 'Practicum' */
 	  $meeting_type = $meeting_info_matches[3];
-	  $days = school_crawl_days_format(explode(', ', $meeting_info_matches[4]));
-	  $time_start = school_crawl_time_format(strptime($meeting_info_matches[5], '%I:%M%p'));
-	  $time_end = school_crawl_time_format(strptime($meeting_info_matches[6], '%I:%M%p'));
-	  $meeting_place = $meeting_info_matches[7];
+	  $days = school_crawl_days_format(explode(', ', $meeting_info_matches[5]));
+	  $time_start = school_crawl_time_format(strptime($meeting_info_matches[6], '%I:%M%p'));
+	  $time_end = school_crawl_time_format(strptime($meeting_info_matches[7], '%I:%M%p'));
+	  $meeting_place = $meeting_info_matches[8];
 
 	  if ($verbosity > 5)
 	    foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place') as $var)
