@@ -83,7 +83,7 @@
 	function getCommonInputs(cnum,name,synonym,stime,etime,days,prof) {
 		var snum = sectionsOfClass[cnum];
 
-		var result = '';
+		var result = '<tr class="section class' + cnum + '"><td class="none"></td>';
 	        result = result + customIds('postData[' + cnum + '][' + snum + '][letter]');
 
 		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>\
@@ -123,7 +123,7 @@
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][2]" value="1" /></td>\
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][3]" value="1" /></td>\
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][4]" value="1" /></td>';
-	
+		result = result + '<td><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td></td></tr>';
 		return result;
 	}
 
@@ -131,8 +131,11 @@
         // Add a section to a class
         //--------------------------------------------------
         function add_section(cnum) {
-		jQuery('.pclass'+cnum).after('<tr class="section class' + cnum + '"><td class="none"></td>' + getCommonInputs(cnum) + '<td><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td></td></tr>');
+		jQuery('.pclass'+cnum).after(getCommonInputs(cnum));
         }
+	function add_section(cnum,name,synonym,stime,etime,days,prof) {
+		 jQuery('.pclass'+cnum).after(getCommonInputs(cnum,name,synonym,stime,etime,days,prof));
+	}
 
 	//--------------------------------------------------
 	// Adds a new class to the input.
