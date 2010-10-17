@@ -350,7 +350,8 @@ class Schedule
     }
 
     /* edit button */
-    echo '<form method="get" action="input.php"><p><input type="hidden" name="s" value="' . $this->id_get() . '" /><input type="submit" value="edit" /></p></form>';
+    if ($id = $this->id_get())
+      echo '<form method="get" action="input.php"><p><input type="hidden" name="s" value="' . $id . '" /><input type="submit" value="edit" /></p></form>';
 
     echo "<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
 
