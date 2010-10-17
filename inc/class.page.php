@@ -386,4 +386,25 @@ class page
   {
     return $this->school;
   }
+
+  /**
+   * \brief
+   *   Format a chunk of javascript suitable for adding to headcode.
+   *
+   * Takes into account whether or not the code should be wrapped in
+   * CDATA or not.
+   *
+   * \param $js
+   *   The javascript to wrap up.
+   * \param $type
+   *   The type="" attribute of the <script/> element
+   */
+  public function script_wrap($js, $type = 'text/javascript')
+  {
+    return '<script type="' . $type . '">
+' . ($this->xhtml ? '<![CDATA[' : '') . '
+' . $js . '
+' . ($this->xhtml ? ']]>' : '') . '
+// </script>';
+  }
 }

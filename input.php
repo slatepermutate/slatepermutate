@@ -21,22 +21,35 @@ if (isset($_REQUEST['s']))
 if ($sch)
 {
   $nclasses = $sch->nclasses_get();
-  $my_hc = '<script type="text/javascript">
-var classNum = ' . $nclasses . ';
-/* holds number of sections for each class */
-var sectionsOfClass = new Array();
+  $my_hc = 'jQuery(document).ready(
+  function()
+  {
+    var class_last = 0;
+
 ';
   for ($class_key = 0; $class_key < $nclasses; $class_key ++)
-    $my_hc .= 'sectionsOfClass[' . $class_key . '] = ' . $sch->class_get($class_key)->getnsections() . ";\n";
-  $my_hc .= '// </script>';
-  $inputPage->headcode_add('scheduleInput', $my_hc, TRUE);
+    {
+      $class = $sch->class_get($class_key);
+      $my_hc .= '    class_last = add_class_n(\'' . htmlentities($class->getName()) . "');\n";
+
+      $nsections = $class->getnsections();
+      for ($section_key = 0; $section_key < $nsections; $section_key ++)
+	{
+	  $section = $class->getSection($section_key);
+	  $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section->getLetter()) . '\', \''
+	    . htmlentities($section->getSynonym()) . '\', \''
+	    . $section->getStartTime() . '\', \''
+	    . $section->getEndTime() . '\', '
+	    . json_encode(array('m' => $section->getM(), 't' => $section->getTu(), 'w' => $section->getW(), 'h' => $section->getTh(), 'f' => $section->getF())) . ', \''
+	    . htmlentities($section->getProf()) . "');\n";
+	}
+    }
+  $my_hc .= '  });
+';
+  $inputPage->headcode_add('scheduleInput', $inputPage->script_wrap($my_hc), TRUE);
 }
 else
-  $inputPage->headcode_add('schduleInput', '<script type="text/javascript">
-var classNum = 0;
-/* holds number of sections for each class */
-var sectionsOfClass = Array();
-// </script>', TRUE);
+  $inputPage->headcode_add('schduleInput', $inputPage->script_wrap('jQuery(document).ready( function() { add_class(); } );'), TRUE);
 
 $inputPage->head();
 
@@ -99,7 +112,6 @@ $inputPage->showSavedScheds($_SESSION);
 		<td class="center"></td>
 		<td class="center"></td>
 	</tr>
-	<?php if ($sch) echo $sch->input_form_render(); ?>
     </table>
   </td>
   </tr>
