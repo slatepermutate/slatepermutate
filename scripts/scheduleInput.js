@@ -66,25 +66,19 @@
     // General Input Functions
     //--------------------------------------------------
 
-        //--------------------------------------------------
-        // Custom ID generator - @FIXME: un-abstract
-        //--------------------------------------------------
-	function customIds(name){
-		return '<td class="sectionIdentifier center"><input type="text" size="1" class="required" name="' + name + '" /></td>';
-	}
-
 	//--------------------------------------------------
 	// Returns the common inputs for each new section.
 	//--------------------------------------------------
-        function getCommonInputs(cnum){
-		getCommonInputs(cnum,'','','','','','');
+        function genSectionHtml(cnum){
+		genSectionHtml(cnum,'','','','','','');
 	}
 
-	function getCommonInputs(cnum,name,synonym,stime,etime,days,prof) {
+	/* @TODO: This should select & set items based on args, if the args != '' */
+	function genSectionHtml(cnum,name,synonym,stime,etime,days,prof) {
 		var snum = sectionsOfClass[cnum];
 
 		var result = '<tr class="section class' + cnum + '"><td class="none"></td>';
-	        result = result + customIds('postData[' + cnum + '][' + snum + '][letter]');
+	        result = result + '<td class="sectionIdentifier center"><input type="text" size="1" class="required" name="postData[' + cnum + '][' + snum + '][letter]" /></td>';
 
 		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>\
 				<option value="700">7:00 am</option><option value="730">7:30 am</option>\
@@ -131,10 +125,10 @@
         // Add a section to a class
         //--------------------------------------------------
         function add_section(cnum) {
-		jQuery('.pclass'+cnum).after(getCommonInputs(cnum));
+		jQuery('.pclass'+cnum).after(genSectionHtml(cnum));
         }
 	function add_section(cnum,name,synonym,stime,etime,days,prof) {
-		 jQuery('.pclass'+cnum).after(getCommonInputs(cnum,name,synonym,stime,etime,days,prof));
+		 jQuery('.pclass'+cnum).after(genSectionHtml(cnum,name,synonym,stime,etime,days,prof));
 	}
 
 	//--------------------------------------------------
