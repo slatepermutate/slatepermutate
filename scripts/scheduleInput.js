@@ -158,12 +158,7 @@ function add_sections(cnum, data)
     for (i = data.sections.length - 1; i >= 0; i --)
 	{
 	    section = data.sections[i];
-	    days = section.days;
-	    if (days.u)
-		days.h = days.u;
-	    else
-		days.h = false;
-	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, days, section.prof);
+	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.prof);
 	}
 }
 

@@ -264,7 +264,7 @@ class Section
    */
   public function to_json_array()
   {
-    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'u', 4 => 'f');
+    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f');
 
     $json_array = array('section' => $this->letter,
 			'prof' => $this->prof,
