@@ -23,8 +23,6 @@ class Section
    * \param $letter
    *   The identifier (often a letter or numeral) of this section. For
    *   CS-262-A, this would be 'a'.
-   * \param $prof
-   *   The faculty person(s) who teaches this section.
    * \param $time_start
    *   The time of day when this section meets. Formatted as a string,
    *   with the 24-hr representation of the hour taking the first two
@@ -39,15 +37,19 @@ class Section
    *   one of Monday, Tuesday, Wednesday, Thursday, and Friday. For
    *   example, '135' would be for a course which meets on Monday,
    *   Wednesday, and Friday.
+   * \param $prof
+   *   The faculty person(s) who teaches this section.
    */
-  function __construct ($letter, $prof, $time_start, $time_end, $days)
+  function __construct ($letter, $time_start, $time_end, $days, $prof = '')
   {
     $this->letter = $letter;
-    $this->prof = $prof;
     $this->start = $time_start;
     $this->tend = $time_end;
+
     $this->idays = $days;
     $this->bdays = $this->setbdays();
+
+    $this->prof = $prof;
   }
 
   function setbdays()

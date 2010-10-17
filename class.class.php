@@ -23,15 +23,6 @@ class Classes
     $this->nsections = 0;
   }
 	
-  //--------------------------------------------------
-  // Adds a new section to the class.
-  //--------------------------------------------------
-  function addSection($l, $p, $s, $e, $d)
-  {
-    $this->sections[$this->nsections] = new Section($l, $p, $s, $e, $d);
-    $this->nsections++;
-  }
-
   /**
    * \brief
    *   Adds an already-instantiated section to this class.

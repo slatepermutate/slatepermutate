@@ -92,8 +92,7 @@ class Schedule
       {
 	echo "Could not find class: " . $n . "<br />";
       } else {
-      $p = "unknown prof";
-      $this->classStorage[$counter]->addSection($l, $p, $s, $e, $d);
+      $this->classStorage[$counter]->section_add(new Section($l, $s, $e, $d));
     }
   }
 
