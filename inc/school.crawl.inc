@@ -54,14 +54,15 @@ function school_crawl_time_format($time)
  *   An array of day names. These may be common abbreviations or
  *   truncations (any truncations must be two chars long for
  *   simplicity. One-char representations are supported, however, but
- *   use 'm', 't', 'w', 'h', 'f' to distinguish thursday and
- *   friday). Case does not matter.
+ *   use 'm', 't', 'w', 'h', 'f' to distinguish Thursday and
+ *   Tuesday. 'r' may also be used for Thursday.). Case does not
+ *   matter.
  * \return
  *   slate_permutate's strange internal days representation.
  */
 function school_crawl_days_format($days)
 {
-  static $daymap_1 = array('m' => 1, 't' => 2, 'w' => 3, 'h' => 4, 'f' => 5);
+  static $daymap_1 = array('m' => 1, 't' => 2, 'w' => 3, 'h' => 4, 'r' => 4, 'f' => 5);
   static $daymap_2 = array('th' => 'h');
 
   $my_days = array();
@@ -93,4 +94,22 @@ function school_crawl_days_format($days)
     $day_str .= $day_val;
 
   return $day_str;
+}
+
+/**
+ * \brief
+ *   Take a string of day initials and format it.
+ *
+ * \param $days_str
+ *   Example input: 'mwf', 'TR'.
+ * \return
+ *   Same as school_crawl_days_format()
+ */
+function school_crawl_days_str_format($days_str)
+{
+  $day_initials = array();
+  for ($i = 0; $i < strlen($days_str); $i ++)
+    $day_initials[] = $days_str[$i];
+
+  return school_crawl_days_format($day_initials);
 }
