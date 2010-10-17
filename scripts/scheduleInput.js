@@ -82,9 +82,9 @@ var sectionsOfClass = new Array();
 	        result = result + '<td class="sectionIdentifier center"><input type="text" size="1" class="required" name="postData[' + cnum + '][' + snum + '][letter]" value="' + name + '" /></td>';
 
 		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>'
-				 + genOptionHtml("700", "7:00 am", stime) + genOptionHtml("730", "7:30 am", stime)
-				 + genOptionHtml("800", "8:00 am", stime) + genOptionHtml("830", "8:30 am", stime)
-				 + genOptionHtml("900", "9:00 am", stime) + genOptionHtml("930", "9:30 am", stime)
+				 + genOptionHtml("0700", "7:00 am", stime) + genOptionHtml("0730", "7:30 am", stime)
+				 + genOptionHtml("0800", "8:00 am", stime) + genOptionHtml("0830", "8:30 am", stime)
+				 + genOptionHtml("0900", "9:00 am", stime) + genOptionHtml("0930", "9:30 am", stime)
 				 + genOptionHtml("1000", "10:00 am", stime) + genOptionHtml("1030", "10:30 am", stime)
 				 + genOptionHtml("1100", "11:00 am", stime) + genOptionHtml("1130", "11:30 am", stime)
 				 + genOptionHtml("1200", "12:00 pm", stime) + genOptionHtml("1230", "12:30 pm", stime)
@@ -98,9 +98,9 @@ var sectionsOfClass = new Array();
 				 + genOptionHtml("2000", "8:00 pm", stime) + genOptionHtml("2030", "8:30 pm", stime)
 				 + genOptionHtml("2100", "9:00 pm", stime) + '</select></td>\
 			<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][end]"><option value="none"></option>'
-				 + genOptionHtml("720", "7:20 am", etime) + genOptionHtml("750", "7:50 am", etime)
-				 + genOptionHtml("820", "8:20 am", etime) + genOptionHtml("850", "8:50 am", etime)
-				 + genOptionHtml("920", "9:20 am", etime) + genOptionHtml("950", "9:50 am", etime)
+				 + genOptionHtml("0720", "7:20 am", etime) + genOptionHtml("0750", "7:50 am", etime)
+				 + genOptionHtml("0820", "8:20 am", etime) + genOptionHtml("0850", "8:50 am", etime)
+				 + genOptionHtml("0920", "9:20 am", etime) + genOptionHtml("0950", "9:50 am", etime)
 				 + genOptionHtml("1020", "10:20 am", etime) + genOptionHtml("1050", "10:50 am", etime)
 				 + genOptionHtml("1120", "11:20 am", etime) + genOptionHtml("1150", "11:50 am", etime)
 				 + genOptionHtml("1220", "12:20 pm", etime) + genOptionHtml("1250", "12:50 pm", etime)
@@ -147,6 +147,26 @@ function genOptionHtml(value, content, test_value)
 	    return add_section_n(cnum, '', '', '', '', {'m':false, 't':false, 'w':false, 'h':false, 'f':false}, '');
         }
 
+/**
+ * Add a list of sections gotten via an AJAX call.
+ */
+function add_sections(cnum, data)
+{
+    var i;
+    if (!data.sections)
+	return;
+    for (i = data.sections.length - 1; i >= 0; i --)
+	{
+	    section = data.sections[i];
+	    days = section.days;
+	    if (days.u)
+		days.h = days.u;
+	    else
+		days.h = false;
+	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, days, section.prof);
+	}
+}
+
 	//--------------------------------------------------
 	// Adds a new class to the input.
 	//--------------------------------------------------
@@ -155,8 +175,28 @@ function genOptionHtml(value, content, test_value)
 		sectionsOfClass[classNum] = 0; // Initialize at 0
 		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td><input type="text" class="className required defText className'+classNum+'" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="8"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
 		jQuery('.className' + classNum).autocomplete({
-			source: "auto.php"
+			source: "auto.php",
 		});
+		jQuery('.className' + classNum).bind('autocompletechange', {'class_num': classNum},
+			function(event, ui)
+			    {
+				if (ui.item.value.indexOf('-'))
+				    {
+					jQuery.ajax(
+						      {
+							  url: 'auto.php',
+							  data: {'getsections': 1, 'term': ui.item.value},
+							  context: {'class_num': event.data.class_num},
+							  success: function(data, textStatus, reqobj)
+							      {
+								  add_sections(this.class_num, data);
+							      }
+						      }
+						      );
+				    }
+			    });
+
+
 		classNum++;
 
 		return (classNum - 1);
