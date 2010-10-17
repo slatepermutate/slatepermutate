@@ -358,24 +358,6 @@ class Schedule
     $outputPage->foot();
   }
 
-  /**
-   * \brief
-   *   Render the input table form for editing a saved schedule in input.php.
-   *
-   * This function's output must be synchronized with the
-   * associated javascript in scripts/scheduleInput.js.
-   */
-  function input_form_render()
-  {
-    $out = '';
-    static $n = "\n";
-
-    foreach ($this->classStorage as $class_key => $class)
-      $out .= $class->input_form_render($class_key);
-
-    return $out;
-  }
-
   //--------------------------------------------------
   // Changes the title of the page.
   //--------------------------------------------------

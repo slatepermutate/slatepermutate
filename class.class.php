@@ -61,29 +61,9 @@ class Classes
   //--------------------------------------------------
   // Returns the name of the class.
   //--------------------------------------------------
-  function getName()
+  public function getName()
   {
     return $this->name;
-  }
-
-  /**
-   * \brief
-   *   Renders this Classes into something suitable for input.php.
-   */
-  function input_form_render($class_key)
-  {
-    $n = "\n";
-    $out = '<tr title="' . $class_key . '" class="class class' . $class_key . '">' . $n
-      . '  <td><input type="text" class="required defText" title="Class Name" name="postData[' . $class_key . '][name]" value="' . htmlentities($this->getName()) . '"/></td>' . $n
-      . '  <td colspan="8"></td>' . $n
-      . '  <td class="tdInput"><div class="addSection"><input type="button" value="Add section" class="gray" /></div></td>' . $n
-      . '  <td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td>' . $n
-      . "</tr>\n";
-
-    foreach ($this->sections as $key => $section)
-      $out .= $section->input_form_render($class_key, $key);
-
-    return $out;
   }
 
   /**
