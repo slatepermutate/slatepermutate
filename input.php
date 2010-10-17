@@ -30,18 +30,18 @@ if ($sch)
   for ($class_key = 0; $class_key < $nclasses; $class_key ++)
     {
       $class = $sch->class_get($class_key);
-      $my_hc .= '    class_last = add_class_n(\'' . htmlentities($class->getName()) . "');\n";
+      $my_hc .= '    class_last = add_class_n(\'' . htmlentities($class->getName(), ENT_QUOTES) . "');\n";
 
       $nsections = $class->getnsections();
       for ($section_key = 0; $section_key < $nsections; $section_key ++)
 	{
 	  $section = $class->getSection($section_key);
-	  $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section->getLetter()) . '\', \''
-	    . htmlentities($section->getSynonym()) . '\', \''
+	  $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section->getLetter(), ENT_QUOTES) . '\', \''
+	    . htmlentities($section->getSynonym(), ENT_QUOTES) . '\', \''
 	    . $section->getStartTime() . '\', \''
 	    . $section->getEndTime() . '\', '
 	    . json_encode(array('m' => $section->getM(), 't' => $section->getTu(), 'w' => $section->getW(), 'h' => $section->getTh(), 'f' => $section->getF())) . ', \''
-	    . htmlentities($section->getProf()) . "');\n";
+	    . htmlentities($section->getProf(), ENT_QUOTES) . "');\n";
 	}
     }
   $my_hc .= '  });
@@ -92,7 +92,7 @@ $inputPage->showSavedScheds($_SESSION);
 <br />
 <label>Schedule Name</label><br />
 <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="(e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
-<?php if ($sch) echo 'value="' . htmlentities($sch->getName()) . '"'; /*"*/ ?>
+<?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; /*"*/ ?>
 />
 
 <table id="container">
