@@ -175,7 +175,7 @@ function add_sections(cnum, data)
 		jQuery('.className' + classNum).bind('autocompletechange', {'class_num': classNum},
 			function(event, ui)
 			    {
-				if (ui.item.value.indexOf('-'))
+				if (ui.item && ui.item.value.indexOf('-'))
 				    {
 					jQuery.ajax(
 						      {
