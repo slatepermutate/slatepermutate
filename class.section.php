@@ -199,6 +199,45 @@ class Section
   {
     return $this->bdays[$i];
   }
+
+  /**
+   * \brief
+   *   Check if this section conflicts withthe given section.
+   *
+   * \param $that
+   *   The other section for which I should check for conflicts.
+   * \return
+   *   TRUE if there is a conflict, FALSE otherwise.
+   */
+  public function conflictsWith(Section $that)
+  {
+    /*
+     * The two sections can't conflict if the start/end times don't
+     * overlap. Also, use >= or <= here so that one can say ``I have
+     * gym from 10 through 11 and then latin from 11 though 12''.
+     */	
+    if ($this->getStartTime() >= $that->getEndTime()
+	|| $this->getEndTime() <= $that->getStartTime())
+      {
+	return FALSE;
+      }
+
+    /*
+     * Now we know that the sections overlap in start/end times. But
+     * if they don't both meet on the same day at least once, they
+     * don't conflict.
+     */
+    for ($day = 0; $day < 5; $day ++)
+      {
+	if ($this->getDay($day) && $that->getDay($day))
+	  return TRUE;
+      }
+
+    /*
+     * The sections don't both share a day of the week.
+     */
+    return FALSE;
+  }
   
   /**
    * \brief

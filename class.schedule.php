@@ -132,29 +132,15 @@ class Schedule
 	    
 				for ($downCounter = $this->nclasses - 1; $downCounter > $upCounter && !$conflict; $downCounter --)
 				{
-					$start1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getStartTime();
-					$end1 = $this->classStorage[$upCounter]->getSection($cs[$upCounter])->getEndTime();
-					$start2 = $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getStartTime();
-					$end2 = $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getEndTime();
-					
-					// If the two times overlap, then check if days overlap.
-					if ((($start1 >= $start2) && ($start1 <= $end2)) || (($start2 >= $start1) && ($start2 <= $end1)))
-					{
-				
-					for($day=0; $day<5; $day++)
-						{
-							if(!$conflict
-								&& ($this->classStorage[$upCounter]->getSection($cs[$upCounter])->getDay($day)
-								&& $this->classStorage[$downCounter]->getSection($cs[$downCounter])->getDay($day)))
-							{
-								$conflict = TRUE;
-							}
-						}
-		
+				  if ($this->classStorage[$upCounter]->getSection($cs[$upCounter])
+				      ->conflictsWith($this->classStorage[$downCounter]->getSection($cs[$downCounter])))
+				    {
+				      $conflict = TRUE;
+				      break;
+				    }
 				}
 			}
-		}
-            
+	
 	// Store to storage if no conflict is found.
 	if(!$conflict)
 	  {
