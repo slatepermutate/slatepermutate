@@ -43,6 +43,9 @@ function calvin_instructions_html()
 <h3>
 	Using the Auto-Complete function
 </h3>
+<p>
+	Note: For best results, use <b>Firefox</b> or <b>Google Chrome</b> or <b>Safari</b>.
+</p>
 <ol>
   <li>Determine the classes you wish to take next semester.</li>
 	<li>Enter in the class numbers (e.g. MATH 101, CS 104) in the Class ID box.</li>
