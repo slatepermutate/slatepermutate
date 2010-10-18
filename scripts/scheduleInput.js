@@ -96,7 +96,13 @@ var sectionsOfClass = new Array();
 				 + genOptionHtml("1800", "6:00 pm", stime) + genOptionHtml("1830", "6:30 pm", stime)
 				 + genOptionHtml("1900", "7:00 pm", stime) + genOptionHtml("1930", "7:30 pm", stime)
 				 + genOptionHtml("2000", "8:00 pm", stime) + genOptionHtml("2030", "8:30 pm", stime)
-				 + genOptionHtml("2100", "9:00 pm", stime) + '</select></td>\
+		    + genOptionHtml("2100", "9:00 pm", stime);
+
+		var stime_end = stime.substr(2);
+		if (stime_end != '00' && stime_end != '30')
+		    result = result + genOptionHtml(stime, stime.substr(0, 2) + ':' + stime_end, stime);
+
+		result = result + '</select></td>\
 			<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][end]"><option value="none"></option>'
 				 + genOptionHtml("0720", "7:20 am", etime) + genOptionHtml("0750", "7:50 am", etime)
 				 + genOptionHtml("0820", "8:20 am", etime) + genOptionHtml("0850", "8:50 am", etime)
@@ -112,7 +118,13 @@ var sectionsOfClass = new Array();
 				 + genOptionHtml("1820", "6:20 pm", etime) + genOptionHtml("1850", "6:50 pm", etime)
 				 + genOptionHtml("1920", "7:20 pm", etime) + genOptionHtml("1950", "7:50 pm", etime)
 				 + genOptionHtml("2020", "8:20 pm", etime) + genOptionHtml("2050", "8:50 pm", etime)
-				 + genOptionHtml("2120", "9:20 pm", etime) + '</select></td>\
+		    + genOptionHtml("2120", "9:20 pm", etime);
+
+		var etime_end = etime.substr(2);
+		if (etime_end != '50' && etime_end != '20')
+		    result = result + genOptionHtml(etime, etime.substr(0, 2) + ':' + etime_end, etime);
+
+		result = result + '</select></td>\
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][0]" value="1" ' + (days.m ? 'checked="checked"' : '') + ' /></td> \
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][1]" value="1" ' + (days.t ? 'checked="checked"' : '') + ' /></td>\
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][2]" value="1" ' + (days.w ? 'checked="checked"' : '') + ' /></td>\
