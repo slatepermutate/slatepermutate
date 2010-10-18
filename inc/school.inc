@@ -85,7 +85,7 @@ function school_load($school_id, $load_all_inc = FALSE)
    * for efficiency.
    */
   $cache = _school_cache_load();
-  if ($cache && count($cache['list']))
+  if ($cache && count($cache['list']) && isset($cache['list'][$school['id']]))
     $school['crawled'] = $cache['list'][$school['id']]['crawled'];
 
   return $school;
