@@ -36,17 +36,28 @@ function calvin_info()
 function calvin_instructions_html()
 {
   return <<<EOF
-<h2>Calvin-specific Instructions</h2>
-<p>
+<h2>Instructions</h2>
+<!--<p>
   SlatePermutate can be a useful tool for scheduling your next semester at <a href="http://calvin.edu/">Calvin College</a>.
-</p>
+</p>-->
+<h3>
+	Using the Auto-Complete function
+</h3>
 <ol>
+  <li>Determine the classes you wish to take next semester.</li>
+	<li>Enter in the class numbers (e.g. MATH 101, CS 104) in the Class ID box.</li>
+	<li>Select a valid class number from the drop down menu.</li>
+	<li>Click anywhere outside of the box to automatically fill in the available section data for that class.</li>
+	<li>Repeat this process for each class.</li>
+	<li>Click "Find a Schedule" to view all possible schedules for next semester.</li>
+</ol>
+<!--<ol>
   <li>Get in touch with your advisor during advising/reading recess.</li>
   <li>Look up each class your advisor specified in Calvin's registration page of <a href="http://kv.calvin.edu/">KnightVision</a> (soon to be <a href="http://moodle.calvin.edu">moo</a>).</li>
   <li>Enter each class into a <tt>slate_permutate</tt> schedule and add each section that is listed that you are willing to take.</li>
   <li>Submit your schedule and view all of the different permutations of your schedule which would work with the sections you specified.</li>
   <li>Print out your preferred schedule by choosing "print" and selecting a schedule.</li>
   <li>Wait until it's your turn to register and grab your preferred sections before they fill up!</li>
-</ol>
+</ol>-->
 EOF;
 }
