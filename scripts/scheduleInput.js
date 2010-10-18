@@ -98,9 +98,12 @@ var sectionsOfClass = new Array();
 				 + genOptionHtml("2000", "8:00 pm", stime) + genOptionHtml("2030", "8:30 pm", stime)
 		    + genOptionHtml("2100", "9:00 pm", stime);
 
-		var stime_end = stime.substr(2);
-		if (stime_end != '00' && stime_end != '30')
-		    result = result + genOptionHtml(stime, stime.substr(0, 2) + ':' + stime_end, stime);
+		if (stime.length > 0)
+		    {
+			var stime_end = stime.substr(2);
+			if (stime_end != '00' && stime_end != '30')
+			    result = result + genOptionHtml(stime, prettyTime(stime), stime);
+		    }
 
 		result = result + '</select></td>\
 			<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][end]"><option value="none"></option>'
@@ -120,9 +123,12 @@ var sectionsOfClass = new Array();
 				 + genOptionHtml("2020", "8:20 pm", etime) + genOptionHtml("2050", "8:50 pm", etime)
 		    + genOptionHtml("2120", "9:20 pm", etime);
 
-		var etime_end = etime.substr(2);
-		if (etime_end != '50' && etime_end != '20')
-		    result = result + genOptionHtml(etime, etime.substr(0, 2) + ':' + etime_end, etime);
+		if (etime.length > 0)
+		    {
+			var etime_end = etime.substr(2);
+			if (etime_end != '50' && etime_end != '20')
+			    result = result + genOptionHtml(etime, prettyTime(etime), etime);
+		    }
 
 		result = result + '</select></td>\
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][0]" value="1" ' + (days.m ? 'checked="checked"' : '') + ' /></td> \
@@ -214,10 +220,46 @@ function add_class()
 }
 
 
-    //--------------------------------------------------
-    // Items bound to pageload/events
-    //--------------------------------------------------
-    jQuery(document).ready(function() {
+/**
+ * \brief
+ *   Render a slate_permutate-encoded time-of-day.
+ *
+ * \param time_str
+ *   A four-character representation of a time of day based on a
+ *   time's 24-hour representation.
+ * \return
+ *   A string representing the specified time.
+ */
+function prettyTime(time_str)
+{
+    var i_hour;
+    var hour_str;
+    var m;
+
+    i_hour = time_str.substr(0, 2) * 1;
+    if (i_hour <= 12)
+	{
+	    m = 'a';
+	}
+    else
+	{
+	    m = 'p';
+	    i_hour -= 12;
+	}
+    hour_str = new String(i_hour);
+    /* uncomment to have 08:01 instead of 8:01 */
+    /*
+    while (hour_str.length < 2)
+	hour_str = '0' + hour_str;
+    */
+
+    return hour_str + ':' + time_str.substr(2) + ' ' + m + 'm';
+}
+
+//--------------------------------------------------
+// Items bound to pageload/events
+//--------------------------------------------------
+jQuery(document).ready(function() {
 
 	//--------------------------------------------------
 	// Validates the form (pre-submission check)
