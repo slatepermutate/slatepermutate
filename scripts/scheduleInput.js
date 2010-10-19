@@ -328,4 +328,6 @@ jQuery(document).ready(function() {
 		jQuery('#showadvanced').hide();
 		jQuery('.advanced').slideToggle();
 	});
+
+
 });

@@ -236,8 +236,13 @@ class Schedule
       echo '<script type="text/javascript">';
       echo 'jQuery(document).ready( function() {';
       echo 'jQuery("#tabs").tabs();';
+      echo 'jQuery("#sharedialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });';
+      echo 'jQuery("#share").click( function() {
+              jQuery("#sharedialog").dialog("open");
+            });';
       echo '});</script>'; /* Close document.ready for jquery */
-      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext" style="color: #999;"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
+      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>http://' . $_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'</p></div>';
+      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext" style="color: #999;"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
     }		
 
     if($this->nPermutations > 0)

@@ -177,3 +177,9 @@ td.center {
 .centeredtext {
   text-align: center;
 }
+.graytext {
+  color: #999;
+}
+#sharedialog {
+  display: none;
+}

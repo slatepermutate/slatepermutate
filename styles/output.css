@@ -96,5 +96,5 @@ margin-bottom: 2px;
   max-width: 650px;
   margin: auto;
 }
-#tabs li, .ui-corner-all, .ui-corner-top { background: none!important; }
+#tabs li /* , .ui-corner-all, .ui-corner-top */ { background: none!important; }
 #tabs li { border: none!important; }
