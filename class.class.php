@@ -19,6 +19,7 @@ class Classes
   //--------------------------------------------------
   function __construct($n)
   {
+    $this->sections = array();
     $this->name = $n;
     $this->nsections = 0;
   }
@@ -57,7 +58,28 @@ class Classes
     $result = $this->sections[$i];
     return $result;
   }
-    
+
+  /**
+   * \brief
+   *   Retrieve a section of this class based on its letter.
+   *
+   * \todo Make this function replace completely the getSection()
+   * function, have $this->sections be keyed by letter, and have a
+   * __wakup() convert the old $this->sections format to the new one.
+   *
+   * \return
+   *   The requested section or NULL if that section does not yet
+   *   exist for this class.
+   */
+  public function section_get($letter)
+  {
+    foreach ($this->sections as $section)
+      if ($section->getLetter() == $letter)
+	return $section;
+
+    return NULL;
+  }
+
   //--------------------------------------------------
   // Returns the name of the class.
   //--------------------------------------------------
@@ -111,7 +133,9 @@ class Classes
 			'sections' => array());
     foreach ($this->sections as $section)
       {
-	$json_array['sections'][] = $section->to_json_array();
+	$section_json_arrays = $section->to_json_arrays();
+	foreach ($section_json_arrays as $section_json_array)
+	  $json_array['sections'][] = $section_json_array;
       }
 
     return $json_array;

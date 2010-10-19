@@ -74,6 +74,8 @@ function cedarville_crawl($semester, $verbosity = 1)
       $tables[$department] = table_parse(cedarville_html_fix($html));
     }
 
+  $meeting_type_maps = array('LAB' => 'lab', 'LECT' => 'lecture');
+
   foreach ($tables as $dept_table)
     {
       /*
@@ -192,20 +194,20 @@ function cedarville_crawl($semester, $verbosity = 1)
 			);
 	    }
 
+	  $section_meetings = array();
 	  foreach ($meetings as $meeting)
 	    {
-	      $section_letter = $section_parts['section'];
-	      if ($meeting['type'] == 'LECT')
-		/**
-		 * \todo this might not make much sense.		 
-		 */
-		$section_letter = 'L' . $section_letter;
-	      $semester->section_add($section_parts['department'], $section_parts['course'],
-				     new Section($section_letter,
-						 $meeting['time_start'], $meeting['time_end'],
-						 $meeting['days'], $synonym, $instructor,
-						 $meeting['room']));
+	      $meeting_type = $meeting['type'];
+	      if (isset($meeting_type_maps[$meeting_type]))
+		$meeting_type = $meeting_type_maps[$meeting_type];
+
+	      $section_meetings[] = new SectionMeeting($meeting['days'], $meeting['time_start'],
+						       $meeting['time_end'], $meeting['room'],
+						       $meeting_type);
 	    }
+	  $semester->section_add($section_parts['department'], $section_parts['course'],
+				 new Section($section_parts['section'], $section_meetings,
+					     $synonym, $instructor));
 	}
     }
 

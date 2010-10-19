@@ -5,16 +5,20 @@
 //
 // Represents a section of a class.
 //--------------------------------------------------
+
+require_once('inc/class.section_meeting.inc');
    
 class Section
 {
 
   private $letter;	// Section letter
   private $prof;	// Professor
-  private $start;	// Start time
-  private $tend;	// End time
-  private $idays;	// Integer version of meeting days
-  private $bdays;	// Boolean array of meeting days
+
+  /* meeting times, array of SectionMeeting */
+  private $meetings;
+
+  /* the section synonym which uniquely identifies this section/course combination */
+  private $synonym;
 
   /**
    * \brief
@@ -23,112 +27,27 @@ class Section
    * \param $letter
    *   The identifier (often a letter or numeral) of this section. For
    *   CS-262-A, this would be 'a'.
-   * \param $time_start
-   *   The time of day when this section meets. Formatted as a string,
-   *   with the 24-hr representation of the hour taking the first two
-   *   characters and a two-digit representation of minutes taking the
-   *   next two characters.
-   * \param $time_end
-   *   The time of day when this section's meeting is over.
-   * \param $days
-   *   A string representing the days that this section meets. The
-   *   format of this string is an ordered series of numerals less
-   *   than or equal to 5. Each numeral from 1 through 5 represents
-   *   one of Monday, Tuesday, Wednesday, Thursday, and Friday. For
-   *   example, '135' would be for a course which meets on Monday,
-   *   Wednesday, and Friday.
+   * \param $section_meetings
+   *   An array of SectionMeeting objects which describe all the
+   *   different types of meetings this particular section has. It
+   *   will be very uncommon for a course to have more than one such
+   *   meeting time for a section. For example, Calvin doesn't have
+   *   this. Another example, Cedarville lists different meeting times
+   *   inside of a single section. Cedarville also lists all lectures
+   *   and lab meeting times directly in a section's listing.
+   * \param $synonym
+   *   Some schools have a unique number for each section. This field
+   *   is for that number.
    * \param $prof
    *   The faculty person(s) who teaches this section.
-   * \param $room
-   *   An identifier of the room within which the section is taught.
    */
-  function __construct ($letter, $time_start, $time_end, $days,
-			$synonym = NULL, $prof = NULL, $room = NULL)
+  function __construct ($letter, array $section_meetings = array(), $synonym = NULL, $prof = NULL)
   {
     $this->letter = $letter;
-    $this->start = $time_start;
-    $this->tend = $time_end;
 
-    $this->idays = $days;
-    $this->bdays = $this->setbdays();
+    $this->meetings = $section_meetings;
 
-    $this->synonym = $synonym;
     $this->prof = $prof;
-    $this->room = $room;
-  }
-
-  private function setbdays()
-  {
-    $result = array(FALSE, FALSE, FALSE, FALSE, FALSE);
-
-    if($this->idays == 12345)
-      {$result[0] = true; $result[1] = true; $result[2] = true; $result[3] = true; $result[4] = true;}
-
-    if($this->idays == 1234)
-      {$result[0] = true; $result[1] = true; $result[2] = true; $result[3] = true; $result[4] = false;}
-    if($this->idays == 1235)
-      {$result[0] = true; $result[1] = true; $result[2] = true; $result[3] = false; $result[4] = true;}
-    if($this->idays == 1245)
-      {$result[0] = true; $result[1] = true; $result[2] = false; $result[3] = true; $result[4] = true;}
-    if($this->idays == 1345)
-      {$result[0] = true; $result[1] = false; $result[2] = true; $result[3] = true; $result[4] = true;}
-    if($this->idays == 2345)
-      {$result[0] = false; $result[1] = true; $result[2] = true; $result[3] = true; $result[4] = true;}
-
-    if($this->idays == 123)
-      {$result[0] = true; $result[1] = true; $result[2] = true; $result[3] = false; $result[4] = false;}
-    if($this->idays == 124)
-      {$result[0] = true; $result[1] = true; $result[2] = false; $result[3] = true; $result[4] = false;}
-    if($this->idays == 125)
-      {$result[0] = true; $result[1] = true; $result[2] = false; $result[3] = false; $result[4] = true;}
-    if($this->idays == 134)
-      {$result[0] = true; $result[1] = false; $result[2] = true; $result[3] = true; $result[4] = false;}
-    if($this->idays == 135)
-      {$result[0] = true; $result[1] = false; $result[2] = true; $result[3] = false; $result[4] = true;}
-    if($this->idays == 145)
-      {$result[0] = true; $result[1] = false; $result[2] = false; $result[3] = true; $result[4] = true;}
-    if($this->idays == 234)
-      {$result[0] = false; $result[1] = true; $result[2] = true; $result[3] = true; $result[4] = false;}
-    if($this->idays == 235)
-      {$result[0] = false; $result[1] = true; $result[2] = true; $result[3] = false; $result[4] = true;}
-    if($this->idays == 245)
-      {$result[0] = false; $result[1] = true; $result[2] = false; $result[3] = true; $result[4] = true;}
-    if($this->idays == 345)
-      {$result[0] = false; $result[1] = false; $result[2] = true; $result[3] = true; $result[4] = true;}
-
-    if($this->idays == 12)
-      {$result[0] = true; $result[1] = true; $result[2] = false; $result[3] = false; $result[4] = false;}
-    if($this->idays == 13)
-      {$result[0] = true; $result[1] = false; $result[2] = true; $result[3] = false; $result[4] = false;}
-    if($this->idays == 14)
-      {$result[0] = true; $result[1] = false; $result[2] = false; $result[3] = true; $result[4] = false;}
-    if($this->idays == 15)
-      {$result[0] = true; $result[1] = false; $result[2] = false; $result[3] = false; $result[4] = true;}
-    if($this->idays == 23)
-      {$result[0] = false; $result[1] = true; $result[2] = true; $result[3] = false; $result[4] = false;}
-    if($this->idays == 24)
-      {$result[0] = false; $result[1] = true; $result[2] = false; $result[3] = true; $result[4] = false;}
-    if($this->idays == 25)
-      {$result[0] = false; $result[1] = true; $result[2] = false; $result[3] = false; $result[4] = true;}
-    if($this->idays == 34)
-      {$result[0] = false; $result[1] = false; $result[2] = true; $result[3] = true; $result[4] = false;}
-    if($this->idays == 35)
-      {$result[0] = false; $result[1] = false; $result[2] = true; $result[3] = false; $result[4] = true;}
-    if($this->idays == 45)
-      {$result[0] = false; $result[1] = false; $result[2] = false; $result[3] = true; $result[4] = true;}
-      
-    if($this->idays == 1)
-      {$result[0] = true; $result[1] = false; $result[2] = false; $result[3] = false; $result[4] = false;}
-    if($this->idays == 2)
-      {$result[0] = false; $result[1] = true; $result[2] = false; $result[3] = false; $result[4] = false;}
-    if($this->idays == 3)
-      {$result[0] = false; $result[1] = false; $result[2] = true; $result[3] = false; $result[4] = false;}
-    if($this->idays == 4)
-      {$result[0] = false; $result[1] = false; $result[2] = false; $result[3] = true; $result[4] = false;}
-    if($this->idays == 5)
-      {$result[0] = false; $result[1] = false; $result[2] = false; $result[3] = false; $result[4] = true;}
-         
-    return $result;
   }
 
   public function getLetter()
@@ -143,15 +62,6 @@ class Section
 
   /**
    * \return
-   *   This Section's room or NULL if none is defined.
-   */
-  public function getRoom()
-  {
-    return $this->room;
-  }
-
-  /**
-   * \return
    *   This section's synonym -- a unique numeric identifier for this
    *   course. NULL if undefined.
    */
@@ -160,49 +70,21 @@ class Section
     return $this->synonym;
   }
 
-  public function getStartTime()
+  /**
+   * \brief
+   *   Get an array of section meetings for this section.
+   *
+   * \return
+   *   An array of SectionMeeting objects.
+   */
+  public function getMeetings()
   {
-    return $this->start;
-  }
-
-  public function getEndTime()
-  {
-    return $this->tend;
-  }
-
-  public function getM()
-  {
-    return $this->bdays[0];
-  }
-
-  public function getTu()
-  {
-    return $this->bdays[1];
-  }
-
-  public function getW()
-  {
-    return $this->bdays[2];
-  }
-
-  public function getTh()
-  {
-    return $this->bdays[3];
-  }
-
-  public function getF()
-  {
-    return $this->bdays[4];
-  }
-
-  public function getDay($i)
-  {
-    return $this->bdays[$i];
+    return $this->meetings;
   }
 
   /**
    * \brief
-   *   Check if this section conflicts withthe given section.
+   *   Check if this section conflicts with the given section.
    *
    * \param $that
    *   The other section for which I should check for conflicts.
@@ -211,32 +93,24 @@ class Section
    */
   public function conflictsWith(Section $that)
   {
-    /*
-     * The two sections can't conflict if the start/end times don't
-     * overlap. Also, use >= or <= here so that one can say ``I have
-     * gym from 10 through 11 and then latin from 11 though 12''.
-     */	
-    if ($this->getStartTime() >= $that->getEndTime()
-	|| $this->getEndTime() <= $that->getStartTime())
-      {
-	return FALSE;
-      }
+    foreach ($this->meetings as $this_meeting)
+      foreach ($that->meetings as $that_meeting)
+      if ($this_meeting->conflictsWith($that_meeting))
+	return TRUE;
 
-    /*
-     * Now we know that the sections overlap in start/end times. But
-     * if they don't both meet on the same day at least once, they
-     * don't conflict.
-     */
-    for ($day = 0; $day < 5; $day ++)
-      {
-	if ($this->getDay($day) && $that->getDay($day))
-	  return TRUE;
-      }
-
-    /*
-     * The sections don't both share a day of the week.
-     */
     return FALSE;
+  }
+
+  /**
+   * \brief
+   *   Add another section meeting time to this section.
+   *
+   * Useful for process.php when it's calling
+   * Schedule::addSectionMeeting() multiple times.
+   */
+  public function meeting_add(SectionMeeting $meeting)
+  {
+    $this->meetings[] = $meeting;
   }
   
   /**
@@ -307,23 +181,59 @@ class Section
 
   /**
    * \brief
-   *   Get an array of information needed by the AJAX stuff.
+   *   Get arrays of information needed by the AJAX stuff.
+   *
+   * \return
+   *   An array of arrays that should be merged with the return value
+   *   of other Section::to_json_array() calls.
    */
-  public function to_json_array()
+  public function to_json_arrays()
   {
-    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f');
+    $json_arrays = array();
 
-    $json_array = array('section' => $this->letter,
-			'prof' => $this->prof,
-			'time_start' => $this->start,
-			'time_end' => $this->tend,
-			'days' => array(),
-			'synonym' => $this->synonym,
-			'room' => $this->room,
-			);
-    for ($day = 0; $day < 5; $day ++)
-      $json_array['days'][$daymap[$day]] = $this->getDay($day);
+    foreach ($this->meetings as $meeting)
+      {
+	$json_array = array('section' => $this->letter,
+			    'prof' => $this->prof,
+			    'synonym' => $this->synonym,
+			    );
 
-    return $json_array;
+	$json_array += $meeting->to_json_array();
+	$json_arrays[] = $json_array;
+      }
+
+    return $json_arrays;
+  }
+
+
+  /* for legacy unserialization */
+  private $start;
+  private $tend;
+  private $bdays;
+
+  /**
+   * \brief
+   *   A magic function which tries to upgrade old serialized sections
+   *   to the new format.
+   */
+  public function __wakeup()
+  {
+    /* upgrade to SectionMeeting stuffage */
+    if (!empty($this->start))
+      {
+	$days = '';
+	$daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f');
+	foreach ($this->bdays as $day => $have_day)
+	  if ($have_day)
+	    $days .= $daymap[$day];
+
+	$this->meetings = array();
+	$this->meeting_add(new SectionMeeting($days, $this->start, $this->tend, '<location unknown>', 'lecture'));
+
+	/*
+	 * if we're reserialized in the future, make sure we don't do this same upgrade procedure again ;-).
+	 */
+	unset($this->start);
+      }
   }
 }

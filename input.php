@@ -36,12 +36,16 @@ if ($sch)
       for ($section_key = $nsections - 1; $section_key >= 0; $section_key --)
 	{
 	  $section = $class->getSection($section_key);
-	  $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section->getLetter(), ENT_QUOTES) . '\', \''
-	    . htmlentities($section->getSynonym(), ENT_QUOTES) . '\', \''
-	    . $section->getStartTime() . '\', \''
-	    . $section->getEndTime() . '\', '
-	    . json_encode(array('m' => $section->getDay(0), 't' => $section->getDay(1), 'w' => $section->getDay(2), 'h' => $section->getDay(3), 'f' => $section->getDay(4))) . ', \''
-	    . htmlentities($section->getProf(), ENT_QUOTES) . "');\n";
+	  $meetings = $section->getMeetings();
+	  foreach ($meetings as $meeting)
+	    {
+	      $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section->getLetter(), ENT_QUOTES) . '\', \''
+		. htmlentities($section->getSynonym(), ENT_QUOTES) . '\', \''
+		. $meeting->getStartTime() . '\', \''
+		. $meeting->getEndTime() . '\', '
+		. json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4))) . ', \''
+		. htmlentities($section->getProf(), ENT_QUOTES) . "');\n";
+	    }
 	}
     }
   $my_hc .= '  });

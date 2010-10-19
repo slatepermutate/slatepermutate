@@ -329,7 +329,7 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	    foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place') as $var)
 	      echo $var . ':' . ${$var} . "\n";
 
-	  $section = new Section($section_id['section'], $time_start, $time_end, $days, $synonym, $faculty_name, $meeting_place);
+	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place)), $synonym, $faculty_name);
 	  $semester->section_add($section_id['department'], $section_id['course'], $section);
 	}
 

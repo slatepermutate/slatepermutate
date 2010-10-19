@@ -62,7 +62,7 @@ function school_crawl_time_format($time)
  */
 function school_crawl_days_format($days)
 {
-  static $daymap_1 = array('m' => 1, 't' => 2, 'w' => 3, 'h' => 4, 'r' => 4, 'f' => 5);
+  static $daymap_1 = array('m' => 'm', 't' => 't', 'w' => 'w', 'h' => 'h', 'r' => 'h', 'f' => 'f');
   static $daymap_2 = array('th' => 'h');
 
   $my_days = array();

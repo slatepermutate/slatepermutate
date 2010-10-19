@@ -10,7 +10,8 @@ include_once 'class.section.php';
 // Supports multiple modes, prettiness, and searching for different indicators
 function arrayToDays($array, $mode = 'num', $pretty = false, $key = 1) {
 	$outString = '';
-	switch($mode){
+	switch($mode)
+	  {
 		case 'short':
 			$days = array('Mon','Tue','Wed','Thur','Fri');
 			break;
@@ -20,6 +21,9 @@ function arrayToDays($array, $mode = 'num', $pretty = false, $key = 1) {
 		case 'num':
 			$days = array('1','2','3','4','5');
 			break;
+	  case 'alpha':
+	    $days = array('m', 't', 'w', 'h', 'f');
+	    break;
 		default:
 			$outString = 'Invalid mode passed to arrayToDays()!';
 			return $outString;
@@ -117,7 +121,7 @@ if(!$DEBUG)
 				  /* Skip the section name, which isn't a section */
 					if(is_array($section))
 					{
-				             $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days']));
+					  $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days'], 'alpha'), NULL, $section['professor']);
 					}
 			}
 		}

@@ -71,7 +71,7 @@ class Schedule
   //--------------------------------------------------
   // Adds a section to the desired class.
   //--------------------------------------------------
-  function addSection($n, $l, $s, $e, $d, $synonym = NULL, $faculty = NULL, $room = NULL)
+  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $faculty = NULL, $room = NULL)
   {
     $found = false;
     $counter = 0;
@@ -80,7 +80,7 @@ class Schedule
       {
 	$temp = $this->classStorage[$counter]->getName();
 			
-	if((strcmp($temp,$n)) == 0)
+	if((strcmp($temp,$course_name)) == 0)
 	  {
 	    $found = true;
 	  } else {
@@ -90,9 +90,15 @@ class Schedule
 		
     if($counter == $this->nclasses)
       {
-	echo "Could not find class: " . $n . "<br />";
+	echo 'Could not find class: ' . $course_name . "<br />\n";
       } else {
-      $this->classStorage[$counter]->section_add(new Section($l, $s, $e, $d, $synonym, $faculty, $room));
+      $section = $this->classStorage[$counter]->section_get($letter);
+      if (!$section)
+	{
+	  $section = new Section($letter, array(), $synonym, $faculty);
+	  $this->classStorage[$counter]->section_add($section);
+	}
+      $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $room));
     }
   }
 
@@ -276,45 +282,69 @@ class Schedule
 
 		for($dayLoop = 0; $dayLoop < 5; $dayLoop++)
 		{
+		  $last_meeting = NULL;
 			for($j = 0; $j < $this->nclasses; $j++)
 			{
+			  $class = $this->classStorage[$j];
+			  $section_index = $this->storage[$i][$j];
+			  $section = $class->getSection($section_index);
 				// Makes sure there is not a class already in progress
 				if($this->getClassCont($dayLoop) == -1)
 				{
-					// Checks if the class meets on the given day
-					if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getDay($dayLoop)))
+				  /* iterate through all of a class's meeting times */
+				  $meetings = $section->getMeetings();
+
+				  /* find any meeting which are going on at this time */
+				  $current_meeting = NULL;
+				  foreach ($meetings as $meeting)
+				    {
+				      if ($meeting->getDay($dayLoop)
+					  && $meeting->getStartTime() >= $time[$r]
+					  && $meeting->getStartTime() < $time[$r+1])
 					{
-						// Checks if the class meets at the given time
-						if(($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() >= $time[$r]) && ($this->classStorage[$j]->getSection($this->storage[$i][$j])->getStartTime() < $time[$r+1]))
-						{
-							// Checks if the class continues after the given time
-							if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-							{
-								$table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities($this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter()) . "</td>";
-								$this->setClassCont($dayLoop, $j);
-								$filled = true;
-							}else{
-								$table .= "\n\n\t<td class=\"single class{$j}\">" . htmlentities($this->classStorage[$j]->getName()) . " " . htmlentities($this->classStorage[$j]->getSection($this->storage[$i][$j])->getLetter()) . "</td>";
-								$filled = true;
-							}
-						}
+					  $current_meeting = $meeting;
+					  /* $last_meeting has meaning for a longer time than $current_meeting does. */
+					  $last_meeting = $meeting;
 					}
-				}else{
-					if($j == $this->getClassCont($dayLoop))
+				    }
+				  
+				  if ($current_meeting)
+				    {
+				      // Checks if the class continues after the given time
+				      if($current_meeting->getEndTime() > $time[$r+1])
 					{
-						if($this->classStorage[$j]->getSection($this->storage[$i][$j])->getEndTime() > $time[$r+1])
-						{
-							$table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
-							$filled = true;
-						}else{
-							$table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
-							$this->setClassCont($dayLoop, -1);
-							$filled = true;
-						}
+					  $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($class->getName()) . " " . htmlentities($section->getLetter()) . "</td>";
+					  $this->setClassCont($dayLoop, $j);
+					  $filled = TRUE;
 					}
+				      else
+					{
+					  $table .= "\n\n\t<td class=\"single class{$j}\">" . htmlentities($class->getName()) . " " . htmlentities($section->getLetter()) . "</td>";
+					  $filled = TRUE;
+					}
+				    }
 				}
-			}
-			
+				
+				else
+				  {
+				    if($j == $this->getClassCont($dayLoop))
+				      {
+					if($last_meeting
+					   && $last_meeting->getEndTime() > $time[$r+1])
+					  {
+					    $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
+					    $filled = TRUE;
+					  }
+					else
+					  {
+					    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
+					    $this->setClassCont($dayLoop, -1);
+					    $filled = TRUE;
+					  }
+				      }
+			  }
+		}
+
 			// If the cell was not filled, fill it with an empty cell.
 			if(!$filled)
 			{
