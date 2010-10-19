@@ -128,8 +128,7 @@ if (file_exists($classes_file))
 /**
  * Nothing caught..
  */
-echo '["Oops"]';
-exit(0);
+clean_empty_exit();
 
 /**
  * \brief
