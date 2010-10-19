@@ -18,11 +18,10 @@ function cedarville_instructions_html()
   SlatePermutate can be a useful tool for scheduling your next semester at <a href="http://cedarville.edu/">Cedarville University</a>.
 </p>
 <ol>
-  <li>Get in touch with your advisor during advising/reading recess.</li>
-  <li>Look up each class your advisor specified on this course listing page</li>
-  <li>Enter each class into a SlatePermutate schedule and add each section that is listed that you are willing to take.</li>
-  <li>Submit your schedule and view all of the different permutations of your schedule which would work with the sections you specified.</li>
-  <li>Print out your preferred schedule by choosing "print" and selecting a schedule.</li>
+  <li>Sign up and <strong>talk to your advisor</strong> and figure out which courses you need to take.</li>
+  <li>Enter the course ID, such as PHYS-1020, in the Class ID blank. You will see a list of auto-suggestions.</li>
+  <li><strong>You must click on the auto-suggested item</strong> to automatically add all sections of the class.</li>
+  <li>Submit your schedule and view all of the different permutations of your schedule.</li>
   <li>Wait until it's your turn to register and grab your preferred sections before they fill up!</li>
 </ol> <!--'-->
 EOF;
