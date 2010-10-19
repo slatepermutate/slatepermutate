@@ -190,7 +190,7 @@ function add_sections(cnum, data)
 		jQuery('.className' + classNum).autocomplete({
 			source: "auto.php",
 		});
-		jQuery('.className' + classNum).bind('autocompletechange', {'class_num': classNum},
+		jQuery('.className' + classNum).bind('autocompleteselect', {'class_num': classNum},
 			function(event, ui)
 			    {
 				if (ui.item && ui.item.value.indexOf('-'))
