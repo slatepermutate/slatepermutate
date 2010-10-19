@@ -275,6 +275,7 @@ class Schedule
 	    // Header row
 	    $table .= "\n\t<tr>\n\t\t<td class=\"none permuteNum\">" . ($i+1) . "</td>\n\t\t<td class=\"day\">Monday</td>\n\t\t<td class=\"day\">Tuesday</td>\n\t\t<td class=\"day\">Wednesday</td>\n\t\t<td class=\"day\">Thursday</td>\n\t\t<td class=\"day\">Friday</td>\n\t</tr>";
 
+	    $last_meeting = array();
 	    for($r = 0; $r < (count($time)-1); $r++)
 	      {
 
@@ -282,7 +283,6 @@ class Schedule
 
 		for($dayLoop = 0; $dayLoop < 5; $dayLoop++)
 		{
-		  $last_meeting = NULL;
 			for($j = 0; $j < $this->nclasses; $j++)
 			{
 			  $class = $this->classStorage[$j];
@@ -303,8 +303,6 @@ class Schedule
 					  && $meeting->getStartTime() < $time[$r+1])
 					{
 					  $current_meeting = $meeting;
-					  /* $last_meeting has meaning for a longer time than $current_meeting does. */
-					  $last_meeting = $meeting;
 					}
 				    }
 				  
@@ -314,7 +312,10 @@ class Schedule
 				      if($current_meeting->getEndTime() > $time[$r+1])
 					{
 					  $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($class->getName()) . " " . htmlentities($section->getLetter()) . "</td>";
+				
 					  $this->setClassCont($dayLoop, $j);
+					  $last_meeting[$dayLoop] = $current_meeting;
+
 					  $filled = TRUE;
 					}
 				      else
@@ -324,13 +325,12 @@ class Schedule
 					}
 				    }
 				}
-				
 				else
 				  {
 				    if($j == $this->getClassCont($dayLoop))
 				      {
-					if($last_meeting
-					   && $last_meeting->getEndTime() > $time[$r+1])
+					if(isset($last_meeting[$dayLoop])
+					   && $last_meeting[$dayLoop]->getEndTime() > $time[$r+1])
 					  {
 					    $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
 					    $filled = TRUE;
