@@ -242,7 +242,7 @@ class Schedule
             });';
       echo '});</script>'; /* Close document.ready for jquery */
       echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>http://' . $_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'</p></div>';
-      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext" style="color: #999;"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
+      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
     }		
 
     if($this->nPermutations > 0)
