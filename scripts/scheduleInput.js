@@ -65,17 +65,18 @@ var sectionsOfClass = new Array();
     // General Input Functions
     //--------------------------------------------------
 
-	//--------------------------------------------------
-	// Returns the common inputs for each new section.
-	//--------------------------------------------------
-        function genSectionHtml(cnum)
-	{
-		genSectionHtml_n(cnum,'','','','','','');
-	}
+/**
+ * \brief
+ * Returns the common inputs for each new section.
+ */
+function genSectionHtml(cnum)
+{
+    genSectionHtml_n(cnum, '', '', '', '', '', '', '');
+}
 
-	/* @TODO: This should select & set items based on args, if the args != '' */
-	function genSectionHtml_n(cnum,name,synonym,stime,etime,days,prof)
-	{
+/* @TODO: This should select & set items based on args, if the args != '' */
+function genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location)
+{
 		var snum = sectionsOfClass[cnum];
 
 		var result = '<tr class="section class' + cnum + '"><td class="none"></td>';
@@ -136,7 +137,8 @@ var sectionsOfClass = new Array();
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][2]" value="1" ' + (days.w ? 'checked="checked"' : '') + ' /></td>\
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][3]" value="1" ' + (days.h ? 'checked="checked"' : '') + ' /></td>\
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][4]" value="1" ' + (days.f ? 'checked="checked"' : '') + ' /></td>';
-		result = result + '<td><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td></td></tr>';
+		result = result + '<td><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td>' 
+		    + '<input type="hidden" name="postData[' + cnum + '][' + snum + '][location]" value="' + location + '" />'+ '</td></tr>';
 		return result;
 	}
 
@@ -152,18 +154,19 @@ function genOptionHtml(value, content, test_value)
     return '<option value="' + value + '"' + selected + '>' + content + "</option>\n";
 }
 
-        //--------------------------------------------------
-        // Add a section to a class
-        //--------------------------------------------------
-	function add_section_n(cnum,name,synonym,stime,etime,days,prof)
-	{
-		 jQuery('.pclass'+cnum).after(genSectionHtml_n(cnum,name,synonym,stime,etime,days,prof));
-		 sectionsOfClass[cnum] ++;
-	}
-        function add_section(cnum)
-	{
-	    return add_section_n(cnum, '', '', '', '', {'m':false, 't':false, 'w':false, 'h':false, 'f':false}, '');
-        }
+/**
+ * \brief
+ *   Add a section to a class.
+ */
+function add_section_n(cnum, name, synonym, stime, etime, days, prof, location)
+{
+    jQuery('.pclass'+cnum).after(genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location));
+    sectionsOfClass[cnum] ++;
+}
+function add_section(cnum)
+{
+    return add_section_n(cnum, '', '', '', '', {'m':false, 't':false, 'w':false, 'h':false, 'f':false}, '', '');
+}
 
 /**
  * Add a list of sections gotten via an AJAX call.
@@ -176,7 +179,7 @@ function add_sections(cnum, data)
     for (i = data.sections.length - 1; i >= 0; i --)
 	{
 	    section = data.sections[i];
-	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.prof);
+	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.prof, section.location);
 	}
 }
 
