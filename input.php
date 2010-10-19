@@ -86,7 +86,7 @@ $inputPage->showSavedScheds($_SESSION);
 <p>
   Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '',
   FALSE); ?>! To get started, enter in some of your
-  classes, and add available sections for each class.
+  class IDs, and click the autosuggestion to add available sections for each class.
 </p>
 <form method="post" action="process.php" id="scheduleForm">
 <br />
