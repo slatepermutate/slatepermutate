@@ -22,8 +22,6 @@ class Schedule
   private $storage;				// Integer array of valid schedules
   private $title;
 
-	private $classContinue = array(-1, -1, -1, -1, -1);
-  
   /**
    * \brief
    *   My global identification number. Not defined until the schedule
@@ -262,35 +260,44 @@ class Schedule
 	  }
 			
 	$table .= "    </ul><div class=\"clear\"><p> </p> </div>\n  \n"
-	  . "  <div class=\"scroller\">"
-	  . "    <div class=\"scontent\">";
+	  . "  <div class=\"scroller\">\n"
+	  . "    <div class=\"scontent\">\n";
 		
 	for($i = 0; $i < $this->nPermutations; $i++)
 	  {
-	    $table .= "<div class=\"section\" id=\"tabs-" . ($i+1) . "\">";
+	    $table .= '      <div class="section" id="tabs-' . ($i+1) . "\">\n";
   
 	    // Beginning of table
-	    $table .= "<table style=\"empty-cells:show;\" border=\"1\" cellspacing=\"0\">";
+	    $table .= "        <table style=\"empty-cells:show;\" border=\"1\" cellspacing=\"0\">\n";
 				
 	    // Header row
-	    $table .= "\n\t<tr>\n\t\t<td class=\"none permuteNum\">" . ($i+1) . "</td>\n\t\t<td class=\"day\">Monday</td>\n\t\t<td class=\"day\">Tuesday</td>\n\t\t<td class=\"day\">Wednesday</td>\n\t\t<td class=\"day\">Thursday</td>\n\t\t<td class=\"day\">Friday</td>\n\t</tr>";
+	    $table .= "          <tr>\n"
+	      . '            <td class="none permuteNum">' . ($i + 1) . "</td>\n"
+	      . "            <td class=\"day\">Monday</td>\n"
+	      . "            <td class=\"day\">Tuesday</td>\n"
+	      . "            <td class=\"day\">Wednesday</td>\n"
+	      . "            <td class=\"day\">Thursday</td>\n"
+	      . "            <td class=\"day\">Friday</td>\n"
+	      . "          </tr>\n";
 
 	    $last_meeting = array();
+	    $rowspan = array(0, 0, 0, 0, 0);
 	    for($r = 0; $r < (count($time)-1); $r++)
 	      {
 
-		$table .= "\n\t<tr>\n\t\t<td class=\"time\">" . $this->prettyTime($time[$r]) . "</td>";
+		$table .= "          <tr>\n"
+		  . "            <td class=\"time\">" . $this->prettyTime($time[$r]) . "</td>\n";
 
 		for($dayLoop = 0; $dayLoop < 5; $dayLoop++)
 		{
-			for($j = 0; $j < $this->nclasses; $j++)
+		  /* Makes sure there is not a class already in progress */
+		  if($rowspan[$lastDay] <= 0)
+		    {
+		      for($j = 0; $j < $this->nclasses; $j++)
 			{
 			  $class = $this->classStorage[$j];
 			  $section_index = $this->storage[$i][$j];
 			  $section = $class->getSection($section_index);
-				// Makes sure there is not a class already in progress
-				if($this->getClassCont($dayLoop) == -1)
-				{
 				  /* iterate through all of a class's meeting times */
 				  $meetings = $section->getMeetings();
 
@@ -308,57 +315,48 @@ class Schedule
 				  
 				  if ($current_meeting)
 				    {
-				      // Checks if the class continues after the given time
-				      if($current_meeting->getEndTime() > $time[$r+1])
-					{
-					  $table .= "\n\t\t<td class=\"top class{$j}\">" . htmlentities($class->getName()) . " " . htmlentities($section->getLetter()) . "</td>";
-				
-					  $this->setClassCont($dayLoop, $j);
-					  $last_meeting[$dayLoop] = $current_meeting;
+				      /* calculate how many rows this section should span */
+				      for ($my_r = $r; $current_meeting->getEndTime() > $time[$my_r]; $my_r ++)
+					;
+				      $rowspan[$dayLoop] = $my_r - $r;
 
-					  $filled = TRUE;
-					}
-				      else
-					{
-					  $table .= "\n\n\t<td class=\"single class{$j}\">" . htmlentities($class->getName()) . " " . htmlentities($section->getLetter()) . "</td>";
-					  $filled = TRUE;
-					}
+				      $single_multi = 'single';
+				      if ($rowspan[$dayLoop] > 1)
+					$single_multi = 'multi';
+
+				      $table .= '            <td rowspan="' . $rowspan[$dayLoop]
+					. '" class="' . $single_multi . ' class' . $j
+					. '" title="prof: ' . htmlentities($section->getProf(), ENT_QUOTES)
+					. ', room: ' . htmlentities($meeting->getLocation(), ENT_QUOTES) . '">'
+					. htmlentities($class->getName(), ENT_QUOTES) . ' '
+					. htmlentities($section->getLetter(), ENT_QUOTES)
+					. "</td>\n";
+				      $filled = TRUE;
 				    }
-				}
-				else
-				  {
-				    if($j == $this->getClassCont($dayLoop))
-				      {
-					if(isset($last_meeting[$dayLoop])
-					   && $last_meeting[$dayLoop]->getEndTime() > $time[$r+1])
-					  {
-					    $table .= "\n\t\t<td class=\"mid class{$j}\">&nbsp;</td>";
-					    $filled = TRUE;
-					  }
-					else
-					  {
-					    $table .= "\n\t\t<td class=\"end class{$j}\">&nbsp;</td>";
-					    $this->setClassCont($dayLoop, -1);
-					    $filled = TRUE;
-					  }
-				      }
-			  }
-		}
+			}
+		    }
 
-			// If the cell was not filled, fill it with an empty cell.
+		  if ($rowspan[$dayLoop] > 0)
+		    {
+		      $filled = TRUE;
+		      $rowspan[$dayLoop] --;
+		    }
+
+		  /* If the cell was not filled, fill it with an empty cell. */
 			if(!$filled)
 			{
-				$table .= "\n\t\t<td class=\"none\">&nbsp;</td>";
+				$table .= "            <td class=\"none\">&nbsp;</td>\n";
 			}
-			$filled = false;
+			$filled = FALSE;
 		}
 		
 		// End of row
-		$table .= "\n\t</tr>";
+		$table .= "          </tr>\n";
 	      }
 
 	    // End of table
-	    $table .= '</table></div> <!-- id="section' . ($i + 1) . "\" -->\n";
+	    $table .= "        </table>\n"
+	      . '      </div> <!-- id="section' . ($i + 1) . "\" -->\n";
 	  }
 
 	echo $table
@@ -437,15 +435,4 @@ class Schedule
   {
     return $this->id;
   }
-
-  
-	function getClassCont($day)
-	{
-		return $this->classContinue[$day];
-	}
-	
-	function setClassCont($day, $i)
-	{
-		$this->classContinue[$day] = $i;
-	}
 }
