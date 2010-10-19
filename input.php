@@ -33,14 +33,14 @@ if ($sch)
       $my_hc .= '    class_last = add_class_n(\'' . htmlentities($class->getName(), ENT_QUOTES) . "');\n";
 
       $nsections = $class->getnsections();
-      for ($section_key = 0; $section_key < $nsections; $section_key ++)
+      for ($section_key = $nsections - 1; $section_key >= 0; $section_key --)
 	{
 	  $section = $class->getSection($section_key);
 	  $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section->getLetter(), ENT_QUOTES) . '\', \''
 	    . htmlentities($section->getSynonym(), ENT_QUOTES) . '\', \''
 	    . $section->getStartTime() . '\', \''
 	    . $section->getEndTime() . '\', '
-	    . json_encode(array('m' => $section->getM(), 't' => $section->getTu(), 'w' => $section->getW(), 'h' => $section->getTh(), 'f' => $section->getF())) . ', \''
+	    . json_encode(array('m' => $section->getDay(0), 't' => $section->getDay(1), 'w' => $section->getDay(2), 'h' => $section->getDay(3), 'f' => $section->getDay(4))) . ', \''
 	    . htmlentities($section->getProf(), ENT_QUOTES) . "');\n";
 	}
     }
