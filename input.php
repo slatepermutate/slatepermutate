@@ -102,6 +102,7 @@ $inputPage->showSavedScheds($_SESSION);
 	<tr>
 		<td>Class ID</td>
 		<td class="center" id="letterNumber">Section</td>
+		<td class="center">Prof</td>
 		<td class="center">Start Time</td>
 		<td class="center">End Time</td>
 		<td class="center">M</td>
