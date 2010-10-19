@@ -327,9 +327,11 @@ class Schedule
 				      $table .= '            <td rowspan="' . $rowspan[$dayLoop]
 					. '" class="' . $single_multi . ' class' . $j
 					. '" title="prof: ' . htmlentities($section->getProf(), ENT_QUOTES)
-					. ', room: ' . htmlentities($meeting->getLocation(), ENT_QUOTES) . '">'
-					. htmlentities($class->getName(), ENT_QUOTES) . ' '
-					. htmlentities($section->getLetter(), ENT_QUOTES)
+					. ', room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . '">'
+					. htmlentities($class->getName(), ENT_QUOTES) . '-'
+					. htmlentities($section->getLetter(), ENT_QUOTES) . "<br />\n"
+					. '<span class="prof">' . htmlentities($section->getProf(), ENT_QUOTES) . "</span><br />\n"
+					. '<span class="location">' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . "</span>\n"
 					. "</td>\n";
 				      $filled = TRUE;
 				    }

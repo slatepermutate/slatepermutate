@@ -55,6 +55,13 @@ td{
   border-style:none none solid solid;
 }
 
+.prof,
+.location
+{
+    color: #444444;
+    font-size: small;
+}
+
 /* Class Coloring */
 
 .class0 { background: #69c76f; }
