@@ -252,6 +252,25 @@ function school_instructions_html($school)
 
 /**
  * \brief
+ *   Return an array of default classes for a particular school.
+ *
+ * \param $school
+ *   The school's handle.
+ */
+function school_default_classes($school)
+{
+  $school_default_classes = $school['id'] . '_default_classes';
+  if (function_exists($school_default_classes))
+    {
+      require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'class.class.php');
+      return $school_default_classes();
+    }
+
+  return array();
+}
+
+/**
+ * \brief
  *   Used to load the school cache.
  *
  * \return

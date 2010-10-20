@@ -11,6 +11,8 @@ $inputPage = new page('Scheduler', $scripts, FALSE);
 
 $schedule_store = FALSE;
 $sch = FALSE;
+$school = $inputPage->get_school();
+
 if (isset($_REQUEST['s']))
   {
     $schedule_store = schedule_store_init();
@@ -18,43 +20,31 @@ if (isset($_REQUEST['s']))
     $sch = schedule_store_retrieve($schedule_store, $schedule_id);
   }
 
-if ($sch)
-{
-  $nclasses = $sch->nclasses_get();
-  $my_hc = 'jQuery(document).ready(
+$my_hc = 'jQuery(document).ready(
   function()
   {
     var class_last = 0;
 
 ';
+if ($sch)
+{
+  $nclasses = $sch->nclasses_get();
   for ($class_key = 0; $class_key < $nclasses; $class_key ++)
     {
-      $class = $sch->class_get($class_key);
-      $my_hc .= '    class_last = add_class_n(\'' . htmlentities($class->getName(), ENT_QUOTES) . "');\n";
-
-      $nsections = $class->getnsections();
-      for ($section_key = $nsections - 1; $section_key >= 0; $section_key --)
-	{
-	  $section = $class->getSection($section_key);
-	  $meetings = $section->getMeetings();
-	  foreach ($meetings as $meeting)
-	    {
-	      $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section->getLetter(), ENT_QUOTES) . '\', \''
-		. htmlentities($section->getSynonym(), ENT_QUOTES) . '\', \''
-		. $meeting->getStartTime() . '\', \''
-		. $meeting->getEndTime() . '\', '
-		. json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4))) . ', \''
-		. htmlentities($section->getProf(), ENT_QUOTES) . '\', \''
-		. htmlentities($meeting->getLocation(), ENT_QUOTES) . "');\n";
-	    }
-	}
+      $my_hc .= input_class_js($sch->class_get($class_key), '    ');
     }
-  $my_hc .= '  });
-';
-  $inputPage->headcode_add('scheduleInput', $inputPage->script_wrap($my_hc), TRUE);
 }
 else
-  $inputPage->headcode_add('schduleInput', $inputPage->script_wrap('jQuery(document).ready( function() { add_class(); } );'), TRUE);
+  {
+    $default_classes = school_default_classes($school);
+    foreach ($default_classes as $default_class)
+      $my_hc .= input_class_js($default_class, '    ');
+    $my_hc .= '    class_last = add_class();
+';
+  }
+$my_hc .= '  });
+';
+$inputPage->headcode_add('scheduleInput', $inputPage->script_wrap($my_hc), TRUE);
 
 $inputPage->head();
 
@@ -63,7 +53,6 @@ $inputPage->head();
  * student before displaying the input form. To do this, we need
  * another variable in $_SESSION: $_SESSION['school_chosen'].
  */
-$school = $inputPage->get_school();
 if ($school && (!empty($_REQUEST['school']) || $school['id'] != 'default'))
   $_SESSION['school_chosen'] = TRUE;
 if (!empty($_REQUEST['selectschool'])
@@ -134,3 +123,27 @@ $inputPage->showSavedScheds($_SESSION);
 <?php
 $inputPage->showSchoolInstructions();
 $inputPage->foot();
+
+function input_class_js(Classes $class, $whitespace = '  ')
+{
+  $js = $whitespace . 'class_last = add_class_n(\'' . htmlentities($class->getName(), ENT_QUOTES) . "');\n";
+
+  $nsections  = $class->getnsections();
+  for ($section_key = $nsections - 1; $section_key >= 0; $section_key --)
+    {
+      $section = $class->getSection($section_key);
+      $meetings = $section->getMeetings();
+      foreach ($meetings as $meeting)
+	{
+	  $js .= $whitespace . 'add_section_n(class_last, \'' . htmlentities($section->getLetter(), ENT_QUOTES) . '\', \''
+	    . htmlentities($section->getSynonym(), ENT_QUOTES) . '\', \''
+	    . $meeting->getStartTime() . '\', \''
+	    . $meeting->getEndTime() . '\', '
+	    . json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4))) . ', \''
+	    . htmlentities($section->getProf(), ENT_QUOTES) . '\', \''
+	    . htmlentities($meeting->getLocation(), ENT_QUOTES) . "');\n";
+	}
+    }
+
+  return $js;
+}

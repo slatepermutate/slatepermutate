@@ -29,6 +29,23 @@ EOF;
 
 /**
  * \brief
+ *   Get a list of default classes (with sections (with meeting
+ *   times)) for Cedarville students.
+ *
+ * \return
+ *   An array of Classes objects.
+ */
+function cedarville_default_classes()
+{
+  $chapel = new Classes('Chapel');
+  $chapel->section_add(new Section('_', array(new SectionMeeting('mtwhf', '0900', '0945', '', 'chapel')),
+				   '', '_'));
+
+  return array($chapel);
+}
+
+/**
+ * \brief
  *   Parse given html into an array, first row is row headers
  *
  * \param $html
