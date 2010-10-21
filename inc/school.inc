@@ -286,7 +286,7 @@ function _school_cache_load()
   $cache_file_name = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
     . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'schools';
   $cache_serialized = @file_get_contents($cache_file_name);
-  if (isset($cache_serialized))
+  if (!empty($cache_serialized))
     $cache = unserialize($cache_serialized);
 
   return $cache;
