@@ -291,7 +291,7 @@ class Schedule
 		for($dayLoop = 0; $dayLoop < 5; $dayLoop++)
 		{
 		  /* Makes sure there is not a class already in progress */
-		  if($rowspan[$lastDay] <= 0)
+		  if($rowspan[$dayLoop] <= 0)
 		    {
 		      for($j = 0; $j < $this->nclasses; $j++)
 			{
