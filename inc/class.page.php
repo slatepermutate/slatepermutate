@@ -407,4 +407,5 @@ class page
 ' . ($this->xhtml ? ']]>' : '') . '
 // </script>';
   }
+
 }

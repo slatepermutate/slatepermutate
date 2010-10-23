@@ -219,22 +219,14 @@ class Schedule
 	echo 'jQuery(\'.section\').hide();';
 	$items = explode(',', $_REQUEST['print']);
 	foreach($items as $item){
-	  echo 'jQuery(\'#section'.$item.'\').show();';
+	  echo 'jQuery(\'#tabs-'.$item.'\').show();';
 	}
       }
-
-      echo 'jQuery(\'#selectItemsInput\').hide();
-			      jQuery(\'#selectItems\').click( function() {
-				jQuery(\'#selectItemsInput\').show();
-			      });
-			      jQuery(\'#cancelItems\').click( function() {
-				jQuery(\'#selectItemsInput\').hide();
-			      });';
       echo '}); '; /* Close document.ready for jquery */
       echo 'window.print(); </script>';
 
-      echo '<p><span id="selectItems"><a href="#">Select Schedules to Print</a></span> :: <a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">Return to normal view</a> :: <a href="input.php">Home</a></p>';
-      echo '<div  id="selectItemsInput"><p><form action="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '"><label><strong>Schedules to Print</strong> <em>(seperate with commas, "all" for all)</em></label><br /><input type="text" name="print" value="'.$_REQUEST['print'].'" /><input type="submit" value="submit" /><span id="cancelItems"><input type="button" value="cancel" /></span></form></p></div>';
+      echo '<p><a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">Return to normal view</a> </p>';
+
     }
     else {
       echo '<script type="text/javascript">';
@@ -244,9 +236,15 @@ class Schedule
       echo 'jQuery("#share").click( function() {
               jQuery("#sharedialog").dialog("open");
             });';
+      echo 'jQuery(\'#printItems\').click( function() {
+		window.location = "'.$_SERVER['SCRIPT_NAME'].'?s='.$this->id_get().'&amp;print=" + (jQuery(\'#tabs\').tabs(\'option\',\'selected\') + 1);
+	    });
+	    jQuery(\'#cancelItems\').click( function() {
+		jQuery(\'#selectItemsInput\').hide();
+	    });';
       echo '});</script>'; /* Close document.ready for jquery */
       echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>http://' . $_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'</p></div>';
-      echo '<p><a href="'.$_SERVER["SCRIPT_NAME"].'?s=' . $this->id_get() . '&amp;print=all">Print</a> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
+      echo '<p><span id="printItems"><a href="#">Print</a></span> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
     }		
 
     if($this->nPermutations > 0)
