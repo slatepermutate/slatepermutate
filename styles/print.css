@@ -1,3 +1,23 @@
+@import url('general.css');
+@import url('output.css');
+
+/* Styling overrides for printing */
+
+
+body {
+  background: #fff;
+}
+
+#page {
+  font: normal 9pt sans-serif!important;
+  width: 100%!important;
+  min-width: 0px!important;
+  max-width: 10000px!important;
+}
+
+a img {
+  border: none;
+}
 div.scroller { 
 	border:0;
 	padding:0;
@@ -25,7 +45,12 @@ div.scroller div.section div.txt {
   display: none;
 }
 #leftfoot {
-  display: none; /* Hide feedback button */
+  display: none; 
+}
+
+
+#rightfoot {
+  text-align: right!important;
 }
 #possiblestats {
   text-align: center;

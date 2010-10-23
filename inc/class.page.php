@@ -135,7 +135,8 @@ class page
 	  <html ' . $this->htmlargs . '>
 	  <head>
 	    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>
-           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />';
+           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />
+	   <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />';
 
     // Write out all passed scripts
     foreach ($this->scripts as $i){
