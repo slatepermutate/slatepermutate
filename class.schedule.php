@@ -225,7 +225,7 @@ class Schedule
       echo '}); '; /* Close document.ready for jquery */
       echo 'window.print(); </script>';
 
-      echo '<p><a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">Return to normal view</a> </p>';
+      echo '<p><a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">&laquo; Return to normal view</a> </p>';
 
     }
     else {
@@ -243,7 +243,7 @@ class Schedule
 		jQuery(\'#selectItemsInput\').hide();
 	    });';
       echo '});</script>'; /* Close document.ready for jquery */
-      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>http://' . $_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'].'</p></div>';
+      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p><!--http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'].'-->'.$outputPage->gen_share_url($this->id_get()).'</p></div>';
       echo '<p><span id="printItems"><a href="#">Print</a></span> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
     }		
 
@@ -370,9 +370,9 @@ class Schedule
 
     /* edit button */
     if ($id = $this->id_get())
-      echo '<form method="get" action="input.php"><p><input type="hidden" name="s" value="' . $id . '" /><input class="gray" type="submit" value="edit" /></p></form>';
+      echo '<form method="get" action="input.php"><p><input type="hidden" name="s" value="' . $id . '" /><input class="gray" id="editbutton" type="submit" value="edit" /></p></form>';
 
-    echo "<p>There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
+    echo "<p id=\"possiblestats\">There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
 
     $outputPage->foot();
   }

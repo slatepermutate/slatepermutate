@@ -21,6 +21,12 @@ div.scroller div.section div.txt {
 	background: #fff!important;
 }
 
-#footer {
+#editbutton {
+  display: none;
+}
+#leftfoot {
+  display: none; /* Hide feedback button */
+}
+#possiblestats {
   text-align: center;
 }

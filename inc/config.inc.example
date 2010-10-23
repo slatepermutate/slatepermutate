@@ -29,6 +29,17 @@
 
 /**
  * \brief
+ *   Custom clean URLs for schedule sharing. $clean_urls must be enabled.
+ * 
+ * This string should be set to a valid base URL that is rewritten
+ * to a valid slate_permutate installation. This feature will be
+ * extended in the future to support URL shorteners.
+ */
+/* $short_url_base = 'http://example.com/sp/'; */
+
+
+/**
+ * \brief
  *   List of Google Analytics trackers to enable. Default: empty list.
  *
  * Set this to an array of Google Analytics tracker IDs if you want to

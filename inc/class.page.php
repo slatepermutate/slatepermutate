@@ -408,4 +408,22 @@ class page
 // </script>';
   }
 
+  private function add_trailing_slash($path){
+    if($path[strlen($path)-1] != '/') {
+      return $path . "/";
+    }
+    else {
+      return $path;
+    }
+  }
+
+  public function gen_share_url($id){
+    global $clean_urls, $short_url_base,$_SERVER;
+    if($clean_urls && isset($short_url_base)) {
+      return $this->add_trailing_slash($short_url_base) . $id;
+    }
+    else {
+      return 'http://' . $_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'];
+    }
+  }
 }
