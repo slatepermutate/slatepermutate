@@ -227,8 +227,11 @@ class Section
 	  if ($have_day)
 	    $days .= $daymap[$day];
 
+	/* the old format had a ->prof but initialied it to ``unknown prof'' */
+	$this->prof = '';
+
 	$this->meetings = array();
-	$this->meeting_add(new SectionMeeting($days, $this->start, $this->tend, '<location unknown>', 'lecture'));
+	$this->meeting_add(new SectionMeeting($days, $this->start, $this->tend, '', 'lecture'));
 
 	/*
 	 * if we're reserialized in the future, make sure we don't do this same upgrade procedure again ;-).
