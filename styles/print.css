@@ -55,3 +55,8 @@ div.scroller div.section div.txt {
 #possiblestats {
   text-align: center;
 }
+
+#show-box
+{ 
+  display: none;
+}

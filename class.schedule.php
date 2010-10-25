@@ -200,10 +200,10 @@ class Schedule
     $footcloser = '';
 
     if(isset($_REQUEST['print']) && $_REQUEST['print'] != ''){
-      $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'outputStyle', 'outputPrintStyle');
+      $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'outputStyle', 'outputPrintStyle', 'displayTables');
     }
     else {
-      $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'uiTabsKeyboard');
+      $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'uiTabsKeyboard', 'displayTables');
     }
     $outputPage = new Page(htmlentities($this->getName()), $headcode);
 
@@ -241,11 +241,21 @@ class Schedule
 	    });
 	    jQuery(\'#cancelItems\').click( function() {
 		jQuery(\'#selectItemsInput\').hide();
-	    });';
+	    });
+';
       echo '});</script>'; /* Close document.ready for jquery */
       echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p><!--http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'].'-->'.$outputPage->gen_share_url($this->id_get()).'</p></div>';
       echo '<p><span id="printItems"><a href="#">Print</a></span> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
     }		
+
+    echo "\n";
+    echo '<div id="show-box" class="gray righttext" style="float: right;">
+  <form>
+     <h3>Display</h3>
+     <div><input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label></div>
+     <div><input id="show-location" name="show-location" type="checkbox" checked="checked" /><label for="show-location">Room</label></div>
+  </form>
+  </div> <!-- id="details" -->';
 
     if($this->nPermutations > 0)
       {

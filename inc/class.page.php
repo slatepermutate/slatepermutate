@@ -58,9 +58,10 @@ class page
     $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css" type="text/css" media="screen" charset="utf-8" />'; 
     $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8" />'; 
-   $this->headCode['uiTabsKeyboard'] = '<script type="text/javascript" src="scripts/uiTabsKeyboard.js"></script>'; 
-   $this->pagetitle = $ntitle;
-   $this->scripts = $nscripts;
+    $this->headCode['uiTabsKeyboard'] = '<script type="text/javascript" src="scripts/uiTabsKeyboard.js" />';
+    $this->headCode['displayTables'] = '<script type="text/javascript" src="scripts/displayTables.js" />';
+    $this->pagetitle = $ntitle;
+    $this->scripts = $nscripts;
 
    /* compliant browsers which care, such as gecko, explicitly request xhtml: */
    if(!empty($_SERVER['HTTP_ACCEPT'])
