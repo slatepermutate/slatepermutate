@@ -25,5 +25,6 @@ function show_box_change()
 jQuery(document).ready( function()
   {
       jQuery('#show-box input').change(show_box_change);
+      jQuery('#show-box input').change();
   }
 );

@@ -249,11 +249,11 @@ class Schedule
     }		
 
     echo "\n";
-    echo '<div id="show-box" class="gray righttext" style="float: right;">
+    echo '<div id="show-box" class="gray righttext" style="float: right; padding-right: 5pt; padding-bottom: 7pt">
   <form>
      <h3>Display</h3>
-     <div><input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label></div>
-     <div><input id="show-location" name="show-location" type="checkbox" checked="checked" /><label for="show-location">Room</label></div>
+     <div style="text-align:left;"><input id="show-prof" name="show-prof" type="checkbox" /><label for="show-prof">Professor</label></div>
+     <div style="text-align:left;"><input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label></div>
   </form>
   </div> <!-- id="details" -->';
 
