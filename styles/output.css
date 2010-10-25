@@ -87,10 +87,16 @@ margin: auto;
 margin-top: 10px;
 margin-bottom: 2px; 
 }
+/* don't let the user see a tall stack of tabs before jQuery().tabs() is called. */
+#tabs li
+{ 
+  display: inline-block;
+}
 #tabs table {
   margin: auto;
 }
-#tabs li a{
+#tabs li a
+{
   -moz-border-radius-topright: 10px;
   border-top-right-radius: 10px;
   -moz-border-radius-topleft: 10px;
