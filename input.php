@@ -85,7 +85,7 @@ $inputPage->showSavedScheds($_SESSION);
 <form method="post" action="process.php" id="scheduleForm">
 <br />
 <label>Schedule Name</label><br />
-<input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="(e.g., Spring <?php echo Date('Y'); ?>)" name="postData[name]"
+<input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="Spring 2011" name="postData[name]"
 <?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; /*"*/ ?>
 />
 
