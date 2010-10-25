@@ -332,5 +332,8 @@ jQuery(document).ready(function() {
 		jQuery('.advanced').slideToggle();
 	});
 
+        add_class(); 
 	jQuery('#show-box input').change(show_box_change);
+
+
 });
