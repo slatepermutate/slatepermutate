@@ -333,7 +333,4 @@ jQuery(document).ready(function() {
 	});
 
         add_class(); 
-	jQuery('#show-box input').change(show_box_change);
-
-
 });
