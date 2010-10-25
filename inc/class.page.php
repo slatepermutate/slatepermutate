@@ -418,13 +418,19 @@ class page
     }
   }
 
-  public function gen_share_url($id){
-    global $clean_urls, $short_url_base,$_SERVER;
-    if($clean_urls && isset($short_url_base)) {
+  /**
+   * \brief
+   *   Generate a URL to a given schedule.
+   */
+  public function gen_share_url($id)
+  {
+    global $clean_urls, $short_url_base;
+
+    if ($clean_urls && isset($short_url_base))
       return $this->add_trailing_slash($short_url_base) . $id;
-    }
-    else {
-      return 'http://' . $_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'];
-    }
+    elseif ($clean_urls)
+      return 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/' . $id;
+    else
+      return 'http://' . $_SERVER['HTTP_HOST']  . dirname($_SERVER['REQUEST_URI']) . '/process.php?s=' . $id;
   }
 }
