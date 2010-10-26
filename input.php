@@ -82,6 +82,9 @@ $inputPage->showSavedScheds($_SESSION);
   FALSE); ?>! To get started, enter in some of your
   class IDs, and click the autosuggestion to add available sections for each class.
 </p>
+<p>
+  Note: The auto-complete function does not work in <b>Internet Explorer</b>.
+</p>
 <form method="post" action="process.php" id="scheduleForm">
 <br />
 <label>Schedule Name</label><br />
