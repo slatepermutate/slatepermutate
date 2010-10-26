@@ -2,7 +2,6 @@
         include_once 'inc/class.page.php';
         $feedbackpage = new page('Feedback');
 
-	$toaddrs = array('ethanzonca@gmail.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net');
 	$subject = '[SlatePermutate] - Feedback';
 ?>
 
@@ -48,9 +47,11 @@ Deployment = $fromdom
 
 $from = "From: $visitormail\r\n";
 
-foreach($toaddrs as $toaddr){
-  mail($toaddr, $subject, $message, $from);
-}
+/* $feedback_emails has its default set in inc/class.page.inc, can be set in config.inc */
+foreach($feedback_emails as $toaddr)
+  {
+    mail($toaddr, $subject, $message, $from);
+  }
 
 
 ?>

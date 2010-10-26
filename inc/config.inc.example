@@ -47,3 +47,13 @@
  */
 /* $ga_trackers = array(); */
 /* $ga_trackers = array('UA-XXXXXXXX-X'); */
+
+/**
+ * \brief
+ *   List of email addresses to send feedback form submissions to.
+ *
+ * Set this to a PHP array of email addresses to which feedback
+ * submissions should be mailed.
+ */ 
+/* $feedback_emails = array('ethanzonca@gmail.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net'); */
+/* $feedback_emails = array('user@example.org'); */
