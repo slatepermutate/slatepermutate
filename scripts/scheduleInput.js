@@ -13,6 +13,9 @@ var sectionsOfClass = new Array();
 	//--------------------------------------------------
 	// Default Error Message
 	//--------------------------------------------------
+/* on IE, jQuery.validator doesn't exist */
+if (jQuery.validator)
+    {
 	jQuery.each(jQuery.validator.messages, function(i) {
 		jQuery.validator.messages[i] = "<p class=\"error\">Please fill the field</p>";
 	});
@@ -58,7 +61,7 @@ var sectionsOfClass = new Array();
 	jQuery.validator.addClassRules("daysRequired", {
 		daysRequired: true
 	});
-
+    }
 
 
     //--------------------------------------------------
