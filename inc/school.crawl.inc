@@ -113,3 +113,148 @@ function school_crawl_days_str_format($days_str)
 
   return school_crawl_days_format($day_initials);
 }
+
+/**
+ * \brief
+ *   Simulate some aspects of a web browser while retreiving a
+ *   document.
+ *
+ * This allows us to view our cookies in an associative array and to
+ * have the server's response automatically update our cookies.
+ *
+ * If $post is specified as an associative array, an HTTP POST is
+ * performed and the data is encoded properly as if we were performing
+ * a form submission.
+ *
+ * Follows redirects. If there is a redirect, the page from which you
+ * are redirected is lost... but few people put any information on
+ * those pages anyways ;-).
+ *
+ * \param $uri
+ *   The URL to fetch. If a redirect occurs, this is updated.
+ * \param $cookies
+ *   An associative array of cookies and where to save new cookies.
+ * \param $post
+ *   If not NULL, causes an HTTP POST. In that case, should be an
+ *   associative array of form keys/values.
+ * \param $verbosity
+ *   How verbose to be.
+ * \param $loopspin
+ *   An internal variable to prevent us from following perpetual
+ *   redirects.
+ * \return
+ *   The body of the document returned by the server (normally
+ *   malformed HTML, especially with Calvin's WebAdvisor
+ *   installation).
+ */
+function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $verbosity = 0, $loopspin = 0)
+{
+  global $school_crawl_geturi_write_buf, $school_crawl_geturi_headers_buf, $school_crawl_geturi_verbosity;
+
+  if ($verbosity > 5)
+    {
+      echo "\n";
+      echo 'school_crawl_geturi(' . $uri . ")\n";
+      echo "\n";
+    }
+
+  $curl = curl_init();
+
+  $school_crawl_geturi_verbosity = $verbosity;
+  $school_crawl_geturi_write_buf = '';
+  $school_crawl_geturi_headers_buf = '';
+  curl_setopt($curl, CURLOPT_URL, $uri);
+
+  $cookies_str = '';
+  foreach ($cookies as $key => $val)
+    {
+      if (strlen($cookies_str))
+	$cookies_str .= ';';
+      $cookies_str .= $key . '=' . $val;
+    }
+
+  if ($verbosity > 8)
+    echo 'cookies sent: ' . $cookies_str . "\n";
+  curl_setopt($curl, CURLOPT_COOKIE, $cookies_str);
+  curl_setopt($curl, CURLOPT_HEADERFUNCTION, 'school_crawl_geturi_header_cb');
+  curl_setopt($curl, CURLOPT_WRITEFUNCTION, 'school_crawl_geturi_write_cb');
+
+  if ($post != NULL && is_array($post))
+    {
+
+      /* var_dump($post); */
+
+      $posttxt = '';
+      foreach ($post as $postkey => $postval)
+	{
+	  $posttxt .= (strlen($posttxt) ? '&' : '')
+	    . urlencode($postkey) . '=' . (strpos($postkey, 'MEMBER') === FALSE ? urlencode($postval) : $postval);
+	}
+      if ($verbosity > 8)
+	echo 'setting POST to ' . $posttxt . "\n";
+
+      /* curl_setopt($curl, CURLOPT_POST, TRUE); */
+      curl_setopt($curl, CURLOPT_POSTFIELDS, $posttxt);
+    }
+
+  curl_exec($curl);
+  curl_close($curl);
+
+  $location = NULL;
+  foreach (explode("\r\n", $school_crawl_geturi_headers_buf) as $header)
+    {
+      /*
+       * yes, we don't want the line if the first char is a ':' or if it has no ':'
+       */
+      if (!strpos($header, ':'))
+	continue;
+      list($header_name, $header_val) = explode(': ', $header, 2);
+
+      if ($verbosity > 8)
+	echo $header_name . ' : ' . $header_val . "\n";
+
+      switch($header_name)
+	{
+	case 'Set-Cookie':
+	  list($cookie_name, $cookie_val) = explode('=', $header_val, 2);
+	  if ($verbosity > 9)
+	    {
+	      if (isset($cookies[$cookie_name]))
+		echo 'Replacing cookie ' . $cookie_name . '=' . $cookies[$cookie_name]
+		  . ' with ';
+	      echo 'new cookie ' . $cookie_name . '=' . $cookie_val . "\n";
+	    }
+	  $cookies[$cookie_name] = $cookie_val;
+	  break;
+
+	case 'Location':
+	  $location = $header_val;
+	  $location = preg_replace(';(kvdata\.calvin\.edu/)(WebAdvisor);', '\1walive/\2', $location) . "\n";
+	  $post = NULL;
+	  break;
+	}
+    }
+
+  if ($verbosity > 9)
+    echo $school_crawl_geturi_write_buf;
+  if ($location && $loopspin < 6)
+    {
+      $uri = $location;
+      return school_crawl_geturi($uri, $cookies, $post, $loopspin + 1);
+    }
+  return $school_crawl_geturi_write_buf;
+}
+
+function school_crawl_geturi_header_cb($curl, $header_buf)
+{
+  global $school_crawl_geturi_headers_buf;
+  $school_crawl_geturi_headers_buf .= $header_buf;
+  return strlen($header_buf);
+}
+
+function school_crawl_geturi_write_cb($curl, $write_buf)
+{
+  global $school_crawl_geturi_write_buf;
+  $school_crawl_geturi_write_buf .= $write_buf;
+  return strlen($write_buf);
+}
