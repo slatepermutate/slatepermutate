@@ -10,19 +10,22 @@
 
 
 <?php
+Page::session_start();
 
 $ip = $_POST['ip'];
 $httpagent = $_POST['httpagent'];
 $fromdom = $_POST['fromdom'];
 $nameis = $_POST['nameis'];
 $visitormail = $_POST['visitormail'];
+$school = $_POST['school'];
+$school_id = isset($_SESSION['school']) ? $_SESSION['school'] : '';
 $feedback = $_POST['feedback'];
 $rating = $_POST['rating'];
 
 if (eregi('http:', $feedback)) { 
   echo 'Please do not include URLs in your submission! Please click "back" and try again.';
 }
-if((!$visitormail == "") && (!strstr($visitormail,"@") || !strstr($visitormail,"."))) {
+if((!$visitormail == '') && (!strstr($visitormail, '@') || !strstr($visitormail, '.'))) {
   echo '<p>Please click "back" and enter valid e-mail address.</p>';
 }
 if(empty($nameis) || empty($feedback) || empty($visitormail)) {
@@ -33,7 +36,8 @@ if(empty($nameis) || empty($feedback) || empty($visitormail)) {
 $feedback = stripcslashes($feedback);
 
 $message = date('l, F j, Y, g:i a') ."
-From: $nameis ($visitormail) \n
+From: $nameis ($visitormail)
+School: $school ($school_id)\n
 Rating: $rating 
 Feedback: $feedback 
 \n

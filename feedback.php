@@ -11,8 +11,9 @@
 <input type="hidden" name="fromdom" value="<?php echo $fromdom ?>" />
 <input type="hidden" name="httpagent" value="<?php echo $httpagenti ?>" />
 <h2>Feedback Form</h2>
-Name: <input type="text" name="nameis" size="20" /><br />
-Email:&nbsp; <input type="text" name="visitormail" size="20" /><span class="graytext"> (if you want us to get back to you)</span><br />
+<label for="nameis">Name: </label><input type="text" name="nameis" size="20" /><br />
+<label for="visitormail">Email:&nbsp; </label><input type="text" name="visitormail" size="20" /> <span class="graytext">(if you want us to get back to you)</span><br />
+<label for="school">School: </label><input type="text" name="school" size="20" /> <span class="graytext">(if relevant to your feedback)</span><br />
 
 
 <br/> Overall Rating:<br/> <input checked="checked" name="rating" type="radio" value="Good" />Good <input name="rating" type="radio" value="Buggy" />Buggy  <input name="rating" type="radio" value="Needs more features" />Needs more features <input name="rating" type="radio" value="Don't know" />Don't Know
