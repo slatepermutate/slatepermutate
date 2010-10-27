@@ -58,7 +58,8 @@ td{
 }
 
 .prof,
-.location
+.location,
+.synonym
 {
     color: #444444;
     font-size: small;
