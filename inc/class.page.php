@@ -70,8 +70,10 @@ class page
       || !strlen($_SERVER['HTTP_ACCEPT']) /* then the browser doesn't care :-) */)
      {
        $this->xhtml = TRUE;
-       header('Content-type: application/xhtml+xml');
+       header('Content-Type: application/xhtml+xml; charset=utf-8');
      }
+   else
+     header('Content-Type: text/html; charset=utf-8');
 
    if (count($ga_trackers))
      {
@@ -127,7 +129,12 @@ class page
 
 // Public functions/vars
 
-  public function head(){
+  /**
+   * \brief
+   *   Output the HTML header for a page, including the <!DOCTYPE> and <head />
+   */
+  public function head()
+  {
     $this->pageGenTime = round(microtime(), 3);
 
     if ($this->xhtml)
@@ -141,9 +148,8 @@ class page
 	   <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />';
 
     // Write out all passed scripts
-    foreach ($this->scripts as $i){
-    	echo $this->headCode["$i"];
-    }
+    foreach ($this->scripts as $i)
+      echo '            ' . $this->headCode["$i"] . "\n";
 
     echo '</head>
 	  <body '.$this->bodyargs.' ><div id="page">';
