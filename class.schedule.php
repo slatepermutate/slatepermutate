@@ -252,8 +252,9 @@ class Schedule
     echo '<div id="show-box" class="gray righttext" style="float: right; padding-right: 5pt; padding-bottom: 7pt">
   <form>
      <h3>Display</h3>
-     <div style="text-align:left;"><input id="show-prof" name="show-prof" type="checkbox" /><label for="show-prof">Professor</label></div>
+     <div style="text-align:left;"><input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label></div>
      <div style="text-align:left;"><input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label></div>
+     <div style="text-align:left;"><input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label></div>
   </form>
   </div> <!-- id="details" -->';
 
@@ -340,6 +341,7 @@ class Schedule
 					. htmlentities($section->getLetter(), ENT_QUOTES) . "\n"
 					. '<span class="prof block">' . htmlentities($section->getProf(), ENT_QUOTES) . "</span>\n"
 					. '<span class="location block">' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . "</span>\n"
+					. '<span class="synonym block">' . htmlentities($section->getSynonym(), ENT_QUOTES) . "</span>\n"
 					. "</td>\n";
 				      $filled = TRUE;
 				    }

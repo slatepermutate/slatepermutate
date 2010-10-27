@@ -121,7 +121,7 @@ if(!$DEBUG)
 				  /* Skip the section name, which isn't a section */
 					if(is_array($section))
 					{
-					  $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days'], 'alpha'), NULL, $section['professor'], $section['location']);
+					  $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location']);
 					}
 			}
 		}

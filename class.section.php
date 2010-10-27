@@ -47,6 +47,8 @@ class Section
 
     $this->meetings = $section_meetings;
 
+    $this->synonym = $synonym;
+
     $this->prof = $prof;
   }
 

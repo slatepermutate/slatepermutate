@@ -83,7 +83,7 @@ function genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, locatio
 		var snum = sectionsOfClass[cnum];
 
 		var result = '<tr class="section class' + cnum + '"><td class="none"></td>';
-	        result = result + '<td class="sectionIdentifier center"><input type="hidden" name="postData[' + cnum + '][' + snum + '][synonym]" value="' + synonym + '" /><input type="text" size="1" class="required" name="postData[' + cnum + '][' + snum + '][letter]" value="' + name + '" /></td>';
+	        result = result + '<td class="sectionIdentifier center"><input type="text" name="postData[' + cnum + '][' + snum + '][synonym]" value="' + synonym + '" /><input type="text" size="1" class="required" name="postData[' + cnum + '][' + snum + '][letter]" value="' + name + '" /></td>';
 		result = result + '<td class="professor center"><input type="text" size="10" class="" name="postData[' + cnum + ']['+ snum + '][professor]" value="' + prof + '" /></td>';
 		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>'
 				 + genOptionHtml("0700", "7:00 am", stime) + genOptionHtml("0730", "7:30 am", stime)
