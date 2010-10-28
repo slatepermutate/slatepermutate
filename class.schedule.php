@@ -256,7 +256,7 @@ class Schedule
      <div style="text-align:left;"><input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label></div>
      <div style="text-align:left;"><input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label></div>
   </form>
-  </div> <!-- id="details" -->';
+  </div> <!-- id="show-box" -->';
 
     if($this->nPermutations > 0)
       {
