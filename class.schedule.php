@@ -193,7 +193,6 @@ class Schedule
   //--------------------------------------------------
   function writeoutTables()
   {
-    $table = "";
     $filled = false;
     $time = array(700,730,800,830,900,930,1000,1030,1100,1130,1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,1800,1830,1900,1930,2000,2030,2100,2130, 2200);
 
@@ -252,7 +251,7 @@ class Schedule
 
     if($this->nPermutations > 0)
       {
-	$table .= "<div id=\"tabs\">\n"
+	echo "<div id=\"tabs\">\n"
 
 
     . '  <div id="show-box" class="show-buttons">
@@ -271,22 +270,22 @@ class Schedule
 			
 	for($nn = 1; $nn <= $this->nPermutations; $nn++)
 	  {
-	    $table .= "<li><a href=\"#tabs-" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a></li>\n";
+	    echo  "<li><a href=\"#tabs-" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a></li>\n";
 	  }
 			
-	$table .= "    </ul></div>\n  \n"
+	echo "    </ul></div>\n  \n"
 	  . "  <div class=\"scroller\">\n"
 	  . "    <div class=\"scontent\">\n";
 		
 	for($i = 0; $i < $this->nPermutations; $i++)
 	  {
-	    $table .= '      <div class="section" id="tabs-' . ($i+1) . "\">\n";
+	     echo  '      <div class="section" id="tabs-' . ($i+1) . "\">\n";
   
 	    // Beginning of table
-	    $table .= "        <table style=\"empty-cells:show;\" border=\"1\" cellspacing=\"0\">\n";
+	    echo "        <table style=\"empty-cells:show;\" border=\"1\" cellspacing=\"0\">\n";
 				
 	    // Header row
-	    $table .= "          <tr>\n"
+	    echo "          <tr>\n"
 	      . '            <td class="none permuteNum">' . ($i + 1) . "</td>\n"
 	      . "            <td class=\"day\">Monday</td>\n"
 	      . "            <td class=\"day\">Tuesday</td>\n"
@@ -300,7 +299,7 @@ class Schedule
 	    for($r = 0; $r < (count($time)-1); $r++)
 	      {
 
-		$table .= "          <tr>\n"
+		echo "          <tr>\n"
 		  . "            <td class=\"time\">" . $this->prettyTime($time[$r]) . "</td>\n";
 
 		for($dayLoop = 0; $dayLoop < 5; $dayLoop++)
@@ -339,7 +338,7 @@ class Schedule
 				      if ($rowspan[$dayLoop] > 1)
 					$single_multi = 'multi';
 
-				      $table .= '            <td rowspan="' . $rowspan[$dayLoop]
+				      echo '            <td rowspan="' . $rowspan[$dayLoop]
 					. '" class="' . $single_multi . ' class' . $j
 					. '" title="prof: ' . htmlentities($section->getProf(), ENT_QUOTES)
 					. ', room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . '">'
@@ -363,17 +362,17 @@ class Schedule
 		  /* If the cell was not filled, fill it with an empty cell. */
 			if(!$filled)
 			{
-				$table .= "            <td class=\"none\">&nbsp;</td>\n";
+				echo "            <td class=\"none\">&nbsp;</td>\n";
 			}
 			$filled = FALSE;
 		}
 		
 		// End of row
-		$table .= "          </tr>\n";
+		echo "          </tr>\n";
 	      }
 
 	    // End of table
-	    $table .= "        </table>\n"
+	    echo "        </table>\n"
 	      . '      </div> <!-- id="section' . ($i + 1) . "\" -->\n";
 	  }
 
