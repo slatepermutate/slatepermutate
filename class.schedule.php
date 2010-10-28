@@ -255,13 +255,13 @@ class Schedule
 	$table .= "<div id=\"tabs\">\n"
 
 
-    . '<div id="show-box" class="show-buttons">
-  <form>
-     <label><strong>Display:</strong></label>
-     <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
-     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
-     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
-  </form>
+    . '  <div id="show-box" class="show-buttons">
+    <form>
+       <label><strong>Display:</strong></label>
+       <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
+       <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
+       <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
+    </form>
   </div> <!-- id="show-box" -->'
 
 
