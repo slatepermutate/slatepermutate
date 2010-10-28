@@ -13,9 +13,6 @@ var sectionsOfClass = new Array();
 	//--------------------------------------------------
 	// Default Error Message
 	//--------------------------------------------------
-/* on IE, jQuery.validator doesn't exist */
-if (jQuery.validator)
-    {
 	jQuery.each(jQuery.validator.messages, function(i) {
 		jQuery.validator.messages[i] = "<p class=\"error\">Please fill the field</p>";
 	});
@@ -61,7 +58,6 @@ if (jQuery.validator)
 	jQuery.validator.addClassRules("daysRequired", {
 		daysRequired: true
 	});
-    }
 
 
     //--------------------------------------------------
@@ -193,8 +189,8 @@ function add_sections(cnum, data)
 	{
 		sectionsOfClass[classNum] = 0; // Initialize at 0
 		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td><input type="text" class="className required defText className'+classNum+'" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="9"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add Section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
-		if (jQuery('.className' + classNum).autocomplete)
-		    jQuery('.className' + classNum).autocomplete({ source: "auto.php" });
+
+		jQuery('.className' + classNum).autocomplete({ source: "auto.php" });
 		jQuery('.className' + classNum).bind('autocompleteselect', {'class_num': classNum},
 			function(event, ui)
 			    {
@@ -270,10 +266,7 @@ jQuery(document).ready(function() {
 	// Validates the form (pre-submission check)
 	//--------------------------------------------------
 	/* don't call if IE doesn't think the function exists */
-	if (jQuery('#scheduleForm').validate)
-		jQuery('#scheduleForm').validate({
-			debug: false,
-		}); 
+	jQuery('#scheduleForm').validate({ debug: false });
 
 	//--------------------------------------------------
 	// Bind the class-adding method
