@@ -269,6 +269,8 @@ jQuery(document).ready(function() {
 	//--------------------------------------------------
 	// Validates the form (pre-submission check)
 	//--------------------------------------------------
+	/* don't call if IE doesn't think the function exists */
+	if (jQuery('#scheduleForm').validate)
 		jQuery('#scheduleForm').validate({
 			debug: false,
 		}); 
