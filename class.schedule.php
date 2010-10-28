@@ -249,26 +249,32 @@ class Schedule
     }		
 
     echo "\n";
-    echo '<div id="show-box" class="gray righttext" style="float: right; padding-right: 5pt; padding-bottom: 7pt">
-  <form>
-     <h3>Display</h3>
-     <div style="text-align:left;"><input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label></div>
-     <div style="text-align:left;"><input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label></div>
-     <div style="text-align:left;"><input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label></div>
-  </form>
-  </div> <!-- id="show-box" -->';
 
     if($this->nPermutations > 0)
       {
 	$table .= "<div id=\"tabs\">\n"
-	  . "  <ul>\n";
+
+
+    . '<div id="show-box" class="show-buttons">
+  <form>
+     <label><strong>Display:</strong></label>
+     <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
+     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
+     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
+  </form>
+  </div> <!-- id="show-box" -->'
+
+
+
+
+	  . "<div><ul>\n";
 			
 	for($nn = 1; $nn <= $this->nPermutations; $nn++)
 	  {
 	    $table .= "<li><a href=\"#tabs-" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a></li>\n";
 	  }
 			
-	$table .= "    </ul><div class=\"clear\"><p> </p> </div>\n  \n"
+	$table .= "    </ul></div><div class=\"clear\"><p> </p> </div>\n  \n"
 	  . "  <div class=\"scroller\">\n"
 	  . "    <div class=\"scontent\">\n";
 		

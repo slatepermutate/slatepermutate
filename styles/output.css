@@ -137,3 +137,18 @@ margin-bottom: 2px;
 }
 #tabs li /* , .ui-corner-all, .ui-corner-top */ { background: none!important; }
 #tabs li { border: none!important; }
+
+.show-buttons {
+
+  width: 99%;
+  margin: auto;
+  padding: 2px;
+  background: #EEE;
+  border: 1px solid #AAA;
+  border-radius: 3px;
+  -moz-border-radus: 3px;
+
+}
+.show-buttons label {
+  padding-right: .5em;
+}
