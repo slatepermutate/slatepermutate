@@ -274,7 +274,7 @@ class Schedule
 	    $table .= "<li><a href=\"#tabs-" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a></li>\n";
 	  }
 			
-	$table .= "    </ul></div><div class=\"clear\"><p> </p> </div>\n  \n"
+	$table .= "    </ul></div>\n  \n"
 	  . "  <div class=\"scroller\">\n"
 	  . "    <div class=\"scontent\">\n";
 		
