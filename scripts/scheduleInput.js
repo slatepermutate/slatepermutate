@@ -175,6 +175,11 @@ function add_sections(cnum, data)
     var i;
     if (!data.sections)
 	return;
+    /*
+     * we get the sections in the correct order. For the user to see
+     * them in the correct order, we must reverse the add_setion_n()
+     * calls.
+     */
     for (i = data.sections.length - 1; i >= 0; i --)
 	{
 	    section = data.sections[i];
@@ -203,7 +208,11 @@ function add_sections(cnum, data)
 							  context: {'class_num': event.data.class_num},
 							  success: function(data, textStatus, reqobj)
 							      {
-								  add_sections(this.class_num, data);
+								  if (data.sections)
+								      {
+									  add_sections(this.class_num, data);
+									  add_class();
+								      }
 							      }
 						      }
 						      );
