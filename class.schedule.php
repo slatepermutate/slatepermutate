@@ -196,6 +196,18 @@ class Schedule
     $filled = false;
     $time = array(700,730,800,830,900,930,1000,1030,1100,1130,1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,1800,1830,1900,1930,2000,2030,2100,2130, 2200);
 
+    define('SP_PERMUTATIONS_PER_PAGE', 256);
+
+    $npages = ceil($this->nPermutations / SP_PERMUTATIONS_PER_PAGE);
+    $page = 0;
+    if (isset($_REQUEST['page']))
+      $page = $_REQUEST['page'];
+    if ($page >= $npages)
+      Page::show_404('Unable to find page ' . $page . ', there are only ' . $this->nPermutations . ' non-conflicting permutations, for a total of ' . $npages . ' pages.');
+    /* zero-based */
+    $first_permutation = $page * SP_PERMUTATIONS_PER_PAGE;
+    $last_permutation = min($this->nPermutations, $first_permutation + SP_PERMUTATIONS_PER_PAGE);
+
     $footcloser = '';
 
     if(isset($_REQUEST['print']) && $_REQUEST['print'] != ''){
@@ -265,19 +277,30 @@ class Schedule
 
 
 
-
-	  . "<div><ul>\n";
+	  . "<div id=\"the-tabs\"><ul>\n";
 			
-	for($nn = 1; $nn <= $this->nPermutations; $nn++)
+	for($nn = $first_permutation + 1; $nn <= $last_permutation; $nn++)
 	  {
 	    echo  "<li><a href=\"#tabs-" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a></li>\n";
 	  }
 			
-	echo "    </ul></div>\n  \n"
-	  . "  <div class=\"scroller\">\n"
+	echo "    </ul></div>\n  \n";
+
+	echo "    <div id=\"pagers\">\n";
+	/* Previous button */
+	if ($page > 0)
+	  echo '      <div id="pager-previous" class="pager left"><a href="' . $this->url($this->id, $page - 1) . '">&laquo; Previous</a></div>' . "\n";
+
+	/* Next button */
+	if ($page + 1 < $npages)
+	  echo '      <div id="pager-next" class="pager right"><a href="' . $this->url($this->id, $page + 1) . '">Next &raquo;</a></div>' . "\n";
+	echo "    </div> <!-- id=\"pagers\" -->\n";
+
+
+	echo "  <div class=\"scroller\">\n"
 	  . "    <div class=\"scontent\">\n";
 		
-	for($i = 0; $i < $this->nPermutations; $i++)
+	for($i = $first_permutation; $i < $last_permutation; $i++)
 	  {
 	     echo  '      <div class="section" id="tabs-' . ($i+1) . "\">\n";
   
@@ -451,5 +474,38 @@ class Schedule
   function id_get()
   {
     return $this->id;
+  }
+
+  /**
+   * \brief
+   *   Write out a relative URL for a particular schedule.
+   *
+   * Takes into account the $clean_urls setting.
+   *
+   * \param $id
+   *   The ID of the schedule to link to. Defaults to the current schedule object.
+   * \param $page
+   *   The page of the schedule to link to. Defaults to 0.
+   */
+  function url($id = NULL, $page = 0)
+  {
+    global $clean_urls;
+
+    $url = '';
+    if (!$clean_urls)
+      $url .= 'process.php?s=';
+
+    if (!$id)
+      $id = $this->id;
+    $url .= (int)$id;
+    if ($clean_urls)
+      $url .= '?';
+    else
+      $url .= '&';
+
+    if ($page)
+      $url .= 'page=' . (int)$page . '&amp;';
+
+    return $url;
   }
 }
