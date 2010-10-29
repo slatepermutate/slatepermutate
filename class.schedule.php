@@ -202,7 +202,12 @@ class Schedule
     $page = 0;
     if (isset($_REQUEST['page']))
       $page = $_REQUEST['page'];
-    if ($page >= $npages)
+    /*
+     * only display the ``this page doesn't exist'' 404 if there is at
+     * least one permutation. Otherwise, we give an irrelevant 404 for
+     * users with no permutations.
+     */
+    if ($this->nPermutations && $page >= $npages)
       Page::show_404('Unable to find page ' . $page . ', there are only ' . $this->nPermutations . ' non-conflicting permutations, for a total of ' . $npages . ' pages.');
     /* zero-based */
     $first_permutation = $page * SP_PERMUTATIONS_PER_PAGE;
