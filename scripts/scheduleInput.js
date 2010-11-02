@@ -49,6 +49,42 @@ var sectionsOfClass = new Array();
 		"<p class=\"error\">Select a day!</p>" 
 	); 
 
+/**
+ * Class name validation: only require a class name if it has at least
+ * one section. Backend throws out empty classes and it's more
+ * convenient if we can let the user have one extra, empty class. This
+ * is because we automatically add a new class each time we do an
+ * autofill to make the life of the user easier and less confusing.
+ */
+jQuery.validator.addMethod('classRequired',
+			   function(value, element)
+			   {
+			       if (value.length)
+				   return true;
+
+			       var css_classes = jQuery(element).attr('class');
+			       var cnum_pos = css_classes.indexOf('className');
+			       var cnum = css_classes.substr(cnum_pos + 'className'.length, css_classes.indexOf(' ', cnum_pos) - cnum_pos - 'className'.length) * 1;
+			       if (cnum < 0 || cnum > classNum)
+				   alert('JS error: ' + cnum + ' is an invalid class number.');
+
+			       /*
+				* ignore the class with no
+				* sections. This only works when the
+				* class was added and the user _never_
+				* clicked the Add Section button. Once
+				* the user clicks that button, he has
+				* to delete the class because of how
+				* our numbering works.
+				*/
+			       if (!sectionsOfClass[cnum])
+				   return true;
+
+			       return false;
+			   },
+			   '<p class="error">Enter Class Name.</p>'
+			   );
+
 	//--------------------------------------------------
 	// Add validation rules
 	//--------------------------------------------------
@@ -58,6 +94,7 @@ var sectionsOfClass = new Array();
 	jQuery.validator.addClassRules("daysRequired", {
 		daysRequired: true
 	});
+jQuery.validator.addClassRules('classRequired', { classRequired: true });
 
 
     //--------------------------------------------------
@@ -193,7 +230,7 @@ function add_sections(cnum, data)
 	function add_class_n(name)
 	{
 		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td><input type="text" class="className required defText className'+classNum+'" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="9"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add Section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
+		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td><input type="text" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="9"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add Section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
 
 		jQuery('.className' + classNum).autocomplete({ source: "auto.php" });
 		jQuery('.className' + classNum).bind('autocompleteselect', {'class_num': classNum},
@@ -274,7 +311,6 @@ jQuery(document).ready(function() {
 	//--------------------------------------------------
 	// Validates the form (pre-submission check)
 	//--------------------------------------------------
-	/* don't call if IE doesn't think the function exists */
 	jQuery('#scheduleForm').validate({ debug: false });
 
 	//--------------------------------------------------
