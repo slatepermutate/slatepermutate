@@ -72,6 +72,7 @@ function cedarville_default_classes()
  */
 function table_parse($html)
 {
+  libxml_use_internal_errors(true); // Suppress warnings
   $arr = array();
   $dom = new DOMDocument;
   if(!$html)
@@ -93,6 +94,7 @@ function table_parse($html)
 /** Crawls Cedarville course listings. $season is "fa" or "sp", year is 4-digit year */
 function cedarville_crawl($semester, $verbosity = 1)
 {  
+
   $season = strtolower(substr($semester->season_get(), 0, 2));
   $year = $semester->year_get();
 
@@ -100,10 +102,13 @@ function cedarville_crawl($semester, $verbosity = 1)
   $departments = array('be','ba','ca','ed','eg','es','hg','id','ll','ms','mu','ns','ph','py','sm','sw');
   $basepath = "http://cedarville.edu/courses/schedule/";
 
+  echo "cedarville_crawl(): Beginning crawl of Cedarville:\n";
+
   $season = strtolower($season);
   $tables = array();
   foreach($departments as $department)
     {
+      echo "cedarville_crawl(): Crawling department \"$department\"...\n";
       $html = file_get_contents($basepath . $year . $season . '_' . $department . '_' . 'all.htm');
       if (!$html)
 	continue;
