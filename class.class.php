@@ -28,7 +28,7 @@ include_once 'class.section.php';
 
 class Classes
 {
-  private $name;		// String
+  private $name;	// String
   private $sections;	// Array of sections
   private $nsections;	// int
     
@@ -49,7 +49,7 @@ class Classes
   public function section_add(Section $section)
   {
     $this->sections[$this->nsections] = $section;
-    $this->nsections ++;
+    $this->nsections++;
   }
 
   //--------------------------------------------------
@@ -65,14 +65,6 @@ class Classes
   //--------------------------------------------------
   function getSection($i)
   {
-    // Checks to make sure the desired section is part of the set.
-    if(isset($this->sections[$i]))
-      {
-	//echo "Object sections[$i] was set<br />";
-      } else {
-      echo "Object sections[$i] was NOT set <br />";
-    }
-
     $result = $this->sections[$i];
     return $result;
   }
@@ -91,10 +83,11 @@ class Classes
    */
   public function section_get($letter)
   {
-    foreach ($this->sections as $section)
-      if ($section->getLetter() == $letter)
+    foreach ($this->sections as $section) {
+      if ($section->getLetter() == $letter) {
 	return $section;
-
+      }
+    }
     return NULL;
   }
 
@@ -126,8 +119,9 @@ class Classes
   public static function parse($course_spec)
   {
     $section_parts = Section::parse($course_spec);
-    if (isset($section_parts['section']))
+    if (isset($section_parts['section'])) {
       unset($section_parts['section']);
+    }
 
     return $section_parts;
   }

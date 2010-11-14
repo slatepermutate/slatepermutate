@@ -26,26 +26,40 @@
 /* defaults */
 $clean_urls = FALSE;
 $ga_trackers = array();
-$feedback_emails = array('ethanzonca@gmail.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net');
+$feedback_emails = array('ez@ethanzonca.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net');
 
 $config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
-if (file_exists($config_inc))
+if (file_exists($config_inc)) {
   require_once($config_inc);
+}
 
-/* Class for general page generation */
+
+
+
+//**************************************************
+// class.page.php   Author: Ethan Zonca
+//
+// Provides an interface for generating a styled
+// XHTML page, supporting modular script inclusion
+// and other various features
+//**************************************************
 class page
 {
+
+  /* Site-wide configuration options */
   private $base_title = 'SlatePermutate';
   private $doctype = 'html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"';
   private $htmlargs = 'xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"';
   private $bodyargs = '';
+
+
   public $lastJobTable = '';
   private $pageGenTime = 0;
 
-  /* whether or not to output valid XHTML */
+  /* Whether or not to output valid XHTML */
   private $xhtml = FALSE;
 
-  // Scripts and styles
+  /* Scripts and styles */
   private $headCode = array();
 
   /*
@@ -82,7 +96,7 @@ class page
     $this->pagetitle = $ntitle;
     $this->scripts = $nscripts;
 
-   /* compliant browsers which care, such as gecko, explicitly request xhtml: */
+   /* Compliant browsers which care, such as gecko, explicitly request xhtml: */
    if(!empty($_SERVER['HTTP_ACCEPT'])
       && strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== FALSE
       || !strlen($_SERVER['HTTP_ACCEPT']) /* then the browser doesn't care :-) */)
@@ -145,8 +159,6 @@ class page
       $this->scripts[] = $key;
   }
 
-// Public functions/vars
-
   /**
    * \brief
    *   Output the HTML header for a page, including the <!DOCTYPE> and <head />
@@ -174,44 +186,38 @@ class page
     echo $this->top(); // Write out top
   }
 
+  /** Write out the top of the page, including opening div tags, header title and images, etc */
   private function top(){
     echo '<div id="header">
-
 	    <div id="title">
               <h1><a href="index.php"><img src="images/slatepermutate.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>
-              <p><span id="subtitle">'.$this->pagetitle.'</span>
-  	      <span id="menu">Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a></span>
-
+              <p>
+                <span id="subtitle">'.$this->pagetitle.'</span>
+  	        <span id="menu">Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a></span>
               </p>
-
-
-
             </div>
-
 	  </div>
           <div id="content">';
   }
 
-
-
+  /** Write out the foot of the page and closing divs */
   public function foot(){
     echo '</div> <!-- id="content" -->';
     $this->pageGenTime = round(microtime(), 3);
     echo '  <div id="footer">
-  	    <div id="leftfoot" style="float:left; margin-top: 1em;">
-		<a href="feedback.php">Submit Feedback</a>
-            </div>
-            <div id="rightfoot"><h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br />
-              <a href="http://ethanzonca.com">Ethan Zonca</a><br />
-			  <a href="http://ohnopub.net">Nathan Phillip Brink</a>
-            </h5>
-	  </div>
-        </div> <!-- id="footer" -->
-      </div>';
+  	      <div id="leftfoot" style="float:left; margin-top: 1em;">
+	        <a href="feedback.php">Submit Feedback</a>
+              </div>
+              <div id="rightfoot">
+                <h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a></h5>
+	      </div>
+            </div> <!-- id="footer" -->
+          </div>';
     echo $this->trackingcode;
     echo '</body></html>';
   }
 
+  /** Takes a number in seconds, and outputs HH:MM:SS */
   public function secondsToCompound($seconds) {
       $ret = "";
       $hours = intval(intval($seconds) / 3600);
@@ -223,6 +229,7 @@ class page
       return $ret;
   }
 
+  /** Shows a box with recently processed schedules */
   public function showSavedScheds($session)
   {
     global $clean_urls;
@@ -301,9 +308,9 @@ class page
    */
   public function addressStudent($prefix = '', $postfix = '', $necessary = TRUE)
   {
-    if (!$necessary && $this->school['id'] == 'default')
+    if (!$necessary && $this->school['id'] == 'default') {
       return;
-
+    }
     echo $prefix . $this->school['student_address'] . $postfix;
   }
 

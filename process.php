@@ -24,7 +24,7 @@ include_once 'class.schedule.php';
 include_once 'class.class.php';
 include_once 'class.section.php';
 
-// Converts a 5-element array into a nice string.
+// Converts a 5-element day array into a string.
 // Supports multiple modes, prettiness, and searching for different indicators
 function arrayToDays($array, $mode = 'num', $pretty = false, $key = 1) {
 	$outString = '';

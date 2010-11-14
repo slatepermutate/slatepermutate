@@ -37,26 +37,32 @@ require_once('class.class.php');
 
 Page::session_start();
 
-if (isset($_REQUEST['txt']))
+if (isset($_REQUEST['txt'])) {
   header('Content-Type: text/plain; encoding=utf-8');
-else
+}
+else {
   header('Content-Type: application/json; encoding=utf-8');
+}
 
-if (!isset($_REQUEST['term']))
+if (!isset($_REQUEST['term'])) {
   clean_empty_exit();
+}
 
 $getsections = FALSE;
-if (isset($_REQUEST['getsections']))
+if (isset($_REQUEST['getsections'])) {
   $getsections = TRUE;
+}
 
 $term = $_REQUEST['term'];
 $term_parts = Classes::parse($term);
-if (!count($term_parts))
+if (!count($term_parts)) {
   clean_empty_exit();
+}
 
 $school = school_load_guess();
-if (!$school['crawled'])
+if (!$school['crawled']) {
   clean_empty_exit();
+}
 
 $cache_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'auto' . DIRECTORY_SEPARATOR . $school['id'] . DIRECTORY_SEPARATOR;
 
@@ -71,13 +77,16 @@ $dept = $term_parts['department'];
 if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
   {
     $dept_file = $cache_dir . '-depts';
-    if (!file_exists($dept_file))
+    if (!file_exists($dept_file)) {
       clean_empty_exit();
+    }
     $departments = unserialize(file_get_contents($dept_file));
     $json_depts = array();
-    foreach ($departments as $key => $department)
-      if (!strncmp($department, $dept, $dept_strlen))
+    foreach ($departments as $key => $department) {
+      if (!strncmp($department, $dept, $dept_strlen)) {
 	$json_depts[] = $department;
+      }
+    }
 
     echo json_encode($json_depts);
     exit(0);
@@ -91,7 +100,7 @@ if ($getsections)
 	readfile($section_file);
 	exit(0);
       }
-    /* section not found! */
+    /* Section not found! */
     header('HTTP/1.1 404: Not found');
     header('Content-Type: text/plain; encoding=utf-8');
     echo 'Could not find course ' . implode('-', $term_parts) . "\n";
@@ -99,7 +108,7 @@ if ($getsections)
   }
 
 /*
- * if a department is fully entered, life gets slightly more
+ * If a department is fully entered, life gets slightly more
  * complicated. I suppose I only want to autocomplete the first digit
  * of the course/class number. I.e., CS-2 for CS-262 for when the
  * student has entered CS- or 'CS'. But for now we can just dump the entire department at the user ;-).
@@ -126,7 +135,7 @@ if (file_exists($classes_file))
   }
 
 /**
- * Nothing caught..
+ * Nothing caught
  */
 clean_empty_exit();
 

@@ -82,8 +82,8 @@ if (!empty($_REQUEST['selectschool'])
 ?>
 <h2>School Selection</h2>
 <p>
-  Choose the school you attend from the list below. <b>If you cannot
-  find your school</b>, you may proceed using
+  Choose the school you attend from the list below. <strong>If you cannot
+  find your school</strong>, you may proceed using
   the <a href="<?php echo $next_page . (strpos($next_page, '?') === FALSE ? '?' : '&amp;'); ?>school=default">generic
   settings</a>.
 </p>
@@ -102,7 +102,7 @@ $inputPage->showSavedScheds($_SESSION);
 </p>
 <!--[if IE]>
 <p>
-  Note: The auto-complete function does not work in <b>Internet Explorer</b>.
+  Note: The auto-complete function does not work in <strong>Internet Explorer</strong>.
 </p>
 <![endif]-->
 <form method="post" action="process.php" id="scheduleForm">

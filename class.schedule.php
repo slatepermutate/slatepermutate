@@ -96,7 +96,7 @@ class Schedule
       {
 	$temp = $this->classStorage[$counter]->getName();
 			
-	if((strcmp($temp,$course_name)) == 0)
+	if(strcmp($temp,$course_name) == 0)
 	  {
 	    $found = true;
 	  } else {
@@ -214,7 +214,7 @@ class Schedule
     $filled = false;
     $time = array(700,730,800,830,900,930,1000,1030,1100,1130,1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,1800,1830,1900,1930,2000,2030,2100,2130, 2200);
 
-    define('SP_PERMUTATIONS_PER_PAGE', 256);
+    define('SP_PERMUTATIONS_PER_PAGE', 256); /** @TODO: Define this in config.inc */
 
     $npages = ceil($this->nPermutations / SP_PERMUTATIONS_PER_PAGE);
     $page = 0;
@@ -243,7 +243,7 @@ class Schedule
 
 
 
-    if(isset($_REQUEST['print'])){
+    if(isset($_REQUEST['print'])) {
  
      echo '<script type="text/javascript">';
       echo 'jQuery(document).ready( function() {';
@@ -256,7 +256,7 @@ class Schedule
 	  echo 'jQuery(\'#tabs-'.$item.'\').show();';
 	}
       }
-      echo '}); '; /* Close document.ready for jquery */
+      echo '}); '; /* Close document.ready for jQuery */
       echo 'window.print(); </script>';
 
       echo '<p><a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">&laquo; Return to normal view</a> </p>';
@@ -264,43 +264,41 @@ class Schedule
     }
     else {
       echo '<script type="text/javascript">';
-      echo 'jQuery(document).ready( function() {';
-      echo 'jQuery("#tabs").tabs();';
-      echo 'jQuery("#sharedialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });';
-      echo 'jQuery("#share").click( function() {
-              jQuery("#sharedialog").dialog("open");
-            });';
-      echo 'jQuery(\'#printItems\').click( function() {
-		window.location = "'.$_SERVER['SCRIPT_NAME'].'?s='.$this->id_get().'&amp;print=" + (jQuery(\'#tabs\').tabs(\'option\',\'selected\') + 1);
-	    });
-	    jQuery(\'#cancelItems\').click( function() {
-		jQuery(\'#selectItemsInput\').hide();
-	    });
-';
-      echo '});</script>'; /* Close document.ready for jquery */
-      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p><!--http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'].'-->'.$outputPage->gen_share_url($this->id_get()).'</p></div>';
-      echo '<p><span id="printItems"><a href="#">Print</a></span> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p><p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p><p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
+      echo '  jQuery(document).ready( function() {';
+      echo '    jQuery("#tabs").tabs();';
+      echo '    jQuery("#sharedialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });';
+      echo '    jQuery("#share").click( function() {
+                  jQuery("#sharedialog").dialog("open");
+                });';
+      echo '    jQuery(\'#printItems\').click( function() {
+		  window.location = "'.$_SERVER['SCRIPT_NAME'].'?s='.$this->id_get().'&amp;print=" + (jQuery(\'#tabs\').tabs(\'option\',\'selected\') + 1);
+	        });
+	        jQuery(\'#cancelItems\').click( function() {
+		  jQuery(\'#selectItemsInput\').hide();
+	        });';
+      echo '  });
+            </script>';
+
+      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>'.$outputPage->gen_share_url($this->id_get()).'</p></div>';
+      echo '<p><span id="printItems"><a href="#">Print</a></span> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p>';
+      echo '<p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p>';
+      echo '<p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
     }		
 
     echo "\n";
 
     if($this->nPermutations > 0)
       {
-	echo "<div id=\"tabs\">\n"
-
-
-    . '  <div id="show-box" class="show-buttons">
-    <form>
-       <label><strong>Display:</strong></label>
-       <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
-       <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
-       <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
-    </form>
-  </div> <!-- id="show-box" -->'
-
-
-
-	  . "<div id=\"the-tabs\"><ul>\n";
+	echo '<div id="tabs">' . "\n" .
+               '<div id="show-box" class="show-buttons">
+                  <form>
+                    <label><strong>Display:</strong></label>
+                    <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
+                    <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
+                    <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
+                  </form>
+                </div> <!-- id="show-box" -->'
+	     . '<div id="the-tabs"><ul>' . "\n";
 			
 	for($nn = $first_permutation + 1; $nn <= $last_permutation; $nn++)
 	  {
@@ -449,7 +447,7 @@ class Schedule
   }
 
   //--------------------------------------------------
-  // Make the time "pretty."
+  // Make the time "pretty"
   //--------------------------------------------------
   function prettyTime($t){
     if($t > 1259)

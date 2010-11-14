@@ -37,9 +37,7 @@ class SectionMeeting
 {
   private $time_start;
   private $time_end;
-
   private $days;
-
   private $location;
 
   /**

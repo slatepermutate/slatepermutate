@@ -17,8 +17,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
-	include_once 'inc/class.page.php'; 
-	$mypage = new page('Welcome');
+
+  include_once 'inc/class.page.php'; 
+  $welcomepage = new page('Welcome');
 ?>
 
 <h3>Find the schedule that works for you!</h3>
@@ -26,4 +27,4 @@
 <p class="righttext"><a href="input.php"><img class="noborder" src="images/get-started.png" alt="Get Started" /></a></p>
 
 <?php
-$mypage->foot();
+$welcomepage->foot();

@@ -17,14 +17,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
-        include_once 'inc/class.page.php';
-        $feedbackpage = new page('Feedback');
 
-	$subject = '[SlatePermutate] - Feedback';
+  include_once 'inc/class.page.php';
+  $feedbackpage = new page('Feedback');
+  $subject = '[SlatePermutate] - Feedback';
 ?>
 
 <h3>Thanks!</h3>
-
 
 <?php
 Page::session_start();
@@ -77,13 +76,7 @@ Deployment = $fromdom
 	mail($toaddr, $subject, $message, $from);
       }
 
-?>
+    echo '<p>Thanks for helping make SlatePermutate better. Your feedback is greatly appreciated.</pi>';
+    echo '<p>We will attempt to respond via email if your feedback lends itself to a response.</p>';
 
-<p>Thanks for helping make SlatePermutate better. Your feedback is greatly appreciated.</p>
-<p>We will attempt to respond via email if your feedback lends itself to a response.</p>
-
-
-<?php
-  }
-
-  $feedbackpage->foot();
+    $feedbackpage->foot();
