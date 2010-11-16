@@ -45,8 +45,10 @@
 </p>
 
 <?php
-  require_once('inc/recaptchalib.php');
-  echo recaptcha_get_html($reCaptcha_pub); 
+  if(isset($reCaptcha_pub) && isset($reCaptcha_priv)){
+    require_once('inc/recaptchalib.php');
+    echo recaptcha_get_html($reCaptcha_pub); 
+  }
 ?>
 
 <input class="gray" type="submit" value="Submit Feedback" />

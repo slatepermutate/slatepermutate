@@ -55,12 +55,14 @@ if(empty($nameis) || empty($feedback) || empty($visitormail)) {
 }
 
 /** Try reCaptcha */
-require_once('inc/recaptchalib.php');
-$reCaptchaRes = recaptcha_check_answer($reCaptcha_priv, $_SERVER["REMOTE_ADDR"],$_POST["recaptcha_challenge_field"],$_POST["recaptcha_response_field"]);
+if(isset($reCaptcha_priv) && isset($reCaptcha_pub)) {
+  require_once('inc/recaptchalib.php');
+  $reCaptchaRes = recaptcha_check_answer($reCaptcha_priv, $_SERVER["REMOTE_ADDR"],$_POST["recaptcha_challenge_field"],$_POST["recaptcha_response_field"]);
 
-if(!$reCaptchaRes->is_valid) {
-  echo '<p>Please click "back" and enter a valid reCaptcha response.</p>';
-  $reject = TRUE;
+  if(!$reCaptchaRes->is_valid) {
+    echo '<p>Please click "back" and enter a valid reCaptcha response.</p>';
+    $reject = TRUE;
+  }
 }
 
 if (!$reject)
