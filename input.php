@@ -109,33 +109,35 @@ $inputPage->showSavedScheds($_SESSION);
 />
 
 <table id="container">
-  <tr><td>
-    <table id="jsrows">
-	<!-- Header -->
-	<tr>
-		<td>Class ID</td>
-		<td class="center" id="letterNumber">Section</td>
-		<td class="center">Prof</td>
-		<td class="center">Start Time</td>
-		<td class="center">End Time</td>
-		<td class="center">M</td>
-		<td class="center">Tu</td>
-		<td class="center">W</td>
-		<td class="center">Th</td>
-		<td class="center">F</td>
-		<td class="center"></td>
-		<td class="center"></td>
-	</tr>
-    </table>
-  </td>
+  <tr>
+    <td>
+      <table id="jsrows">
+        <!-- Header -->
+        <tr>
+          <td>Class ID</td>
+          <td class="center" id="letterNumber">Section</td>
+          <td class="center">Prof</td>
+          <td class="center">Start Time</td>
+          <td class="center">End Time</td>
+          <td class="center">M</td>
+          <td class="center">Tu</td>
+          <td class="center">W</td>
+          <td class="center">Th</td>
+          <td class="center">F</td>
+          <td class="center"></td>
+          <td class="center"></td>
+        </tr>
+      </table>
+    </td>
   </tr>
-  
   <tr>
     <td><span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td>
   </tr>
 </table>
 
-<div class="paddingtop"><input class="green" style="margin:0;padding:0;" type="submit" value="Find a schedule" /></div>
+<div class="paddingtop">
+  <input class="green" style="margin:0;padding:0;" type="submit" value="Find a schedule" />
+</div>
 
 </form>
 

@@ -168,53 +168,55 @@ class page
     $this->pageGenTime = round(microtime(), 3);
 
     if ($this->xhtml)
-       echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
+       echo '<?xml version="1.0" encoding="utf-8" ?>' . PHP_EOL;
 
-    echo '<!DOCTYPE ' . $this->doctype . '>
-	  <html ' . $this->htmlargs . '>
-	  <head>
-	    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>
-           <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />
-	   <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />';
+    echo '<!DOCTYPE ' . $this->doctype . '>'. PHP_EOL .
+	  '<html ' . $this->htmlargs . '>'. PHP_EOL .
+	  '  <head>'. PHP_EOL .
+	  '    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>'. PHP_EOL .
+          '    <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />'.  PHP_EOL .
+	  '    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />'. PHP_EOL;
 
     // Write out all passed scripts
     foreach ($this->scripts as $i)
-      echo '            ' . $this->headCode["$i"] . "\n";
+      echo '    ' . $this->headCode["$i"] . "\n";
 
-    echo '</head>
-	  <body '.$this->bodyargs.' ><div id="page">';
+    echo '  </head>' . PHP_EOL .
+	 '  <body '.$this->bodyargs.'>'. PHP_EOL .
+         '    <div id="page">'. PHP_EOL;
     echo $this->top(); // Write out top
   }
 
   /** Write out the top of the page, including opening div tags, header title and images, etc */
   private function top(){
-    echo '<div id="header">
-	    <div id="title">
-              <h1><a href="index.php"><img src="images/slatepermutate.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>
-              <p>
-                <span id="subtitle">'.$this->pagetitle.'</span>
-  	        <span id="menu">Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a></span>
-              </p>
-            </div>
-	  </div>
-          <div id="content">';
+    echo '      <div id="header">'. PHP_EOL .
+	 '        <div id="title">'. PHP_EOL .
+         '          <h1><a href="index.php"><img src="images/slatepermutate.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>'. PHP_EOL .
+         '          <p>'. PHP_EOL .
+         '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
+  	 '            <span id="menu">Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a></span>'. PHP_EOL .
+         '          </p>'. PHP_EOL .
+         '        </div>'. PHP_EOL .
+	 '      </div>'. PHP_EOL .
+         '      <div id="content">'. PHP_EOL;
   }
 
   /** Write out the foot of the page and closing divs */
   public function foot(){
-    echo '</div> <!-- id="content" -->';
+    echo '      </div> <!-- id="content" -->'. PHP_EOL;
     $this->pageGenTime = round(microtime(), 3);
-    echo '  <div id="footer">
-  	      <div id="leftfoot" style="float:left; margin-top: 1em;">
-	        <a href="feedback.php">Submit Feedback</a>
-              </div>
-              <div id="rightfoot">
-                <h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a></h5>
-	      </div>
-            </div> <!-- id="footer" -->
-          </div>';
+    echo '      <div id="footer">'. PHP_EOL .
+  	 '        <div id="leftfoot" style="float:left; margin-top: 1em;">'. PHP_EOL .
+	 '          <a href="feedback.php">Submit Feedback</a>'. PHP_EOL .
+         '        </div>'. PHP_EOL .
+         '        <div id="rightfoot">'. PHP_EOL .
+         '          <h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a></h5>'. PHP_EOL .
+	 '        </div>'. PHP_EOL .
+         '      </div> <!-- id="footer" -->'. PHP_EOL .
+         '    </div> <!-- id="page" -->'. PHP_EOL;
     echo $this->trackingcode;
-    echo '</body></html>';
+    echo '  </body>'. PHP_EOL .
+         '</html>';
   }
 
   /** Takes a number in seconds, and outputs HH:MM:SS */
