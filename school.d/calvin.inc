@@ -44,7 +44,7 @@ function calvin_instructions_html()
 	Using the Auto-Complete function
 </h3>
 <p>
-	Note: For best results, use <b>Firefox</b> or <b>Google Chrome</b> or <b>Safari</b>.
+	Note: For best results, use <strong>Firefox</strong>, <strong>Google Chrome</strong>, or <strong>Safari</strong>.
 </p>
 <ol>
   <li>Determine the classes you wish to take next semester.</li>

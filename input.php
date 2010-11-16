@@ -100,11 +100,7 @@ $inputPage->showSavedScheds($_SESSION);
   FALSE); ?>! To get started, enter in some of your
   class IDs, and click the autosuggestion to add available sections for each class.
 </p>
-<!--[if IE]>
-<p>
-  Note: The auto-complete function does not work in <strong>Internet Explorer</strong>.
-</p>
-<![endif]-->
+
 <form method="post" action="process.php" id="scheduleForm">
 <br />
 <label>Schedule Name</label><br />
@@ -134,7 +130,9 @@ $inputPage->showSavedScheds($_SESSION);
   </td>
   </tr>
   
-  <tr><td> <span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td></tr>
+  <tr>
+    <td><span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td>
+  </tr>
 </table>
 
 <div class="paddingtop"><input class="green" style="margin:0;padding:0;" type="submit" value="Find a schedule" /></div>
@@ -142,8 +140,10 @@ $inputPage->showSavedScheds($_SESSION);
 </form>
 
 <p>&nbsp;<br /><br /><br /></p>
-<?php /* RE-enable if advanced options added: <p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p> */ ?>
-<?php
+<?php 
+
+/* Show/hide Advanced Options: <p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p> */ 
+
 $inputPage->showSchoolInstructions();
 $inputPage->foot();
 
