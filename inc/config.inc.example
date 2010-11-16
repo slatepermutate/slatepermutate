@@ -57,3 +57,15 @@
  */ 
 /* $feedback_emails = array('ethanzonca@gmail.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net'); */
 /* $feedback_emails = array('user@example.org'); */
+
+/**
+ * \brief
+ *   Keys to use with reCaptcha for feedback form submissions
+ *
+ * Set to your public and private keys obtained from https://www.google.com/recaptcha/
+ * Be sure to keep your private key secret.
+ */
+/* $reCaptcha_priv = ''; */
+/* $reCaptcha_pub = ''; */ 
+
+

@@ -19,6 +19,7 @@
  */
 
   include_once 'inc/class.page.php';
+
   $feedbackpage = new page('Feedback');
   $subject = '[SlatePermutate] - Feedback';
 ?>
@@ -41,7 +42,7 @@ $rating = $_POST['rating'];
 $reject = FALSE;
 
 if (eregi('http:', $feedback)) { 
-  echo 'Please do not include URLs in your submission! Please click "back" and try again.';
+  echo '<p>Please do not include URLs in your submission! Please click "back" and try again.</p>';
   $reject = TRUE;
 }
 if (empty($visitormail) || !preg_match('/^[^@]+@[^@]+\.[^@]+$/', $visitormail)) {
@@ -50,6 +51,15 @@ if (empty($visitormail) || !preg_match('/^[^@]+@[^@]+\.[^@]+$/', $visitormail)) 
 }
 if(empty($nameis) || empty($feedback) || empty($visitormail)) {
   echo '<p>Please click "back" and fill in all fields.</p>';
+  $reject = TRUE;
+}
+
+/** Try reCaptcha */
+require_once('inc/recaptchalib.php');
+$reCaptchaRes = recaptcha_check_answer($reCaptcha_priv, $_SERVER["REMOTE_ADDR"],$_POST["recaptcha_challenge_field"],$_POST["recaptcha_response_field"]);
+
+if(!$reCaptchaRes->is_valid) {
+  echo '<p>Please click "back" and enter a valid reCaptcha response.</p>';
   $reject = TRUE;
 }
 
@@ -78,5 +88,5 @@ Deployment = $fromdom
 
     echo '<p>Thanks for helping make SlatePermutate better. Your feedback is greatly appreciated.</pi>';
     echo '<p>We will attempt to respond via email if your feedback lends itself to a response.</p>';
-
+  }
     $feedbackpage->foot();

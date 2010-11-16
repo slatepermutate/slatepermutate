@@ -19,6 +19,7 @@
  */
 
   include_once 'inc/class.page.php'; 
+
   $feedbackpage = new page('Feedback');
   $ipi = $_SERVER['REMOTE_ADDR'];
   $fromdom = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -42,6 +43,12 @@
 <p>
 <textarea name="feedback" rows="6" cols="40"></textarea>
 </p>
+
+<?php
+  require_once('inc/recaptchalib.php');
+  echo recaptcha_get_html($reCaptcha_pub); 
+?>
+
 <input class="gray" type="submit" value="Submit Feedback" />
 </form>
 
