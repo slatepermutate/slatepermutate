@@ -1,11 +1,28 @@
 /*
  * jQuery UI CSS Framework @VERSION
  *
- * Copyright 2010, AUTHORS.txt (http://jqueryui.com/about)
- * Dual licensed under the MIT or GPL Version 2 licenses.
- * http://jquery.org/license
+ * Copyright 2010, ../AUTHORS.jqueryui (http://jqueryui.com/about)
+ * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
  *
- * http://docs.jquery.com/UI/Theming/API
+ * This file is part of SlatePermutate.
+ *
+ * SlatePermutate is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SlatePermutate is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * \file
+ *   http://docs.jquery.com/UI/Theming/API
  */
 
 /* Layout helpers
