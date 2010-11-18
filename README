@@ -1,23 +1,26 @@
 slate_permutate: the semester scheduling assistant.
 
 Authors:
-  Nathan Allen Gelderloos <ngelderloos7@gmail.com>
-  Ethan Michael Zonca <ethanzonca@gmail.com>
-  Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
+  See AUTHORS
 
 Resources:
   Support: irc://irc.ohnopub.net/slatepermutate
   Mercurial repo: http://protofusion.org/hg/SlatePermutate/
   Bugzilla: http://protofusion.org/bugzilla/
 
+  Please use the means listed above to give us any feedback about
+  slate_permutate's functionality. Thanks!
+
 Installation Requirements:
   - PHP-enabled httpd (tested with apache, patches for supporting others welcome).
   - Access to PHP's CLI interface
+  - libcURL extension to PHP (for Calvin's crawler and soon others).
+  - json_encode()/json_decode() functions (as a PEAR addon or with the recent PHP versions).
 
 Installation:
   - Get a copy of slate_permutate.
     - development version:
-      $ hg clone http://hg/protofusion.org/hg/SlatePermutate slate_permutate
+      $ hg clone http://protofusion.org/hg/SlatePermutate slate_permutate
     - stable: not yet available.
   - copy inc/config.inc.example to inc/config.inc. Read and adjust
     settings as necessary.
