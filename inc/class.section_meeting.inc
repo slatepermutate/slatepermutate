@@ -218,6 +218,7 @@ class SectionMeeting
 			'time_end' => $this->time_end,
 			'days' => array(),
 			'location' => $this->location,
+			'type' => $this->type,
 			);
 
     for ($day = 0; $day < 5; $day ++)

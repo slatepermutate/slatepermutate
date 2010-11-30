@@ -87,7 +87,7 @@ class Schedule
   //--------------------------------------------------
   // Adds a section to the desired class.
   //--------------------------------------------------
-  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $faculty = NULL, $location = NULL)
+  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $faculty = NULL, $location = NULL, $type = 'lecture')
   {
     $found = false;
     $counter = 0;
@@ -114,7 +114,7 @@ class Schedule
 	  $section = new Section($letter, array(), $synonym, $faculty);
 	  $this->classStorage[$counter]->section_add($section);
 	}
-      $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location));
+      $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type));
     }
   }
 

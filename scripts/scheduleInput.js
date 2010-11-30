@@ -130,7 +130,7 @@ function genSectionHtml(cnum)
 }
 
 /* @TODO: This should select & set items based on args, if the args != '' */
-function genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location)
+function genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location, type)
 {
 		var snum = sectionsOfClass[cnum];
 
@@ -193,7 +193,9 @@ function genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, locatio
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][3]" value="1" ' + (days.h ? 'checked="checked"' : '') + ' /></td>\
 			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][4]" value="1" ' + (days.f ? 'checked="checked"' : '') + ' /></td>';
 		result = result + '<td><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td>' 
-		    + '<input type="hidden" name="postData[' + cnum + '][' + snum + '][location]" value="' + location + '" />'+ '</td></tr>';
+		    + '<input type="hidden" name="postData[' + cnum + '][' + snum + '][location]" value="' + location + '" />'
+		    + '<input type="hidden" name="postData[' + cnum + '][' + snum + '][type]" value="' + type + '" />'
+		    + '</td></tr>';
 		return result;
 	}
 
@@ -213,14 +215,14 @@ function genOptionHtml(value, content, test_value)
  * \brief
  *   Add a section to a class.
  */
-function add_section_n(cnum, name, synonym, stime, etime, days, prof, location)
+function add_section_n(cnum, name, synonym, stime, etime, days, prof, location, type)
 {
-    jQuery('.pclass'+cnum).after(genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location));
+    jQuery('.pclass'+cnum).after(genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location, type));
     sectionsOfClass[cnum] ++;
 }
 function add_section(cnum)
 {
-    return add_section_n(cnum, '', '', '', '', {'m':false, 't':false, 'w':false, 'h':false, 'f':false}, '', '');
+    return add_section_n(cnum, '', '', '', '', {'m':false, 't':false, 'w':false, 'h':false, 'f':false}, '', '', '');
 }
 
 /**
@@ -239,7 +241,7 @@ function add_sections(cnum, data)
     for (i = data.sections.length - 1; i >= 0; i --)
 	{
 	    section = data.sections[i];
-	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.prof, section.location);
+	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.prof, section.location, section.type);
 	}
 }
 
