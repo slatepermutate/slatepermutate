@@ -385,7 +385,8 @@ class Schedule
 				      echo '            <td rowspan="' . $rowspan[$dayLoop]
 					. '" class="' . $single_multi . ' class' . $j
 					. '" title="prof: ' . htmlentities($section->getProf(), ENT_QUOTES)
-					. ', room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . '">'
+					. ', room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES)
+					. ', type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . '">'
 					. htmlentities($class->getName(), ENT_QUOTES) . '-'
 					. htmlentities($section->getLetter(), ENT_QUOTES) . "\n"
 					. '<span class="prof block">' . htmlentities($section->getProf(), ENT_QUOTES) . "</span>\n"

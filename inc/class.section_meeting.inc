@@ -144,6 +144,24 @@ class SectionMeeting
 
   /**
    * \brief
+   *   Get the type of section meeting this is.
+   *
+   * Examples of Section meeting types include 'lecture' and
+   * 'lab'. Currently, any string may be used as a Section meeting
+   * type; the possibilities for this field are controlled by the
+   * crawl scripts authors' choices about what they pass to
+   * SectionMeeting().
+   *
+   * \return
+   *   A string indicating the type of section meeting.
+   */
+  public function type_get()
+  {
+    return $this->type;
+  }
+
+  /**
+   * \brief
    *   Check if this section conflicts with the given section.
    *
    * \param $that
