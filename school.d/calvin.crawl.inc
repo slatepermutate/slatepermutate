@@ -319,17 +319,18 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	  $date_start = $meeting_info_matches[1];
 	  $date_end = $meeting_info_matches[2];
 	  /* e.g., 'Lecture', 'Practicum' */
-	  $meeting_type = $meeting_info_matches[3];
+	  $meeting_type = strtolower($meeting_info_matches[3]);
+
 	  $days = school_crawl_days_format(explode(', ', $meeting_info_matches[5]));
 	  $time_start = school_crawl_time_format(strptime($meeting_info_matches[6], '%I:%M%p'));
 	  $time_end = school_crawl_time_format(strptime($meeting_info_matches[7], '%I:%M%p'));
 	  $meeting_place = $meeting_info_matches[8];
 
 	  if ($verbosity > 5)
-	    foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place') as $var)
+	    foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place', 'meeting_type') as $var)
 	      echo $var . ':' . ${$var} . "\n";
 
-	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place)), $synonym, $faculty_name);
+	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type)), $synonym, $faculty_name);
 	  $semester->section_add($section_id['department'], $section_id['course'], $section);
 	}
 
