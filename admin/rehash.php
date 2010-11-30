@@ -47,7 +47,7 @@ function main($argc, $argv)
   $crawl_semester_year = '2011';
   $crawl_semester_season = Semester::SEASON_SPRING;
 
-  $opts = getopt('h', array('no-crawl', 'crawl-only:', 'help'));
+  $opts = getopt('hV:', array('no-crawl', 'crawl-only:', 'help', 'verbosity:'));
 
   if (isset($opts['help']) || isset($opts['h']))
     {
@@ -60,9 +60,25 @@ function main($argc, $argv)
   if (isset($opts['crawl-only']))
     $crawl_only = split(',', $opts['crawl-only']);
 
+  $verbosity = 1;
+  if (isset($opts['verbosity']))
+    $verbosity = (int)$opts['verbosity'];
+  if (isset($opts['V']))
+    $verbosity = (int)$opts['V'];
+  if ($verbosity < 0 || $verbosity > 10)
+    {
+      fprintf(STDERR, "error: Invalid verbosity level: %d\n", $verbosity);
+      fprintf(STDERR, "\n");
+      usage();
+      return 1;
+    }
+
   $school_id_list = school_list();
   if (!$school_id_list)
-    return 1;
+    {
+      fprintf(STDERR, "error: Unable to load schools.\n");
+      return 1;
+    }
 
   $schools = array();
   $old_school_cache = _school_cache_load();
@@ -79,7 +95,7 @@ function main($argc, $argv)
       if ($crawl
 	  && (!isset($crawl_only) || in_array($school['id'], $crawl_only)))
 	{
-	  school_crawl($school, $crawl_semester_year, $crawl_semester_season);
+	  school_crawl($school, $crawl_semester_year, $crawl_semester_season, $verbosity);
 	}
       else
 	{
@@ -340,7 +356,9 @@ function usage($progname)
 	  . "              previous cached crawl data.\n"
 	  . " --crawl-only Takes a comma-separated list of school_ids whose\n"
 	  . "              registration systems should be crawled for autofill\n"
-	  . "              data. Cached data from schools not listed is preserved\n",
+	  . "              data. Cached data from schools not listed is preserved\n"
+	  . " -v, --verbosity Set the verbosity level. Valid range is from 0\n"
+	  . "              through 10.",
 	  $progname);
 }
 
