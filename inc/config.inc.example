@@ -68,4 +68,10 @@
 /* $reCaptcha_priv = ''; */
 /* $reCaptcha_pub = ''; */ 
 
+/**
+ * \brief
+ *   Password to be used for administration page (admin.php). Setting this variable enables the administration page.
+ *
+ */
+/* $admin_pass = ''; */
 
