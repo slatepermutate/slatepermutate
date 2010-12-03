@@ -18,6 +18,13 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * The @PACKAGE_*@-style defines.
+ */
+define('SP_PACKAGE_NAME', 'slate_permutate');
+define('SP_PACKAGE_VERSION', '0.1_pre');
+define('SP_PACKAGE_STRING', SP_PACKAGE_NAME . '-' . SP_PACKAGE_VERSION);
+
 /**
  * Not sure if there's a better place for this... it'd be a pita to
  * make a new include file like doconfig.inc but maybe that'll make
