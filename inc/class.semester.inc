@@ -173,4 +173,13 @@ class Semester
   {
     return $this->season;
   }
+
+  /**
+   * \brief
+   *   Enumerate all valid seasons.
+   */
+  public static function seasons_get_all()
+  {
+    return array(SEASON_SPRING, SEASON_FALL);
+  }
 }
