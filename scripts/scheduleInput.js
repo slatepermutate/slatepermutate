@@ -211,6 +211,22 @@ function genOptionHtml(value, content, test_value)
     return '<option value="' + value + '"' + selected + '>' + content + "</option>\n";
 }
 
+
+/** Add tooltips for user guidance */
+function addTips(id) {
+  jQuery(id).qtip({
+    content: 'Type your class ID (such as PEF-1010)',
+    style: {
+      name: 'dark',
+      tip: true
+    },
+/*    show: { ready: false }, */
+/*    hide: { when: { event: 'inactive' } }, */
+    corner: { target: 'topMiddle', tooltip: 'bottomMiddle' },
+  });
+}
+
+
 /**
  * \brief
  *   Add a section to a class.
@@ -277,7 +293,7 @@ function add_sections(cnum, data)
 				    }
 			    });
 
-
+		addTips('.class'+classNum+ ' td:first');
 		classNum++;
 
 		return (classNum - 1);
@@ -394,4 +410,8 @@ jQuery(document).ready(function() {
 		jQuery('#showadvanced').hide();
 		jQuery('.advanced').slideToggle();
 	});
+
+
+
+
 });

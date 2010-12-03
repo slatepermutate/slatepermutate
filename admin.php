@@ -145,17 +145,17 @@
 <p>You are currently running version <?php echo SP_PACKAGE_VERSION; ?>. The latest available release is VERSION.</p>
 
 <h3>Rehash</h3>
-<p>Last full rehash ocurred on  <?php echo getLastRehash(); ?>.</p>
+<p>Last rehash ocurred on  <?php echo getLastRehash(); ?>.</p>
 <ul>
   <li><a href="admin.php?rehash">Rehash All Institutions</a></li>
-  <li><?php schoolsDropList(); ?> <a href="admin.php?rehash">Rehash Institution</a> </li>
+  <li><form action="admin.php">Rehash schedules for <?php schoolsDropList(); ?> <input type="submit" value="Go &raquo;" /> </form></li>
 </ul>
 
 <h3>Purge</h3>
-<p>The cache currently holds <?php echo getNumSaved(); ?> schedules.</p>
+<p>The cache currently contains <?php echo getNumSaved(); ?> schedules.</p>
 <ul>
   <li><a href="admin.php?purge">Purge Entire Cache</a></li>
-  <li><form action="admin.php">Purge cache up to <input type="text" name="purgetodate" size="8" id="datepicker"/><input type="submit" value="Go&raquo;" /></form></li>
+  <li><form action="admin.php">Purge cache up to <input type="text" name="purgetodate" size="8" id="datepicker"/> <input type="submit" value="Go &raquo;" /></form></li>
 </ul>
 
 <?php
