@@ -142,7 +142,7 @@
 
 
 <h3>Update</h3>
-<p>You are currently running version VERSION. The latest available release is VERSION.</p>
+<p>You are currently running version <?php echo SP_PACKAGE_VERSION ?>. The latest available release is VERSION.</p>
 
 <h3>Rehash</h3>
 <p>Last full rehash ocurred on  <?php echo getLastRehash() ?>.</p>
