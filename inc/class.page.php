@@ -25,6 +25,16 @@ define('SP_PACKAGE_NAME', 'slate_permutate');
 define('SP_PACKAGE_VERSION', '0.1_pre');
 define('SP_PACKAGE_STRING', SP_PACKAGE_NAME . '-' . SP_PACKAGE_VERSION);
 
+/*
+ * Set up include() path for user-supplied libs (in case if his system
+ * doesn't have libs, such as recaptchalib.php). Users would store
+ * such libs in /libs.
+ *
+ * Coding note: dirname(dirname('a/b/c')) returns 'a'. This is a
+ * similar effect to dirname('a/b/c') . DIRECTORY_SEPARATOR . '..'.
+ */
+set_include_path(get_include_path() . PATH_SEPARATOR . dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'libs');
+
 /**
  * Not sure if there's a better place for this... it'd be a pita to
  * make a new include file like doconfig.inc but maybe that'll make
