@@ -421,7 +421,7 @@ class Schedule
 		echo "          </tr>\n";
 	      }
 
-            echo '<div class="syns'.$i.'">'.  json_encode($syns) . '</div>';
+            echo '<div class="syns syns'.$i.'">'.  json_encode($syns) . '</div>';
 
 	    // End of table
 	    echo "        </table>\n"
