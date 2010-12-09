@@ -45,5 +45,23 @@ jQuery(document).ready( function()
   {
       jQuery('#show-box input').change(show_box_change);
       jQuery('#show-box input').change();
+
+      jQuery("#regDialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });   
+      jQuery('#regCodes').click( function() {
+        jQuery('#regDialogList').empty();
+        var currSec = '.syns' + jQuery('#tabs').tabs('option','selected');
+
+        var jHtml = jQuery(currSec).html();
+        var secs = eval('(' + jHtml + ')');
+        var output = '<p class=\'synList\'>';
+        for( var i in secs ) {
+          output = output + secs[i] + '<br />';
+        }
+        output = output + '</p>';
+        jQuery('#regDialogList').append(output);
+
+        jQuery("#regDialog").dialog("open");
+      });
   }
 );
+

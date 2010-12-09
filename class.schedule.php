@@ -289,6 +289,8 @@ class Schedule
 
     if($this->nPermutations > 0)
       {
+
+        echo '<div id="regDialog" title="Registration Codes"><p>Enter these codes into your school\'s online course registration system to register for classes:</p><div id="regDialogList"></div></div>';
 	echo '<div id="tabs">' . "\n" .
                '<div id="show-box" class="show-buttons">
                   <form>
@@ -296,6 +298,7 @@ class Schedule
                     <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
                     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
                     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
+                    <div id="regCodes"><label><a href="#">Registration Codes</a></label></div>
                   </form>
                 </div> <!-- id="show-box" -->'
 	     . '<div id="the-tabs"><ul>' . "\n";
@@ -323,6 +326,7 @@ class Schedule
 		
 	for($i = $first_permutation; $i < $last_permutation; $i++)
 	  {
+             $syns = array();
 	     echo  '      <div class="section" id="tabs-' . ($i+1) . "\">\n";
   
 	    // Beginning of table
@@ -393,6 +397,7 @@ class Schedule
 					. '<span class="location block">' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . "</span>\n"
 					. '<span class="synonym block">' . htmlentities($section->getSynonym(), ENT_QUOTES) . "</span>\n"
 					. "</td>\n";
+				      $syns[$section->getSynonym()] = $section->getSynonym();
 				      $filled = TRUE;
 				    }
 			}
@@ -415,6 +420,8 @@ class Schedule
 		// End of row
 		echo "          </tr>\n";
 	      }
+
+            echo '<div class="syns'.$i.'">'.  json_encode($syns) . '</div>';
 
 	    // End of table
 	    echo "        </table>\n"

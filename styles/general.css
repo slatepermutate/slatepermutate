@@ -222,3 +222,12 @@ td.center {
   padding:0;
   margin:0;
 }
+.syns {
+  display:none;
+}
+#regCodes {
+  float: right;
+}
+.synList {
+  margin-left: 1em;
+}
