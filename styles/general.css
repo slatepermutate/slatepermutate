@@ -210,3 +210,15 @@ td.center {
 .bold {
   font-weight: bold;
 }
+
+/** Used for hidden saved schedules */
+.hidden {
+  display: none;
+}
+#showLess {
+  display:none;
+}
+#savedBox p {
+  padding:0;
+  margin:0;
+}

@@ -201,7 +201,7 @@ class page
   private function top(){
     echo '      <div id="header">'. PHP_EOL .
 	 '        <div id="title">'. PHP_EOL .
-         '          <h1><a href="index.php"><img src="images/slatepermutate.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>'. PHP_EOL .
+         '          <h1><a href="index.php"><img src="images/slatepermutate-alpha.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>'. PHP_EOL .
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
   	 '            <span id="menu">Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a></span>'. PHP_EOL .
@@ -254,15 +254,26 @@ class page
 	  $process_php_s = '';
 
 	echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
+
+
+        $hidden = '';
 	foreach($session['saved'] as $key => $name)
 	  {
-	    echo '<a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:\n "
-	      . htmlentities($name)
-	      . ' <a href="input.php?s=' . $key . '">edit</a>'
-	      . ' <a href="process.php?del=' . $key . '">delete</a>'
-	      . "<br /><br />\n";
+            if($key == 5) {
+              echo '<div id="showMore"><a href="#">More...</a></div>';
+              $hidden = 'hidden';
+            }
+            else {
+                    echo '<p class="' . $hidden . '">';
+ 		    echo '<a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:\n "
+		      . htmlentities($name)
+		      . ' <a href="input.php?s=' . $key . '">edit</a>'
+		      . ' <a href="process.php?del=' . $key . '">delete</a>'
+		      . "<br /><br />\n"
+                      . '</p>';
+	   }
 	  }
-	echo '</div>';
+	echo '<div id="showLess"><a href="#">Less...</a></div></div>';
       }
     echo '</p>';
   }

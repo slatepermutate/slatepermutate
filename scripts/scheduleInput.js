@@ -411,7 +411,19 @@ jQuery(document).ready(function() {
 		jQuery('.advanced').slideToggle();
 	});
 
-
+	//-------------------------------------------------
+	// Show more saved schedules
+	//-------------------------------------------------
+        jQuery('#showMore').click( function() {
+		jQuery('.hidden').show();
+		jQuery('#showMore').hide();
+		jQuery('#showLess').show();
+        });
+        jQuery('#showLess').click( function() {
+		jQuery('.hidden').hide();
+		jQuery('#showMore').show();
+		jQuery('#showLess').hide();
+	});
 
 
 });
