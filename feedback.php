@@ -36,7 +36,7 @@
 <label for="visitormail">Email:&nbsp; </label><input type="text" name="visitormail" size="20" /> <span class="graytext">(if you want us to get back to you)</span><br />
 <label for="school">School: </label><input type="text" name="school" size="20" /> <span class="graytext">(if relevant to your feedback)</span><br />
 
-<br/> Overall Rating:<br/> <input checked="checked" name="rating" type="radio" value="Good" />Good <input name="rating" type="radio" value="Buggy" />Buggy  <input name="rating" type="radio" value="Needs more features" />Needs more features <input name="rating" type="radio" value="Don't know" />Don't Know
+<br/> Overall Rating:<br/> <input checked="checked" name="rating" type="radio" value="Good" />Good <input name="rating" type="radio" value="Buggy" />Buggy  <input name="rating" type="radio" value="Needs more features" />Needs more features <input name="rating" type="radio" value="Don't know" />Don't Know <!-- ' -->
 
 <br /><br />
 <h3>General Comments</h3>
@@ -45,10 +45,11 @@
 </p>
 
 <?php
-  if(isset($reCaptcha_pub) && isset($reCaptcha_priv)){
-    require_once('inc/recaptchalib.php');
-    echo recaptcha_get_html($reCaptcha_pub); 
-  }
+  if(isset($reCaptcha_pub) && isset($reCaptcha_priv))
+    {
+      require_once('recaptchalib.php');
+      echo recaptcha_get_html($reCaptcha_pub); 
+    }
 ?>
 
 <input class="gray" type="submit" value="Submit Feedback" />
