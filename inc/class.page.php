@@ -83,6 +83,8 @@ class page
   /**
    * \param $ntitle
    *   Must be a valid HTML string (i.e., escaped with htmlentities()).
+   * \param $nscripts
+   *   An array of strings identifying the scripts to include for this page.
    */
   public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
   {
