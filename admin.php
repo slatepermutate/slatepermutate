@@ -19,6 +19,7 @@
  */
 
   include_once 'inc/class.page.php';
+
   $scripts = array('jQuery','jQueryUI'); 
   $adminpage = new page('Administration',$scripts,FALSE);
   $datepicker = '$(function() {
@@ -140,6 +141,9 @@
     echo '<p><em>' . $res . '</em> <a href="admin.php">(x)</a></p>';
   }
 ?>
+
+<h3>Stats</h3>
+<img src="statsGraph.php" />
 
 <h3>Update</h3>
 <p>You are currently running version <?php echo SP_PACKAGE_VERSION; ?>. The latest available release is VERSION.</p>

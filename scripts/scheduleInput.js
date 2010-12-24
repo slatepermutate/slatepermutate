@@ -220,6 +220,7 @@ function addTips(id) {
       name: 'dark',
       tip: true
     },
+    show: { effect: { type: 'fade', length: 2000 } },
 /*    show: { ready: false }, */
 /*    hide: { when: { event: 'inactive' } }, */
     corner: { target: 'topMiddle', tooltip: 'bottomMiddle' },
