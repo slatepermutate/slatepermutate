@@ -37,8 +37,14 @@
     exit;
   }
 
-  function isBeforeDate($first, $reference) {
-   return true; 
+  function isBeforeDate($toCheck, $reference) {
+    $formatted = date("Y-m-d", $toCheck);
+    $refUnix = strtotime($reference);
+
+    if($toCheck < $refUnix) {
+      return true;
+    }
+    return false; 
   }
 
   function emptySavedDir($todate = null) {
@@ -51,11 +57,13 @@
    
     // Do this the new fun php5 OO-way
     foreach(new DirectoryIterator($dir) as $file) {
-      $isBeforeDate = isBeforeDate($file->getCTime, $todate);
-      if(!$todate || $isBeforeDate) {
-        if(is_numeric($file->getFilename())){
+      if(is_numeric($file->getFilename())){
+        $isBeforeDate = isBeforeDate($file->getCTime(), $todate);
+
+        if(!$todate || $isBeforeDate) {
           // unlink($dir . '/' . $file->getFilename());
-          echo "<p>Erased file: " . $dir . '/' . $file->getFilename() . "</p>";
+          $date = date("Y-m-d",$file->getCTime());
+          echo "<p>Erased file: " . $dir . '/' . $file->getFilename() . " ({$date})</p>";
         } 
       }
     }
