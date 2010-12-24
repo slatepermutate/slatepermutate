@@ -20,10 +20,16 @@
 
   include_once 'inc/class.page.php';
   $scripts = array('jQuery','jQueryUI'); 
-  $adminpage = new page('Administration',$scripts);
+  $adminpage = new page('Administration',$scripts,FALSE);
+  $datepicker = '$(function() {
+                   $( "#datepicker" ).datepicker();
+                   $( "#datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
+                 });';
+  $adminpage->headcode_add('datePicker', $adminpage->script_wrap($datepicker), TRUE);
+  $adminpage->head();
 
-  if(!isset($admin_pass)) {
-    echo "<p>Administration password not configured. See config.inc for more information.</p>";
+  if(!isset($admin_pass) || !isset($admin_enable) || $admin_enable !== true) {
+    echo "<p>The administration interface is not enabled or is improperly configured. See config.inc for more information.</p>";
     $adminpage->foot();
     exit;
   }
@@ -32,7 +38,7 @@
   else if (!isset($_SERVER['PHP_AUTH_USER']) || (!isset($_SERVER['PHP_AUTH_PW'])) || $_SERVER['PHP_AUTH_PW'] != $admin_pass) {
     header('WWW-Authenticate: Basic realm="My Realm"');
     header('HTTP/1.0 401 Unauthorized');
-    echo '<p>You must authenticate to view this page.</p>';
+    echo '<p>You must authenticate to access the administration interface.</p>';
     $adminpage->foot();
     exit;
   }
@@ -51,7 +57,7 @@
     // Empty the saved_schedules directory
     $dir = "saved_schedules";
     if(!is_dir($dir)) {
-      echo "<p><pre>{$dir}</pre> is not a valid directory!";
+      echo "<p><pre>{$dir}</pre> is not a valid directory! Please check your installation.";
       return;
     }
    
@@ -59,7 +65,6 @@
     foreach(new DirectoryIterator($dir) as $file) {
       if(is_numeric($file->getFilename())){
         $isBeforeDate = isBeforeDate($file->getCTime(), $todate);
-
         if(!$todate || $isBeforeDate) {
           // unlink($dir . '/' . $file->getFilename());
           $date = date("Y-m-d",$file->getCTime());
@@ -91,7 +96,7 @@
   function getLastRehash(){
     $stats = stat("cache/schools");
     if(!$stats){
-      return "never";
+      return false;
     }
     return date("F j, Y, g:i a", $stats[9]);
   }
@@ -100,7 +105,6 @@
     if(!stat("cache/schools")){
       return false;
     }
-
     $schoolsArr = unserialize(file_get_contents("cache/schools"));
     return $schoolsArr;
   }
@@ -115,9 +119,7 @@
           echo 'class="bold" ';
         }
         echo 'value="' . $school['name'] . '">';
-        echo $school['name'];
-        
-        
+        echo $school['name'];   
         echo "</option>";
       }
     }
@@ -139,21 +141,18 @@
   }
 ?>
 
-<!-- Move to pagegen class instantiation -->
-<script>
-	$(function() {
-		$( "#datepicker" ).datepicker();
-                $( "#datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd" );
-
-	});
-</script>
-
-
 <h3>Update</h3>
 <p>You are currently running version <?php echo SP_PACKAGE_VERSION; ?>. The latest available release is VERSION.</p>
 
 <h3>Rehash</h3>
-<p>Last rehash ocurred on  <?php echo getLastRehash(); ?>.</p>
+<?php $lastRehash = getLastRehash();
+      if($lastRehash) {
+        echo "<p>Last rehash ocurred on $lastRehash.</p>";
+      }
+      else {
+        echo "<p>This installation has not been rehashed. Please <a href=\"admin.php?rehash\">rehash now</a> to download school scheduling metadata.</p>";
+      }
+?>
 <ul>
   <li><a href="admin.php?rehash">Rehash All Institutions</a></li>
   <li><form action="admin.php">Rehash schedules for <?php schoolsDropList(); ?> <input type="submit" value="Go &raquo;" /> </form></li>

@@ -70,8 +70,15 @@
 
 /**
  * \brief
- *   Password to be used for administration page (admin.php). Setting this variable enables the administration page.
+ *   Password to be used for administration page (admin.php)
  *
  */
 /* $admin_pass = ''; */
+
+/**
+ * \brief
+ *    Setting this variable true enables the administration page
+ *
+ */
+/* $admin_enable = false; */
 
