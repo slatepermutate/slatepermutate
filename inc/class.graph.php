@@ -56,9 +56,13 @@ public function __construct($userVals, $width=600, $height=300) {
 
     $label = $this->values[$i]['label'];
     $font = '/usr/share/fonts/liberation/LiberationSans-Regular.ttf';
+    $font2 = '/usr/share/fonts/liberation/LiberationSans-Bold.ttf';
+
     imagettftext($im, 10, 0, $x1 + ($column_width / 2) - 20, $height - 5, $black, $font, $label);
+    imagettftext($im, 7, 0, $x1 + ($column_width / 2) - 7, $height - 20, $gray_dark, $font, $this->values[$i]['count']);
  
   }
+  imagettftext($im, 10, 0, 0, 10, $black, $font2, "Past Month:");
 
   // Send the PNG header information. Replace for JPEG or GIF or whatever
   $this->image = $im;
