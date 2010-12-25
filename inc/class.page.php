@@ -195,7 +195,8 @@ class page
 	  '  <head>'. PHP_EOL .
 	  '    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>'. PHP_EOL .
           '    <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />'.  PHP_EOL .
-	  '    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />'. PHP_EOL;
+	  '    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />'. PHP_EOL .
+    '    <link rel="shortcut icon" href="images/favicon.png" />'. PHP_EOL;
 
     // Write out all passed scripts
     foreach ($this->scripts as $i)
