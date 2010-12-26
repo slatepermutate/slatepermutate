@@ -18,11 +18,11 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//**************************************************
-// class.class.php	Author: Nathan Gelderloos
-//
-// Represents a class.
-//**************************************************
+/**
+ * \file
+ *    This file represents a course (formerly class). It stores
+ *    the section associated with the course.
+ */
 
 include_once 'class.section.php';
 
@@ -32,9 +32,12 @@ class Classes
   private $sections;	// Array of sections
   private $nsections;	// int
     
-  //--------------------------------------------------
-  // Creates a class with the given name.
-  //--------------------------------------------------
+  /**
+   * \brief
+   *    Creates a class with the given name.
+   * \param $n
+   *    The name of the class.
+   */
   function __construct($n)
   {
     $this->sections = array();
@@ -52,17 +55,21 @@ class Classes
     $this->nsections++;
   }
 
-  //--------------------------------------------------
-  // Returns the number of sections in the class.
-  //--------------------------------------------------
+  /**
+   * \brief
+   *    Returns the number of sections in the class.
+   */
   function getnsections()
   {
     return $this->nsections;
   }
 	
-  //--------------------------------------------------
-  // Returns the desired section for analysis.
-  //--------------------------------------------------
+  /**
+   * \brief
+   *    Returns the desired section for analysis.
+   * \return
+   *    The selected section of the course.
+   */
   function getSection($i)
   {
     $result = $this->sections[$i];
@@ -91,9 +98,12 @@ class Classes
     return NULL;
   }
 
-  //--------------------------------------------------
-  // Returns the name of the class.
-  //--------------------------------------------------
+  /**
+   * \brief
+   *    Returns the name of the class.
+   * \return
+   *    The name of the class.
+   */
   public function getName()
   {
     return $this->name;
