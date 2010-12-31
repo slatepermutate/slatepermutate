@@ -50,12 +50,13 @@ $n = "\n";
 <?php
     if ($use_captcha)
     {
-      echo '<fieldset>' . $n
-      . '  <legend>Captcha</legend>' . $n
-      . '  <img id="captcha_img" src="captcha_img.php" alt="captcha image" style="display: block" />' . $n
-      . '  <label for="captcha_code" style="display: block">Enter the obfuscated text in the above image:</label>' . $n
+      echo '' . $n
+      . '  <h3>Captcha</h3>' . $n
+      . '<p>' . $n
+      . '  <img id="captcha_img" src="captcha_img.php" alt="captcha image" /><br />' . $n
+      . '  <label for="captcha_code">Enter the obfuscated text from the above image:</label><br />' . $n
       . '  <input name="captcha_code" type="textbox" />' . $n
-      . '</fieldset>' . $n;
+      . '</p>' . $n;
     }
 ?>
 
