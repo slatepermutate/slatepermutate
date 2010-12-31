@@ -67,7 +67,7 @@
  * which may be placed in slate_permutate's lib/ directory or into the
  * system PHP include path.
  */
-$use_captcha = FALSE;
+/* $use_captcha = FALSE; */
 
 /**
  * \brief
