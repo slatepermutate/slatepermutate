@@ -60,13 +60,14 @@
 
 /**
  * \brief
- *   Keys to use with reCaptcha for feedback form submissions
+ *   Whether or not to use SecureImage phpcaptcha.
  *
- * Set to your public and private keys obtained from https://www.google.com/recaptcha/
- * Be sure to keep your private key secret.
+ * Set to TRUE to use SecureImage captcha, FALSE to not use
+ * it. Requires PHP library available from http://phpcaptcha.org/
+ * which may be placed in slate_permutate's lib/ directory or into the
+ * system PHP include path.
  */
-/* $reCaptcha_priv = ''; */
-/* $reCaptcha_pub = ''; */ 
+$use_captcha = FALSE;
 
 /**
  * \brief

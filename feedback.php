@@ -18,12 +18,15 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-  include_once 'inc/class.page.php'; 
+include_once 'inc/class.page.php'; 
 
-  $feedbackpage = new page('Feedback');
-  $ipi = $_SERVER['REMOTE_ADDR'];
-  $fromdom = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-  $httpagenti = $_SERVER['HTTP_USER_AGENT'];
+$feedbackpage = new page('Feedback');
+$ipi = $_SERVER['REMOTE_ADDR'];
+$fromdom = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+$httpagenti = $_SERVER['HTTP_USER_AGENT'];
+
+$n = "\n";
+
 ?>
 
 <form action="feedback-submit.php" method="post">
@@ -45,10 +48,14 @@
 </p>
 
 <?php
-  if(isset($reCaptcha_pub) && isset($reCaptcha_priv))
+    if ($use_captcha)
     {
-      require_once('recaptchalib.php');
-      echo recaptcha_get_html($reCaptcha_pub); 
+      echo '<fieldset>' . $n
+      . '  <legend>Captcha</legend>' . $n
+      . '  <img id="captcha_img" src="captcha_img.php" alt="captcha image" style="display: block" />' . $n
+      . '  <label for="captcha_code" style="display: block">Enter the obfuscated text in the above image:</label>' . $n
+      . '  <input name="captcha_code" type="textbox" />' . $n
+      . '</fieldset>' . $n;
     }
 ?>
 

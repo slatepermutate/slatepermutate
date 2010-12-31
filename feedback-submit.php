@@ -20,8 +20,14 @@
 
   include_once 'inc/class.page.php';
 
-  $feedbackpage = new page('Feedback');
-  $subject = '[SlatePermutate] - Feedback';
+if ($use_captcha)
+  {
+    require_once('securimage/securimage.php');
+    $securimage = new Securimage();
+  }
+
+$feedbackpage = new page('Feedback');
+$subject = '[SlatePermutate] - Feedback';
 ?>
 
 <h3>Thanks!</h3>
@@ -54,16 +60,15 @@ if(empty($nameis) || empty($feedback) || empty($visitormail)) {
   $reject = TRUE;
 }
 
-/** Try reCaptcha */
-if(isset($reCaptcha_priv) && isset($reCaptcha_pub)) {
-  require_once('inc/recaptchalib.php');
-  $reCaptchaRes = recaptcha_check_answer($reCaptcha_priv, $_SERVER["REMOTE_ADDR"],$_POST["recaptcha_challenge_field"],$_POST["recaptcha_response_field"]);
-
-  if(!$reCaptchaRes->is_valid) {
-    echo '<p>Please click "back" and enter a valid reCaptcha response.</p>';
-    $reject = TRUE;
+/** Check the captcha */
+if ($use_captcha)
+  {
+    if (!$securimage->check($_REQUEST['captcha_code']))
+      {
+	echo '<p>Your captcha response was incorrect, please try again.</p>';
+	$reject = TRUE;
+      }
   }
-}
 
 if (!$reject)
   {
@@ -88,7 +93,7 @@ Deployment = $fromdom
 	mail($toaddr, $subject, $message, $from);
       }
 
-    echo '<p>Thanks for helping make SlatePermutate better. Your feedback is greatly appreciated.</pi>';
+    echo '<p>Thanks for helping make SlatePermutate better. Your feedback is greatly appreciated.</p>';
     echo '<p>We will attempt to respond via email if your feedback lends itself to a response.</p>';
   }
     $feedbackpage->foot();

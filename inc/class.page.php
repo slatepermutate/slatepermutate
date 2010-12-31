@@ -27,8 +27,8 @@ define('SP_PACKAGE_STRING', SP_PACKAGE_NAME . '-' . SP_PACKAGE_VERSION);
 
 /*
  * Set up include() path for user-supplied libs (in case if his system
- * doesn't have libs, such as recaptchalib.php). Users would store
- * such libs in /libs.
+ * doesn't have libs, such as phpcaptcha
+ * (securimage/securimage.php)). Users would store such libs in /libs.
  *
  * Coding note: dirname(dirname('a/b/c')) returns 'a'. This is a
  * similar effect to dirname('a/b/c') . DIRECTORY_SEPARATOR . '..'.
@@ -44,6 +44,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . dirname(dirname(__FILE__)
 $clean_urls = FALSE;
 $ga_trackers = array();
 $feedback_emails = array('ez@ethanzonca.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net');
+$use_captcha = FALSE;
 
 $config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
 if (file_exists($config_inc)) {
