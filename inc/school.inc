@@ -262,7 +262,7 @@ function school_default_classes($school)
   $school_default_classes = $school['id'] . '_default_classes';
   if (function_exists($school_default_classes))
     {
-      require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'class.class.php');
+      require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.course.inc');
       return $school_default_classes();
     }
 

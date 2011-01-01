@@ -52,11 +52,11 @@ EOF;
  *   times)) for Cedarville students.
  *
  * \return
- *   An array of Classes objects.
+ *   An array of Course objects.
  */
 function cedarville_default_classes()
 {
-  $chapel = new Classes('Chapel');
+  $chapel = new Course('Chapel');
   $chapel->section_add(new Section('_', array(new SectionMeeting('mtwhf', '1000', '1045', '', 'chapel')),
 				   '', '_'));
 

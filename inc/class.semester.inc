@@ -19,7 +19,8 @@
  */
 
 $root_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
-require_once($root_dir . 'class.class.php');
+$inc_dir = $root_dir . 'inc' . DIRECTORY_SEPARATOR;
+require_once($inc_dir . 'class.course.inc');
 require_once($root_dir . 'class.section.php');
 
 /**
@@ -71,9 +72,9 @@ class Semester
    * \param $class
    *   The class/course to add.
    */
-  public function class_add(Classes $class)
+  public function class_add(Course $class)
   {
-    $class_parts = Classes::parse($class->getName());
+    $class_parts = Course::parse($class->getName());
     if (!isset($class_parts['course']))
       throw ErrorException('I was given a class with an invalid name: `' . $class->getName() . '\'');
 
@@ -93,7 +94,7 @@ class Semester
    * \param $class
    *   The course/class number. '262' for 'cs-262'.
    * \return
-   *   A Classes or NULL if not found.
+   *   A Course or NULL if not found.
    */
   public function class_get($dept, $class)
   {
@@ -145,7 +146,7 @@ class Semester
     if (!isset($this->departments[$dept])
 	|| !isset($this->departments[$dept][$class]))
       {
-	$classobj = new Classes($dept . '-' . $class);
+	$classobj = new Course($dept . '-' . $class);
 	$this->class_add($classobj);
       }
     else

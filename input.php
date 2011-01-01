@@ -19,7 +19,7 @@
  */
 
 include_once 'class.schedule.php';
-include_once 'class.class.php';
+include_once 'inc' . DIRECTORY_SEPARATOR . 'class.course.inc';
 include_once 'class.section.php';
 include_once 'inc/class.page.php';
 require_once('inc/schedule_store.inc');
@@ -151,7 +151,7 @@ $inputPage->showSavedScheds($_SESSION);
 $inputPage->showSchoolInstructions();
 $inputPage->foot();
 
-function input_class_js(Classes $class, $whitespace = '  ')
+function input_class_js(Course $class, $whitespace = '  ')
 {
   $js = $whitespace . 'class_last = add_class_n(\'' . htmlentities($class->getName(), ENT_QUOTES) . "');\n";
 

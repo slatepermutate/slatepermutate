@@ -142,6 +142,8 @@ function schedule_store_delete($schedule_store, $schedule_id)
  *   The schedule_store instance we're working with.
  * \param $operation
  *   Which flock() operation to perform: valid are LOCK_SH and LOCK_EX.
+ * \return
+ *   TRUE on success, FALSE on failure. (see flock()).
  */
 function _schedule_store_flock_grab(&$schedule_store, $operation)
 {

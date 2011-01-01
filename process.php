@@ -21,7 +21,7 @@
 require_once('inc/schedule_store.inc');
 require_once('inc/class.page.php');
 include_once 'class.schedule.php';
-include_once 'class.class.php';
+include_once('inc/class.course.inc');
 include_once 'class.section.php';
 
 // Converts a 5-element day array into a string.
@@ -133,7 +133,7 @@ if(!$DEBUG)
 		   */
 			if(is_array($class) && count($class) > 1)
 			{
-				$allClasses->addClass($class['name']);
+				$allClasses->addCourse($class['name']);
 		
 				foreach($class as $section)
 				  /* Skip the section name, which isn't a section */

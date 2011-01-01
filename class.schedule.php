@@ -26,14 +26,27 @@
 // all the possible permutations.
 //**************************************************
 
-include_once 'class.class.php';
+include_once('inc/class.course.inc');
 include_once 'class.section.php';
 include_once 'inc/class.page.php';
 
+/*
+ * Load a Classes -> Course converter class for the sake of the
+ * Schedule::__wakeup() magic function.
+ */
+require_once('inc/class.classes_convert.inc');
+
 class Schedule
 {
-  private $classStorage;			// Classes array of classes
+  /*
+   * Variables for upgrading from saved schedules created when there
+   * was a class called Classes.
+   */
+  private $classStorage;			// array of courses
   private $nclasses;				// Integer number of classes
+
+  /* My member variables. */
+  private $courses;
   private $nPermutations = 0;		// Integer number of real permutations
   private $possiblePermutations;	// Integer number of possible permutations
   private $scheduleName;			// String name of schedule
@@ -59,12 +72,14 @@ class Schedule
    */
   function __construct($name)
   {
-    $this->classStorage = array();
-    $this->nclasses = 0;
+    $this->courses = array();
     $this->scheduleName = $name;
     $this->storage = array();
     $this->title = "SlatePermutate - Scheduler";
     $this->section_format = 'numerous';
+
+    /* mark this as an upgraded Schedule class. See __wakeup() */
+    $this->nclasses = -1;
   }
 
   //--------------------------------------------------
@@ -78,10 +93,9 @@ class Schedule
   //--------------------------------------------------
   // Adds a new class to the schedule.
   //--------------------------------------------------
-  function addClass($n)
+  function addCourse($n)
   {
-    $this->classStorage[$this->nclasses] = new Classes($n);
-    $this->nclasses++;
+    $this->courses[] = new Course($n);
   }
 
   //--------------------------------------------------
@@ -91,31 +105,22 @@ class Schedule
   {
     $found = false;
     $counter = 0;
-      
-    while(!$found && ($counter < $this->nclasses))
-      {
-	$temp = $this->classStorage[$counter]->getName();
-			
-	if(strcmp($temp,$course_name) == 0)
-	  {
-	    $found = true;
-	  } else {
-	  $counter++;
-	}
-      }
-		
-    if($counter == $this->nclasses)
-      {
-	echo 'Could not find class: ' . $course_name . "<br />\n";
-      } else {
-      $section = $this->classStorage[$counter]->section_get($letter);
-      if (!$section)
+
+    foreach ($this->courses as $course)
+      if (!strcmp($course_name, $course->getName()))
 	{
-	  $section = new Section($letter, array(), $synonym, $faculty);
-	  $this->classStorage[$counter]->section_add($section);
+	  $section = $course->section_get($letter);
+	  if (!$section)
+	    {
+	      $section = new Section($letter, array(), $synonym, $faculty);
+	      $course->section_add($section);
+	    }
+	  $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type));
+
+	  return;
 	}
-      $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type));
-    }
+
+    echo 'Could not find class: ' . $course_name . "<br />\n";
   }
 
   //--------------------------------------------------
@@ -126,10 +131,9 @@ class Schedule
 	{
 		$this->possiblePermutations = 1;
 		/* special case: there is nothing entered into the schedule and thus there is one, NULL permutation */
-		if (!$this->nclasses)
+		if (!count($this->courses))
 		{
 			/* have an empty schedule */
-			$this->classStorage[0] = array();
 			$this->nPermutations = 1;
 			return;
 		}
@@ -137,10 +141,12 @@ class Schedule
 		$position = 0;
 		$counter = 0;
 
-		for($i = 0; $i < $this->nclasses; $i++)
+		$i = 0;
+		foreach ($this->courses as $course)
 		{
-			$this->possiblePermutations = $this->possiblePermutations * $this->classStorage[$i]->getnsections();
+			$this->possiblePermutations = $this->possiblePermutations * $course->getnsections();
 			$cs[$i] = 0;	// Sets the counter array to all zeroes.
+			$i ++;
 		}
         
 		// Checks for conflicts in given classes, stores if none found
@@ -149,13 +155,13 @@ class Schedule
 			$conflict = false;
          
 			// Get first class to compare
-			for ($upCounter = 0; $upCounter < $this->nclasses && !$conflict; $upCounter ++)
+			for ($upCounter = 0; $upCounter < count($this->courses) && !$conflict; $upCounter ++)
 			{
 	    
-				for ($downCounter = $this->nclasses - 1; $downCounter > $upCounter && !$conflict; $downCounter --)
+			  for ($downCounter = count($this->courses) - 1; $downCounter > $upCounter && !$conflict; $downCounter --)
 				{
-				  if ($this->classStorage[$upCounter]->getSection($cs[$upCounter])
-				      ->conflictsWith($this->classStorage[$downCounter]->getSection($cs[$downCounter])))
+				  if ($this->courses[$upCounter]->getSection($cs[$upCounter])
+				      ->conflictsWith($this->courses[$downCounter]->getSection($cs[$downCounter])))
 				    {
 				      $conflict = TRUE;
 				      break;
@@ -166,7 +172,7 @@ class Schedule
 	// Store to storage if no conflict is found.
 	if(!$conflict)
 	  {
-	    for($i = 0; $i < $this->nclasses; $i++)
+	    for($i = 0; $i < count($this->courses); $i++)
 	      {
 		$this->storage[$this->nPermutations][$i] = $cs[$i];
 	      }
@@ -180,7 +186,7 @@ class Schedule
 	$valid = false;
 	while(!$valid)
 	  {
-	    if($cs[$position] == $this->classStorage[$position]->getnsections())
+	    if($cs[$position] == $this->courses[$position]->getnsections())
 	      {
 		$cs[$position] = 0;
 
@@ -190,7 +196,7 @@ class Schedule
 		// though the combination is not actually true
 		// the larger while loop will end before any 
 		// new combinations are performed.
-		if($position == $this->nclasses)
+		if($position == count($this->courses))
 		  {
 		    $valid = true;
 		  } else {
@@ -355,9 +361,9 @@ class Schedule
 		  /* Makes sure there is not a class already in progress */
 		  if($rowspan[$dayLoop] <= 0)
 		    {
-		      for($j = 0; $j < $this->nclasses; $j++)
+		      for($j = 0; $j < count($this->courses); $j++)
 			{
-			  $class = $this->classStorage[$j];
+			  $class = $this->courses[$j];
 			  $section_index = $this->storage[$i][$j];
 			  $section = $class->getSection($section_index);
 				  /* iterate through all of a class's meeting times */
@@ -473,16 +479,16 @@ class Schedule
    */
   function nclasses_get()
   {
-    return $this->nclasses;
+    return count($this->courses);
   }
 
-  /*
+  /**
    * \brief
    *   fetch a specified class by its key
    */
   function class_get($class_key)
   {
-    return $this->classStorage[$class_key];
+    return $this->courses[$class_key];
   }
 
   /**
@@ -536,5 +542,24 @@ class Schedule
       $url .= 'page=' . (int)$page . '&amp;';
 
     return $url;
+  }
+
+  /**
+   * \brief
+   *   A magic function which tries to upgrade old serialized sections
+   *   to the new format.
+   */
+  function __wakeup()
+  {
+    if ($this->nclasses == -1)
+      /* this Schedule doesn't need to be upgraded from Classes to Course */
+      return;
+
+    $this->courses = array();
+    foreach ($this->classStorage as $classes)
+      {
+	$this->courses[] = $classes->to_course();
+      }
+    $this->nclasses = -1;
   }
 }

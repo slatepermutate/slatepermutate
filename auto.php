@@ -33,7 +33,7 @@
 
 require_once('inc/school.inc');
 require_once('inc/class.page.php');
-require_once('class.class.php');
+require_once('inc/class.course.inc');
 
 Page::session_start();
 
@@ -54,7 +54,7 @@ if (isset($_REQUEST['getsections'])) {
 }
 
 $term = $_REQUEST['term'];
-$term_parts = Classes::parse($term);
+$term_parts = Course::parse($term);
 if (!count($term_parts)) {
   clean_empty_exit();
 }

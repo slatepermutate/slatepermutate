@@ -380,26 +380,26 @@ function test()
 
   $t1 = 'CS-262-A';
   $n += assert_equal($t1, Section::parse($t1), $ideal);
-  $n += assert_equal($t1 . '_class', Classes::parse($t1), $ideal_c);
+  $n += assert_equal($t1 . '_class', Course::parse($t1), $ideal_c);
   $t2 = 'cs262 a';
   $n += assert_equal($t2, Section::parse($t2), $ideal);
-  $n += assert_equal($t2 . '_class', Classes::parse($t2), $ideal_c);
+  $n += assert_equal($t2 . '_class', Course::parse($t2), $ideal_c);
   $t3 = 'cs 262 a';
   $n += assert_equal($t3, Section::parse($t2), $ideal);
-  $n += assert_equal($t3 . '_class', Classes::parse($t3), $ideal_c);
+  $n += assert_equal($t3 . '_class', Course::parse($t3), $ideal_c);
 
   $ideal['course'] .= 'L';
   $ideal_c['course'] = $ideal['course'];
 
   $t1 = 'CS-262L-A';
   $n += assert_equal($t1, Section::parse($t1), $ideal);
-  $n += assert_equal($t1 . '_class', Classes::parse($t1), $ideal_c);
+  $n += assert_equal($t1 . '_class', Course::parse($t1), $ideal_c);
   $t2 = 'cs262l a';
   $n += assert_equal($t2, Section::parse($t2), $ideal);
-  $n += assert_equal($t2 . '_class', Classes::parse($t2), $ideal_c);
+  $n += assert_equal($t2 . '_class', Course::parse($t2), $ideal_c);
   $t3 = 'cs 262l a';
   $n += assert_equal($t3, Section::parse($t2), $ideal);
-  $n += assert_equal($t3 . '_class', Classes::parse($t3), $ideal_c);
+  $n += assert_equal($t3 . '_class', Course::parse($t3), $ideal_c);
 
   return $n;
 }

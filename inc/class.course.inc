@@ -26,7 +26,7 @@
 
 include_once 'class.section.php';
 
-class Classes
+class Course
 {
   private $name;	// String
   private $sections;	// Array of sections
