@@ -69,11 +69,13 @@ td{
 }
 .time
 {
-  border-style:none none solid none;
+  border-style:none none solid none; 
+  border-bottom: 1px solid #aaa;
   white-space: nowrap;
 }
 .day{
   border-style:none none solid solid;
+  background: #F0F0F0;
 }
 
 .prof,
@@ -104,10 +106,10 @@ td{
 }
 
 #tabs ul {
-text-align: center;
-margin: auto;
-margin-top: 10px;
-margin-bottom: 2px; 
+  text-align: center;
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 2px; 
 }
 /* don't let the user see a tall stack of tabs before jQuery().tabs() is called. */
 #tabs li
@@ -190,4 +192,11 @@ margin-bottom: 2px;
 #pager-next
 {
   float: right;
+}
+
+table {
+  border-radius: 5px;
+}
+.none {
+  border-bottom: 1px dotted #ccc;
 }
