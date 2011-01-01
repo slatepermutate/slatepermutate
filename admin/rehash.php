@@ -44,10 +44,6 @@ function main($argc, $argv)
       return 1;
     }
 
-  $crawl = TRUE;
-  $crawl_semester_year = '2011';
-  $crawl_semester_season = Semester::SEASON_SPRING;
-
   $opts = getopt('hV:', array('no-crawl', 'crawl-only:', 'help', 'verbosity:'));
 
   if (isset($opts['help']) || isset($opts['h']))
@@ -56,6 +52,7 @@ function main($argc, $argv)
       return 0;
     }
 
+  $crawl = TRUE;
   if (isset($opts['no-crawl']))
     $crawl = FALSE;
   if (isset($opts['crawl-only']))
@@ -74,54 +71,18 @@ function main($argc, $argv)
       return 1;
     }
 
-  $school_id_list = school_list();
-  if (!$school_id_list)
+  if ($crawl)
     {
-      fprintf(STDERR, "error: Unable to load schools.\n");
-      return 1;
-    }
-
-  $schools = array();
-  $old_school_cache = _school_cache_load();
-  foreach ($school_id_list as $school_id)
-    {
-      $school = school_load($school_id, TRUE);
-      if (!$school)
+      $ret = school_cache_recreate($crawl_only);
+      if ($ret)
 	{
-	  fprintf(STDERR, "Error loading school with school_id=%s\n",
-		  $school_id);
+	  fprintf(STDERR, "error: Unable to successfully crawl schools.\n");
 	  return 1;
-	}
-
-      if ($crawl
-	  && (!isset($crawl_only) || in_array($school['id'], $crawl_only)))
-	{
-	  school_crawl($school, $crawl_semester_year, $crawl_semester_season, $verbosity);
 	}
       else
 	{
-	  /*
-	   * try to allow incremental crawling by not wiping out old
-	   * data and preserving the cached $school['crawled'].
-	   */
-	  if ($old_school_cache && isset($old_school_cache['list'][$school['id']]))
-	    {
-	      $old_school = $old_school_cache['list'][$school['id']];
-	      $school['crawled'] = FALSE;
-	      if (isset($old_school['crawled']))
-		$school['crawled'] = $old_school['crawled'];
-	      if ($school['crawled'])
-		$school['crawled_notreally'] = TRUE;
-	    }
+	  fprintf(STDERR, "Crawling successful.\n");
 	}
-
-      $schools[] = $school;
-    }
-
-  if (school_cache($schools))
-    {
-      fprintf(STDERR, "Error writing out school cache\n");
-      return 1;
     }
 
   return 0;

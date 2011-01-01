@@ -18,7 +18,9 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-  include_once 'inc/class.page.php';
+require_once('inc/class.page.php');
+require_once('inc/admin.inc');
+
 
   $scripts = array('jQuery','jQueryUI'); 
   $adminpage = new page('Administration',$scripts,FALSE);
@@ -79,7 +81,17 @@
     $result = '';
     if(isset($_GET['rehash'])) {
       // Run the rehash
-      $result = 'Rehash Complete'; 
+
+      $crawl_schools = NULL;
+      if (isset($_REQUEST['rehash_school']))
+	$crawl_schools = array($_REQUEST['rehash_school']);
+
+      if (school_cache_recreate($crawl_schools))
+	$result = 'Rehash Failed';
+      else
+	$result = 'Rehash Successful';
+      if ($crawl_schools !== NULL)
+	$result .= ': ' . implode(', ', $crawl_schools);
     }
     else if(isset($_GET['purgetodate'])) {
       // Purge saved schedule cache up to date
@@ -102,28 +114,15 @@
     return date("F j, Y, g:i a", $stats[9]);
   }
 
-  function getSchools() {
-    if(!stat("cache/schools")){
-      return false;
-    }
-    $schoolsArr = unserialize(file_get_contents("cache/schools"));
-    return $schoolsArr;
-  }
-
-  function schoolsDropList(){
-    $schools = getSchools();
-    echo '<select>';
-    foreach($schools['list'] as $school){
-      if(!$school['name'] != "Generic College") {
-        echo '<option ';
-        if(!$school['crawled']) {
-          echo 'class="bold" ';
-        }
-        echo 'value="' . $school['name'] . '">';
-        echo $school['name'];   
-        echo "</option>";
+  function schoolsDropList()
+  {
+    $school_ids = school_list();
+    echo '<select name="rehash_school">';
+    foreach($school_ids as $school_id)
+      {
+	$school = school_load($school_id);
+	echo '  <option value="' . $school_id . '">' . $school['name'] . '</option>' . "\n";
       }
-    }
     echo "</select>";
   }
 
@@ -158,12 +157,19 @@
       }
 ?>
 <ul>
-  <li><a href="admin.php?rehash">Rehash All Institutions</a></li>
-  <li><form action="admin.php">Rehash schedules for <?php schoolsDropList(); ?> <input type="submit" value="Go &raquo;" /> </form></li>
+  <li>
+    <a href="admin.php?rehash">Rehash All Institutions</a>
+  </li>
+  <li>
+    <form action="admin.php">Rehash schedules for <?php schoolsDropList(); ?>
+      <input type="hidden" name="rehash" value="1" />
+      <input type="submit" value="Go &raquo;" />
+    </form>
+  </li>
 </ul>
 
 <h3>Purge</h3>
-<p>The cache currently contains <?php echo getNumSaved(); ?> schedules.</p>
+<p>The saved schedule fs-db currently contains <?php echo getNumSaved(); ?> schedules.</p>
 <ul>
   <li><a href="admin.php?purge">Purge Entire Cache</a></li>
   <li><form action="admin.php">Purge cache up to <input type="text" name="purgetodate" size="8" id="datepicker"/> <input type="submit" value="Go &raquo;" /></form></li>

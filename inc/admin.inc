@@ -18,9 +18,12 @@
  * along with slate_permutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$incdir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR;
+$inc_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR;
 
-require_once($incdir . 'schedule_store.inc');
+require_once($inc_dir . 'schedule_store.inc');
+require_once($inc_dir . 'class.semester.inc');
+require_once($inc_dir . 'school.inc');
+require_once($inc_dir . 'school.crawl.inc');
 
 /**
  * \file
@@ -238,6 +241,83 @@ function school_crawl(&$school, $semester_year, $semester_season, $verbosity = 1
   if ($verbosity > 0)
     fwrite(STDERR, "\n");
 }
+
+
+/**
+ * \brief
+ *   Recreate/update the school section autocomplete cache.
+ *
+ * \param $crawl_only
+ *   If non-NULL, an array of school_ids to limit the cache recreation
+ *   to. Useful for when developing a certain school's crawling
+ *   function.
+ */
+function school_cache_recreate($crawl_only = NULL)
+{
+  $crawl_semester_year = '2011';
+  $crawl_semester_season = Semester::SEASON_SPRING;
+
+  $school_id_list = school_list();
+  if (!$school_id_list)
+    {
+      fprintf(STDERR, "error: Unable to load schools.\n");
+      return 1;
+    }
+
+  if ($crawl_only !== NULL)
+    foreach ($crawl_only as $crawl_only_school_id)
+      if (!in_array($crawl_only_school_id, $school_id_list))
+	{
+	  fprintf(STDERR, "error: Invalid school_id specified for crawling: %s",
+		  $crawl_only_school_id);
+	  return 1;
+	}
+
+  $schools = array();
+  $old_school_cache = _school_cache_load();
+  foreach ($school_id_list as $school_id)
+    {
+      $school = school_load($school_id, TRUE);
+      if (!$school)
+	{
+	  fprintf(STDERR, "Error loading school with school_id=%s\n",
+		  $school_id);
+	  return 1;
+	}
+
+      if ($crawl_only === NULL || in_array($school['id'], $crawl_only))
+	{
+	  school_crawl($school, $crawl_semester_year, $crawl_semester_season, $verbosity);
+	}
+      else
+	{
+	  /*
+	   * try to allow incremental crawling by not wiping out old
+	   * data and preserving the cached $school['crawled'].
+	   */
+	  if ($old_school_cache && isset($old_school_cache['list'][$school['id']]))
+	    {
+	      $old_school = $old_school_cache['list'][$school['id']];
+	      $school['crawled'] = FALSE;
+	      if (isset($old_school['crawled']))
+		$school['crawled'] = $old_school['crawled'];
+	      if ($school['crawled'])
+		$school['crawled_notreally'] = TRUE;
+	    }
+	}
+
+      $schools[] = $school;
+    }
+
+  if (school_cache($schools))
+    {
+      fprintf(STDERR, "Error writing out school cache\n");
+      return 1;
+    }
+
+  return 0;
+}
+
 
 /**
  * \brief
