@@ -126,8 +126,10 @@ require_once('inc/admin.inc');
     echo "</select>";
   }
 
-  function getNumSaved(){
-    return file_get_contents("saved_schedules/lastid");
+  function getMaxSaved()
+  {
+    $schedule_store = schedule_store_init();
+    return schedule_store_getmaxid($schedule_store);
   }
 
 ?>
@@ -169,7 +171,7 @@ require_once('inc/admin.inc');
 </ul>
 
 <h3>Purge</h3>
-<p>The saved schedule fs-db currently contains <?php echo getNumSaved(); ?> schedules.</p>
+    <p>The highest saved_schedule id is <a href="<?php $max_saved = getMaxSaved(); echo Schedule::url($max_saved); ?>"><?php echo $max_saved;?></a>.</p>
 <ul>
   <li><a href="admin.php?purge">Purge Entire Cache</a></li>
   <li><form action="admin.php">Purge cache up to <input type="text" name="purgetodate" size="8" id="datepicker"/> <input type="submit" value="Go &raquo;" /></form></li>

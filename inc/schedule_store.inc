@@ -134,6 +134,28 @@ function schedule_store_delete($schedule_store, $schedule_id)
 
 /**
  * \brief
+ *   Get an unreliable max schedule_id number.
+ *
+ * Useful for stats-only: for when the user is interested in knowing
+ * the last registered schedule_id. Don't use this for creating new
+ * schedule_ids, use schedule_store_store() for that instead.
+ *
+ * \param $schedule_store
+ *   The schedule_store handle.
+ * \return
+ *   An integer, the last schedule_id.
+ */
+function schedule_store_getmaxid($schedule_store)
+{
+  _schedule_store_flock_grab($schedule_store, LOCK_SH);
+  $schedule_id = (int)file_get_contents($schedule_store['dir'] . DIRECTORY_SEPARATOR . 'lastid');
+  _schedule_store_flock_release($schedule_store);
+  return $schedule_id;
+}
+
+
+/**
+ * \brief
  *   Obtains a lock on the /lastid file in the schedule_store.
  *
  * \see _schedule_store_flock_release().
