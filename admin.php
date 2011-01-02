@@ -56,27 +56,6 @@ require_once('inc/admin.inc');
     return false; 
   }
 
-  function emptySavedDir($todate = null) {
-    // Empty the saved_schedules directory
-    $dir = "saved_schedules";
-    if(!is_dir($dir)) {
-      echo "<p><pre>{$dir}</pre> is not a valid directory! Please check your installation.";
-      return;
-    }
-   
-    // Do this the new fun php5 OO-way
-    foreach(new DirectoryIterator($dir) as $file) {
-      if(is_numeric($file->getFilename())){
-        $isBeforeDate = isBeforeDate($file->getCTime(), $todate);
-        if(!$todate || $isBeforeDate) {
-          // unlink($dir . '/' . $file->getFilename());
-          $date = date("Y-m-d",$file->getCTime());
-          echo "<p>Erased file: " . $dir . '/' . $file->getFilename() . " ({$date})</p>";
-        } 
-      }
-    }
-  }
-
   function checkAction() {
     $result = '';
     if(isset($_GET['rehash'])) {
@@ -93,16 +72,33 @@ require_once('inc/admin.inc');
       if ($crawl_schools !== NULL)
 	$result .= ': ' . implode(', ', $crawl_schools);
     }
-    else if(isset($_GET['purgetodate'])) {
-      // Purge saved schedule cache up to date
-      emptySavedDir($_GET['purgetodate']);
-      $result = 'Purged all saved schedules up to ' . $_GET['purgetodate'];
-    }
-    else if(isset($_GET['purge'])) {
-      // Purge the saved schedule cache
-      emptySavedDir();
-      $result = 'Purge Complete';
-    }
+    else if(isset($_GET['purge']))
+      {
+	$purge_date = NULL;
+	if(isset($_GET['purgetodate']))
+	  {
+	    $t = strptime($_REQUEST['purgetodate'], '%Y-%m-%d');
+	    $purge_date = mktime($t['tm_hour'], $t['tm_min'], $t['tm_sec'], $t['tm_mon'], $t['tm_mday'], $t['tm_year'] + 1900);
+	  }
+
+	$schedule_store = schedule_store_init();
+	if (!$schedule_store)
+	  return 'Purging saved schedules failed: unable to initialize schedule_store handle.';
+
+	$num_purged = schedule_store_purge_range($schedule_store, 0, $purge_date);
+	if ($num_purged === FALSE)
+	  {
+	    $result = 'Purging saved scheduled failed.';
+	    if (!$admin_enable_purge)
+	      $result .= ' To enable purging saved schedules, since this is an irreversable operation, you must set $admin_enable_purge = TRUE in config.inc.';
+	  }
+	else
+	  {
+	    $result .= 'Purged ' . $num_purged . ' schedules';
+	    if ($purge_date !== NULL)
+	      $result .= ' up to ' . $purge_date;
+	  }
+      }
     return $result;
   }
 
@@ -174,7 +170,13 @@ require_once('inc/admin.inc');
     <p>The highest saved_schedule id is <a href="<?php $max_saved = getMaxSaved(); echo Schedule::url($max_saved); ?>"><?php echo $max_saved;?></a>.</p>
 <ul>
   <li><a href="admin.php?purge">Purge Entire Cache</a></li>
-  <li><form action="admin.php">Purge cache up to <input type="text" name="purgetodate" size="8" id="datepicker"/> <input type="submit" value="Go &raquo;" /></form></li>
+  <li>
+    <form action="admin.php">Purge cache up to 
+      <input type="text" name="purgetodate" size="8" id="datepicker"/>
+      <input type="submit" value="Go &raquo;" />
+      <input type="hidden" name="purge" value="1" /> <!-- simplify our server-side code -->
+    </form>
+  </li>
 </ul>
 
 <?php

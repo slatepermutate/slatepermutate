@@ -318,6 +318,50 @@ function school_cache_recreate($crawl_only = NULL)
   return 0;
 }
 
+/**
+ * \brief
+ *   Purge a range of saved_schedules.
+ *
+ * \param $schedule_store
+ *   The schedule_store handle for which a range of saved schedules
+ *   must be deleted.
+ * \param $time_min
+ *   The minimum unix timestamp for the range of schedules to be
+ *   purged.
+ * \param $time_max
+ *   The maximum unix timestamp for the range of schedules to be
+ *   purged or NULL for no limit.
+ * \return
+ *   FALSE on failure, an integer indicating the number of deleted
+ *   saved_schedules on success.
+ */
+function schedule_store_purge_range($schedule_store, $time_min = 0, $time_max = NULL)
+{
+  global $admin_enable_purge;
+
+  $schedule_id_max = schedule_store_getmaxid($schedule_store);
+  $num_deleted = 0;
+
+  if (!$admin_enable_purge)
+    return FALSE;
+
+  for ($schedule_id = 0; $schedule_id < $schedule_id_max; $schedule_id ++)
+    {
+      $filename = $schedule_store['dir'] . DIRECTORY_SEPARATOR . $schedule_id;
+      if (!file_exists($filename))
+	continue;
+
+      $statbuf = stat($filename);
+      if ($statbuf['ctime'] >= $time_min
+	  && ($time_max === NULL || $statbuf['ctime'] <= $time_max))
+	{
+	  unlink($filename);
+	  $num_deleted ++;
+	}
+    }
+
+  return $num_deleted;
+}
 
 /**
  * \brief

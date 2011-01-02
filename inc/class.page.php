@@ -45,6 +45,7 @@ $clean_urls = FALSE;
 $ga_trackers = array();
 $feedback_emails = array('ez@ethanzonca.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net');
 $use_captcha = FALSE;
+$admin_enable_purge = FALSE;
 
 $config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
 if (file_exists($config_inc)) {

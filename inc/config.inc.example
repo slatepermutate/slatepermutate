@@ -78,8 +78,17 @@
 
 /**
  * \brief
- *    Setting this variable true enables the administration page
+ *   Setting this variable true enables the administration page
  *
  */
-/* $admin_enable = false; */
+/* $admin_enable = FALSE; */
 
+/**
+ * \brief
+ *   Enable purging saved schedules through the admin/rehash.php
+ *   script or web interface.
+ *
+ * Set to TRUE to enable this functionality. It is disabled by default
+ * because it causes irreparable information loss.
+ */
+/* $admin_enable_purge = FALSE; */
