@@ -94,6 +94,14 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
 
 if ($getsections)
   {
+    if (!isset($term_parts['course']))
+      {
+	/* user didn't give us enough information */
+	header('HTTP/1.1 404: Nof found');
+	header('Content-Type: text/plain; encoding=utf-8');
+	echo 'Not a fully-qualified course name: ' . implode('-', $term_parts) . "\n";
+	exit(0);
+      }
     $section_file = $cache_dir . $dept . DIRECTORY_SEPARATOR . $term_parts['course'];
     if (file_exists($section_file))
       {

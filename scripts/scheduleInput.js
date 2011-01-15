@@ -281,7 +281,10 @@ function add_sections(cnum, data)
 		jQuery('.className' + classNum).bind('autocompleteselect', {'class_num': classNum},
 			function(event, ui)
 			    {
-				if (ui.item && ui.item.value.indexOf('-'))
+				var dash_pos;
+				if (ui.item
+				    && (dash_pos = ui.item.value.indexOf('-'))
+				    && ui.item.value.length > dash_pos + 1)
 				    {
 					jQuery.ajax(
 						      {
