@@ -221,7 +221,7 @@ function addTips(id) {
       tip: true
     },
     show: { effect: { type: 'fade', length: 2000 } },
-/*    show: { ready: false }, */
+    show: { ready: true }, 
 /*    hide: { when: { event: 'inactive' } }, */
     corner: { target: 'topMiddle', tooltip: 'bottomMiddle' },
   });
@@ -294,7 +294,9 @@ function add_sections(cnum, data)
 				    }
 			    });
 
-		addTips('.class'+classNum+ ' td:first');
+		if(classNum == 0) {
+			addTips('.class'+classNum+ ' td:first');
+		}
 		classNum++;
 
 		return (classNum - 1);
