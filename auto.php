@@ -84,7 +84,7 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
     $json_depts = array();
     foreach ($departments as $key => $department) {
       if (!strncmp($department, $dept, $dept_strlen)) {
-	$json_depts[] = $department;
+	$json_depts[] = $department . "-";
       }
     }
 
