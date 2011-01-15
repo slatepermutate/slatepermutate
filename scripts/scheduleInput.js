@@ -277,30 +277,45 @@ function add_sections(cnum, data)
 		sectionsOfClass[classNum] = 0; // Initialize at 0
 		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="9"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add Section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
 
-		jQuery('.className' + classNum).autocomplete({ source: "auto.php" });
-		jQuery('.className' + classNum).bind('autocompleteselect', {'class_num': classNum},
+		var class_elem = jQuery('.className' + classNum);
+		class_elem.autocomplete({ source: "auto.php" });
+		class_elem.bind('autocompleteselect', {class_num: classNum, class_elem: class_elem},
 			function(event, ui)
 			    {
-				var dash_pos;
-				if (ui.item
-				    && (dash_pos = ui.item.value.indexOf('-'))
-				    && ui.item.value.length > dash_pos + 1)
+				if (!ui.item)
+				    return;
+
+				if (ui.item.value.indexOf('-') != -1)
 				    {
 					jQuery.ajax(
-						      {
-							  url: 'auto.php',
-							  data: {'getsections': 1, 'term': ui.item.value},
-							  context: {'class_num': event.data.class_num},
-							  success: function(data, textStatus, reqobj)
-							      {
-								  if (data.sections)
-								      {
-									  add_sections(this.class_num, data);
-									  add_class();
-								      }
-							      }
-						      }
-						      );
+						    {
+							url: 'auto.php',
+							    data: {'getsections': 1, 'term': ui.item.value},
+							    context: {'class_num': event.data.class_num},
+							    success: function(data, textStatus, reqobj)
+							    {
+								if (data.sections)
+								    {
+									add_sections(this.class_num, data);
+									add_class();
+								    }
+							    }
+						    }
+						    );
+				    }
+				else
+				    {
+					/*
+					 * The user selected a department, such as CS or MATH.
+					 * Thus, we should append a '-' to the value and do a search for that.
+					 */
+					var newval = ui.item.value + '-';
+					event.data.class_elem
+					    .val(newval)
+					    .autocomplete("search", newval);
+
+					/* void out the default event since we are setting the value ourselves, with a '-' */
+					event.preventDefault();
 				    }
 			    });
 
