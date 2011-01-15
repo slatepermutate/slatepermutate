@@ -54,7 +54,7 @@ EOF;
  * \return
  *   An array of Course objects.
  */
-/*
+
 function cedarville_default_classes()
 {
   $chapel = new Course('Chapel');
@@ -63,7 +63,7 @@ function cedarville_default_classes()
 
   return array($chapel);
 }
-*/
+
 
 /**
  * \brief

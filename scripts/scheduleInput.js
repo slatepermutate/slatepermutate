@@ -213,10 +213,18 @@ function genOptionHtml(value, content, test_value)
 
 
 /** Add tooltips for user guidance */
-function addTips(id) {
-  jQuery(id).qtip({
+function addTips() {
+
+  var tr = jQuery('tr');
+  var td = tr.eq(tr.length-2);
+  jQuery('td:first', td).qtip({
     content: 'Type your class ID (such as PEF-1010)',
     style: {
+      border: { 
+        width: 3,
+        radius: 4,
+        color: '#333'
+      },
       name: 'dark',
       tip: true
     },
@@ -226,7 +234,6 @@ function addTips(id) {
     corner: { target: 'topMiddle', tooltip: 'bottomMiddle' },
   });
 }
-
 
 /**
  * \brief
@@ -268,7 +275,7 @@ function add_sections(cnum, data)
 	function add_class_n(name)
 	{
 		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td><input type="text" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="9"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add Section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
+		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="9"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add Section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
 
 		jQuery('.className' + classNum).autocomplete({ source: "auto.php" });
 		jQuery('.className' + classNum).bind('autocompleteselect', {'class_num': classNum},
@@ -294,9 +301,6 @@ function add_sections(cnum, data)
 				    }
 			    });
 
-		if(classNum == 0) {
-			addTips('.class'+classNum+ ' td:first');
-		}
 		classNum++;
 
 		return (classNum - 1);

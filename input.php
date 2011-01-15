@@ -62,8 +62,10 @@ else
     $my_hc .= '    class_last = add_class();
 ';
   }
+$my_hc .= '        addTips();';
 $my_hc .= '  });
 ';
+
 $inputPage->headcode_add('scheduleInput', $inputPage->script_wrap($my_hc), TRUE);
 
 $inputPage->head();
