@@ -490,6 +490,11 @@ class page
   /**
    * \brief
    *   Generate a URL to a given schedule.
+   *
+   * \return
+   *   The URL used to access the schedule. You must call
+   *   htmlentities() on this string if it is to be inserted into an
+   *   XHTML document.
    */
   public function gen_share_url($id)
   {

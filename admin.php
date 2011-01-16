@@ -167,7 +167,7 @@ require_once('inc/admin.inc');
 </ul>
 
 <h3>Purge</h3>
-    <p>The highest saved_schedule id is <a href="<?php $max_saved = getMaxSaved(); echo Schedule::url($max_saved); ?>"><?php echo $max_saved;?></a>.</p>
+    <p>The highest saved_schedule id is <a href="<?php $max_saved = getMaxSaved(); echo htmlentities(Schedule::url($max_saved)); ?>"><?php echo $max_saved;?></a>.</p>
 <ul>
   <li><a href="admin.php?purge">Purge Entire Cache</a></li>
   <li>

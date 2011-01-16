@@ -285,7 +285,7 @@ class Schedule
       echo '  });
             </script>';
 
-      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>'.$outputPage->gen_share_url($this->id_get()).'</p></div>';
+      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</p></div>';
       echo '<p><span id="printItems"><a href="#">Print</a></span> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p>';
       echo '<p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p>';
       echo '<p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
@@ -319,11 +319,11 @@ class Schedule
 	echo "    <div id=\"pagers\">\n";
 	/* Previous button */
 	if ($page > 0)
-	  echo '      <div id="pager-previous" class="pager left"><a href="' . $this->url($this->id, $page - 1) . '">&laquo; Previous</a></div>' . "\n";
+	  echo '      <div id="pager-previous" class="pager left"><a href="' . htmlentities($this->url($this->id, $page - 1)) . '">&laquo; Previous</a></div>' . "\n";
 
 	/* Next button */
 	if ($page + 1 < $npages)
-	  echo '      <div id="pager-next" class="pager right"><a href="' . $this->url($this->id, $page + 1) . '">Next &raquo;</a></div>' . "\n";
+	  echo '      <div id="pager-next" class="pager right"><a href="' . htmlentities($this->url($this->id, $page + 1)) . '">Next &raquo;</a></div>' . "\n";
 	echo "    </div> <!-- id=\"pagers\" -->\n";
 
 
@@ -521,6 +521,10 @@ class Schedule
    *   The ID of the schedule to link to. Defaults to the current schedule object.
    * \param $page
    *   The page of the schedule to link to. Defaults to 0.
+   * \return
+   *   A string, the URL used to access this schedule. Remember that
+   *   if this string is inserted into an XHTML document,
+   *   htmlentities() must be called on it.
    */
   function url($id = NULL, $page = 0)
   {
@@ -539,7 +543,7 @@ class Schedule
       $url .= '&';
 
     if ($page)
-      $url .= 'page=' . (int)$page . '&amp;';
+      $url .= 'page=' . (int)$page . '&';
 
     return $url;
   }
