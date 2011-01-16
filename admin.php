@@ -90,7 +90,7 @@ require_once('inc/admin.inc');
 	  {
 	    $result = 'Purging saved scheduled failed.';
 	    if (!$admin_enable_purge)
-	      $result .= ' To enable purging saved schedules, since this is an irreversable operation, you must set $admin_enable_purge = TRUE in config.inc.';
+	      $result .= ' Purging is disabled. To enable purging, set $admin_enable_purge = TRUE in config.inc.';
 	  }
 	else
 	  {

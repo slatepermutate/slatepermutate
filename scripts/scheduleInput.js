@@ -218,7 +218,7 @@ function addTips() {
   var tr = jQuery('tr');
   var td = tr.eq(tr.length-2);
   jQuery('td:first', td).qtip({
-    content: 'Type your class ID (such as PEF-1010)',
+    content: 'Start typing your class ID (such as PEF-1010) and click a suggestion to add sections',
     style: {
       border: { 
         width: 3,
