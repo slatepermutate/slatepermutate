@@ -251,8 +251,10 @@ function school_crawl(&$school, $semester_year, $semester_season, $verbosity = 1
  *   If non-NULL, an array of school_ids to limit the cache recreation
  *   to. Useful for when developing a certain school's crawling
  *   function.
+ * \param $verbosity
+ *   An integer indicating how loud to be.
  */
-function school_cache_recreate($crawl_only = NULL)
+function school_cache_recreate($crawl_only = NULL, $verbosity = 1)
 {
   $crawl_semester_year = '2011';
   $crawl_semester_season = Semester::SEASON_SPRING;

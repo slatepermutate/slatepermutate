@@ -73,7 +73,7 @@ function main($argc, $argv)
 
   if ($crawl)
     {
-      $ret = school_cache_recreate($crawl_only);
+      $ret = school_cache_recreate($crawl_only, $verbosity);
       if ($ret)
 	{
 	  fprintf(STDERR, "error: Unable to successfully crawl schools.\n");
