@@ -16,6 +16,10 @@ Installation Requirements:
   - Access to PHP's CLI interface
   - libcURL extension to PHP (for Calvin's crawler and soon others).
   - json_encode()/json_decode() functions (as a PEAR addon or with the recent PHP versions).
+  - PHP libraries
+    - securimage-2.0.2 (optional) for captcha support for the feedback
+      form. http://phpcapatcha.org/ , see inc/config.example for
+      details.
 
 Installation:
   - Get a copy of slate_permutate.

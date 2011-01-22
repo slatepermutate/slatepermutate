@@ -65,7 +65,9 @@
  * Set to TRUE to use SecureImage captcha, FALSE to not use
  * it. Requires PHP library available from http://phpcaptcha.org/
  * which may be placed in slate_permutate's lib/ directory or into the
- * system PHP include path.
+ * system PHP include path. If you are using the lib/ directory,
+ * ensure that securimage is accessible at
+ * lib/securimage/securimage.php .
  */
 /* $use_captcha = FALSE; */
 
