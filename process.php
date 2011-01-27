@@ -20,9 +20,9 @@
 
 require_once('inc/schedule_store.inc');
 require_once('inc/class.page.php');
-include_once 'class.schedule.php';
+include_once 'inc/class.schedule.php';
 include_once('inc/class.course.inc');
-include_once 'class.section.php';
+include_once 'inc/class.section.php';
 
 // Converts a 5-element day array into a string.
 // Supports multiple modes, prettiness, and searching for different indicators

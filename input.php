@@ -18,9 +18,9 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'class.schedule.php';
+include_once 'inc/class.schedule.php';
 include_once 'inc' . DIRECTORY_SEPARATOR . 'class.course.inc';
-include_once 'class.section.php';
+include_once 'inc/class.section.php';
 include_once 'inc/class.page.php';
 require_once('inc/schedule_store.inc');
 
