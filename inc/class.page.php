@@ -301,9 +301,7 @@ class page
   public function showSchools($linkto)
   {
     echo "<p>\n";
-    echo "  <div id=\"schoolBox\">\n";
     echo school_list_html($this->school['id'], $linkto);
-    echo "  </div> <!-- id=\"schoolBox\" -->\n";
     echo "</p>\n";
   }
 
