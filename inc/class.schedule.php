@@ -299,12 +299,12 @@ class Schedule
         echo '<div id="regDialog" title="Registration Codes"><p>Enter these codes into your school\'s online course registration system to register for classes:</p><div id="regDialogList"></div></div>';
 	echo '<div id="tabs">' . "\n" .
                '<div id="show-box" class="show-buttons">
-                  <form>
+                  <form action="#"><p class="nospace">
                     <label><strong>Display:</strong></label>
                     <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
                     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
                     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
-                    <div id="regCodes"><label><a href="#">Registration Codes</a></label></div>
+                    <span id="regCodes"><label><a href="#">Registration Codes</a></label></span></p>
                   </form>
                 </div> <!-- id="show-box" -->'
 	     . '<div id="the-tabs"><ul>' . "\n";
@@ -427,18 +427,18 @@ class Schedule
 		echo "          </tr>\n";
 	      }
 
-            echo '<div class="syns syns'.$i.'">'.  json_encode($syns) . '</div>';
+
 
 	    // End of table
 	    echo "        </table>\n"
+              . '         <span class="syns syns'.$i.'">'.  json_encode($syns) . "</span>\n"
 	      . '      </div> <!-- id="section' . ($i + 1) . "\" -->\n";
 	  }
 
-	echo $table
-	  . "    </div> <!-- class=\"scontent\" -->\n"
-	  . "  </div> <!-- class=\"scroller\" -->\n"
-	  . "</div> <!-- id=\"my-glider\" -->\n"
-	  . $footcloser; // Closes off the content div
+          echo "    </div> <!-- class=\"scontent\" -->\n"
+	     . "  </div> <!-- class=\"scroller\" -->\n"
+	     . "</div> <!-- id=\"my-glider\" -->\n"
+	     . $footcloser; // Closes off the content div
       } else {
       echo '<html><body><p>There are no possible schedules. Please try again.</p></body></html>';
     }

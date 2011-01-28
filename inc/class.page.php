@@ -66,7 +66,7 @@ class page
 {
 
   /* Site-wide configuration options */
-  private $base_title = 'SlatePermutate';
+  private $base_title = 'SlatePermutate :: Find the schedule that works for you!';
   private $doctype = 'html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"';
   private $htmlargs = 'xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"';
   private $bodyargs = '';

@@ -231,3 +231,8 @@ td.center {
 .synList {
   margin-left: 1em;
 }
+
+.nospace {
+  padding:0!important;
+  margin:0!important;
+}
