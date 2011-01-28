@@ -119,9 +119,8 @@ class page
     $this->scripts = $nscripts;
 
    /* Compliant browsers which care, such as gecko, explicitly request xhtml: */
-   if(!empty($_SERVER['HTTP_ACCEPT'])
-      && (strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== FALSE
-	  || !strlen($_SERVER['HTTP_ACCEPT'])) /* then the browser doesn't care :-) */)
+   if(empty($_SERVER['HTTP_ACCEPT'])  /* then the browser doesn't care :-) */
+      || strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== FALSE)
      {
        $this->xhtml = TRUE;
        header('Content-Type: application/xhtml+xml; charset=utf-8');
