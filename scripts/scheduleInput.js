@@ -275,7 +275,7 @@ function add_sections(cnum, data)
 	function add_class_n(name)
 	{
 		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="9"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add Section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
+		jQuery('#jsrows').append('<tr title="' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="9"></td><td class="tdInput"><div class="addSection"><input type="button" value="Add Section" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
 
 		var class_elem = jQuery('.className' + classNum);
 		class_elem.autocomplete({ source: "auto.php" });
@@ -294,10 +294,15 @@ function add_sections(cnum, data)
 							    context: {'class_num': event.data.class_num},
 							    success: function(data, textStatus, reqobj)
 							    {
+								var new_course_num;
+
 								if (data.sections)
 								    {
 									add_sections(this.class_num, data);
-									add_class();
+									new_course_num = add_class();
+
+									/* position the user's cursor the new class's input box */
+									jQuery('#input-course-' + new_course_num).focus();
 								    }
 							    }
 						    }
