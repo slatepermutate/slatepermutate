@@ -101,7 +101,7 @@ function cedarville_crawl($semester, $verbosity = 1)
   $year = $semester->year_get();
 
   /* Current academic departments. Update as needed. */
-  $departments = array('be','ba','ca','ed','eg','es','hg','id','ll','ms','mu','ns','ph','py','sm','sw');
+  $departments = array('ad', 'be','ba','ca','ed','eg','es','hg','id','ll','ms','mu','ns','ph','py','sm','sw');
   $basepath = "http://cedarville.edu/courses/schedule/";
 
   echo "cedarville_crawl(): Beginning crawl of Cedarville:\n";
