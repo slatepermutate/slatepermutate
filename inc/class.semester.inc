@@ -18,10 +18,9 @@
  * along with slate_permutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$root_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
-$inc_dir = $root_dir . 'inc' . DIRECTORY_SEPARATOR;
+$inc_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR;
 require_once($inc_dir . 'class.course.inc');
-require_once($root_dir . 'class.section.php');
+require_once($inc_dir . 'class.section.php');
 
 /**
  * \brief
