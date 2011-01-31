@@ -105,7 +105,7 @@ function usage($progname)
 	  . "              registration systems should be crawled for autofill\n"
 	  . "              data. Cached data from schools not listed is preserved\n"
 	  . " -v, --verbosity Set the verbosity level. Valid range is from 0\n"
-	  . "              through 10.",
+	  . "              through 10.\n",
 	  $progname);
 }
 
