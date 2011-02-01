@@ -65,12 +65,18 @@ require_once('inc/admin.inc');
       if (isset($_REQUEST['rehash_school']))
 	$crawl_schools = array($_REQUEST['rehash_school']);
 
+      ob_start();
       if (school_cache_recreate($crawl_schools))
 	$result = 'Rehash Failed';
       else
 	$result = 'Rehash Successful';
+      $hashresult = nl2br(ob_get_contents());
+      ob_end_clean();
       if ($crawl_schools !== NULL)
 	$result .= ': ' . implode(', ', $crawl_schools);
+
+      // Prepend rehash output
+      $result = $hashresult . '<br />' . $result;
     }
     else if(isset($_GET['purge']))
       {
