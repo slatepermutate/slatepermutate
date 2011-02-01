@@ -230,43 +230,22 @@ function cedarville_crawl($semester, $verbosity = 1)
 	      /* prepare for parsing the next meeting time */
 	      $meetings_str = substr($meetings_str, strlen($meeting_matches[0]));
 
-	      if (isset($meetings[$meeting_matches[1]]))
-		{
-		  if ($verbosity > 0 && !isset($meeting_multiple_types[$meeting_matches[1]]))
-		    {
-		      error_log('Section ' . implode('-', $section_parts)
-				. ' has multiple meeting times for meeting_type of '
-				. $meeting_matches[1] . ' which my unflexible code which'
-				. ' could be made more flexible doesn\'t yet support.'
-				. ' Skipping the extra meeting times for this type of meeting.');
-		      /* only give the above error once per type. */
-		      $meeting_multiple_types[$meeting_matches[1]] = TRUE;
-		    }
-		  continue;
-		}
+	      $days = school_crawl_days_str_format($meeting_matches[3]);
+	      $time_start = school_crawl_time_format(strptime($meeting_matches[4] . 'M', '%I:%M%p'));
+	      $time_end = school_crawl_time_format(strptime($meeting_matches[5] . 'M', '%I:%M%p'));
+	      $room = $meeting_matches[2];
 
-	      $meetings[$meeting_matches[1]]
-		= array('room' => $meeting_matches[2],
-			'days' => school_crawl_days_str_format($meeting_matches[3]),
-			'time_start' => school_crawl_time_format(strptime($meeting_matches[4] . 'M', '%I:%M%p')),
-			'time_end' => school_crawl_time_format(strptime($meeting_matches[5] . 'M', '%I:%M%p')),
-			'type' => $meeting_matches[1], 
-			);
+	      $type = $meeting_matches[1];
+	      while (isset($meeting_type_maps[$type]))
+		$type = $meeting_type_maps[$type];
+	      $type = strtolower($type);
+
+	      $meetings[] = new SectionMeeting($days, $time_start, $time_end,
+					       $room, $type);
 	    }
 
-	  $section_meetings = array();
-	  foreach ($meetings as $meeting)
-	    {
-	      $meeting_type = $meeting['type'];
-	      if (isset($meeting_type_maps[$meeting_type]))
-		$meeting_type = $meeting_type_maps[$meeting_type];
-
-	      $section_meetings[] = new SectionMeeting($meeting['days'], $meeting['time_start'],
-						       $meeting['time_end'], $meeting['room'],
-						       $meeting_type);
-	    }
 	  $semester->section_add($section_parts['department'], $section_parts['course'],
-				 new Section($section_parts['section'], $section_meetings,
+				 new Section($section_parts['section'], $meetings,
 					     $synonym, $instructor));
 	}
     }
