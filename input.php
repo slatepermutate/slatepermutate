@@ -62,7 +62,11 @@ else
     $my_hc .= '    class_last = add_class();
 ';
   }
-$my_hc .= '        addTips();';
+if (!isset($_SESSION['saw_qtips']))
+  {
+    $my_hc .= '        addTips();';
+    $_SESSION['saw_qtips'] = TRUE;
+  }
 $my_hc .= '  });
 ';
 
