@@ -99,18 +99,35 @@ function cedarville_crawl($semester, $verbosity = 1)
 
   $season = strtolower(substr($semester->season_get(), 0, 2));
   $year = $semester->year_get();
+  $season_string = $year . $season;
 
-  /* Current academic departments. Update as needed. */
-  $departments = array('ad', 'be','ba','ca','ed','eg','es','hg','id','ll','ms','mu','ns','ph','py','sm','sw');
-  $basepath = "http://cedarville.edu/courses/schedule/";
+  $basepath = 'http://cedarville.edu/courses/schedule/';
 
-  echo "cedarville_crawl(): Beginning crawl of Cedarville:\n";
+  if ($verbosity)
+    echo "cedarville_crawl(): Beginning crawl of Cedarville:\n";
 
-  $season = strtolower($season);
-  $tables = array();
-  foreach($departments as $department)
+  if ($verbosity > 1)
+    echo "cedarville_crawl(): Determining list of departments.\n";
+  /*
+   * We need two passes because the first department's code name is
+   * not accessible available in the first pageload.
+   */
+  $departments = array();
+  if (cedarville_crawl_departments_get($basepath . $year . $season . '_index.htm', $departments, $season_string))
+    return 1;
+  if (!count($departments))
     {
-      echo "cedarville_crawl(): Crawling department \"$department\"...\n";
+      echo "cedarville_crawl(): Unable to get a listing of departments.\n";
+      return 1;
+    }
+  /* find the first department whose name we don't yet know */
+  if (cedarville_crawl_departments_get($basepath . $year . $season . '_' . current(array_keys($departments)) . '_all.htm', $departments, $season_string))
+    return 1;
+
+  $tables = array();
+  foreach ($departments as $department => $dept_name)
+    {
+      echo 'cedarville_crawl(): Crawling department ' . $department . ' (' . $dept_name . ")...\n";
       $html = file_get_contents($basepath . $year . $season . '_' . $department . '_' . 'all.htm');
       if (!$html)
 	continue;
@@ -213,45 +230,60 @@ function cedarville_crawl($semester, $verbosity = 1)
 	      /* prepare for parsing the next meeting time */
 	      $meetings_str = substr($meetings_str, strlen($meeting_matches[0]));
 
-	      if (isset($meetings[$meeting_matches[1]]))
-		{
-		  if ($verbosity > 0 && !isset($meeting_multiple_types[$meeting_matches[1]]))
-		    {
-		      error_log('Section ' . implode('-', $section_parts)
-				. ' has multiple meeting times for meeting_type of '
-				. $meeting_matches[1] . ' which my unflexible code which'
-				. ' could be made more flexible doesn\'t yet support.'
-				. ' Skipping the extra meeting times for this type of meeting.');
-		      /* only give the above error once per type. */
-		      $meeting_multiple_types[$meeting_matches[1]] = TRUE;
-		    }
-		  continue;
-		}
+	      $days = school_crawl_days_str_format($meeting_matches[3]);
+	      $time_start = school_crawl_time_format(strptime($meeting_matches[4] . 'M', '%I:%M%p'));
+	      $time_end = school_crawl_time_format(strptime($meeting_matches[5] . 'M', '%I:%M%p'));
+	      $room = $meeting_matches[2];
 
-	      $meetings[$meeting_matches[1]]
-		= array('room' => $meeting_matches[2],
-			'days' => school_crawl_days_str_format($meeting_matches[3]),
-			'time_start' => school_crawl_time_format(strptime($meeting_matches[4] . 'M', '%I:%M%p')),
-			'time_end' => school_crawl_time_format(strptime($meeting_matches[5] . 'M', '%I:%M%p')),
-			'type' => $meeting_matches[1], 
-			);
+	      $type = $meeting_matches[1];
+	      while (isset($meeting_type_maps[$type]))
+		$type = $meeting_type_maps[$type];
+	      $type = strtolower($type);
+
+	      $meetings[] = new SectionMeeting($days, $time_start, $time_end,
+					       $room, $type);
 	    }
 
-	  $section_meetings = array();
-	  foreach ($meetings as $meeting)
-	    {
-	      $meeting_type = $meeting['type'];
-	      if (isset($meeting_type_maps[$meeting_type]))
-		$meeting_type = $meeting_type_maps[$meeting_type];
-
-	      $section_meetings[] = new SectionMeeting($meeting['days'], $meeting['time_start'],
-						       $meeting['time_end'], $meeting['room'],
-						       $meeting_type);
-	    }
 	  $semester->section_add($section_parts['department'], $section_parts['course'],
-				 new Section($section_parts['section'], $section_meetings,
+				 new Section($section_parts['section'], $meetings,
 					     $synonym, $instructor));
 	}
+    }
+
+  return 0;
+}
+
+/**
+ * \brief
+ *   Scan cedarville's course listing pages for departments.
+ *
+ * \return
+ *   An associative array mapping department codes onto department
+ *   friendly names.
+ */
+function cedarville_crawl_departments_get($dept_url, array &$departments, $season_string)
+{
+  $html = file_get_contents($dept_url);
+  $dept_dom = new DOMDocument();
+  if (!$dept_dom->loadHTML(cedarville_html_fix($html)))
+    {
+      echo "cedarville_crawl(): Error determining list of available departments: Unable to parse HTML.\n";
+      return 1;
+    }
+  $xpath = new DOMXPath($dept_dom);
+
+  $dept_node_list = $xpath->query('/descendant::div[@id="contenttext"]/child::span[position()=1 or position()=2]/child::a');
+  foreach ($dept_node_list as $dept_node)
+    {
+      $href = $dept_node->getAttribute('href');
+      if (!preg_match('/^' . preg_quote($season_string, '/') . '_([a-z]+)_[a-z]+\.htm$/', $href, $matches))
+	{
+	  echo 'cedarvillege_crawl(): Error determining list of available departments: Unable to parse the department string out of href="' . $href . "\".\n";
+	  return 1;
+	}
+
+      $dept = $matches[1];
+      $departments[$dept] = $dept_node->textContent;
     }
 
   return 0;
@@ -264,5 +296,8 @@ function cedarville_crawl($semester, $verbosity = 1)
 function cedarville_html_fix($html)
 {
   $html = preg_replace('/&&/', '&amp;&', $html);
-  return preg_replace('/&([^;]{5})/', '&amp;$1', $html);
+  $html = preg_replace('/&([^;]{5})/', '&amp;$1', $html);
+  $html = preg_replace('/ID="(LINKS|HERE)"/', '', $html);
+
+  return $html;
 }
