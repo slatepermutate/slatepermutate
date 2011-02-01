@@ -35,7 +35,7 @@ require_once('inc/school.inc');
 require_once('inc/class.page.php');
 require_once('inc/class.course.inc');
 
-Page::session_start();
+page::session_start();
 
 if (isset($_REQUEST['txt'])) {
   header('Content-Type: text/plain; encoding=utf-8');

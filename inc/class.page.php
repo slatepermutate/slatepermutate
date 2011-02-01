@@ -164,6 +164,27 @@ class page
 
   /**
    * \brief
+   *   Instantiate a new page for the caller.
+   *
+   * The caller must explicitly call the page::head() function upon
+   * the value that is returned. No implicit actions are supported
+   * anymore.
+   *
+   * \param $title
+   *   The title of the page. Must be completely UTF-8 (will be
+   *   escaped for you with htmlentitites()).
+   * \param $scripts
+   *   A list of scripts which the page desires to be included in the
+   *   <head /> of the page. Should this param just be moved to the
+   *   page::head() function?
+   */
+  public static function page_create($title, array $scripts = array())
+  {
+    return new page(htmlentities($title), $scripts, FALSE);
+  }
+
+  /**
+   * \brief
    *   Adds some headcode to this page.
    *
    * \param $key
@@ -189,7 +210,7 @@ class page
     $this->pageGenTime = round(microtime(), 3);
 
     if ($this->xhtml)
-       echo '<?xml version="1.0" encoding="utf-8" ?>' . PHP_EOL;
+      echo '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL;
 
     echo '<!DOCTYPE ' . $this->doctype . '>'. PHP_EOL .
 	  '<html ' . $this->htmlargs . '>'. PHP_EOL .
@@ -361,7 +382,8 @@ class page
    */
   public static function show_404($message = 'I couldn\'t find what you were looking for :-/.')
   {
-    $page_404 = new Page('404: Content Not Found');
+    $page_404 = page::page_create('404: Content Not Found');
+    $page_404->head();
 
     echo "<h2>404: Content Not Found</h2>\n"
       . "<p>\n"

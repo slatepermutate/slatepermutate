@@ -26,7 +26,8 @@ if ($use_captcha)
     $securimage = new Securimage();
   }
 
-$feedbackpage = new page('Feedback');
+$feedbackpage = page::page_create('Feedback');
+$feedbackpage->head();
 $subject = '[SlatePermutate] - Feedback';
 ?>
 

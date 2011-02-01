@@ -23,7 +23,7 @@ require_once('inc/admin.inc');
 
 
   $scripts = array('jQuery','jQueryUI'); 
-  $adminpage = new page('Administration',$scripts,FALSE);
+$adminpage = page::page_create('Administration', $scripts);
   $datepicker = '$(function() {
                    $( "#datepicker" ).datepicker();
                    $( "#datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd" );

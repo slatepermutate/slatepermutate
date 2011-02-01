@@ -245,7 +245,8 @@ class Schedule
     else {
       $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'uiTabsKeyboard', 'displayTables');
     }
-    $outputPage = new Page(htmlentities($this->getName()), $headcode);
+    $outputPage = page::page_create(htmlentities($this->getName()), $headcode);
+    $outputPage->head();
 
 
 

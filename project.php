@@ -19,7 +19,8 @@
  */
 
   include_once 'inc/class.page.php'; 
-  $projectpage = new page('Project');
+$projectpage = page::page_create('Project');
+$projectpage->head();
 ?>
 
 <h3>The SlatePermutate Project</h3>

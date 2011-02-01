@@ -20,7 +20,8 @@
 
 include_once 'inc/class.page.php'; 
 
-$feedbackpage = new page('Feedback');
+$feedbackpage = page::page_create('Feedback');
+$feedbackpage->head();
 $ipi = $_SERVER['REMOTE_ADDR'];
 $fromdom = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 $httpagenti = $_SERVER['HTTP_USER_AGENT'];

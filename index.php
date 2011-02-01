@@ -18,8 +18,10 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-  include_once 'inc/class.page.php'; 
-  $welcomepage = new page('Welcome');
+require_once 'inc/class.page.php'; 
+
+$welcomepage = page::page_create('Welcome');
+$welcomepage->head();
 ?>
 
 <h3>Find the schedule that works for you!</h3>
