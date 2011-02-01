@@ -285,10 +285,11 @@ class Schedule
       echo '  });
             </script>';
 
-      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</p></div>';
-      echo '<p><span id="printItems"><a href="#">Print</a></span> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p>';
-      echo '<p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p>';
-      echo '<p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>';
+      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</p></div>' . "\n";
+      echo '<p><a href="input.php?s='.$this->id.'">Edit</a> :: <span id="printItems"><a href="#">Print</a></span> :: <span id="share"><a href="#">Share</a></span> :: <a href="input.php">Home</a></p>'. "\n";
+      echo '<p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p>' . "\n";
+      echo '<p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>' . "\n";
+
     }		
 
     echo "\n";
@@ -305,8 +306,9 @@ class Schedule
                     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
                     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
                     <span id="regCodes"><label><a href="#">Registration Codes</a></label></span></p>
-                  </form>
-                </div> <!-- id="show-box" -->'
+                  </form>';
+
+          echo '</div> <!-- id="show-box" -->'
 	     . '<div id="the-tabs"><ul>' . "\n";
 			
 	for($nn = $first_permutation + 1; $nn <= $last_permutation; $nn++)
@@ -440,12 +442,8 @@ class Schedule
 	     . "</div> <!-- id=\"my-glider\" -->\n"
 	     . $footcloser; // Closes off the content div
       } else {
-      echo '<html><body><p>There are no possible schedules. Please try again.</p></body></html>';
+      echo '<html><body><p>There are no possible schedules. Please <a href="input.php?s='.$id.'">try again</a>.</p></body></html>';
     }
-
-    /* edit button */
-    if ($id = $this->id_get())
-      echo '<form method="get" action="input.php"><p><input type="hidden" name="s" value="' . $id . '" /><input class="gray" id="editbutton" type="submit" value="edit" /></p></form>';
 
     echo "<p id=\"possiblestats\">There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
 
