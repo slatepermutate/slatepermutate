@@ -70,13 +70,13 @@ require_once('inc/admin.inc');
 	$result = 'Rehash Failed';
       else
 	$result = 'Rehash Successful';
-      $hashresult = nl2br(ob_get_contents());
+      $hashresult = htmlentities(ob_get_contents());
       ob_end_clean();
       if ($crawl_schools !== NULL)
 	$result .= ': ' . implode(', ', $crawl_schools);
 
       // Prepend rehash output
-      $result = $hashresult . '<br />' . $result;
+      $result = nl2br($hashresult) . '<br />' . $result;
     }
     else if(isset($_GET['purge']))
       {
