@@ -26,11 +26,9 @@ $welcomepage->head();
 
 <h3>Find the schedule that works for you!</h3>
 <p>Plan your next semester with SlatePermutate! SlatePermutate generates every possible schedule with the courses you enter to let you pick the schedule that fits your life.</p>
-<p><!-- View <a href="schedulecreator.php">demo output</a> or --><a href="input.php">Get started</a></p> 
-
+<p><a href="input.php">Get started</a></p> 
 
 <p class="righttext"><a href="input.php"><img class="noborder" src="images/get-started.png" alt="Get Started" /></a></p>
-<!-- <p style="color: #777; font-size: .7em;">This program was created by <a href="http://www.calvin.edu" rel="external">Calvin College</a> and <a href="http://cedarville.edu/" rel="external">Cedarville University</a> students. SlatePermutate works with any college or university.</p>
--->
+
 <?php
 $welcomepage->foot();

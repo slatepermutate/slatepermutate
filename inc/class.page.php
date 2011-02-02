@@ -53,8 +53,6 @@ if (file_exists($config_inc)) {
 }
 
 
-
-
 //**************************************************
 // class.page.php   Author: Ethan Zonca
 //
@@ -66,31 +64,24 @@ class page
 {
 
   /* Site-wide configuration options */
-  private $base_title = 'SlatePermutate :: Find the schedule that works for you!';
+  private $base_title = 'SlatePermutate - Find the schedule that works for you!';
   private $doctype = 'html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"';
   private $htmlargs = 'xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"';
-  private $bodyargs = '';
 
-
-  public $lastJobTable = '';
   private $pageGenTime = 0;
 
-  /* Whether or not to output valid XHTML */
   private $xhtml = FALSE;
 
   /* Scripts and styles */
   private $headCode = array();
 
-  /*
-   * Google analytics ga.js tracking code. Expanded in __construct().
-   */
-  private $trackingcode = '';
-
+  private $trackingcode = ''; // Tracking code
   private $pagetitle = ''; // Title of page
   private $scripts = array(); // Scripts to include on page
 
   /* the current school. See get_school(). */
   private $school;
+
 
   /**
    * \param $ntitle
@@ -100,11 +91,14 @@ class page
    */
   public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
   {
+    /* Begin tracking generation time */
+    $this->pageGenTime = round(microtime(),4);
+
     global $ga_trackers;
 
     require_once('school.inc');
 
-    // Scripts and styles available to include
+    /* Scripts and styles available for inclusion */
     $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>';
     $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
@@ -115,6 +109,7 @@ class page
     $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8" />'; 
     $this->headCode['uiTabsKeyboard'] = '<script type="text/javascript" src="scripts/uiTabsKeyboard.js"></script>';
     $this->headCode['displayTables'] = '<script type="text/javascript" src="scripts/displayTables.js"></script>';
+
     $this->pagetitle = $ntitle;
     $this->scripts = $nscripts;
 
@@ -197,42 +192,38 @@ class page
   public function headcode_add($key, $code, $enable = FALSE)
   {
     $this->headCode[$key] = $code;
-    if ($enable)
+    if ($enable) {
       $this->scripts[] = $key;
+    }
   }
 
   /**
    * \brief
-   *   Output the HTML header for a page, including the <!DOCTYPE> and <head />
+   *   Output the HTML header for a page, including <!DOCTYPE>, <head />, and opening structure
    */
   public function head()
   {
-    $this->pageGenTime = round(microtime(), 3);
 
-    if ($this->xhtml)
+    if ($this->xhtml) {
       echo '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL;
+    }
 
     echo '<!DOCTYPE ' . $this->doctype . '>'. PHP_EOL .
 	  '<html ' . $this->htmlargs . '>'. PHP_EOL .
 	  '  <head>'. PHP_EOL .
-	  '    <title>' . $this->pagetitle . ' :: ' . $this->base_title . '</title>'. PHP_EOL .
+	  '    <title>' . $this->pagetitle . ' - ' . $this->base_title . '</title>'. PHP_EOL .
           '    <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />'.  PHP_EOL .
 	  '    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />'. PHP_EOL .
-    '    <link rel="shortcut icon" href="images/favicon.png" />'. PHP_EOL;
+          '    <link rel="shortcut icon" href="images/favicon.png" />'. PHP_EOL;
 
     // Write out all passed scripts
     foreach ($this->scripts as $i)
       echo '    ' . $this->headCode["$i"] . "\n";
 
     echo '  </head>' . PHP_EOL .
-	 '  <body '.$this->bodyargs.'>'. PHP_EOL .
-         '    <div id="page">'. PHP_EOL;
-    echo $this->top(); // Write out top
-  }
-
-  /** Write out the top of the page, including opening div tags, header title and images, etc */
-  private function top(){
-    echo '      <div id="header">'. PHP_EOL .
+	 '  <body>'. PHP_EOL .
+         '    <div id="page">'. PHP_EOL .
+         '      <div id="header">'. PHP_EOL .
 	 '        <div id="title">'. PHP_EOL .
          '          <h1><a href="index.php"><img src="images/slatepermutate-alpha.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>'. PHP_EOL .
          '          <p>'. PHP_EOL .
@@ -244,10 +235,12 @@ class page
          '      <div id="content">'. PHP_EOL;
   }
 
-  /** Write out the foot of the page and closing divs */
+  /**
+   * \brief
+   *   Write out the foot of the page and closing divs
+   */
   public function foot(){
     echo '      </div> <!-- id="content" -->'. PHP_EOL;
-    $this->pageGenTime = round(microtime(), 3);
     echo '      <div id="footer">'. PHP_EOL .
   	 '        <div id="leftfoot" style="float:left; margin-top: 1em;">'. PHP_EOL .
 	 '          <a href="feedback.php">Submit Feedback</a>'. PHP_EOL .
@@ -259,56 +252,52 @@ class page
          '    </div> <!-- id="page" -->'. PHP_EOL;
     echo $this->trackingcode;
     echo '  </body>'. PHP_EOL .
-         '</html>';
+         '</html>' . PHP_EOL;
+    $this->pageGenTime = round(microtime() - $this->pageGenTime,4);
+    echo '<!-- Page generated in ' . $this->pageGenTime . ' seconds -->';
   }
 
-  /** Takes a number in seconds, and outputs HH:MM:SS */
-  public function secondsToCompound($seconds) {
-      $ret = "";
-      $hours = intval(intval($seconds) / 3600);
-      $ret .= "$hours:";
-      $minutes = bcmod((intval($seconds) / 60),60);
-      $ret .= "$minutes:";
-      $seconds = bcmod(intval($seconds),60);
-      $ret .= "$seconds";
-      return $ret;
-  }
-
-  /** Shows a box with recently processed schedules */
-  public function showSavedScheds($session)
-  {
+  /**
+   * \brief
+   *   Shows a box with recently processed schedules
+   */
+  public function showSavedScheds($session) {
     global $clean_urls;
 
-    echo '<p>';
-    if (isset($session['saved']) && count($session['saved']) > 0)
-      {
-	$process_php_s = 'process.php?s=';
-	if ($clean_urls)
-	  $process_php_s = '';
+    if (isset($session['saved']) && count($session['saved']) > 0) {
+      echo '<div id="savedBox">' . PHP_EOL;
 
-	echo '<div id="savedBox" ><h3>Saved Schedules:</h3>';
-
-
-        $hidden = '';
-	foreach($session['saved'] as $key => $name)
-	  {
-            if($key == 5) {
-              echo '<div id="showMore"><a href="#">More...</a></div>';
-              $hidden = 'hidden';
-            }
-            else {
-                    echo '<p class="' . $hidden . '">';
- 		    echo '<a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:\n "
-		      . htmlentities($name)
-		      . ' <a href="input.php?s=' . $key . '">edit</a>'
-		      . ' <a href="process.php?del=' . $key . '">delete</a>'
-		      . "<br /><br />\n"
-                      . '</p>';
-	   }
-	  }
-	echo '<div id="showLess"><a href="#">Less...</a></div></div>';
+      $process_php_s = 'process.php?s=';
+      if ($clean_urls) {
+        $process_php_s = '';
       }
-    echo '</p>';
+
+      echo '<h3>Saved Schedules:</h3>';
+
+      $hidden = '';
+      $count = 0;
+      $output = '';
+
+      foreach($session['saved'] as $key => $name) {
+	if($count == 4) {
+	  $output .= '<div id="showMore"><a href="#">More...</a></div>';
+	  $hidden = 'hidden';
+	}
+        else {
+	  $output =  '<p class="' . $hidden . '">'  . PHP_EOL
+	           . '  <a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:" 
+	           . htmlentities($name)
+	           . ' <a href="input.php?s=' . $key . '">edit</a>'
+	           . ' <a href="process.php?del=' . $key . '">delete</a>'
+	           . ' <br /><br />' . PHP_EOL
+	           . '</p>' . PHP_EOL . $output;
+	  }
+          $count++;
+	}
+	echo $output;
+	echo '<div id="showLess"><a href="#">Less...</a></div>' . PHP_EOL;
+	echo '</div>' . PHP_EOL;
+      }
   }
 
   /**
@@ -331,9 +320,9 @@ class page
    */
   public function showSchoolInstructions()
   {
-    echo "<div id=\"schoolInstructionsBox\">\n";
-    echo school_instructions_html($this->school);
-    echo "</div> <!-- id=\"schoolInstructionsBox\" -->\n";
+    echo '<div id="schoolInstructionsBox">' . PHP_EOL
+       . school_instructions_html($this->school) . PHP_EOL
+       . '</div> <!-- id="schoolInstructionsBox" -->' . PHP_EOL;
   }
 
   /**
@@ -380,7 +369,7 @@ class page
    *   A message consisting of valid XHTML to display to the user in
    *   the 404 page.
    */
-  public static function show_404($message = 'I couldn\'t find what you were looking for :-/.')
+  public static function show_404($message = 'The page you were looking for cannot be found!.')
   {
     $page_404 = page::page_create('404: Content Not Found');
     $page_404->head();
@@ -490,13 +479,17 @@ class page
    */
   public function script_wrap($js, $type = 'text/javascript')
   {
-    return '<script type="' . $type . '">
-' . ($this->xhtml ? '<![CDATA[' : '') . '
-' . $js . '
-' . ($this->xhtml ? ']]>' : '') . '
-// </script>';
+    return '<script type="' . $type . '">' . PHP_EOL
+         . ($this->xhtml ? '<![CDATA[' : '') . PHP_EOL
+         . $js . PHP_EOL
+	 . ($this->xhtml ? ']]>' : '') . PHP_EOL
+         . '// </script>';
   }
 
+  /**
+   * \brief
+   *   Add a trailing slash to a path if one does not already exist
+   */
   private function add_trailing_slash($path){
     if($path[strlen($path)-1] != '/') {
       return $path . "/";
@@ -519,11 +512,15 @@ class page
   {
     global $clean_urls, $short_url_base;
 
-    if ($clean_urls && isset($short_url_base))
+    if ($clean_urls && isset($short_url_base)) {
       return $this->add_trailing_slash($short_url_base) . $id;
-    elseif ($clean_urls)
+    }
+    elseif ($clean_urls) {
       return 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/' . $id;
-    else
+    }
+    else {
       return 'http://' . $_SERVER['HTTP_HOST']  . dirname($_SERVER['REQUEST_URI']) . '/process.php?s=' . $id;
+    }
   }
+
 }

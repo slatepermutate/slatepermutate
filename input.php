@@ -18,11 +18,11 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'inc/class.schedule.php';
+include_once 'inc' . DIRECTORY_SEPARATOR . 'class.schedule.php';
 include_once 'inc' . DIRECTORY_SEPARATOR . 'class.course.inc';
-include_once 'inc/class.section.php';
-include_once 'inc/class.page.php';
-require_once('inc/schedule_store.inc');
+include_once 'inc' . DIRECTORY_SEPARATOR . 'class.section.php';
+include_once 'inc' . DIRECTORY_SEPARATOR . 'class.page.php';
+require_once('inc' . DIRECTORY_SEPARATOR . 'schedule_store.inc');
 
 $scripts = array('jQuery', 'jQueryUI', 'jValidate','qTip','schedInput');
 $inputPage = page::page_create('Scheduler', $scripts, FALSE);
@@ -102,17 +102,15 @@ if (!empty($_REQUEST['selectschool'])
 $inputPage->showSavedScheds($_SESSION);
 ?>
 <p>
-  Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '',
-  FALSE); ?>! To get started, enter in some of your
-  class IDs, and click the autosuggestion to add available sections for each class.
+  Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '', FALSE); ?>!
+  To get started, enter in some of your class IDs, and click the
+  autosuggestion to add available sections for each class.
 </p>
 
 <form method="post" action="process.php" id="scheduleForm">
-<br />
-<label>Schedule Name</label><br />
-<input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="Spring 2011" name="postData[name]"
-<?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; /*"*/ ?>
-/>
+<p class="nospace"><label>Schedule Name</label><br />
+  <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="Spring 2011" name="postData[name]" <?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; /*"*/ ?> />
+</p>
 
 <table id="container">
   <tr>
