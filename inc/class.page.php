@@ -276,29 +276,30 @@ class page
 
       $hidden = 'hidden';
       $numsaved = count($session['saved']);
-      $count = 0;
+      $count = $numsaved;
       $output = '';
 
-      foreach($session['saved'] as $key => $name) {
-	if($count == $numsaved - 4) {
-	  $hidden = '';
-	}
-        else {
+      foreach($session['saved'] as $key => $name)
+	{
+	  if($count <= 4)
+	    $hidden = '';
+
 	  $output =  '<p class="' . $hidden . '">'  . PHP_EOL
-	           . '  <a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:" 
-	           . htmlentities($name)
-	           . ' <a href="input.php?s=' . $key . '">edit</a>'
-	           . ' <a href="process.php?del=' . $key . '">delete</a>'
-	           . ' <br /><br />' . PHP_EOL
-	           . '</p>' . PHP_EOL . $output;
-	  }
-          $count++;
+	    . '  <a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:" 
+	    . htmlentities($name)
+	    . ' <a href="input.php?s=' . $key . '">edit</a>'
+	    . ' <a href="process.php?del=' . $key . '">delete</a>'
+	    . ' <br /><br />' . PHP_EOL
+	    . '</p>' . PHP_EOL . $output;
+
+          $count --;
 	}
-	echo $output;
+      echo $output;
+      if ($numsaved > 4)
 	echo '<div id="showLess"><a href="#">Less...</a></div>' . PHP_EOL
-           . '<div id="showMore"><a href="#">More...</a></div>' . PHP_EOL
-	   . '</div>' . PHP_EOL;
-      }
+	  . '<div id="showMore"><a href="#">More...</a></div>' . PHP_EOL;
+      echo '</div>' . PHP_EOL;
+    }
   }
 
   /**
