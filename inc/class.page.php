@@ -274,14 +274,14 @@ class page
 
       echo '<h3>Saved Schedules:</h3>';
 
-      $hidden = '';
+      $hidden = 'hidden';
+      $numsaved = count($session['saved']);
       $count = 0;
       $output = '';
 
       foreach($session['saved'] as $key => $name) {
-	if($count == 4) {
-	  $output .= '<div id="showMore"><a href="#">More...</a></div>';
-	  $hidden = 'hidden';
+	if($count == $numsaved - 4) {
+	  $hidden = '';
 	}
         else {
 	  $output =  '<p class="' . $hidden . '">'  . PHP_EOL
@@ -295,8 +295,9 @@ class page
           $count++;
 	}
 	echo $output;
-	echo '<div id="showLess"><a href="#">Less...</a></div>' . PHP_EOL;
-	echo '</div>' . PHP_EOL;
+	echo '<div id="showLess"><a href="#">Less...</a></div>' . PHP_EOL
+           . '<div id="showMore"><a href="#">More...</a></div>' . PHP_EOL
+	   . '</div>' . PHP_EOL;
       }
   }
 
