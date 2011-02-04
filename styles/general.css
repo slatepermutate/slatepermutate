@@ -117,7 +117,26 @@ td.center {
   /* background: #99FF99; */
   background: #70a97c;
 }
+.emptyCell, .removeCell {
+  background: #fff!important;
+}
 
+.lab {
+  background: #96acc4!important;
+}
+.lab .sectionIdentifier {
+  background: #fff!important;
+}
+.lab .sectionIdentifier input {
+  display: none;
+}
+
+.lab .deleteSection input {
+  display: none;
+}
+.lab .deleteSection:before {
+  content: "LAB";
+}
 
 /* Input Formatting */
 
