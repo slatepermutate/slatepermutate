@@ -319,7 +319,7 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	  $date_start = $meeting_info_matches[1];
 	  $date_end = $meeting_info_matches[2];
 	  /* e.g., 'Lecture', 'Practicum' */
-	  $meeting_type = strtolower($meeting_info_matches[3]);
+	  $meeting_type = strtolower(trim($meeting_info_matches[3]));
 
 	  $days = school_crawl_days_format(explode(', ', $meeting_info_matches[5]));
 	  $time_start = school_crawl_time_format(strptime($meeting_info_matches[6], '%I:%M%p'));
