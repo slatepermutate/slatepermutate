@@ -19,6 +19,19 @@
  */
 
 /**
+ * \file
+ * \brief
+ *   A file documenting available configuration options and their
+ *   defaults.
+ *
+ * Copy this file to config.inc after installing
+ * slate_permutate. Uncomment any options whose defaults you want to
+ * change. The commented-out example options display, in most cases,
+ * the default values for the variables which will be used if they're
+ * not specified.
+ */
+
+/**
  * \brief
  *   Use clean URLs for saved schedules. Default: FALSE.
  *
@@ -94,3 +107,18 @@
  * because it causes irreparable information loss.
  */
 /* $admin_enable_purge = FALSE; */
+
+/**
+ * \brief
+ *   Specify whether or not to always display qTips to users.
+ *
+ * Set to TRUE to display the qTips unconditionally. Set to FALSE to
+ * only show qTips to the user the first time he visits
+ * slate_permutate.
+ *
+ * The qTip is the little black box which tells a user to enter a
+ * course number into the input page. For casual users, it directs the
+ * attention to where the user should start. For advanced users, the
+ * whole concept may appear silly ;-).
+ */
+/* $qtips_always = FALSE; */

@@ -60,7 +60,7 @@ else
     $my_hc .= '    class_last = add_class();
 ';
   }
-if (!isset($_SESSION['saw_qtips']))
+if ($qtips_always || !isset($_SESSION['saw_qtips']))
   {
     $my_hc .= '        addTips();';
     $_SESSION['saw_qtips'] = TRUE;
