@@ -55,7 +55,7 @@ EOF;
  *   An array of Course objects.
  */
 
-function cedarville_default_classes()
+function cedarville_default_courses()
 {
   $chapel = new Course('Chapel');
   $chapel->section_add(new Section('_', array(new SectionMeeting('mtwhf', '1000', '1045', '', 'chapel')),

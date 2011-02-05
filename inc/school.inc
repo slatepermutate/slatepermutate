@@ -276,13 +276,13 @@ function school_instructions_html($school)
  * \param $school
  *   The school's handle.
  */
-function school_default_classes($school)
+function school_default_courses($school)
 {
-  $school_default_classes = $school['id'] . '_default_classes';
-  if (function_exists($school_default_classes))
+  $school_default_courses = $school['id'] . '_default_courses';
+  if (function_exists($school_default_courses))
     {
       require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.course.inc');
-      return $school_default_classes();
+      return $school_default_courses();
     }
 
   return array();

@@ -54,8 +54,8 @@ if ($sch)
 }
 else
   {
-    $default_classes = school_default_classes($school);
-    foreach ($default_classes as $default_class)
+    $default_courses = school_default_courses($school);
+    foreach ($default_courses as $default_class)
       $my_hc .= input_class_js($default_class, '    ');
     $my_hc .= '    class_last = add_class();
 ';
