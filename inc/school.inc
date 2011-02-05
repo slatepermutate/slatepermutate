@@ -242,11 +242,30 @@ function school_list_html($highlight = NULL, $linkto = NULL)
  */
 function school_instructions_html($school)
 {
-  if (!$school || !$school['id']
-      || !function_exists($school['id'] . '_instructions_html'))
+  global $school_default_school;
+
+  if (empty($school) || empty($school['id']))
+    /*
+     * Invalid param deserves a NULL :-p. Really, this invalid param
+     * handling shouldn't be needed...
+     */
     return NULL;
 
   $school_instructions_html = $school['id'] . '_instructions_html';
+
+  if (!function_exists($school_instructions_html))
+    {
+      /* load the default school's _instructions_html() function */
+      if ($school_default_school === NULL)
+	$school_default_school = school_load('default');
+      /* ``hacky'', but preferable to recursion: */
+      $school_instructions_html = 'default' . '_instructions_html';
+
+      /* be 503-safe */
+      if (!function_exists($school_instructions_html))
+	return NULL;
+    }
+
   return $school_instructions_html();
 }
 
