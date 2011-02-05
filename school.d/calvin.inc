@@ -52,7 +52,7 @@ function calvin_instructions_html()
 	<li>Select a valid class number from the drop down menu.</li>
 	<li>Click anywhere outside of the box to automatically fill in the available section data for that class.</li>
 	<li>Repeat this process for each class.</li>
-	<li>Click "Find a Schedule" to view all possible schedules for next semester.</li>
+	<li>Click &ldquo;Find a Schedule&rdquo; to view all possible schedules for next semester.</li>
 </ol>
 <!--<ol>
   <li>Get in touch with your advisor during advising/reading recess.</li>
