@@ -290,6 +290,18 @@ function school_default_classes($school)
 
 /**
  * \brief
+ *   Determine if a school has crawler data stored.
+ *
+ * \param $school
+ *   The which should be checked.
+ */
+function school_has_auto(array $school)
+{
+  return isset($school['crawled']) && $school['crawled'];
+}
+
+/**
+ * \brief
  *   Used to load the school cache.
  *
  * \return

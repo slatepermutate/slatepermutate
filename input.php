@@ -103,8 +103,14 @@ $inputPage->showSavedScheds($_SESSION);
 ?>
 <p>
   Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '', FALSE); ?>!
-  To get started, enter in some of your class IDs, and click the
-  autosuggestion to add available sections for each class.
+  <?php if (school_has_auto($inputPage->get_school())): ?>
+  To get started, enter in some a course identifier and click the
+  autosuggestion to automatically load available sections for each class.
+  <?php else: ?>
+  To get started, enter a course number and add some sections to it.
+  Then specify each section's letter/number and what times it meets,
+  add more courses, and click &ldquo;Find a Schedule&rdquo;.
+  <?php endif; ?>
 </p>
 
 <form method="post" action="process.php" id="scheduleForm">
