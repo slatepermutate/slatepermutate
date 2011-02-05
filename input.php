@@ -38,7 +38,9 @@ if (isset($_REQUEST['s']))
     $sch = schedule_store_retrieve($schedule_store, $schedule_id);
   }
 
-$my_hc = 'jQuery(document).ready(
+$my_hc = 'var slate_permutate_example_course_id = \'' . str_replace('\'', '\\\'', school_example_course_id($inputPage->get_school())) . '\';
+
+jQuery(document).ready(
   function()
   {
     var class_last = 0;
@@ -62,7 +64,7 @@ else
   }
 if ($qtips_always || !isset($_SESSION['saw_qtips']))
   {
-    $my_hc .= '        addTips();';
+    $my_hc .= '        addTips();' . PHP_EOL;
     $_SESSION['saw_qtips'] = TRUE;
   }
 $my_hc .= '  });
@@ -104,8 +106,10 @@ $inputPage->showSavedScheds($_SESSION);
 <p>
   Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '', FALSE); ?>!
   <?php if (school_has_auto($inputPage->get_school())): ?>
-  To get started, enter in some a course identifier and click the
-  autosuggestion to automatically load available sections for each class.
+  To get started, enter in some a course identifier (e.g., <em>
+  <?php echo school_example_course_id($inputPage->get_school()); ?></em>)
+  and click the autosuggestion to automatically load available sections
+  for each class.
   <?php else: ?>
   To get started, enter a course number and add some sections to it.
   Then specify each section's letter/number and what times it meets,

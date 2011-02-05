@@ -224,7 +224,8 @@ function addTips()
   var td = tr.eq(tr.length-2);
 
   jQuery('td:first', td).qtip({
-    content: 'Start typing your class ID (such as PEF-1010) and click a suggestion to add sections',
+    /* slate_permutate_example_course_id is set globally in input.php. */
+    content: 'Start typing your class ID (such as ' + slate_permutate_example_course_id + ') and click a suggestion to add sections',
     style: {
       border: { 
         width: 3,

@@ -25,6 +25,7 @@ function msu_info()
                'domains' => array(
                                   'msu.edu',
                                   ),
+	       'example_course_id' => 'ENG-129',
                'student_address' => 'Spartan',
                );
 }

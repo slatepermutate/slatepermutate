@@ -25,6 +25,7 @@ function umich_info()
                'domains' => array(
                                   'umich.edu',
                                   ),
+	       'example_course_id' => 'MATH-161',
                'student_address' => 'Wolverine',
                );
 }

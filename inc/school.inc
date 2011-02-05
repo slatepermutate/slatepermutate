@@ -42,6 +42,7 @@
  * array with the following keys:
  * - name: a friendly name for the school. Must be a valid XHTML attribute string.
  * - url: the school's website URL as a valid XHTML attribute string. (i.e., escape ampersands).
+ * - example_course_id: An example course identifier representative of a school's course IDs. (e.g., CS-101 for Calvin).
  *
  * \param $school_id
  *   The school's alphanumeric identifier (which determines the name
@@ -286,6 +287,25 @@ function school_default_courses($school)
     }
 
   return array();
+}
+
+/**
+ * \brief
+ *   Return an example course id for the school.
+ *
+ * Each school may specify an example course ID by placing a key
+ * called 'example_course_id' into the array returned by its
+ * <school_id>_info() function. See school_load().
+ *
+ * \param $school
+ *   The school's handle.
+ * \return
+ *   A string containing a representative example of a course ID for
+ *   the given school.
+ */
+function school_example_course_id(array $school)
+{
+  return $school['example_course_id'];
 }
 
 /**

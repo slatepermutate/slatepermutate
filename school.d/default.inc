@@ -28,6 +28,7 @@ function default_info()
 		*/
 	       'domains' => array(
 				  ),
+	       'example_course_id' => 'ENGL-101',
 	       'student_address' => 'student',
 	       );
 }

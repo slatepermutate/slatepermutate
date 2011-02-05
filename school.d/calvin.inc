@@ -29,6 +29,7 @@ function calvin_info()
 	       'domains' => array(
 				  'calvin.edu',
 				  ),
+	       'example_course_id' => 'CS-232',
 	       'student_address' => 'Knight',
 	       );
 }
