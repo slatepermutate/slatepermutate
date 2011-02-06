@@ -139,10 +139,9 @@ if(!$DEBUG)
 				foreach($class as $section)
 				  /* Skip the section name, which isn't a section */
 					if(is_array($section))
-					  {error_log(print_r($section['days'], TRUE));
-					  $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type']);
-					  error_log(arrayToDays($section['days'], 'alpha'));
-					}
+					  {
+					    $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type']);
+					  }
 			}
 		}
 		$allClasses->findPossibilities();
