@@ -300,22 +300,45 @@ class Schedule
 	/*
 	 * Figure out if we have to deal with Saturday and then deal
 	 * with it.
+	 *
+	 * Also, ensure that our $time array is big enough for all of
+	 * these courses.
 	 */
 	$max_day_plusone = 5;
 	$have_saturday = FALSE;
+
+	$max_time = (int)max($time);
+	$min_time = (int)min($time);
+	$sort_time = FALSE;
 	foreach ($this->courses as $course)
 	  {
 	    for ($si = 0; $si < $course->getnsections(); $si ++)
 	      foreach ($course->getSection($si)->getMeetings() as $meeting)
-		if ($meeting->getDay(5))
-		  {
-		    $max_day_plusone = 6;
-		    $have_saturday = TRUE;
-		    break;
-		  }
-	    if ($have_saturday)
-	      break;
+		{
+		  /* Saturdayness */
+		  if ($meeting->getDay(5))
+		    {
+		      $max_day_plusone = 6;
+		      $have_saturday = TRUE;
+		    }
+
+		  /* very late / very early classes */
+		  while ($meeting->getEndTime() > $max_time)
+		    {
+		      $max_time += 30;
+		      $time[] = $max_time;
+		    }
+		  while ($meeting->getStartTime() < $min_time)
+		    {
+		      $min_time -= 30;
+		      $time[] = $min_time;
+		      $sort_time = TRUE;
+		    }
+		}
 	  }
+	/* ensure that early times are actually first ;-) */
+	if ($sort_time)
+	  sort($time);
 
         echo '<div id="regDialog" title="Registration Codes"><p>Enter these codes into your school\'s online course registration system to register for classes:</p><div id="regDialogList"></div></div>';
 	echo '<div id="tabs">' . "\n" .
@@ -409,7 +432,9 @@ class Schedule
 				  if ($current_meeting)
 				    {
 				      /* calculate how many rows this section should span */
-				      for ($my_r = $r; $current_meeting->getEndTime() > $time[$my_r]; $my_r ++)
+				      for ($my_r = $r;
+					   $my_r < (count($time)-1) && $current_meeting->getEndTime() > $time[$my_r];
+					   $my_r ++)
 					;
 				      $rowspan[$dayLoop] = $my_r - $r;
 
