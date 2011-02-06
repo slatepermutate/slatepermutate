@@ -56,13 +56,13 @@ function school_crawl_time_format($time)
  *   simplicity. One-char representations are supported, however, but
  *   use 'm', 't', 'w', 'h', 'f' to distinguish Thursday and
  *   Tuesday. 'r' may also be used for Thursday.). Case does not
- *   matter.
+ *   matter. 's' is for Saturday, based on CCBCMD.
  * \return
  *   slate_permutate's strange internal days representation.
  */
 function school_crawl_days_format($days)
 {
-  static $daymap_1 = array('m' => 'm', 't' => 't', 'w' => 'w', 'h' => 'h', 'r' => 'h', 'f' => 'f');
+  static $daymap_1 = array('m' => 'm', 't' => 't', 'w' => 'w', 'h' => 'h', 'r' => 'h', 'f' => 'f', 's' => 's');
   static $daymap_2 = array('th' => 'h');
 
   $my_days = array();
@@ -137,6 +137,14 @@ function school_crawl_days_str_format($days_str)
  * \param $post
  *   If not NULL, causes an HTTP POST. In that case, should be an
  *   associative array of form keys/values.
+ * \param $follow_meta_refresh
+ *   Parse the resultant HTML with http://docs.php.net/dom and if it
+ *   contains a line that looks like ``<meta http-equiv="Refresh" content="0; url=https://simon.ccbcmd.edu/pls/PROD/bwckschd.p_disp_dyn_sched">'',
+ *   follow that URL.
+ * \param $curlsetup_hook
+ *   A function which is passed a curl handle which allows the caller
+ *   to do silly things like setting CURLOPT_SSLVERSION for silly
+ *   sites like ccbcmd's registration site.
  * \param $verbosity
  *   How verbose to be.
  * \param $loopspin
@@ -147,7 +155,7 @@ function school_crawl_days_str_format($days_str)
  *   malformed HTML, especially with Calvin's WebAdvisor
  *   installation).
  */
-function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $verbosity = 0, $loopspin = 0)
+function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $follow_meta_refresh = FALSE, $curlsetup_hook = NULL, $verbosity = 0, $loopspin = 0)
 {
   global $school_crawl_geturi_write_buf, $school_crawl_geturi_headers_buf, $school_crawl_geturi_verbosity;
 
@@ -159,6 +167,9 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $verbosity = 0, $lo
     }
 
   $curl = curl_init();
+
+  if ($curlsetup_hook !== NULL)
+    $curlsetup_hook($curl);
 
   $school_crawl_geturi_verbosity = $verbosity;
   $school_crawl_geturi_write_buf = '';
@@ -185,9 +196,28 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $verbosity = 0, $lo
       /* var_dump($post); */
 
       $posttxt = '';
-      foreach ($post as $postkey => $postval)
+      foreach ($post as $postkey => $postvals)
 	{
-	  $posttxt .= (strlen($posttxt) ? '&' : '')
+	  /*
+	   * This not escaping MEMBER thing is Calvin-specific
+	   * too. Maybe we need a way to ask for some particular char
+	   * not to be encoded?
+	   */
+
+	  /*
+	   * Apparently, browsers like seamonkey will send multiple
+	   * versions of <input type="hidden" name="field" value="1"
+	   * /> if another input exists with name="field", like:
+	   * field=1&field=blah. It seems like the webserver for
+	   * ccbcmd cares about having these multiple values too...
+	   *
+	   * Yes, sending subj_sel=dummy&subj_sel=%25 made _all_ of
+	   * the difference. Wow.
+	   */
+	  if (!is_array($postvals))
+	    $postvals = array($postvals);
+	  foreach ($postvals as $postval)
+	    $posttxt .= (strlen($posttxt) ? '&' : '')
 	    . urlencode($postkey) . '=' . (strpos($postkey, 'MEMBER') === FALSE ? urlencode($postval) : $postval);
 	}
       if ($verbosity > 8)
@@ -229,10 +259,34 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $verbosity = 0, $lo
 
 	case 'Location':
 	  $location = $header_val;
+	  /* yes, a calvin-specific replacement :-/ */
 	  $location = preg_replace(';(kvdata\.calvin\.edu/)(WebAdvisor);', '\1walive/\2', $location) . "\n";
 	  $post = NULL;
 	  break;
 	}
+    }
+
+  if ($follow_meta_refresh)
+    {
+      $dom = new DOMDocument();
+      $dom->loadHTML($school_crawl_geturi_write_buf);
+      foreach ($dom->getElementsByTagName('meta') as $meta_node)
+	if ($meta_node->hasAttribute('http-equiv')
+	    && !strcasecmp('refresh', $meta_node->getAttribute('http-equiv')))
+	  {
+	    $meta_content = $meta_node->getAttribute('content');
+	    if ($verbosity > 2)
+	      echo 'Following http-equiv Refresh: ' . $meta_content . PHP_EOL;
+	    if (!(preg_match('/^[0-9]+; *url=(.*)$/', $meta_content, $meta_matches)))
+	      {
+		echo 'Error following http-equiv Refresh: ' . $meta_content . PHP_EOL;
+	      }
+	    else
+	      {
+		$location = $meta_matches[1];
+		$post = NULL;
+	      }
+	  }
     }
 
   if ($verbosity > 9)
@@ -240,7 +294,7 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $verbosity = 0, $lo
   if ($location && $loopspin < 6)
     {
       $uri = $location;
-      return school_crawl_geturi($uri, $cookies, $post, $loopspin + 1);
+      return school_crawl_geturi($uri, $cookies, $post, $follow_meta_refresh, $curlsetup_hook, $verbosity, $loopspin + 1);
     }
   return $school_crawl_geturi_write_buf;
 }
@@ -257,4 +311,166 @@ function school_crawl_geturi_write_cb($curl, $write_buf)
   global $school_crawl_geturi_write_buf;
   $school_crawl_geturi_write_buf .= $write_buf;
   return strlen($write_buf);
+}
+
+/**
+ * \brief
+ *   Finds the closest parent of a DOM element with a certain tag
+ *   name.
+ *
+ * Useful for finding the <form /> element associated with a given
+ * <select /> or set of <input />s so that the form's action=""
+ * parameter may be found.
+ *
+ * The node itself passed in will be considered for whether or not it
+ * matches the $element_name.
+ *
+ * \param $node
+ *   The dom node whose ancestor should be found.
+ * \param $element_name
+ *   The name of the ancestor element which is requested.
+ * \return
+ *   The DOMElement sought or NULL if not found.
+ */
+function school_crawl_element_ancestor(DOMElement $node, $element_name)
+{
+  if (!strcmp($node->tagName, $element_name))
+    return $node;
+  if ($node->parentNode)
+    return school_crawl_element_ancestor($node->parentNode, $element_name);
+  return NULL;
+}
+
+/**
+ * \brief
+ *   Create an array based on an HTML form for submitting the form.
+ *
+ * Currently, this will only support the <input /> and <select />
+ * elements.
+ *
+ * \param $form_node
+ *   The dom node of the form.
+ * \return
+ *   An array suitable for passing to school_crawl_geturi().
+ */
+function school_crawl_form(DOMElement $form_node)
+{
+  $form = array();
+
+  $xpath = new DOMXPath($form_node->ownerDocument);
+  foreach ($xpath->query('input', $form_node) as $input_node)
+    {
+      if ($input_node->hasAttribute('name'))
+	{
+	  $input_name = $input_node->getAttribute('name');
+	  if (!isset($form[$input_name]))
+	    $form[$input_name] = array();
+	  if ($input_node->hasAttribute('value'))
+	    $form[$input_name][] = $input_node->getAttribute('value');
+	  else
+	    /* not sure about what best to do in this case... */
+	    $form[$input_name][] = '';
+	}
+    }
+
+  foreach ($xpath->query('select', $form_node) as $select_node)
+    {
+      if ($select_node->hasAttribute('name'))
+	{
+	  $select_name = $select_node->getAttribute('name');
+	  if (!isset($form[$select_name]))
+	    $form[$select_name] = array();
+	  foreach ($xpath->query('option[selected]', $select_node) as $option_node)
+	    if ($option_node->hasAttribute('value'))
+	      $form[$select_name][] = $option_node->getAttribute('value');
+	}
+    }
+
+  return $form;
+}
+
+/**
+ * \brief
+ *   Resolve a relativish URL.
+ *
+ * \param $orig_url
+ *   The original URL.
+ * \param $url
+ *   The new URL to be reconciled with the original one.
+ * \return
+ *   A string, the new URL.
+ */
+function school_crawl_url($orig_url, $url)
+{
+  /*
+   * This accounts for both if the $url is already an absolute, fully
+   * qualified URL. It falls back to the original URL if it fails to
+   * match.
+   */
+  foreach (array($url, $orig_url) as $aurl)
+    if (preg_match(';^(https?)://([^/]+)(/.*)$;', $aurl, $matches))
+      {
+	$new_url['schema'] = $matches[1];
+	$new_url['hostname'] = $matches[2];
+	$new_url['path'] = $matches[3];
+      }
+
+  /* check if we have an absolute relative path */
+  if (!strncmp($url, '/', 1))
+    $new_url['path'] = $url;
+
+  /* relative */
+  while (!strncmp($url, '../', 3))
+    {
+      $new_url['path'] = preg_replace(';[^/]+/[^/]+$;', '/', dirname($new_url['path']));
+      $url = substr($url, 3);
+    }
+
+  return $new_url['schema'] . '://' . $new_url['hostname'] . $new_url['path'];
+}
+
+/**
+ * \brief
+ *   Map a name onto a column of the table with the help of <th />.
+ *
+ * This should be a quite reliable way of matching the data that a
+ * user sees onto the actual data because, in most cases, HTML writers
+ * are forced to properly align <th /> and the following hundreds of
+ * <td />s for there to be a visual alignment.
+ *
+ * \param $tr_node
+ *   The <tr /> with the <th /> elements to resolve.
+ * \param $column_name
+ *   The name of the column to search for.
+ * \param $strcmp
+ *   The function to use with a strcmp() interface when judging
+ *   whether or not a <th />'s textContent matches $column_name.
+ * \param $trim
+ *   The function to apply to the <th />'s textContent before
+ *   subjecting it to the $strcmp test.
+ * \return
+ *   The 0-based index of the column offset or FALSE if the item isn't
+ *   found. This index ignores the existence of text elements, so be
+ *   careful in using the result.
+ */
+function school_crawl_table_resolve_column(DOMElement $tr_node, $column_name, $strcmp = 'strcasecmp', $trim = 'trim')
+{
+  $th_nodelist = school_crawl_table_rownodes($tr_node);
+  for ($i = 0; $i < $th_nodelist->length; $i ++)
+    if (!$strcmp($column_name, $trim($th_nodelist->item($i)->textContent)))
+      return $i;
+  return FALSE;
+}
+
+/**
+ * \brief
+ *   Get a DOMNodeList of a row's elements without #text elements in
+ *   the way.
+ *
+ * Helpful when using school_crawl_table_resolve_column() to get data.
+ */
+function school_crawl_table_rownodes(DOMElement $tr_node)
+{
+  $xpath = new DOMXPath($tr_node->ownerDocument);
+  return $xpath->query('descendant::*[self::th or self::td]', $tr_node);
 }
