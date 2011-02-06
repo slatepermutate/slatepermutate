@@ -180,7 +180,8 @@ function input_class_js(Course $class, $whitespace = '  ')
 	    . $meeting->getEndTime() . '\', '
 	    . json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4))) . ', \''
 	    . htmlentities($section->getProf(), ENT_QUOTES) . '\', \''
-	    . htmlentities($meeting->getLocation(), ENT_QUOTES) . "');\n";
+	    . htmlentities($meeting->getLocation(), ENT_QUOTES) . '\',\''
+	    . htmlentities($meeting->type_get(), ENT_QUOTES) . "');\n";
 	}
     }
 
