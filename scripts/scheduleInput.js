@@ -407,32 +407,26 @@ jQuery(document).ready(function() {
 	// Deletes the selected section from the input
 	//--------------------------------------------------
 	jQuery('.deleteSection').live('click', function() {
-		sectionsOfClass[jQuery(this).parent().parent().attr("title")]--; // Decreases the number of classes
+	  // Decreases the total number of classes
+	  sectionsOfClass[jQuery(this).parent().parent().attr("title")]--;
+	  
+	  // Find the ID cell of the row we're in
+	  var row = jQuery(this).parent().parent().find(".sectionIdentifier");
 
-		// @TODO: Instead of iterating through each cell and finding a sectionIdentifier, just find a sectionIdentifier. This actually makes sense, whereas the current approach is ridiculous.
+	  // The first input is the one containing the section ID
+	  var toMatch = jQuery(row).find("input").val();
+	    
+	  // This gets the second class of the row, "class#"
+	  var classClass = "." + jQuery(row).parent().attr("class").split(" ")[1];
 
-		// Iterate through each cell in this row to find the one containing the 
-		jQuery(this).parent().parent().find("td").each( function() {
-		  // If string contians the class we need
-		  var objClass = jQuery(this).attr("class");
-		  if(objClass != undefined && objClass.indexOf("sectionIdentifier") != -1){
+	  // Iterate over each section of this class
+	  jQuery(classClass).each( function() {
+	    // If this section has the same course ID as the item clicked, remove it.
+	    if(jQuery(this).find("input").val() == toMatch){
+		jQuery(this).remove();
+	    }
+	  });
 
-		    // The first input is the one containing the section ID
-		    var toMatch = jQuery(this).find("input").val();
-		    var objClass = jQuery(this).parent().attr("class");
-		    
-		    var classes = objClass.split(" ");
-
-		    // Second class element denotes class#
-		    jQuery("." + classes[1]).each( function() {
-		      // If the section we are on matches the section num, remove it
-		      if(jQuery(this).find("input").val() == toMatch){
-			jQuery(this).remove();
-		      }
-		    });
-		    
-		  }
-		});
 	});
 
 	//--------------------------------------------------
