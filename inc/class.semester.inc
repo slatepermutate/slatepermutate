@@ -75,7 +75,7 @@ class Semester
   {
     $class_parts = Course::parse($class->getName());
     if (!isset($class_parts['course']))
-      throw ErrorException('I was given a class with an invalid name: `' . $class->getName() . '\'');
+      throw new ErrorException('I was given a class with an invalid name: `' . $class->getName() . '\'');
 
     if (!isset($this->departments[$class_parts['department']]))
       $this->departments[$class_parts['department']] = array();
