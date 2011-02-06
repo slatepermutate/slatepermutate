@@ -275,6 +275,9 @@ function school_cache_recreate($crawl_only = NULL, $verbosity = 1)
 	  return 1;
 	}
 
+  /* hide libxml errors from the console: */
+  libxml_use_internal_errors(TRUE);
+
   $schools = array();
   $old_school_cache = _school_cache_load();
   foreach ($school_id_list as $school_id)
