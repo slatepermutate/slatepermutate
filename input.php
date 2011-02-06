@@ -139,7 +139,7 @@ $inputPage->showSavedScheds($_SESSION);
 	  <col />
 	  <col />
 	  <col />
-	  <col class="saturday collapsed" />
+	  <col class="saturday<?php if (school_has_auto($inputPage->get_school())) echo ' collapsed';?>" />
 	  <col />
 	  <col />
 	</colgroup>
