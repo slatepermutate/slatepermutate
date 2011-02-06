@@ -140,7 +140,7 @@ function genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, locatio
 		}
 		
 		var result = '<tr class="' + cssclasses + '"><td class="none"></td>';
-	        result = result + '<td class="sectionIdentifier center"><input type="hidden" name="postData[' + cnum + '][' + snum + '][synonym]" value="' + synonym + '" /><input type="text" size="1" class="required" name="postData[' + cnum + '][' + snum + '][letter]" value="' + name + '" /></td>';
+	        result = result + '<td class="sectionIdentifier center"><input type="text" size="1" class="required" name="postData[' + cnum + '][' + snum + '][letter]" value="' + name + '" /><input type="hidden" name="postData[' + cnum + '][' + snum + '][synonym]" value="' + synonym + '" /></td>';
 		result = result + '<td class="professor center"><input type="text" size="10" class="profName" name="postData[' + cnum + ']['+ snum + '][professor]" value="' + prof + '" /></td>';
 		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>'
 				 + genOptionHtml("0700", "7:00 am", stime) + genOptionHtml("0730", "7:30 am", stime)
@@ -408,7 +408,31 @@ jQuery(document).ready(function() {
 	//--------------------------------------------------
 	jQuery('.deleteSection').live('click', function() {
 		sectionsOfClass[jQuery(this).parent().parent().attr("title")]--; // Decreases the number of classes
-		jQuery(this).parent().parent().remove();
+
+		// @TODO: Instead of iterating through each cell and finding a sectionIdentifier, just find a sectionIdentifier. This actually makes sense, whereas the current approach is ridiculous.
+
+		// Iterate through each cell in this row to find the one containing the 
+		jQuery(this).parent().parent().find("td").each( function() {
+		  // If string contians the class we need
+		  var objClass = jQuery(this).attr("class");
+		  if(objClass != undefined && objClass.indexOf("sectionIdentifier") != -1){
+
+		    // The first input is the one containing the section ID
+		    var toMatch = jQuery(this).find("input").val();
+		    var objClass = jQuery(this).parent().attr("class");
+		    
+		    var classes = objClass.split(" ");
+
+		    // Second class element denotes class#
+		    jQuery("." + classes[1]).each( function() {
+		      // If the section we are on matches the section num, remove it
+		      if(jQuery(this).find("input").val() == toMatch){
+			jQuery(this).remove();
+		      }
+		    });
+		    
+		  }
+		});
 	});
 
 	//--------------------------------------------------
