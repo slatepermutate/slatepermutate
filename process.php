@@ -24,30 +24,31 @@ include_once 'inc/class.schedule.php';
 include_once('inc/class.course.inc');
 include_once 'inc/class.section.php';
 
-// Converts a 5-element day array into a string.
+// Converts a 6-element day array into a string.
 // Supports multiple modes, prettiness, and searching for different indicators
 function arrayToDays($array, $mode = 'num', $pretty = false, $key = 1) {
 	$outString = '';
 	switch($mode)
 	  {
 		case 'short':
-			$days = array('Mon','Tue','Wed','Thur','Fri');
+			$days = array('Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat');
 			break;
 		case 'long':
-			$days = array('Monday','Tuesday','Wednesday','Thursday','Friday');
+			$days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
 			break;
 		case 'num':
 			$days = array('1','2','3','4','5');
 			break;
 	  case 'alpha':
-	    $days = array('m', 't', 'w', 'h', 'f');
+	    $days = array('m', 't', 'w', 'h', 'f', 's');
 	    break;
 		default:
 			$outString = 'Invalid mode passed to arrayToDays()!';
 			return $outString;
 	}
 	if(count($array) > 1){
-		for($i=0; $i<=4; $i++)	{
+		for($i = 0; $i < 6; $i ++)
+		{
 			if(isset($array[$i]) && $array[$i] == $key){
 				$outString .= $days[$i];
 				if($pretty)
@@ -60,7 +61,7 @@ function arrayToDays($array, $mode = 'num', $pretty = false, $key = 1) {
 		}
 	}
 	else {
-		for($i=0; $i<=4; $i++)
+		for($i=0; $i < 6; $i++)
 			if(isset($array[$i]))
 				$outString = $days[$i];
 	}
@@ -138,8 +139,9 @@ if(!$DEBUG)
 				foreach($class as $section)
 				  /* Skip the section name, which isn't a section */
 					if(is_array($section))
-					{
+					  {error_log(print_r($section['days'], TRUE));
 					  $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type']);
+					  error_log(arrayToDays($section['days'], 'alpha'));
 					}
 			}
 		}

@@ -81,7 +81,7 @@ class SectionMeeting
    */
   private function days_set($days_str)
   {
-    $this->days = array(0 => FALSE, 1 => FALSE, 2 => FALSE, 3 => FALSE, 4 => FALSE);
+    $this->days = array(0 => FALSE, 1 => FALSE, 2 => FALSE, 3 => FALSE, 4 => FALSE, 5 => FALSE);
 
     $days_str_strlen = strlen($days_str);
     for ($i = 0; $i < $days_str_strlen; $i ++)
@@ -96,9 +96,9 @@ class SectionMeeting
    */
   private static function day_atoi($day_c)
   {
-    static $day_atoi = array('m' => 0, 't' => 1, 'w' => 2, 'h' => 3, 'f' => 4,
-			     'M' => 0, 'T' => 1, 'W' => 2, 'H' => 3, 'F' => 4,
-			       0 => 0,   1 => 1,   2 => 2,   3 => 3,   4 => 4);
+    static $day_atoi = array('m' => 0, 't' => 1, 'w' => 2, 'h' => 3, 'f' => 4, 's' => 5,
+			     'M' => 0, 'T' => 1, 'W' => 2, 'H' => 3, 'F' => 4, 'S' => 5,
+			      0  => 0,  1  => 1,  2  => 2,  3  => 3,  4  => 4,  5  => 5);
 
     return $day_atoi[$day_c];
   }
@@ -187,7 +187,7 @@ class SectionMeeting
      * times. But if they don't both meet on the same day at least
      * once, they don't conflict.
      */
-    for ($day = 0; $day < 5; $day ++)
+    for ($day = 0; $day < 6; $day ++)
       {
 	if ($this->getDay($day) && $that->getDay($day))
 	  return TRUE;
@@ -211,7 +211,7 @@ class SectionMeeting
    */
   public function to_json_array()
   {
-    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f');
+    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f', 5 => 's');
 
     $json_array = array(
 			'time_start' => $this->time_start,
@@ -221,7 +221,7 @@ class SectionMeeting
 			'type' => $this->type,
 			);
 
-    for ($day = 0; $day < 5; $day ++)
+    for ($day = 0; $day < 6; $day ++)
       $json_array['days'][$daymap[$day]] = $this->getDay($day);
 
     return $json_array;

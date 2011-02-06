@@ -188,10 +188,10 @@ class Section
     $ret['course'] = strtoupper($course_matches[1]);
 
     /*
-     * we accept _either_ alphabetic section _or_ numeric section (the
-     * latter is for cedarville, particulaly)
+     * we accept fully alphanumeric section identifiers. ccbcmd uses
+     * these amazingly.
      */
-    if (!preg_match(';([0-9]+|[a-zA-Z]+);', $section_spec, $section_matches))
+    if (!preg_match(';([a-zA-Z0-9]+);', $section_spec, $section_matches))
       return $ret;
 
     $ret['section'] = strtoupper($section_matches[1]);

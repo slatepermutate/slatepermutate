@@ -114,6 +114,7 @@ $inputPage->showSavedScheds($_SESSION);
   To get started, enter a course number and add some sections to it.
   Then specify each section's letter/number and what times it meets,
   add more courses, and click &ldquo;Find a Schedule&rdquo;.
+  <!--'-->
   <?php endif; ?>
 </p>
 
@@ -126,6 +127,22 @@ $inputPage->showSavedScheds($_SESSION);
   <tr>
     <td>
       <table id="jsrows">
+	<!-- Allow CSS to apply to entire rows at a time. -->
+	<colgroup>
+	  <col />
+	  <col />
+	  <col />
+	  <col />
+	  <col />
+	  <col />
+	  <col />
+	  <col />
+	  <col />
+	  <col />
+	  <col class="saturday" />
+	  <col />
+	  <col />
+	</colgroup>
         <!-- Header -->
         <tr>
           <td>Class ID</td>
@@ -138,6 +155,7 @@ $inputPage->showSavedScheds($_SESSION);
           <td class="center">W</td>
           <td class="center">Th</td>
           <td class="center">F</td>
+	  <td class="center">S</td>
           <td class="center"></td>
           <td class="center"></td>
         </tr>
@@ -178,7 +196,8 @@ function input_class_js(Course $class, $whitespace = '  ')
 	    . htmlentities($section->getSynonym(), ENT_QUOTES) . '\', \''
 	    . $meeting->getStartTime() . '\', \''
 	    . $meeting->getEndTime() . '\', '
-	    . json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4))) . ', \''
+	    . json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4),
+				's' => $meeting->getDay(5))) . ', \''
 	    . htmlentities($section->getProf(), ENT_QUOTES) . '\', \''
 	    . htmlentities($meeting->getLocation(), ENT_QUOTES) . '\',\''
 	    . htmlentities($meeting->type_get(), ENT_QUOTES) . "');\n";

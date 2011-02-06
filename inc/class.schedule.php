@@ -297,6 +297,25 @@ class Schedule
 
     if($this->nPermutations > 0)
       {
+	/*
+	 * Figure out if we have to deal with Saturday and then deal
+	 * with it.
+	 */
+	$max_day_plusone = 5;
+	$have_saturday = FALSE;
+	foreach ($this->courses as $course)
+	  {
+	    for ($si = 0; $si < $course->getnsections(); $si ++)
+	      foreach ($course->getSection($si)->getMeetings() as $meeting)
+		if ($meeting->getDay(5))
+		  {
+		    $max_day_plusone = 6;
+		    $have_saturday = TRUE;
+		    break;
+		  }
+	    if ($have_saturday)
+	      break;
+	  }
 
         echo '<div id="regDialog" title="Registration Codes"><p>Enter these codes into your school\'s online course registration system to register for classes:</p><div id="regDialogList"></div></div>';
 	echo '<div id="tabs">' . "\n" .
@@ -348,18 +367,21 @@ class Schedule
 	      . "            <td class=\"day\">Tuesday</td>\n"
 	      . "            <td class=\"day\">Wednesday</td>\n"
 	      . "            <td class=\"day\">Thursday</td>\n"
-	      . "            <td class=\"day\">Friday</td>\n"
-	      . "          </tr>\n";
+	      . "            <td class=\"day\">Friday</td>\n";
+	    if ($have_saturday)
+	      echo "            <td class=\"day\">Saturday</td>\n";
+	    echo "          </tr>\n";
 
 	    $last_meeting = array();
-	    $rowspan = array(0, 0, 0, 0, 0);
+	    $rowspan = array(0, 0, 0, 0, 0, 0);
 	    for($r = 0; $r < (count($time)-1); $r++)
 	      {
 
 		echo "          <tr>\n"
 		  . "            <td class=\"time\">" . $this->prettyTime($time[$r]) . "</td>\n";
 
-		for($dayLoop = 0; $dayLoop < 5; $dayLoop++)
+		/* currently, 0-5 = monday-saturday */
+		for($dayLoop = 0; $dayLoop < $max_day_plusone; $dayLoop++)
 		{
 		  /* Makes sure there is not a class already in progress */
 		  if($rowspan[$dayLoop] <= 0)

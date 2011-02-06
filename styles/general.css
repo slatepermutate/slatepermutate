@@ -200,6 +200,12 @@ td.center {
   background: #68a64a!important;
 }
 
+/* For now, hide Saturday on the input page even though it works perfectly fine */
+.saturday
+{
+  /* http://www.w3.org/TR/CSS/tables.html#columns */
+  visibility: collapse;
+}
 
 /* General Classes */
 
