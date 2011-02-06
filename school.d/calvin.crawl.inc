@@ -306,6 +306,8 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 			  . implode('-', $section_id) . ' has meeting info of `'
 			  . $sec_meeting_info . '\'');
 	      $skipped_sections['incomplete meeting info'] ++;
+	      /* Still add to have less confusing autocomplete */
+	      calvin_crawl_course_add($semester, $section_id['department'], $section_id['course']);
 	      continue;
 	    }
 
@@ -314,6 +316,11 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	      error_log('Unable to parse calvin section meeting info string into start/end/days information for '
 			. implode('-', $section_id) . ': ``' . $sec_meeting_info . '\'\'');
 	      $skipped_sections['invalid meeting info format'] ++;
+	      /*
+	       * Still add at least the course to the semester so that
+	       * it shows up in autocmoplete.
+	       */
+	      calvin_crawl_course_add($semester, $section_id['department'], $section_id['course']);
 	      continue;
 	    }
 	  $date_start = $meeting_info_matches[1];
@@ -427,4 +434,23 @@ function dom_id_content($domdocument, $id)
 function calvin_crawl_noscript_filter($html)
 {
   return preg_replace(';\<(noscript)\>.*?\</\1\>;s', '', $html);
+}
+
+/**
+ * \brief
+ *   Add a course to a semester if that semester doesn't yet have this
+ *   course.
+ *
+ * \param $semester
+ *   The semester to which the course should be appended.
+ * \param $deparmtent
+ *   The department of the course to add.
+ * \param $course_id
+ *   The course_id which, with the department string, forms a
+ *   fully-qualified course_id.
+ */
+function calvin_crawl_course_add(Semester $semester, $department, $course_id)
+{
+  if ($semester->class_get($department, $course_id) == NULL)
+    $semester->class_add(new Course($department . '-' . $course_id));
 }
