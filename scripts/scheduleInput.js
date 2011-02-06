@@ -251,6 +251,10 @@ function add_section_n(cnum, name, synonym, stime, etime, days, prof, location, 
 {
     jQuery('.pclass'+cnum).after(genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location, type));
     sectionsOfClass[cnum] ++;
+
+    /* unhide the saturday columns if it's used by autocomplete data */
+    if (days.s)
+	jQuery('#jsrows col.saturday').removeClass('collapsed');
 }
 function add_section(cnum)
 {

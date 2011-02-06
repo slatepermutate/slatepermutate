@@ -139,7 +139,7 @@ $inputPage->showSavedScheds($_SESSION);
 	  <col />
 	  <col />
 	  <col />
-	  <col class="saturday" />
+	  <col class="saturday collapsed" />
 	  <col />
 	  <col />
 	</colgroup>

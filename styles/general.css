@@ -201,7 +201,7 @@ td.center {
 }
 
 /* For now, hide Saturday on the input page even though it works perfectly fine */
-.saturday
+.collapsed
 {
   /* http://www.w3.org/TR/CSS/tables.html#columns */
   visibility: collapse;
