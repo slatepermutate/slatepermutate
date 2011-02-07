@@ -490,7 +490,7 @@ class Schedule
 	     . "</div> <!-- id=\"my-glider\" -->\n"
 	     . $footcloser; // Closes off the content div
       } else {
-      echo '<html><body><p>There are no possible schedules. Please <a href="input.php?s='.$id.'">try again</a>.</p></body></html>';
+      echo '<html><body><p>There are no possible schedules. Please <a href="input.php?s='.$this->id.'">try again</a>.</p></body></html>';
     }
 
     echo "<p id=\"possiblestats\">There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
