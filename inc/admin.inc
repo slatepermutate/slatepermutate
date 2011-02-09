@@ -126,43 +126,76 @@ function school_cache($schools)
        */
       if ($school['crawled'] && !isset($school['crawled_notreally']))
 	{
-	  $semester = $school['crawled_semester'];
-
 	  $cache_auto_school_dir_name = $cache_auto_dir_name . $school['id'] . DIRECTORY_SEPARATOR;
 	  if (!is_dir($cache_auto_school_dir_name))
 	    {
-	      if (!mkdir($cache_auto_school_dir_name, 0777, TRUE))
+	      if (!mkdir($cache_auto_school_dir_name, 0755, TRUE))
 		error_log('Unable to create needed directory: `' . $cache_auto_dir_name . '\'');
 	    }
 
-	  $departments = $semester->departments_get();
-	  sort($departments);
-
-	  $dept_file = fopen($cache_auto_school_dir_name . '-depts', 'wb');
-	  fwrite($dept_file, serialize($departments));
-	  fclose($dept_file);
-
-	  /* now per-department autocomplete */
-	  foreach ($departments as $department)
-	    {
-	      $classes = $semester->department_classes_get($department);
-	      $classes_file = fopen($cache_auto_school_dir_name . $department . '.sects', 'wb');
-	      fwrite($classes_file, serialize($classes));
-	      fclose($classes_file);
-
-	      /* now individual section informations, pre-JSON-ized */
-	      foreach ($classes as $class)
+	  $semesters = array();
+	  $semester_weights = 0;
+	  /*
+	   * Try to presort the semesters into the proper order based
+	   * on time_start/time_end. We want the older semesters to be
+	   * nearer to the end of the list. This way, the crawler
+	   * doesn't have to decide how to sort the semesters itself:
+	   */
+	  usort($semesters, function ($sem_a, $sem_b)
 		{
-		  if (!is_dir($cache_auto_school_dir_name . $department))
-		    mkdir($cache_auto_school_dir_name . $department);
-		  $class_file = fopen($cache_auto_school_dir_name . $department . DIRECTORY_SEPARATOR . $class, 'wb');
-		  fwrite($class_file, json_encode($semester->class_get($department, $class)->to_json_array()));
-		  fclose($class_file);
+		  return $sem_a->time_start_get() - $sem_b->time_start_get();
+		});
+
+	  foreach ($school['crawled_semesters'] as $semester)
+	    {
+	      $semesters[$semester->id()] = array(
+						  'id' => $semester->id(),
+						  'time_start' => $semester->time_start_get(),
+						  'time_end' => $semester->time_end_get(),
+						  'weight' => $semester_weights ++,
+						  'name' => $semester->name_get(),
+						  );
+
+	      $cache_auto_school_semester_dir_name = $cache_auto_school_dir_name . $semester->id() . DIRECTORY_SEPARATOR;
+	      if (!is_dir($cache_auto_school_semester_dir_name))
+		{
+		  if (!mkdir($cache_auto_school_semester_dir_name, 0755, TRUE))
+		    error_log('Unable to create needed directory: `' . $cache_auto_school_semester_dir_name . '\'');
 		}
-	    }
+
+	      $departments = $semester->departments_get();
+	      sort($departments);
+
+	      $dept_file = fopen($cache_auto_school_semester_dir_name . '-depts', 'wb');
+	      fwrite($dept_file, serialize($departments));
+	      fclose($dept_file);
+
+	      /* now per-department autocomplete */
+	      foreach ($departments as $department)
+		{
+		  $classes = $semester->department_classes_get($department);
+		  $classes_file = fopen($cache_auto_school_semester_dir_name . $department . '.sects', 'wb');
+		  fwrite($classes_file, serialize($classes));
+		  fclose($classes_file);
+
+		  /* now individual section informations, pre-JSON-ized */
+		  foreach ($classes as $class)
+		    {
+		      if (!is_dir($cache_auto_school_semester_dir_name . $department))
+			mkdir($cache_auto_school_semester_dir_name . $department);
+		      $class_file = fopen($cache_auto_school_semester_dir_name . $department . DIRECTORY_SEPARATOR . $class, 'wb');
+		      fwrite($class_file, json_encode($semester->class_get($department, $class)->to_json_array()));
+		      fclose($class_file);
+		    }
+		}
+	    } /* foreach ( => $semester) */
+	  /*
+	   * Store/cache the semester metadata:
+	   */
+	  $semesters_file = fopen($cache_auto_school_dir_name . '-semesters', 'wb');
+	  fwrite($semesters_file, serialize($semesters));
+	  fclose($semesters_file);
 	}
-
-
     }
   uasort($list_cache, 'school_cmp');
 
@@ -195,13 +228,15 @@ function school_cache($schools)
  * from a school's main .inc file. Thus, if a school supports
  * crawling, it will have a file called
  * schools.d/<school_id>.crawl.inc. In this file, a function called
- * <school_id>_crawl($semester) must be defined. It must accept one
- * argument, the Semester object which defines the time of year for
- * which courses should be retrieved. It must populate this empty
- * Semester object with Course object and populate those courses with
- * the sections with as much detail as possible.
+ * <school_id>_crawl(array &$semesters, $verbosity = 1) must be
+ * defined. It must accept at least one argument, the array to be
+ * filled with Semester objects. It must populate this array with
+ * individual Semester objects and fill those with Course objects and
+ * populate those courses with the sections with as much detail as
+ * possible. This function may return 1 to indicate an error must
+ * return 0 to indicate success.
  *
- * If the crawling is successful, a 'crawl' key is added to the
+ * If the crawling is successful, a 'crawled' key is added to the
  * $school handle. school_cache() will use this to help indicate that
  * a school _has_ autocomplete information, which might affect the
  * appearance and JS stuff for the input.php page.
@@ -215,7 +250,7 @@ function school_cache($schools)
  *   The season of the year of the semester for which we should grab
  *   data.
  */
-function school_crawl(&$school, $semester_year, $semester_season, $verbosity = 1)
+function school_crawl(array &$school, $verbosity = 1)
 {
   $school['crawled'] = FALSE;
 
@@ -223,11 +258,11 @@ function school_crawl(&$school, $semester_year, $semester_season, $verbosity = 1
   if (!function_exists($school_crawl_func))
     return;
 
-  $semester = new Semester($semester_year, $semester_season);
+  $semesters = array();
 
   if ($verbosity > 0)
     fprintf(STDERR, "%s()\n", $school_crawl_func);
-  $ret = $school_crawl_func($semester, $verbosity);
+  $ret = $school_crawl_func($semesters, $verbosity);
   if ($ret)
     {
       fprintf(STDERR, "Crawling %s failed: %s() returned nonzero\n",
@@ -236,7 +271,7 @@ function school_crawl(&$school, $semester_year, $semester_season, $verbosity = 1
       return;
     }
   $school['crawled'] = TRUE;
-  $school['crawled_semester'] = $semester;
+  $school['crawled_semesters'] = $semesters;
 
   if ($verbosity > 0)
     fwrite(STDERR, "\n");
@@ -256,9 +291,6 @@ function school_crawl(&$school, $semester_year, $semester_season, $verbosity = 1
  */
 function school_cache_recreate($crawl_only = NULL, $verbosity = 1)
 {
-  $crawl_semester_year = '2011';
-  $crawl_semester_season = Semester::SEASON_SPRING;
-
   $school_id_list = school_list();
   if (!$school_id_list)
     {
@@ -292,7 +324,7 @@ function school_cache_recreate($crawl_only = NULL, $verbosity = 1)
 
       if ($crawl_only === NULL || in_array($school['id'], $crawl_only))
 	{
-	  school_crawl($school, $crawl_semester_year, $crawl_semester_season, $verbosity);
+	  school_crawl($school, $verbosity);
 	}
       else
 	{

@@ -43,21 +43,35 @@ class Semester
 
   /**
    * \brief
+   *   The Summer season.
+   */
+  const SEASON_SUMMER = 'summer';
+
+  /**
+   * \brief
    *   Instantiate an empty Semester.
    *
    * \param $year
    *   The year of this semester. Must be four digits.
    * \param $season
-   *   The season of this semester. Currently, only
-   *   Semester::SEASON_SPRING and Semester::SEASON_FALL are valid.
+   *   The season of this semester. Please use the constants
+   *   Semester::SEASON_FALL, Semester::SEASON_SPRING, or
+   *   Semester::SEASON_SUMMER if possible.
+   * \param $time_start
+   *   Specify a timestamp which roughly estimates when this semester
+   *   starts to aid the algorithm for guessing the current
+   *   semester. See Semester::time_start_set(), which may be used
+   *   instead of this parameter
+   * \param $time_end
+   *   This may be specified now or via Semester::time_end_set().
    */
-  function __construct($year, $season)
+  function __construct($year, $season, $time_start = 0, $time_end = 0)
   {
-    if (!in_array($season, array(self::SEASON_SPRING, self::SEASON_FALL)))
-      throw new ErrorException('Attempt to construct a Semester with a $season which is neither Semester::SEASON_SPRING nor Semester::SEASON_FALL. `' . $season . '\' was given.');
+    $this->time_start = 0;
+    $this->time_end = 0;
     $this->season = $season;
 
-    if (strlen($year) != 4)
+    if (strlen($year) != 4 || !is_numeric($year))
       throw new ErrorException('Attempt to construct a Semester with an invalid year. The given year is `' . $year . '\'');
     $this->year = $year;
 
@@ -158,6 +172,82 @@ class Semester
 
   /**
    * \brief
+   *   Update the time_end.
+   *
+   * The time_end is a unix timestamp roughly estimating the time at
+   * which a semester starts. It is used when guessing what semester a
+   * user is interested in.
+   *
+   * \param $time_end
+   *   The new time_end.
+   */
+  public function time_end_set($time_end)
+  {
+    $this->time_end = $time_end;
+  }
+
+  /**
+   * \brief
+   *   Set the time_end only if it would make the semester end later.
+   *
+   * Useful for crawler scripts incrementally guessing the endtime of
+   * a semester.
+   *
+   * \param $time_end
+   *   The new time_end to consider.
+   */
+  public function time_end_set_test($time_end)
+  {
+    if ($time_end && $time_end > $this->time_end)
+      $this->time_end_set($time_end);
+  }
+
+  public function time_end_get()
+  {
+    return $this->time_end;
+  }
+
+  /**
+   * \brief
+   *   Update the time_start.
+   *
+   * The time_start is a unix timestamp roughly estimating the time at
+   * which a semester starts. It is used when guessing what semester a
+   * user is interested in.
+   *
+   * \param $time_start
+   *   The new time_start.
+   */
+  public function time_start_set($time_start)
+  {
+    $this->time_start = $time_start;
+  }
+
+  /**
+   * \brief
+   *   Only update the time_start if the time_start isn't yet set or
+   *   if the given time_start is earlier than the stored one.
+   *
+   * This should allow crawlers to easily accumulate proper time_start
+   * and time_end values, see Semester::time_end_set_test();
+   *
+   * \param $time_start
+   *   The new estimation of the semester's start.
+   */
+  public function time_start_set_test($time_start)
+  {
+    if ($time_start &&
+	(!$this->time_start || $time_start < $this->time_start))
+      $this->time_start_set($time_start);
+  }
+
+  public function time_start_get()
+  {
+    return $this->time_start;
+  }
+
+  /**
+   * \brief
    *   Get a semester's year.
    */
   public function year_get()
@@ -176,10 +266,38 @@ class Semester
 
   /**
    * \brief
+   *   Get a semester's friendly name:
+   *
+   * \return
+   *   A string, the semester's friendly name.
+   */
+  public function name_get()
+  {
+    return ucfirst($this->season_get()) . ' ' . $this->year_get();
+  }
+
+  /**
+   * \brief
+   *   Return an identification string for this semester.
+   *
+   * Hopefully this identification string should be unique. Also, this
+   * identification string is filesystem-safe.
+   *
+   * \return
+   *   A string which may be used in paths or to uniquely identify
+   *   this semester in the context of its school.
+   */
+  public function id()
+  {
+    return $this->year_get() . '_' . $this->season_get();
+  }
+
+  /**
+   * \brief
    *   Enumerate all valid seasons.
    */
   public static function seasons_get_all()
   {
-    return array(SEASON_SPRING, SEASON_FALL);
+    return array(self::SEASON_SPRING, self::SEASON_SUMMER, self::SEASON_FALL);
   }
 }

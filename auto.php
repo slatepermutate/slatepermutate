@@ -63,8 +63,10 @@ $school = school_load_guess();
 if (!$school['crawled']) {
   clean_empty_exit();
 }
+$semester = school_semester_guess($school);
 
-$cache_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'auto' . DIRECTORY_SEPARATOR . $school['id'] . DIRECTORY_SEPARATOR;
+$cache_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'auto'
+  . DIRECTORY_SEPARATOR . $school['id'] . DIRECTORY_SEPARATOR . $semester['id'] . DIRECTORY_SEPARATOR;
 
 /*
  * autocomplete the list of departments. If the user has already

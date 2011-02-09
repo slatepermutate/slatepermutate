@@ -41,6 +41,22 @@ function school_crawl_time_format($time)
 
 /**
  * \brief
+ *   Equivalent of mktime() except that it accepts strptime()'s output
+ *   format as an input.
+ *
+ * \param $tm
+ *   An array formatted as the output of strptime().
+ * \return
+ *   A unix timestamp.
+ */
+function school_crawl_mktime(array $tm)
+{
+  return mktime($tm['tm_hour'], $tm['tm_min'], $tm['tm_sec'],
+		$tm['tm_mon'] + 1, $tm['tm_mday'], $tm['tm_year'] + 1900);
+}
+
+/**
+ * \brief
  *   Take an array of day names and assemble them into
  *   slate_permutate's internal (weird) representation of a set of
  *   weekdays.

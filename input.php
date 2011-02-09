@@ -101,6 +101,21 @@ if (!empty($_REQUEST['selectschool'])
     exit;
   }
 
+if (!empty($_REQUEST['selectsemester']))
+  {
+?>
+<h2>Semester Selection</h2>
+<p>
+  Choose the semester for which you wish you make a schedule from the
+  list below. If any semester is missing, please <a
+  href="feedback.php?feedback=My+school+is+missing+the+&lt;semester+name&gt;+semester.">let us know</a>.
+</p>
+<?php
+  $inputPage->showSemesters();
+  $inputPage->foot();
+  exit;
+  }
+
 $inputPage->showSavedScheds($_SESSION);
 ?>
 <p>

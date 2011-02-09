@@ -43,6 +43,7 @@
  * - name: a friendly name for the school. Must be a valid XHTML attribute string.
  * - url: the school's website URL as a valid XHTML attribute string. (i.e., escape ampersands).
  * - example_course_id: An example course identifier representative of a school's course IDs. (e.g., CS-101 for Calvin).
+ * - id: The school's ID.
  *
  * \param $school_id
  *   The school's alphanumeric identifier (which determines the name
@@ -60,8 +61,7 @@ function school_load($school_id, $load_all_inc = FALSE)
   /* guard against cracking attempts (protects against '../' and friends) */
   if (!preg_match('/^[0-9a-z]+$/', $school_id))
     return NULL;
-  $school_file_name_base = dirname(__FILE__) . DIRECTORY_SEPARATOR
-    . '..' . DIRECTORY_SEPARATOR . 'school.d' . DIRECTORY_SEPARATOR;
+  $school_file_name_base = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'school.d' . DIRECTORY_SEPARATOR;
   $school_file_name = $school_file_name_base . $school_id . '.inc';
 
   if (!file_exists($school_file_name))
@@ -87,7 +87,17 @@ function school_load($school_id, $load_all_inc = FALSE)
    */
   $cache = _school_cache_load();
   if ($cache && count($cache['list']) && isset($cache['list'][$school['id']]))
-    $school['crawled'] = $cache['list'][$school['id']]['crawled'];
+    {
+      $school['crawled'] = $cache['list'][$school['id']]['crawled'];
+
+      $school_semesters_filename = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'cache'
+	. DIRECTORY_SEPARATOR . 'auto' . DIRECTORY_SEPARATOR . $school['id']
+	. DIRECTORY_SEPARATOR . '-semesters';
+      if (file_exists($school_semesters_filename))
+	$school['semesters'] = unserialize(file_get_contents($school_semesters_filename));
+      else
+	$school['semesters'] = array();
+    }
 
   return $school;
 }
@@ -268,6 +278,68 @@ function school_instructions_html($school)
     }
 
   return $school_instructions_html();
+}
+
+/**
+ * \brief
+ *   Return information about available semesters.
+ *
+ * \param $school
+ *   The school.
+ * \return
+ *   An array with keys being semester IDs ordered by weights with
+ *   lowest first and keys of 'id' (the semester's ID), 'name' (the
+ *   friendly name), and 'weight' (lower numbers mean these semesters
+ *   should be earlier, may be positive or negative). 'time_start',
+ *   'time_end' are unix timestamps estimating the begin and end point
+ *   of each semester.
+ */
+function school_semesters(array $school)
+{
+  if (!$school['crawled'])
+    return array();
+  return $school['semesters'];
+}
+
+/**
+ * \brief
+ *   Return the semester which either the user has selected or which
+ *   makes the most sense.
+ *
+ * \param $school
+ *   The school for which a semester should be guessed.
+ * \return
+ *   An array with the keys 'id', 'name', and 'weight' corresponding
+ *   to the same keys in the arrays returned by school_semesters() or
+ *   NULL if no semester can be found.
+ */
+function school_semester_guess(array $school)
+{
+  $semesters = school_semesters($school);
+
+  if (!empty($_REQUEST['semester'])
+      && isset($semesters[$_REQUEST['semester']]))
+    {
+      $semester = $semesters[$_REQUEST['semester']];
+      $_SESSION['semester'] = $semester['id'];
+      return $semester;
+    }
+
+  if (!empty($_SESSION['semester'])
+      && isset($semesters[$_SESSION['semester']]))
+      return $semesters[$_SESSION['semester']];
+
+  $time = time();
+  $next_semester = FALSE;
+  $semester = NULL;
+  foreach ($semesters as $semester)
+    {
+      if ($next_semester)
+	return $semester;
+      if ($semester['time_start'] < $time)
+	$next_semester = TRUE;
+    }
+  return $semester;
 }
 
 /**

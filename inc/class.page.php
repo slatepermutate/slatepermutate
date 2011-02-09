@@ -152,6 +152,7 @@ class page
     /* everything that needs sessions started to work: */
 
     $this->school = school_load_guess();
+    $this->semester = school_semester_guess($this->school);
 
     if($immediate
        && $ntitle != "NOHEAD")
@@ -229,7 +230,11 @@ class page
          '          <h1><a href="index.php"><img src="images/slatepermutate-alpha.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>'. PHP_EOL .
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
-  	 '            <span id="menu">Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a></span>'. PHP_EOL .
+  	 '            <span id="menu">' . PHP_EOL
+      . '              Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a>' . PHP_EOL;
+    if ($this->semester !== NULL)
+      echo  '             Semester: ' . $this->semester['name'] . '<a href="input.php?selectsemester=1">(change)</a>' . PHP_EOL;
+    echo '            </span>'. PHP_EOL .
          '          </p>'. PHP_EOL .
          '        </div>'. PHP_EOL .
 	 '      </div>'. PHP_EOL .
@@ -315,6 +320,52 @@ class page
     echo "<p>\n";
     echo school_list_html($this->school['id'], $linkto);
     echo "</p>\n";
+  }
+
+  /**
+   * \brief
+   *   Display a list of semesters the user might be interested in.
+   * \param $linkto
+   *   The link to which a &semester= or ?semester= query string
+   *   should be appended.
+   */
+  public function showSemesters($linkto = 'input.php')
+  {
+    if (strpos($linkto, '?'))
+      $linkto .= '&';
+    else
+      $linkto .= '?';
+    /*
+     * We can pre-htmlentities() $linkto because we're only appending
+     * a safe string.
+     */
+    $linkto = htmlentities($linkto . 'semester=');
+
+    $time = time();
+
+    echo "    <p>\n";
+    echo "      <ul>\n";
+    foreach (school_semesters($this->school) as $semester)
+      {
+	$text_extra = array();
+	$class_extra = '';
+	if ($semester['id'] == $this->semester['id'])
+	  {
+	    $class_extra = ' highlight';
+	    $text_extra[] = 'selected';
+	  }
+
+	if ($semester['time_start'] < $time && $semester['time_end'] > $time)
+	  $text_extra[] = 'current';
+
+	$text_extra = implode($text_extra, ', ');
+	if (strlen($text_extra))
+	  $text_extra = ' (' . $text_extra . ')';
+
+	echo '        <li class="semester' . $class_extra . '"><a href="' . $linkto . $semester['id'] . '">' . htmlentities($semester['name']) . '</a>' . $text_extra . "</li>\n";
+      }
+    echo "      </ul>\n";
+    echo "    </p>\n";
   }
 
   /**

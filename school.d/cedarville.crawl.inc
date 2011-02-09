@@ -53,13 +53,8 @@ function table_parse($html)
 }
 
 /** Crawls Cedarville course listings. $season is "fa" or "sp", year is 4-digit year */
-function cedarville_crawl($semester, $verbosity = 1)
+function cedarville_crawl(array &$semesters, $verbosity = 1)
 {  
-
-  $season = strtolower(substr($semester->season_get(), 0, 2));
-  $year = $semester->year_get();
-  $season_string = $year . $season;
-
   $basepath = 'http://cedarville.edu/courses/schedule/';
 
   if ($verbosity)
@@ -67,12 +62,46 @@ function cedarville_crawl($semester, $verbosity = 1)
 
   if ($verbosity > 1)
     echo "cedarville_crawl(): Determining list of departments.\n";
+
+  if ($verbosity > 1)
+    fprintf(STDERR, "cedarville_crawl(): Determining list of semesters.\n");
+  $semesters_dom = new DOMDocument();
+  $semesters_dom->loadHTML(file_get_contents($basepath));
+
+  $content_div_dom = $semesters_dom->getElementById('contenttext');
+  if (!$content_div_dom)
+    {
+      fprintf(STDERR, "cedarville_crawl(): Error finding location of the list of departments.\n");
+      return 1;
+    }
+  $departments_xpath = new DOMXPath($semesters_dom);
+  foreach ($departments_xpath->query('.//li/a') as $department_a_dom)
+    {
+      $semester_href = $department_a_dom->getAttribute('href');
+      $semester_href_parts = split('_', $semester_href);
+
+      $semester_name = $department_a_dom->textContent;
+      if (stripos($semester_name, 'graduate') !== FALSE
+	  || strpos($semester_href, 'index') === FALSE)
+	/* cedarville has about 1 graduate course, lol */
+	continue;
+      $semester_name_parts = split(' ', $semester_name);
+
+      $semester_year = $semester_name_parts[0];
+      $semester_season = strtolower($semester_name_parts[1]);
+
+      $semester = new Semester($semester_year, $semester_season);
+
+      if ($verbosity > 1)
+	fprintf(STDERR, "cedarville_crawl(): Crawling semester: %s.\n",
+		$semester_name);
+
   /*
    * We need two passes because the first department's code name is
    * not accessible available in the first pageload.
    */
   $departments = array();
-  if (cedarville_crawl_departments_get($basepath . $year . $season . '_index.htm', $departments, $season_string))
+  if (cedarville_crawl_departments_get($basepath . $semester_href, $departments, $semester_href_parts[0]))
     return 1;
   if (!count($departments))
     {
@@ -80,14 +109,15 @@ function cedarville_crawl($semester, $verbosity = 1)
       return 1;
     }
   /* find the first department whose name we don't yet know */
-  if (cedarville_crawl_departments_get($basepath . $year . $season . '_' . current(array_keys($departments)) . '_all.htm', $departments, $season_string))
+  if (cedarville_crawl_departments_get($basepath . $semester_href_parts[0] . '_' . current(array_keys($departments)) . '_all.htm', $departments, $semester_href_parts[0]))
     return 1;
 
   $tables = array();
   foreach ($departments as $department => $dept_name)
     {
-      echo 'cedarville_crawl(): Crawling department ' . $department . ' (' . $dept_name . ")...\n";
-      $html = file_get_contents($basepath . $year . $season . '_' . $department . '_' . 'all.htm');
+      if ($verbosity > 2)
+	echo 'cedarville_crawl(): Crawling department ' . $department . ' (' . $dept_name . ")...\n";
+      $html = file_get_contents($basepath . $semester_href_parts[0] . '_' . $department . '_' . 'all.htm');
       if (!$html)
 	continue;
       $tables[$department] = table_parse(cedarville_html_fix($html));
@@ -207,6 +237,9 @@ function cedarville_crawl($semester, $verbosity = 1)
 				 new Section($section_parts['section'], $meetings,
 					     $synonym, $instructor));
 	}
+    }
+
+  $semesters[] = $semester;
     }
 
   return 0;

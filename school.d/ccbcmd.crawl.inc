@@ -29,7 +29,7 @@
  * \return
  *   1 on failure, 0 on success.
  */
-function ccbcmd_crawl(Semester $semester, $verbosity = 1)
+function ccbcmd_crawl(array &$semesters, $verbosity = 1)
 {
   $cookies = array();
 
@@ -49,42 +49,46 @@ function ccbcmd_crawl(Semester $semester, $verbosity = 1)
       return 1;
     }
 
-  $semester_strings = array($semester->year_get(), ucfirst($semester->season_get()));
-  $semester_value = NULL;
-  foreach ($semesters_select_node->childNodes as $semesters_option_node)
-    {
-      $semester_match = TRUE;
-      foreach ($semester_strings as $semester_string)
-  	if (stripos($semesters_option_node->textContent, $semester_string) === FALSE)
-  	  {
-  	    $semester_match = FALSE;
-  	    break;
-  	  }
-      if ($semester_match)
-  	{
-  	  $semester_value = $semesters_option_node->getAttribute('value');
-  	  break;
-  	}
-    }
+  $semester_stage_uri = $uri;
 
-  $semester_string = implode(' ', $semester_strings);
-  if ($semester_value === NULL)
-    {
-      fprintf(STDERR, "Could not find the desired semester, ``%s'', in the list of available semesters.\n",
-  	      $semester_string);
-      return 1;
-    }
-
-  if ($verbosity > 1)
-    fprintf(STDERR, "Found semester: %s=``%s''=``%s''.\n",
-  	    $semester_value, $semester_string, trim($semesters_option_node->textContent));
   $semesters_form = school_crawl_element_ancestor($semesters_select_node, 'form');
   if ($semesters_form === NULL)
     {
       fprintf(STDERR, "Unable to find <form /> associated with semester.\n");
       return 1;
     }
-  $semesters_post = school_crawl_form($semesters_form);
+  $semesters_post_save = school_crawl_form($semesters_form);
+
+  foreach ($semesters_select_node->childNodes as $semesters_option_node)
+    {
+      $semester_text = $semesters_option_node->textContent;
+      $semester_value = $semesters_option_node->getAttribute('value');
+      if (empty($semester_value))
+	/* skip the empty ``None'' semester */
+	continue;
+
+      if (stripos($semester_text, 'continuing') !== FALSE)
+	/* skip the year-long semesters dedicated to continuing education */
+	continue;
+
+      $semester_text_parts = explode(' ', $semester_text);
+      $semester_season = $semester_text_parts[0];
+      $semester_year = $semester_text_parts[1];
+
+      /* the college has two separate summer sessions, so distinguish between them */
+      if (preg_match(';session ([0-9]+);i', $semester_text, $matches))
+	$semester_season .= '_' . $matches[1];
+
+      if ($verbosity)
+	fprintf(STDERR, "Crawling semester %s:%s -> %s.\n", $semester_year, $semester_season, $semester_text);
+      $semester = new Semester($semester_year, strtolower($semester_season));
+
+  if ($verbosity > 1)
+    fprintf(STDERR, "Found semester: %s=``%s''=``%s''.\n",
+  	    $semester_value, $semester->id(), trim($semesters_option_node->textContent));
+  /* load stored semester-page URI / form data */
+  $semesters_post = $semesters_post_save;
+  $uri = $semester_stage_uri;
   $semesters_post[$semesters_select_node->getAttribute('name')] = $semester_value;
 
   $subjects_dom = new DOMDocument();
@@ -126,6 +130,7 @@ function ccbcmd_crawl(Semester $semester, $verbosity = 1)
 			   /* there's a boolean column which says whether or not the course has any prerequisites/corequisites.... */
 			   'credits' => school_crawl_table_resolve_column($tr_header_node, 'credhrs'),
 			   /* there's a column for the number of contact hours, vs. credit hours */
+			   'dates' => school_crawl_table_resolve_column($tr_header_node, 'sessiondates'),
 			   );
   foreach (array('title', 'days', 'times', 'instructor', 'location') as $column_key)
     $section_offsets[$column_key] = school_crawl_table_resolve_column($tr_header_node, $column_key);
@@ -230,10 +235,21 @@ function ccbcmd_crawl(Semester $semester, $verbosity = 1)
 
 	$section_meetings[] = new SectionMeeting($days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
 						 $children->item($section_offsets['location'])->textContent);
+
+	/* check if a semester's date range should be increased */
+	$section_dates = $children->item($section_offsets['dates'])->textContent;
+	if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches))
+	  {
+	    $semester->time_start_set_test(mktime(0, 0, 0, $section_dates_matches[1], $section_dates_matches[2], $semester->year_get()));
+	    $semester->time_end_set_test(  mktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get()));
+	  }
       }
 
       $semester->section_add($section_id_parts['department'], $section_id_parts['course'],
 			     new Section($section_id_parts['section'], $section_meetings, $registration_number, $instructor));
+    }
+
+  $semesters[] = $semester;
     }
 
   return 0;

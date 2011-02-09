@@ -22,18 +22,14 @@
  * \brief
  *   Crawl's Calvin's registration course listing pages.
  *
- * \param $semester
- *   The Semester object which I should populate.
+ * \param $semesters
+ *   An array to be filled with Semester objects which I should
+ *   populate.
  * \param $verbosity
  *   How verbose I should be. Sensicle range is from 0 through 10.
  */
-function calvin_crawl(Semester $semester, $verbosity = 1)
+function calvin_crawl(array &$semesters, $verbosity = 1)
 {
-  /**
-   * collect a few pbasic stats
-   */
-  $skipped_sections = array('incomplete meeting info' => 0, 'invalid meeting info format' => 0);
-
   /**
    * The first link we start at is the one from KV into WebAdvisor.
    *
@@ -90,11 +86,13 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
   foreach ($semesters_select_nodes as $semester_node)
     {
       if ($semester_node->tagName != 'option'
-	  || !$semester_node->hasAttribute('value'))
+	  || !$semester_node->hasAttribute('value')
+	  || !strlen($semester_node->getAttribute('value')))
 	continue;
       $semester_strs[$semester_node->getAttribute('value')] =
 	$semester_node->nodeValue;
     }
+  $semester_strs = array_reverse($semester_strs, TRUE);
 
   $departments_select_nodes = $departments_dom->getElementById('LIST_VAR1_1')->childNodes;
   $departments = array();
@@ -125,23 +123,45 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
   $return_url = dom_input_value($departments_dom, 'RETURN.URL');
 
 
-  /* ARCT only has >=200 level courses */
-  $dept = '';
-  $course_level = '';
-  $semester_str = substr($semester->year_get(), 2) . '/';
-  switch ($semester->season_get())
+  if ($verbosity > 4)
+    fprintf(STDERR, "Available semesters: %s\n", implode($semester_strs, ', '));
+
+  $semester_start_uri = $uri;
+
+  $season_map = array(
+		      'FA' => Semester::SEASON_FALL,
+		      'IN' => 'interim',
+		      'SP' => Semester::SEASON_SPRING,
+		      'MA' => 'may',
+		      /* I don't know if SU is a valid Calvin Smester ID or not */
+		      'SU' => Semester::SEASON_SUMMER);
+  foreach ($semester_strs as $semester_str => $semester_info)
     {
-    case Semester::SEASON_SPRING:
-      $semester_str .= 'SP';
-      break;
+      if (empty($season_map[substr($semester_str, 3)]))
+	{
+	  fprintf(STDERR, "Warning: Unknown semester identification chars: %s. Skipping this semester.\n",
+		  $semester_str);
+	  continue;
+	}
+      $season = $season_map[substr($semester_str, 3)];
+      $year_timespec = strptime(substr($semester_str, 0, 2), '%y');
+      $year =  $year_timespec['tm_year'] + 1900;
 
-    case Semester::SEASON_FALL:
-      $semester_str .= 'FA';
-      break;
-    }
-  if (!isset($semester_strs[$semester_str]))
-    error_log('Couldn\'t find a semester in Calvin\'s database for ' . $semester_str . ' (' . $semester->season_get() . ', ' . $semester->year_get() . ')');
+      $semester = new Semester($year, $season);
 
+      /* useful and necessary stats */
+      $skipped_sections = array('incomplete meeting info' => 0, 'invalid meeting info format' => 0);
+
+      $semester_start_min = 0;
+      $semester_end_max = 0;
+
+      $dept = '';
+      $course_level = '';
+      $uri = $semester_start_uri;
+
+      if ($verbosity)
+	fprintf(STDERR, "Crawling semester %s->%s\n",
+		$semester_str, $semester_info);
 
   /*
    * LIST.VAR<X>_<N>: <X> is the column, <N> is the row. There
@@ -158,13 +178,11 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
   $form = array('VAR1' => $semester_str,
 		'LIST.VAR1_1' => $dept,
 		'LIST.VAR2_1' => $course_level,
-		);
 
-  /*
-   * other form items we're not querying but which need to be
-   * sent blankly
-   */
-  $form += array(
+		/*
+		 * Other form items we're not querying but which need
+		 * to be sent blankly.
+		 */
 		 'RETURN.URL' => $return_url,
 		 'SUBMIT_OPTIONS' => '',
 		 /*
@@ -179,7 +197,7 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 
 		 'LIST.VAR1_CONTROLLER' => 'LIST.VAR1',
 		 'LIST.VAR1_MEMBERS' => 'LIST.VAR1*LIST.VAR2*LIST.VAR3*LIST.VAR4',
-		 );
+		);
   foreach (array('1', '2', '3', '4') as $list_col)
     {
       $colname = 'LIST.VAR' . $list_col;
@@ -339,6 +357,25 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 
 	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type)), $synonym, $faculty_name);
 	  $semester->section_add($section_id['department'], $section_id['course'], $section);
+
+	  /*
+	   * Try to update semester's longetivity stats to help the
+	   * school_semester_guess() function:
+	   */
+	  $date_start_time = strptime($date_start, '%m/%d/%Y');
+	  $date_end_time = strptime($date_end, '%m/%d/%Y');
+	  if ($date_start_time !== FALSE)
+	    {
+	      $date_start_time = school_crawl_mktime($date_start_time);
+	      if (!$semester_start_min || $semester_start_min > $date_start_time)
+		$semester_start_min = $date_start_time;
+	    }
+	  if ($date_end_time !== FALSE)
+	    {
+	      $date_end_time = school_crawl_mktime($date_end_time);
+	      if ($semester_end_max < $date_end_time)
+		$semester_end_max = $date_end_time;
+	    }
 	}
 
       if (!preg_match(';Page ([0-9]+) of ([0-9]+)\</td\>$;m', $html, $pages))
@@ -367,6 +404,15 @@ function calvin_crawl(Semester $semester, $verbosity = 1)
 	  error_log('Skipped some sections for <reason>: <number skipped>:');
 	error_log($reason . ': ' . $num);
       }
+
+    $semester->time_end_set($semester_end_max);
+    $semester->time_start_set($semester_start_min);
+
+    $semesters[] = $semester;
+
+    if ($verbosity)
+      fprintf(STDERR, "\n");
+    }
 
   return 0;
 }
