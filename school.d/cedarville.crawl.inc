@@ -72,6 +72,11 @@ function cedarville_crawl(array &$semesters, $verbosity = 1)
   if (!$content_div_dom)
     {
       fprintf(STDERR, "cedarville_crawl(): Error finding location of the list of departments.\n");
+      if (count($semesters))
+	{
+	  fprintf(STDERR, "cedarville_crawl(): Assuming that I got enough info anyways, returning successful code so that the few semesters I was able to crawl will be cached.\n");
+	  return 0;
+	}
       return 1;
     }
   $departments_xpath = new DOMXPath($semesters_dom);
@@ -106,6 +111,11 @@ function cedarville_crawl(array &$semesters, $verbosity = 1)
   if (!count($departments))
     {
       echo "cedarville_crawl(): Unable to get a listing of departments.\n";
+      if (count($semesters))
+	{
+	  fprintf(STDERR, "cedarville_crawl(): Assuming that I got enough info anyways, returning successful code so that the few semesters I was able to crawl will be cached.\n");
+	  return 0;
+	}
       return 1;
     }
   /* find the first department whose name we don't yet know */
