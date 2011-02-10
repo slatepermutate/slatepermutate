@@ -31,15 +31,13 @@ require_once('class.schedule.php');
  */
 function schedule_store_init($dir = 'saved_schedules')
 {
-  $schedule_store = array();
+  $schedule_store = array('dir' => realpath($dir));
 
-  if (!is_dir($dir) || !is_writable($dir))
+  if (!is_dir($schedule_store['dir']) || !is_writable($schedule_store['dir']))
     {
       error_log('I can\'t write to ' . $dir . ' or it is not a directory!');
       return NULL;
     }
-
-  $schedule_store['dir'] = realpath($dir);
 
   return $schedule_store;
 }
