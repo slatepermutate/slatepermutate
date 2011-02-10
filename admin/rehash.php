@@ -55,6 +55,8 @@ function main($argc, $argv)
   $crawl = TRUE;
   if (isset($opts['no-crawl']))
     $crawl = FALSE;
+
+  $crawl_only = NULL;
   if (isset($opts['crawl-only']))
     $crawl_only = split(',', $opts['crawl-only']);
 
