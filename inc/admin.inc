@@ -141,10 +141,7 @@ function school_cache($schools)
 	   * nearer to the end of the list. This way, the crawler
 	   * doesn't have to decide how to sort the semesters itself:
 	   */
-	  usort($semesters, function ($sem_a, $sem_b)
-		{
-		  return $sem_a->time_start_get() - $sem_b->time_start_get();
-		});
+	  usort($semesters, 'school_cache_semesters_sort');
 
 	  foreach ($school['crawled_semesters'] as $semester)
 	    {
@@ -213,6 +210,15 @@ function school_cache($schools)
   fclose($cache_file);
 
   return 0;
+}
+
+/**
+ * \brief
+ *   To support usort() call in school_cache() to sort semesters.
+ */
+function school_cache_semesters_sort (Semester $sem_a, Semester $sem_b)
+{
+  return $sem_a->time_start_get() - $sem_b->time_start_get();
 }
 
 /**
