@@ -24,7 +24,7 @@
 // Represents a section of a class.
 //--------------------------------------------------
 
-require_once('inc/class.section_meeting.inc');
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.section_meeting.inc';
    
 class Section
 {

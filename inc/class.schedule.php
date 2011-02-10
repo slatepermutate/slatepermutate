@@ -26,15 +26,16 @@
 // all the possible permutations.
 //**************************************************
 
-include_once('inc/class.course.inc');
-include_once 'class.section.php';
-include_once 'inc/class.page.php';
+$incdir = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+include_once $incdir . 'class.course.inc';
+include_once $incdir . 'class.section.php';
+include_once $incdir . 'class.page.php';
 
 /*
  * Load a Classes -> Course converter class for the sake of the
  * Schedule::__wakeup() magic function.
  */
-require_once('inc/class.classes_convert.inc');
+require_once $incdir . 'class.classes_convert.inc';
 
 class Schedule
 {
