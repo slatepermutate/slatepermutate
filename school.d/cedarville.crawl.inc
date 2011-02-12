@@ -53,30 +53,28 @@ function table_parse($html)
 }
 
 /** Crawls Cedarville course listings. $season is "fa" or "sp", year is 4-digit year */
-function cedarville_crawl(array &$semesters, $verbosity = 1)
+function cedarville_crawl(array &$semesters, &$school_crawl_log)
 {  
   $basepath = 'http://cedarville.edu/courses/schedule/';
 
-  if ($verbosity)
-    echo "cedarville_crawl(): Beginning crawl of Cedarville:\n";
+  school_crawl_logf($school_crawl_log, 6, "Beginning crawl of Cedarville:");
 
-  if ($verbosity > 1)
-    echo "cedarville_crawl(): Determining list of departments.\n";
+  school_crawl_logf($school_crawl_log, 7, "Determining list of departments.");
 
-  if ($verbosity > 1)
-    fprintf(STDERR, "cedarville_crawl(): Determining list of semesters.\n");
+  school_crawl_logf($school_crawl_log, 8, "Determining list of semesters.");
   $semesters_dom = new DOMDocument();
   $semesters_dom->loadHTML(file_get_contents($basepath));
 
   $content_div_dom = $semesters_dom->getElementById('contenttext');
   if (!$content_div_dom)
     {
-      fprintf(STDERR, "cedarville_crawl(): Error finding location of the list of departments.\n");
+      school_crawl_logf($school_crawl_log, 6, "Error finding location of the list of departments.");
       if (count($semesters))
 	{
-	  fprintf(STDERR, "cedarville_crawl(): Assuming that I got enough info anyways, returning successful code so that the few semesters I was able to crawl will be cached.\n");
+	  school_crawl_logf($school_crawl_log, 6, "Assuming that I got enough info anyways, returning successful code so that the few semesters I was able to crawl will be cached.");
 	  return 0;
 	}
+      school_crawl_logf($school_crawl_log, 0, "Couldn't find any departments.");
       return 1;
     }
   $departments_xpath = new DOMXPath($semesters_dom);
@@ -97,36 +95,35 @@ function cedarville_crawl(array &$semesters, $verbosity = 1)
 
       $semester = new Semester($semester_year, $semester_season);
 
-      if ($verbosity > 1)
-	fprintf(STDERR, "cedarville_crawl(): Crawling semester: %s.\n",
-		$semester_name);
+      school_crawl_logf($school_crawl_log, 6, "Crawling semester: %s.",
+			$semester_name);
 
   /*
    * We need two passes because the first department's code name is
    * not accessible available in the first pageload.
    */
   $departments = array();
-  if (cedarville_crawl_departments_get($basepath . $semester_href, $departments, $semester_href_parts[0]))
+  if (cedarville_crawl_departments_get($basepath . $semester_href, $departments, $semester_href_parts[0], $school_crawl_log))
     return 1;
   if (!count($departments))
     {
-      echo "cedarville_crawl(): Unable to get a listing of departments.\n";
+      school_crawl_logf($school_crawl_log, 6, "Unable to get a listing of departments.");
       if (count($semesters))
 	{
-	  fprintf(STDERR, "cedarville_crawl(): Assuming that I got enough info anyways, returning successful code so that the few semesters I was able to crawl will be cached.\n");
+	  school_crawl_logf($school_crawl_log, 6, "Assuming that I got enough info anyways, returning successful code so that the few semesters I was able to crawl will be cached.");
 	  return 0;
 	}
+      school_crawl_logf($school_crawl_log, 0, "Unable to get listing of departments.");
       return 1;
     }
   /* find the first department whose name we don't yet know */
-  if (cedarville_crawl_departments_get($basepath . $semester_href_parts[0] . '_' . current(array_keys($departments)) . '_all.htm', $departments, $semester_href_parts[0]))
+  if (cedarville_crawl_departments_get($basepath . $semester_href_parts[0] . '_' . current(array_keys($departments)) . '_all.htm', $departments, $semester_href_parts[0], $school_crawl_log))
     return 1;
 
   $tables = array();
   foreach ($departments as $department => $dept_name)
     {
-      if ($verbosity > 2)
-	echo 'cedarville_crawl(): Crawling department ' . $department . ' (' . $dept_name . ")...\n";
+      school_crawl_logf($school_crawl_log, 7, "Crawling department %s (%s).", $department, $dept_name);
       $html = file_get_contents($basepath . $semester_href_parts[0] . '_' . $department . '_' . 'all.htm');
       if (!$html)
 	continue;
@@ -183,8 +180,8 @@ function cedarville_crawl(array &$semesters, $verbosity = 1)
 	  $section_parts = Section::parse($course_table[1]);
 	  if (count($section_parts) < 3)
 	    {
-	      error_log('Error parsing section_id. Given `' . $course_table[1] . '\', interpreted as `'
-			. implode('-', $section_parts) . '\'. Skipping.');
+	      school_crawl_logf($school_crawl_log, 6, "Error parsing section_id. Given `%s'; interpreted as `%s'. Skipping.",
+				$course_table[1], implode('-', $section_parts));
 	      continue;
 	    }
 
@@ -199,8 +196,7 @@ function cedarville_crawl(array &$semesters, $verbosity = 1)
 	  $meetings_str = $course_table[6];
 	  if (strpos($meetings_str, 'TBA') !== FALSE)
 	    {
-	      if ($verbosity > 1)
-		error_log('Skipping ' . implode('-', $section_parts) . ' because its meeting time info has `TBA\' in it.');
+	      school_crawl_logf($school_crawl_log, 8, "Skipping %s because its meeting time info has `TBA' in it.", implode('-', $section_parts));
 	      continue;
 	    }
 	  $meetings = array();
@@ -213,17 +209,18 @@ function cedarville_crawl(array &$semesters, $verbosity = 1)
 		  if (preg_match(';^Dates:[^0-9]+([/0-9]{8})-([/0-9]{8});',
 				 $meetings_str, $meeting_matches))
 		    {
-		      if ($verbosity > 4)
-			error_log('Skipping some meeting data for '
-				  . implode('-', $section_parts) . ' because it is a date range: `'
-				  . $meeting_matches[0] . '\'');
+		      /**
+		       * \todo
+		       *   This is a perfect place to get Semester's
+		       *   time_start and time_end values.
+		       */
+		      school_crawl_logf($school_crawl_log, 8, "Skipping some meeting data for %s because it is a date range: `%s'.",
+					implode('-', $section_parts), $meeting_matches[0]);
 		      $meetings_str = substr($meetings_str, strlen($meeting_matches[0]));
 		      continue;
 		    }
 
-		  if ($verbosity > 0)
-		    error_log('Error parsing meeting time. Given `' . $meetings_str . '\'. Skipping '
-			      . implode('-', $section_parts));
+		  school_crawl_logf($school_crawl_log, 6, "Error parsing meeting time. Given `%s'. Skipping %s.", $meetings_str, implode('-', $section_parts));
 		  break;
 		}
 	      /* prepare for parsing the next meeting time */
@@ -263,13 +260,13 @@ function cedarville_crawl(array &$semesters, $verbosity = 1)
  *   An associative array mapping department codes onto department
  *   friendly names.
  */
-function cedarville_crawl_departments_get($dept_url, array &$departments, $season_string)
+function cedarville_crawl_departments_get($dept_url, array &$departments, $season_string, $school_crawl_log)
 {
   $html = file_get_contents($dept_url);
   $dept_dom = new DOMDocument();
   if (!$dept_dom->loadHTML(cedarville_html_fix($html)))
     {
-      echo "cedarville_crawl(): Error determining list of available departments: Unable to parse HTML.\n";
+      school_crawl_logf($school_crawl_log, 6, "Error determining list of available departments: Unable to parse HTML.");
       return 1;
     }
   $xpath = new DOMXPath($dept_dom);
@@ -280,7 +277,7 @@ function cedarville_crawl_departments_get($dept_url, array &$departments, $seaso
       $href = $dept_node->getAttribute('href');
       if (!preg_match('/^' . preg_quote($season_string, '/') . '_([a-z]+)_[a-z]+\.htm$/', $href, $matches))
 	{
-	  echo 'cedarvillege_crawl(): Error determining list of available departments: Unable to parse the department string out of href="' . $href . "\".\n";
+	  school_crawl_logf($school_crawl_log, 6, "cedarvillege_crawl(): Error determining list of available departments: Unable to parse the department string out of href=\"%s\".", $href);
 	  return 1;
 	}
 

@@ -577,4 +577,19 @@ class page
     }
   }
 
+  /**
+   * \brief
+   *   Generate special code to close a self-closing XHTML/HTML
+   *   element.
+   *
+   * \return
+   *   A string containing the correct self-closing chars. For
+   *   example, this would be ' /' for XHTML.
+   */
+  public function element_self_close()
+  {
+    if ($this->xhtml)
+      return ' /';
+    return '';
+  }
 }

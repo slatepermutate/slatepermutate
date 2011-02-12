@@ -250,13 +250,15 @@ function school_cache_semesters_sort (Semester $sem_a, Semester $sem_b)
  * \param $school
  *   The school which should be checked for crawl functionality and
  *   crawled.
- * \param $semester_year
- *   The year of the semester for which we should grab data.
- * \param $semester_season
- *   The season of the year of the semester for which we should grab
- *   data.
+ * \param $page
+ *   The Page object for which HTML formatted logs should be outputted
+ * \param $verbosity
+ *   How verbose to be. Sane values are from 0 through 10.
+ * \return
+ *   A school_crawl_log handle, upopn which school_crawl_log_fetch()
+ *   may be used.
  */
-function school_crawl(array &$school, $verbosity = 1)
+function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
 {
   $school['crawled'] = FALSE;
 
@@ -264,23 +266,32 @@ function school_crawl(array &$school, $verbosity = 1)
   if (!function_exists($school_crawl_func))
     return;
 
+  $school_crawl_log_opts = array('verbosity' => $verbosity);
+  if (defined('STDERR'))
+    $school_crawl_log_opts['stream'] = STDERR;
+  if ($page !== NULL)
+    $school_crawl_log_opts['page'] = $page;
+  $school_crawl_log = school_crawl_log_init($school, $school_crawl_log_opts);
+
   $semesters = array();
 
   if ($verbosity > 0)
-    fprintf(STDERR, "%s()\n", $school_crawl_func);
-  $ret = $school_crawl_func($semesters, $verbosity);
+    school_crawl_logf($school_crawl_log, 2, "Calling crawler...");
+
+  $ret = $school_crawl_func($semesters, $school_crawl_log, $verbosity);
   if ($ret)
     {
-      fprintf(STDERR, "Crawling %s failed: %s() returned nonzero\n",
-	      $school['id'], $school_crawl_func);
-      fwrite(STDERR, "\n");
+      school_crawl_logf($school_crawl_log, 1, "Crawling %s failed: %s() returned nonzero",
+			$school['id'], $school_crawl_func);
+      school_crawl_logf($school_crawl_log, 6, "");
       return;
     }
   $school['crawled'] = TRUE;
   $school['crawled_semesters'] = $semesters;
 
-  if ($verbosity > 0)
-    fwrite(STDERR, "\n");
+  school_crawl_logf($school_crawl_log, 6, "");
+
+  return $school_crawl_log;
 }
 
 
@@ -295,7 +306,7 @@ function school_crawl(array &$school, $verbosity = 1)
  * \param $verbosity
  *   An integer indicating how loud to be.
  */
-function school_cache_recreate($crawl_only = NULL, $verbosity = 1)
+function school_cache_recreate($crawl_only = NULL, Page $page = NULL, $verbosity = 5)
 {
   $school_id_list = school_list();
   if (!$school_id_list)
@@ -330,7 +341,7 @@ function school_cache_recreate($crawl_only = NULL, $verbosity = 1)
 
       if ($crawl_only === NULL || in_array($school['id'], $crawl_only))
 	{
-	  school_crawl($school, $verbosity);
+	  $school_crawl_log = school_crawl($school, $page, $verbosity);
 	}
       else
 	{

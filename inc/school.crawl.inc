@@ -26,6 +26,91 @@
 
 /**
  * \brief
+ *   Initialize a school_crawl_log handle.
+ *
+ * \param $school
+ *   The school for which this crawl handle is.
+ * \param $opts
+ *   An array optionally with one of the following keys:
+ *   - stream: an fopen()-compatible stream to fwrite()/fprintf() output to.
+ *   - page: a Page object used to help format HTML output.
+ *   - verbosity: A number from 0 through 10 describing the desired
+ *       verbosity.
+ */
+function school_crawl_log_init(array $school, $opts = array())
+{
+  $opts += array('verbosity' => 5);
+  return array('school' => $school, 'out' => array('html' => array(), 'plain' => array())) + $opts;
+}
+
+/**
+ * \brief
+ *   Log progress of a crawler.
+ *
+ * This function's arguments take the same style as fprintf() does.
+ *
+ * \param $school_crawl_log
+ *   The logging resource.
+ * \param $verboseness
+ *   The verbosity level at which to log the message. Should be a
+ *   value from 0 to 10, where 0 is unconditionally printed and 5 is
+ *   the default.
+ * \param $format
+ *   The printf()-style format string.
+ */
+function school_crawl_logf(array $school_crawl_log, $verboseness, $format)
+{
+  $args = func_get_args();
+  array_shift($args);
+  array_shift($args);
+
+  if ($verboseness > $school_crawl_log['verbosity'])
+    /*
+     * The given message gives us more detail than we want. Therefore,
+     * discard it.
+     */
+    return;
+
+  $log_line = call_user_func_array('sprintf', $args);
+
+  /* store output in a place where it's retrievable */
+  $school_crawl_log['out']['plain'][] = sprintf("%s_crawl(): %s\n",
+						$school_crawl_log['school']['id'], $log_line);
+
+  /* store the output in a retrievable list of outputs */
+  if (isset($school_crawl_log['page']))
+    $school_crawl_log['out']['html'][] = sprintf("<div class=\"logline\"><tt>%s_crawl()</tt>: %s</div><br class=\"logline\"%s>\n",
+						 $school_crawl_log['school']['id'], htmlentities($log_line),
+						 $school_crawl_log['page']->element_self_close());
+
+  /* print to a stream potentially */
+  if (isset($school_crawl_log['stream']))
+    fprintf($school_crawl_log['stream'], "%s_crawl(): %s\n", $school_crawl_log['school']['id'], $log_line);
+
+  return 0;
+}
+
+/**
+ * \brief
+ *   Recover stored crawling log stuffage.
+ *
+ * \param $html
+ *   Whether to retrieve formatted HTML output if it's available.
+ * \return
+ *   An array of output lines.
+ */
+function school_crawl_log_fetch(array $school_crawl_log, $html = FALSE)
+{
+  if ($html)
+    if (isset($school_crawl_log['page']))
+      return $school_crawl_log['out']['html'];
+    else
+      return nl2br(htmlentities($school_crawl_log['out']['plain']));
+  return $school_crawl_log['out']['plain'];
+}
+
+/**
+ * \brief
  *   Parse a simple time string into slate_permutate's time
  *   representation.
  *
@@ -150,6 +235,8 @@ function school_crawl_days_str_format($days_str)
  *   The URL to fetch. If a redirect occurs, this is updated.
  * \param $cookies
  *   An associative array of cookies and where to save new cookies.
+ * \param $school_crawl_log
+ *   The school_crawl_log handle to use.
  * \param $post
  *   If not NULL, causes an HTTP POST. In that case, should be an
  *   associative array of form keys/values.
@@ -161,8 +248,6 @@ function school_crawl_days_str_format($days_str)
  *   A function which is passed a curl handle which allows the caller
  *   to do silly things like setting CURLOPT_SSLVERSION for silly
  *   sites like ccbcmd's registration site.
- * \param $verbosity
- *   How verbose to be.
  * \param $loopspin
  *   An internal variable to prevent us from following perpetual
  *   redirects.
@@ -171,23 +256,17 @@ function school_crawl_days_str_format($days_str)
  *   malformed HTML, especially with Calvin's WebAdvisor
  *   installation).
  */
-function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $follow_meta_refresh = FALSE, $curlsetup_hook = NULL, $verbosity = 0, $loopspin = 0)
+function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post = NULL, $follow_meta_refresh = FALSE, $curlsetup_hook = NULL, $loopspin = 0)
 {
-  global $school_crawl_geturi_write_buf, $school_crawl_geturi_headers_buf, $school_crawl_geturi_verbosity;
+  global $school_crawl_geturi_write_buf, $school_crawl_geturi_headers_buf;
 
-  if ($verbosity > 5)
-    {
-      echo "\n";
-      echo 'school_crawl_geturi(' . $uri . ")\n";
-      echo "\n";
-    }
+  school_crawl_logf($school_crawl_log, 7, "school_crawl_geturi('%s').", $uri);
 
   $curl = curl_init();
 
   if ($curlsetup_hook !== NULL)
     $curlsetup_hook($curl);
 
-  $school_crawl_geturi_verbosity = $verbosity;
   $school_crawl_geturi_write_buf = '';
   $school_crawl_geturi_headers_buf = '';
   curl_setopt($curl, CURLOPT_URL, $uri);
@@ -200,8 +279,7 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $follow_meta_refres
       $cookies_str .= $key . '=' . $val;
     }
 
-  if ($verbosity > 8)
-    echo 'cookies sent: ' . $cookies_str . "\n";
+  school_crawl_logf($school_crawl_log, 10, "cookies sent: %s", $cookies_str);
   curl_setopt($curl, CURLOPT_COOKIE, $cookies_str);
   curl_setopt($curl, CURLOPT_HEADERFUNCTION, 'school_crawl_geturi_header_cb');
   curl_setopt($curl, CURLOPT_WRITEFUNCTION, 'school_crawl_geturi_write_cb');
@@ -236,8 +314,7 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $follow_meta_refres
 	    $posttxt .= (strlen($posttxt) ? '&' : '')
 	    . urlencode($postkey) . '=' . (strpos($postkey, 'MEMBER') === FALSE ? urlencode($postval) : $postval);
 	}
-      if ($verbosity > 8)
-	echo 'setting POST to ' . $posttxt . "\n";
+      school_crawl_logf($school_crawl_log, 10, "Setting POST to %s", $posttxt);
 
       /* curl_setopt($curl, CURLOPT_POST, TRUE); */
       curl_setopt($curl, CURLOPT_POSTFIELDS, $posttxt);
@@ -256,20 +333,15 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $follow_meta_refres
 	continue;
       list($header_name, $header_val) = explode(': ', $header, 2);
 
-      if ($verbosity > 8)
-	echo $header_name . ' : ' . $header_val . "\n";
+      school_crawl_logf($school_crawl_log, 9, "%s: %s", $header_name, $header_val);
 
       switch($header_name)
 	{
 	case 'Set-Cookie':
 	  list($cookie_name, $cookie_val) = explode('=', $header_val, 2);
-	  if ($verbosity > 9)
-	    {
-	      if (isset($cookies[$cookie_name]))
-		echo 'Replacing cookie ' . $cookie_name . '=' . $cookies[$cookie_name]
-		  . ' with ';
-	      echo 'new cookie ' . $cookie_name . '=' . $cookie_val . "\n";
-	    }
+	  if (isset($cookies[$cookie_name]))
+	    school_crawl_logf($school_crawl_log, 10, "Replacing cookie %s=%s with...", $cookie_name, $cookies[$cookie_name]);
+	  school_crawl_logf($school_crawl_log, 10, "...new cookie %s=%s.", $cookie_name, $cookie_val);
 	  $cookies[$cookie_name] = $cookie_val;
 	  break;
 
@@ -291,11 +363,10 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $follow_meta_refres
 	    && !strcasecmp('refresh', $meta_node->getAttribute('http-equiv')))
 	  {
 	    $meta_content = $meta_node->getAttribute('content');
-	    if ($verbosity > 2)
-	      echo 'Following http-equiv Refresh: ' . $meta_content . PHP_EOL;
+	    school_crawl_logf($school_crawl_log, 7, "Following http-equiv Refresh: %s", $meta_content);
 	    if (!(preg_match('/^[0-9]+; *url=(.*)$/', $meta_content, $meta_matches)))
 	      {
-		echo 'Error following http-equiv Refresh: ' . $meta_content . PHP_EOL;
+		school_crawl_logf($school_crawl_log, 0, "Error following http-equiv Refresh: %s", $meta_content);
 	      }
 	    else
 	      {
@@ -305,12 +376,11 @@ function school_crawl_geturi(&$uri, &$cookies, $post = NULL, $follow_meta_refres
 	  }
     }
 
-  if ($verbosity > 9)
-    echo $school_crawl_geturi_write_buf;
+  school_crawl_logf($school_crawl_log, 10, "%s", $school_crawl_geturi_write_buf);
   if ($location && $loopspin < 6)
     {
       $uri = $location;
-      return school_crawl_geturi($uri, $cookies, $post, $follow_meta_refresh, $curlsetup_hook, $verbosity, $loopspin + 1);
+      return school_crawl_geturi($uri, $cookies, $school_crawl_log, $post, $follow_meta_refresh, $curlsetup_hook, $loopspin + 1);
     }
   return $school_crawl_geturi_write_buf;
 }

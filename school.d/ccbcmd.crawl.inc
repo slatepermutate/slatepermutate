@@ -24,12 +24,12 @@
  *
  * \param $semester
  *   The Semester object which I should populate.
- * \param $verbosity
- *   A scale from 0 to 10 determining how loud I should be.
+ * \param $school_crawl_log
+ *   The school_crawl_log handle.
  * \return
  *   1 on failure, 0 on success.
  */
-function ccbcmd_crawl(array &$semesters, $verbosity = 1)
+function ccbcmd_crawl(array &$semesters, &$school_crawl_log)
 {
   $cookies = array();
 
@@ -41,11 +41,11 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
    */
   $uri = 'http://ccbcmd.edu/schedule/sched.html';
   $semesters_dom = new DOMDocument();
-  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, NULL, TRUE, 'ccbcmd_crawl_curlhook', $verbosity));
+  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, 'ccbcmd_crawl_curlhook'));
   $semesters_select_node = $semesters_dom->getElementById('term_input_id');
   if ($semesters_select_node === NULL)
     {
-      fprintf(STDERR, "Could not get list of available semesters to choose from\n");
+      school_crawl_logf($school_crawl_log, 0, "Could not get list of available semesters to choose from.");
       return 1;
     }
 
@@ -54,7 +54,7 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
   $semesters_form = school_crawl_element_ancestor($semesters_select_node, 'form');
   if ($semesters_form === NULL)
     {
-      fprintf(STDERR, "Unable to find <form /> associated with semester.\n");
+      school_crawl_logf($school_crawl_log, 0, "Unable to find <form /> associated with semester.");
       return 1;
     }
   $semesters_post_save = school_crawl_form($semesters_form);
@@ -79,13 +79,11 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
       if (preg_match(';session ([0-9]+);i', $semester_text, $matches))
 	$semester_season .= '_' . $matches[1];
 
-      if ($verbosity)
-	fprintf(STDERR, "Crawling semester %s:%s -> %s.\n", $semester_year, $semester_season, $semester_text);
+      school_crawl_logf($school_crawl_log, 6, "Crawling semester %s:%s -> %s.", $semester_year, $semester_season, trim($semester_text));
       $semester = new Semester($semester_year, strtolower($semester_season));
 
-  if ($verbosity > 1)
-    fprintf(STDERR, "Found semester: %s=``%s''=``%s''.\n",
-  	    $semester_value, $semester->id(), trim($semesters_option_node->textContent));
+      school_crawl_logf($school_crawl_log, 8, "Found semester: %s=``%s''=``%s''.",
+			$semester_value, $semester->id(), trim($semesters_option_node->textContent));
   /* load stored semester-page URI / form data */
   $semesters_post = $semesters_post_save;
   $uri = $semester_stage_uri;
@@ -93,12 +91,12 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
 
   $subjects_dom = new DOMDocument();
   $uri = school_crawl_url($uri, $semesters_form->getAttribute('action'));
-  $subjects_dom->loadHTML(school_crawl_geturi($uri, $cookies, $semesters_post, TRUE, 'ccbcmd_crawl_curlhook', $verbosity));
+  $subjects_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $semesters_post, TRUE, 'ccbcmd_crawl_curlhook'));
 
   $subjects_form_nodelist = $subjects_dom->getElementsByTagName('form');
   if (!$subjects_form_nodelist->length)
     {
-      fprintf(STDERR, "Unable to find <form /> to submit for the subjects choosing page.\n");
+      school_crawl_logf($school_crawl_log, 0, "Unable to find <form /> to submit for the subjects-choosing page.");
       return 1;
     }
   $subjects_form_node = $subjects_form_nodelist->item(0);
@@ -111,7 +109,7 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
 
   $courses_dom = new DOMDocument();
   $uri = school_crawl_url($uri, $subjects_form_node->getAttribute('action'));
-  $courses_dom->loadHTML(school_crawl_geturi($uri, $cookies, $subjects_post, TRUE, 'ccbcmd_crawl_curlhook', $verbosity));
+  $courses_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $subjects_post, TRUE, 'ccbcmd_crawl_curlhook'));
 
   $courses_xpath = new DOMXPath($courses_dom);
 
@@ -119,7 +117,7 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
   $tr_header_nodelist = $courses_xpath->query('//table[@class="datadisplaytable" and position()=1]//tr[position()=2]');
   if (!$tr_header_nodelist->length)
     {
-      fprintf(STDERR, "Unable to find the row of the course/section data table which gives us the mappings of column names onto columns.\n");
+      school_crawl_logf($school_crawl_log, 0, "Unable to find the row of the course/section data table which gives us the mappings of column names onto columns.");
       return 1;
     }
   $tr_header_node = $tr_header_nodelist->item(0);
@@ -142,13 +140,12 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
     {
       if ($value === FALSE)
 	{
-	  fprintf(STDERR, "Unable to find column offset for `%s'.\n",
+	  school_crawl_logf($school_crawl_log, 0, "Unable to find column offset for `%s'.",
 		  $name);
 	  return 1;
 	}
       else
-	if ($verbosity > 6)
-	  echo $name . ' -> ' . $value . PHP_EOL;
+	school_crawl_logf($school_crawl_log, 9, "%s -> %s", $name, $value);
 
       $max_offset = max($max_offset, $value);
     }
@@ -202,7 +199,7 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
 	  }
 	if (($dash_pos = strpos($time_range_text, '-')) === FALSE)
 	  {
-	    fprintf(STDERR, "Unable to understand course's time range format, cannot find dash: ``%s''.\n",
+	    school_crawl_logf($school_crawl_log, 0, "Unable to understand course's time range format, cannot find dash: ``%s''.",
 		    $time_range_text);
 	    return 1;
 	  }
@@ -219,14 +216,14 @@ function ccbcmd_crawl(array &$semesters, $verbosity = 1)
 	 */
 	if (strpos($time_end_text, '-') !== FALSE)
 	  {
-	    fprintf(STDERR, "College seems to support multiple meeting times per semester which we don't know how to parse (even though slate_permutate itself can handle this situation): ``%s'' time_end_text: ``%s''.\n",
+	    school_crawl_logf($school_crawl_log, 0, "College seems to support multiple meeting times per semester which we don't know how to parse (even though slate_permutate itself can handle this situation): ``%s'' time_end_text: ``%s''.",
 		    $time_range_text, $time_end_text);
 	    return 1;
 	  }
 	$time_end = strptime($time_end_text, '%I:%M %p');
 	if ($time_end === FALSE || $time_start === FALSE)
 	  {
-	    fprintf(STDERR, "Error parsing start or end time: start: ``%s'' end: ``%s''.\n",
+	    school_crawl_logf($school_crawl_log, 0, "Error parsing start or end time: start: ``%s'' end: ``%s''.",
 		    $time_start_text, $time_end_text);
 	    return 1;
 	  }

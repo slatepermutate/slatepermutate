@@ -60,7 +60,7 @@ function main($argc, $argv)
   if (isset($opts['crawl-only']))
     $crawl_only = split(',', $opts['crawl-only']);
 
-  $verbosity = 1;
+  $verbosity = 5;
   if (isset($opts['verbosity']))
     $verbosity = (int)$opts['verbosity'];
   if (isset($opts['V']))
@@ -75,7 +75,7 @@ function main($argc, $argv)
 
   if ($crawl)
     {
-      $ret = school_cache_recreate($crawl_only, $verbosity);
+      $ret = school_cache_recreate($crawl_only, NULL, $verbosity);
       if ($ret)
 	{
 	  fprintf(STDERR, "error: Unable to successfully crawl schools.\n");

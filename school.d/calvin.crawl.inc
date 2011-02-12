@@ -25,10 +25,10 @@
  * \param $semesters
  *   An array to be filled with Semester objects which I should
  *   populate.
- * \param $verbosity
- *   How verbose I should be. Sensicle range is from 0 through 10.
+ * \param $school_crawl_log
+ *   A school_crawl_log handle.
  */
-function calvin_crawl(array &$semesters, $verbosity = 1)
+function calvin_crawl(array &$semesters, &$school_crawl_log)
 {
   /**
    * The first link we start at is the one from KV into WebAdvisor.
@@ -52,19 +52,16 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
   $baseuri = 'https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
 
   $token_uri = $baseuri . '&TOKENIDX=NULL';
-  $token_html = calvin_crawl_noscript_filter(school_crawl_geturi($token_uri, $cookies));
+  $token_html = calvin_crawl_noscript_filter(school_crawl_geturi($token_uri, $cookies, $school_crawl_log));
   if (!preg_match('/setWindowHTML\(\'\', \'([0-9]+)\'\);/', $token_html, $matches))
     {
-      fprintf(STDERR, "Could not steal the token\n");
+      school_crawl_logf($school_crawl_log, 1, "Could not steal the token: crawling failed.");
       return 1;
     }
   $token = $matches[1];
 
-  if ($verbosity > 5)
-    {
-      echo 'token: ' . $token . "\n";
-      echo "\n";
-    }
+  school_crawl_logf($school_crawl_log, 7, "token: %s.", $token);
+  school_crawl_logf($school_crawl_log, 7, "");
 
   /*
    * here we have arrived at the main webadvisor screen which lists the
@@ -73,7 +70,7 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
    * individual department for courses.
    */
   $uri = $baseuri . '&TOKENIDX=' . $token;
-  $departments_html = calvin_crawl_noscript_filter(school_crawl_geturi($uri, $cookies));
+  $departments_html = calvin_crawl_noscript_filter(school_crawl_geturi($uri, $cookies, $school_crawl_log));
 
   $departments_dom = new DOMDocument();
   $departments_dom->loadHTML($departments_html);
@@ -123,8 +120,7 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
   $return_url = dom_input_value($departments_dom, 'RETURN.URL');
 
 
-  if ($verbosity > 4)
-    fprintf(STDERR, "Available semesters: %s\n", implode($semester_strs, ', '));
+  school_crawl_logf($school_crawl_log, 7, "Available semesters: %s.", implode($semester_strs, ', '));
 
   $semester_start_uri = $uri;
 
@@ -139,7 +135,7 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
     {
       if (empty($season_map[substr($semester_str, 3)]))
 	{
-	  fprintf(STDERR, "Warning: Unknown semester identification chars: %s. Skipping this semester.\n",
+	  school_crawl_logf($school_crawl_log, 6, "Warning: Unknown semester identification chars: %s. Skipping this semester.",
 		  $semester_str);
 	  continue;
 	}
@@ -159,9 +155,8 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
       $course_level = '';
       $uri = $semester_start_uri;
 
-      if ($verbosity)
-	fprintf(STDERR, "Crawling semester %s->%s\n",
-		$semester_str, $semester_info);
+      school_crawl_logf($school_crawl_log, 6, "Crawling semester %s->%s.",
+			$semester_str, $semester_info);
 
   /*
    * LIST.VAR<X>_<N>: <X> is the column, <N> is the row. There
@@ -247,7 +242,7 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
   $pages = array(1 => 0, 2=> 1);
   while ($pages[1] < $pages[2])
     {
-      $html = calvin_crawl_noscript_filter(school_crawl_geturi($uri, $cookies, $form));
+      $html = calvin_crawl_noscript_filter(school_crawl_geturi($uri, $cookies, $school_crawl_log, $form));
 
       $results_dom = new DOMDocument();
       $results_dom->loadHTML($html);	
@@ -281,16 +276,13 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
 	  if (preg_match(';\(([0-9]+)\);', $sec_short_title, $matches))
 	    $synonym = $matches[1];
 
-	  if ($verbosity > 6)
-	    {
-	      echo "\n";
-	      echo implode('-', $section_id) . ': ' . $sec_short_title . "\n";
-	      echo $openness . "\n";
-	      echo $sec_meeting_info . "\n";
-	      echo $faculty_name . "\n";
-	      echo $credits . "\n";
-	      echo $comment . "\n";
-	    }
+	  school_crawl_logf($school_crawl_log, 10, "");
+	  school_crawl_logf($school_crawl_log, 10, implode('-', $section_id) . ': ' . $sec_short_title);
+	  school_crawl_logf($school_crawl_log, 10, $openness);
+	  school_crawl_logf($school_crawl_log, 10, $sec_meeting_info);
+	  school_crawl_logf($school_crawl_log, 10, $faculty_name);
+	  school_crawl_logf($school_crawl_log, 10, $credits);
+	  school_crawl_logf($school_crawl_log, 10, $comment);
 
 	  /*
 	   * The input format for this is, thankfully, pretty rigid
@@ -319,10 +311,9 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
 	  if (strpos($sec_meeting_info, 'Times to be Announced') !== FALSE
 	      || strpos($sec_meeting_info, 'Days to be Announced') !== FALSE)
 	    {
-	      if ($verbosity > 2)
-		error_log('Skipping class because of incomplete meeting time information: '
-			  . implode('-', $section_id) . ' has meeting info of `'
-			  . $sec_meeting_info . '\'');
+	      school_crawl_logf($school_crawl_log, 8, 'Skipping class because of incomplete meeting time information: '
+				. implode('-', $section_id) . ' has meeting info of `'
+				. $sec_meeting_info . '\'');
 	      $skipped_sections['incomplete meeting info'] ++;
 	      /* Still add to have less confusing autocomplete */
 	      calvin_crawl_course_add($semester, $section_id['department'], $section_id['course']);
@@ -331,8 +322,8 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
 
 	  if (!preg_match(';^([0-9]{2}/[0-9]{2}/[0-9]{4})-([0-9]{2}/[0-9]{2}/[0-9]{4}) (([^ ,]+ )+)([^0-9]+) ([^ ]+) - ([^ ]+), (.*)$;', $sec_meeting_info, $meeting_info_matches))
 	    {
-	      error_log('Unable to parse calvin section meeting info string into start/end/days information for '
-			. implode('-', $section_id) . ': ``' . $sec_meeting_info . '\'\'');
+	      school_crawl_logf($school_crawl_log, 8, 'Unable to parse calvin section meeting info string into start/end/days information for '
+				. implode('-', $section_id) . ': ``' . $sec_meeting_info . '\'\'');
 	      $skipped_sections['invalid meeting info format'] ++;
 	      /*
 	       * Still add at least the course to the semester so that
@@ -351,9 +342,8 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
 	  $time_end = school_crawl_time_format(strptime($meeting_info_matches[7], '%I:%M%p'));
 	  $meeting_place = $meeting_info_matches[8];
 
-	  if ($verbosity > 5)
-	    foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place', 'meeting_type') as $var)
-	      echo $var . ':' . ${$var} . "\n";
+	  foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place', 'meeting_type') as $var)
+	    school_crawl_logf($school_crawl_log, 10, "%s:%s", $var, ${$var});
 
 	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type)), $synonym, $faculty_name);
 	  $semester->section_add($section_id['department'], $section_id['course'], $section);
@@ -380,14 +370,11 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
 
       if (!preg_match(';Page ([0-9]+) of ([0-9]+)\</td\>$;m', $html, $pages))
 	{
-	  error_log('Unable to determine the number of pages in this Calvin resultset');
+	  school_crawl_logf($school_crawl_log, 0, 'Unable to determine the number of pages in this Calvin resultset');
 	  break;
 	}
 
-      if ($verbosity > 0)
-	{
-	  echo 'calvin_crawl(): finished page ' . $pages[1] . ' of ' . $pages[2] . ' with ' . ($list_row - 1) . " courses.\n";
-	}
+      school_crawl_logf($school_crawl_log, 8, "calvin_crawl(): finished page %d of %d with %d courses.", $pages[1], $pages[2], $list_row - 1);
 
       $form = array(
 		    'ACTION*Grp:WSS.COURSE.SECTIONS' => 'NEXT',
@@ -395,23 +382,21 @@ function calvin_crawl(array &$semesters, $verbosity = 1)
     }
 
   $has_stat = FALSE;
-  if ($verbosity > 1)
-    foreach ($skipped_sections as $reason => $num)
-      {
-	if (!$num)
-	  continue;
-	if (!$has_stat)
-	  error_log('Skipped some sections for <reason>: <number skipped>:');
-	error_log($reason . ': ' . $num);
-      }
+  foreach ($skipped_sections as $reason => $num)
+    {
+      if (!$num)
+	continue;
+      if (!$has_stat)
+	school_crawl_logf($school_crawl_log, 7, 'Skipped some sections for <reason>: <number skipped>:');
+      school_crawl_logf($school_crawl_log, 7, "%s: %d", $reason, $num);
+    }
 
     $semester->time_end_set($semester_end_max);
     $semester->time_start_set($semester_start_min);
 
     $semesters[] = $semester;
 
-    if ($verbosity)
-      fprintf(STDERR, "\n");
+    school_crawl_logf($school_crawl_log, 6, "");
     }
 
   return 0;
