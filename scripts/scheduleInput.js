@@ -290,7 +290,7 @@ function add_sections(cnum, data)
 		jQuery('#tr-course-' + classNum).data({course_i: classNum});
 
 		var class_elem = jQuery('.className' + classNum);
-		class_elem.autocomplete({ source: "auto.php" });
+		class_elem.autocomplete({ source: 'auto.php' });
 		class_elem.bind('autocompleteselect', {class_num: classNum, class_elem: class_elem},
 			function(event, ui)
 			    {
