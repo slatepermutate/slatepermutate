@@ -244,7 +244,7 @@ class Schedule
       $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'outputStyle', 'outputPrintStyle', 'displayTables');
     }
     else {
-      $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'uiTabsKeyboard', 'displayTables');
+      $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'jAddress', 'uiTabsKeyboard', 'displayTables');
     }
     $outputPage = page::page_create(htmlentities($this->getName()), $headcode);
     $outputPage->head();
@@ -274,6 +274,14 @@ class Schedule
       echo '<script type="text/javascript">';
       echo '  jQuery(document).ready( function() {';
       echo '    jQuery("#tabs").tabs();';
+      echo '    jQuery.address.change(function(event){';
+      echo '      jQuery("#tabs").tabs( "select" , window.location.hash );';
+      echo '    });';
+      echo '    jQuery("#tabs").bind("tabsselect", function(event, ui) {';
+      echo '      window.location.hash = ui.tab.hash;';
+      echo '    });';
+
+
       echo '    jQuery("#sharedialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });';
       echo '    jQuery("#share").click( function() {
                   jQuery("#sharedialog").dialog("open");
