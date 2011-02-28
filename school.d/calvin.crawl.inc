@@ -394,6 +394,22 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
     $semester->time_end_set($semester_end_max);
     $semester->time_start_set($semester_start_min);
 
+    /*
+     * Calculate lab-based course dependencies.
+     */
+    foreach ($semester->departments_get() as $department)
+      foreach ($semester->department_classes_get($department) as $course)
+        {
+	  $the_course = $semester->class_get($department, $course);
+	  $lab_course = $semester->class_get($department, $course . 'L');
+	  if (!empty($lab_course))
+	    {
+	      $the_course->dependency_add($lab_course);
+	      school_crawl_logf($school_crawl_log, 8, "Adding dependency of %s-%s for %s-%s.",
+				$department, $course . 'L', $department, $course);
+	    }
+	}
+
     $semesters[] = $semester;
 
     school_crawl_logf($school_crawl_log, 6, "");

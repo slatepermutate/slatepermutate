@@ -276,6 +276,16 @@ function add_sections(cnum, data)
 	    section = data.sections[i];
 	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.prof, section.location, section.type);
 	}
+
+    /*
+     * Handle course-level interdependencies.
+     */
+    if (data.dependencies)
+	jQuery.each(data.dependencies, function(i, dep)
+		    {
+			var new_course_num = add_class_n(dep.class);
+			add_sections(new_course_num, dep);
+		    });
 }
 
 	//--------------------------------------------------

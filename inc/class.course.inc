@@ -31,7 +31,14 @@ class Course
   private $name;	// String
   private $sections;	// Array of sections
   private $nsections;	// int
-    
+  /**
+   * \brief
+   *   Other courses that this course depends on.
+   *
+   * Example: Many calvin courses depend on lab courses.
+   */
+  private $dependencies;
+
   /**
    * \brief
    *    Creates a class with the given name.
@@ -43,6 +50,7 @@ class Course
     $this->sections = array();
     $this->name = $n;
     $this->nsections = 0;
+    $this->dependencies = array();
   }
 	
   /**
@@ -111,6 +119,18 @@ class Course
 
   /**
    * \brief
+   *   Add a dependency on another course.
+   *
+   * \param $course
+   *   The other course to depend on.
+   */
+  public function dependency_add(Course $course)
+  {
+    $this->dependencies[] = $course;
+  }
+
+  /**
+   * \brief
    *   Split up a user-friendly course specification into components.
    *
    * This will only return the 'department' and 'course' components of
@@ -148,11 +168,21 @@ class Course
   /**
    * \brief
    *   Represent this class as an array of sections ready to be JSONized.
+   *
+   * \param $recursion_trace
+   *   Only for internal use. Used to prevent infinite recursion.
    */
-  public function to_json_array()
+  public function to_json_array(array $recursion_trace = array())
   {
-    $json_array = array('class' => $this->getName(),
-			'sections' => array());
+    if (!empty($recursion_trace[$this->getName()]))
+      return NULL;
+    $recursion_trace[$this->getName()] = TRUE;
+
+    $json_array = array(
+			'class' => $this->getName(),
+			'sections' => array(),
+			'dependencies' => array(),
+			);
     foreach ($this->sections as $section)
       {
 	$section_json_arrays = $section->to_json_arrays();
@@ -160,6 +190,23 @@ class Course
 	  $json_array['sections'][] = $section_json_array;
       }
 
+    foreach ($this->dependencies as $dependency)
+      {
+	$dependency_json = $dependency->to_json_array($recursion_trace);
+	if (!empty($dependency_json))
+	  $json_array['dependencies'][] = $dependency_json;
+      }
+
     return $json_array;
+  }
+
+  /**
+   * \brief
+   *   Upgrade a course class to a newer version of that class.
+   */
+  public function __wakeup()
+  {
+    if (!isset($this->dependencies))
+      $this->dependencies = array();
   }
 }
