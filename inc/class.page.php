@@ -103,7 +103,7 @@ class page
     $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>';
     $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
-    $this->headCode['jAddress'] = '<script type="text/javascript" src="http://protofusion.org/scripts/jquery.address-1.3.2.min.js"></script>';
+    $this->headCode['jAddress'] = '<script type="text/javascript" src="http://ohnopub.net/js/jquery.address-1.3.2.min.js"></script>';
     $this->headCode['qTip'] = '<script type="text/javascript" src="http://ohnopub.net/js/jquery.qtip-1.0.min.js"></script>';
     $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
     $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css" type="text/css" media="screen" charset="utf-8" />';
