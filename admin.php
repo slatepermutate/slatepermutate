@@ -131,6 +131,8 @@ $adminpage = page::page_create('Administration', $scripts);
   function getMaxSaved()
   {
     $schedule_store = schedule_store_init();
+    if (empty($schedule_store))
+      return -1;
     return schedule_store_getmaxid($schedule_store);
   }
 
