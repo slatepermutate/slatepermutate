@@ -109,11 +109,14 @@ $adminpage = page::page_create('Administration', $scripts);
   }
 
   function getLastRehash(){
-    $stats = stat("cache/schools");
+    $schoollist_filename = 'cache/schools';
+    if (!file_exists($schoollist_filename))
+      return FALSE;
+    $stats = stat($schoollist_filename);
     if(!$stats){
-      return false;
+      return FALSE;
     }
-    return date("F j, Y, g:i a", $stats[9]);
+    return date('F j, Y, g:i a', $stats[9]);
   }
 
   function schoolsDropList()
