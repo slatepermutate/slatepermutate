@@ -296,7 +296,7 @@ function school_instructions_html($school)
  */
 function school_semesters(array $school)
 {
-  if (!$school['crawled'])
+  if (empty($school['crawled']))
     return array();
   return $school['semesters'];
 }
