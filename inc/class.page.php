@@ -217,6 +217,9 @@ class page
 	  '    <title>' . $this->pagetitle . ' - ' . $this->base_title . '</title>'. PHP_EOL .
           '    <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />'.  PHP_EOL .
 	  '    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />'. PHP_EOL .
+          '    <!--[if IE]>'. PHP_EOL .
+          '      <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" href="styles/ie.css" />'. PHP_EOL .
+          '    <![endif]-->'. PHP_EOL .
           '    <link rel="shortcut icon" href="images/favicon.png" />'. PHP_EOL;
 
     // Write out all passed scripts
@@ -249,8 +252,8 @@ class page
   public function foot(){
     echo '      </div> <!-- id="content" -->'. PHP_EOL;
     echo '      <div id="footer">'. PHP_EOL .
-  	 '        <div id="leftfoot" style="float:left; margin-top: 1em;">'. PHP_EOL .
-	 '          <a href="feedback.php">Submit Feedback</a>'. PHP_EOL .
+  	 '        <div id="leftfoot">'. PHP_EOL .
+	 '          <a href="feedback.php">Contact Us</a>'. PHP_EOL .
          '        </div>'. PHP_EOL .
          '        <div id="rightfoot">'. PHP_EOL .
          '          <h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a></h5>'. PHP_EOL .
@@ -272,7 +275,7 @@ class page
     global $clean_urls;
 
     if (isset($session['saved']) && count($session['saved']) > 0) {
-      echo '<div id="savedBox">' . PHP_EOL;
+      echo '<div id="savedBox" class="note saved">' . PHP_EOL;
 
       $process_php_s = 'process.php?s=';
       if ($clean_urls) {

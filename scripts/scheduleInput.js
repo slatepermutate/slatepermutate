@@ -482,6 +482,16 @@ jQuery(document).ready(function() {
 		jQuery('.advanced').slideToggle();
 	});
 
+        //--------------------------------------------------
+        // Show/Hide instructions
+        //--------------------------------------------------
+	jQuery('#schoolInstructionsBox').hide();
+	jQuery('#showInstructions').click( function() {
+		jQuery('#showInstructions').hide();
+		jQuery('#schoolInstructionsBox').slideToggle();
+	});
+
+
 	//-------------------------------------------------
 	// Show more saved schedules
 	//-------------------------------------------------

@@ -26,18 +26,29 @@ body {
 
 #page {
   font: normal 14px sans-serif;
-  background: transparent;
+  background: #ffffff;
   width: 80%;
+  padding: .5em;
   margin:auto;
+  margin-top: 2em;
+
   min-width: 900px;
   max-width: 1100px;
 }
 #content {
+
+  -moz-box-shadow: 0 0 .7em #999;
+  -webkit-box-shadow: 0 0 .7em #999;
+  box-shadow: 0 0 .7em #999; 
+
+  -webkit-border-radius: .2em;
+  -moz-border-radius: .2em;
+  border-radius: .2em;
+
   background: #fff;
-  padding: 12px;
+  padding: 1em;
 }
 #header {
-  border-bottom: 1px dashed #888;
   text-align: left;
   width: 100%;
 }
@@ -47,16 +58,13 @@ body {
   padding: 0;
 }
 #footer {
-  border-top: 1px dashed #888;
   text-align: right;
+  padding-left:1em;
+  padding-right: 1em;
 }
-#savedBox {
-  width: 20em;
-  padding: 1em;
-  border: 1px solid #CCC;
-  float:right;
-  background: #EEE;
-  font-size: .8em;
+#leftfoot {
+  margin-top: 0;
+  float:left;
 }
 #title p {
   margin-top: -1.5em;
@@ -67,7 +75,8 @@ body {
 #menu {
   float: right;
   text-align: right;
-  margin-top: 1em;
+  margin-top: .7em;
+  padding-right: 1em;
 }
 #menu a {
   text-decoration: none;
@@ -100,37 +109,39 @@ a:hover {
 
 
 /* Table Styling */
-
+td {
+  padding: .17em;
+}
+.class td {
+  background: #70a97c; 
+}
+.tdInput {
+  background: none!important; 
+}
 td.center {
   text-align:center;
 }
-.section:nth-child(even) {
-  background: #CCC;
-}
-.section:nth-child(odd) {
+.section:nth-child(even) td {
   background: #EEE;
 }
-.none {
-  background: #fff;
+.section:nth-child(odd) td {
+  background: #CCC;
 }
-.class {
-  /* background: #99FF99; */
-  background: #70a97c;
+.section.lab td {
+  background: #96acc4;
+}
+.none {
+  background: none!important; 
 }
 .emptyCell, .removeCell {
-  background: #fff!important;
-}
-
-.lab {
-  background: #96acc4!important;
+  background: none!important; 
 }
 .lab .sectionIdentifier {
-  background: #fff!important;
+  background: none!important;
 }
 .lab .sectionIdentifier input {
   display: none;
 }
-
 .lab .deleteSection input {
   display: none;
 }
@@ -164,9 +175,6 @@ td.center {
 .paddingtop {
   padding: .5em;
   padding-top: 1.5em;
-}
-.tdInput {
-  background: #fff;
 }
 .addClassRow {
   padding: 2px;
@@ -261,3 +269,103 @@ td.center {
   padding:0!important;
   margin:0!important;
 }
+#container td {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+#savedBox {
+  width: 15em;
+/*  padding: 1em; */
+/*  border: 1px solid #CCC; */
+  float:right;
+/*  background: #EEE; */
+  font-size: .8em;
+/*  margin: 1em; */
+}
+
+
+/*.note a, .note a:link, .note a:visited, .note a:active {
+  color: #CCC;
+}*/
+.note h3 {
+  font-size: 1.5em;
+}
+.note {
+  position:relative;
+  padding:1em 1.5em;
+  margin:2em auto;
+  color:#000;
+  background:#97C02F;
+
+}
+
+.note:before {
+  content:"";
+  position:absolute;
+  top:0;
+  right:0;
+  border-width:0 16px 16px 0; /* This trick side-steps a webkit bug */
+  border-style:solid;
+  border-color:#fff #fff #658E15 #658E15; /* A bit more verbose to work with .rounded too */
+  background:#658E15; /* For Opera when also applying a border-radius */
+  display:block; width:0; /* Only for Firefox 3.0 damage limitation */
+  /* Optional: shadow */
+  -webkit-box-shadow:0 1px 1px rgba(0,0,0,0.3), -1px 1px 1px rgba(0,0,0,0.2);
+     -moz-box-shadow:0 1px 1px rgba(0,0,0,0.3), -1px 1px 1px rgba(0,0,0,0.2);
+          box-shadow:0 1px 1px rgba(0,0,0,0.3), -1px 1px 1px rgba(0,0,0,0.2);
+}
+.note.red {background:#C93213;}
+.note.red:before {border-color:#fff #fff #97010A #97010A; background:#97010A;}
+
+.note.blue {background:#53A3B4;}
+.note.blue:before {border-color:#fff #fff transparent transparent; background:transparent;}
+
+.note.taupe {background:#999868;}
+.note.taupe:before {border-color:#fff #fff #BDBB8B #BDBB8B; background:#BDBB8B;}
+
+.note.saved {background: #eeeeee;}
+.note.saved:before {border-color:#fff #fff transparent transparent; background:transparent;}
+
+
+
+/* Button Stylings */
+
+.button {
+    padding: 5px 10px;
+    display: inline;
+    background: #777 url(../images/button.png) repeat-x bottom;
+    border: none;
+    color: #fff!important; /* kill a styling */
+    text-decoration: none!important; /* kill a styling */
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    text-shadow: 1px 1px #666;
+    }
+.button:hover {
+    background-position: 0 -48px;
+    }
+.button:active {
+    background-position: 0 top;
+    position: relative;
+    top: 1px;
+    padding: 6px 10px 4px;
+    }
+.button.red { background-color: #e50000; }
+.button.purple { background-color: #9400bf; }
+.button.green { background-color: #58aa00; }
+.button.olive { background-color: #309C47 }
+.button.orange { background-color: #ff9c00; }
+.button.blue { background-color: #2c6da0; }
+.button.black { background-color: #333; }
+.button.white { background-color: #fff; color: #000!important; text-shadow: 1px 1px #fff; }
+.button.small { font-size: 75%; padding: 3px 7px; }
+.button.small:hover { background-position: 0 -50px; }
+.button.small:active { padding: 4px 7px 2px; background-position: 0 top; }
+.button.large { font-size: 125%; padding: 7px 12px; }
+.button.large:hover { background-position: 0 -35px; }
+.button.large:active { padding: 8px 12px 6px; background-position: 0 top; }

@@ -183,16 +183,18 @@ $inputPage->showSavedScheds($_SESSION);
 </table>
 
 <div class="paddingtop">
-  <input class="green" style="margin:0;padding:0;" type="submit" value="Find a schedule" />
+  <input class="button olive" type="submit" value="Find a schedule" />
 </div>
 
 </form>
 
-<p>&nbsp;<br /><br /><br /></p>
 <?php 
 
 /* Show/hide Advanced Options: <p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p> */ 
+?>
+<div id="showInstructions" style="width: 100%; text-align: center;"><a href="#">Detailed Instructions...</a></div>
 
+<?php
 $inputPage->showSchoolInstructions();
 $inputPage->foot();
 

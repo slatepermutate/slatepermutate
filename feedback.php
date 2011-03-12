@@ -41,12 +41,12 @@ $n = "\n";
 <input type="hidden" name="fromdom" value="<?php echo $fromdom ?>" />
 <input type="hidden" name="httpagent" value="<?php echo $httpagenti ?>" />
 
-<h2>Feedback Form</h2>
-<label for="nameis">Name: </label><input type="text" name="nameis" size="20" /><br />
-<label for="visitormail">Email:&nbsp; </label><input type="text" name="visitormail" size="20" /> <span class="graytext">(if you want us to get back to you)</span><br />
-<label for="school">School: </label><input type="text" name="school" value="<?php echo htmlentities($school['id']); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span><br />
-
-<br/> Overall Rating:<br/> <input checked="checked" name="rating" type="radio" value="Good" />Good <input name="rating" type="radio" value="Buggy" />Buggy  <input name="rating" type="radio" value="Needs more features" />Needs more features <input name="rating" type="radio" value="Don't know" />Don't Know <!-- ' -->
+<table>
+<tr><td><label for="nameis">Name: </label></td><td><input type="text" name="nameis" size="20" /></td></tr>
+<tr><td><label for="visitormail">Email:</label></td><td><input type="text" name="visitormail" size="20" /> <span class="graytext">(if you want us to get back to you)</span></td></tr>
+<tr><td><label for="school">School: </label></td><td><input type="text" name="school" value="<?php echo htmlentities($school['id']); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
+</table>
+<br/> Overall Rating:<br/> <input checked="checked" name="rating" type="radio" value="Great" />Great <input name="rating" type="radio" value="Usable" />Usable  <input name="rating" type="radio" value="Buggy/Hard to Use" />Buggy/Hard to Use <input name="rating" type="radio" value="Don't know" />Don't Know <!-- ' -->
 
 <br /><br />
 <h3>General Comments</h3>
@@ -67,7 +67,7 @@ $n = "\n";
     }
 ?>
 
-<input class="gray" type="submit" value="Submit Feedback" />
+<input class="gray" type="submit" value="Send Feedback" />
 </form>
 
 <?php
