@@ -109,43 +109,44 @@ a:hover {
 
 
 /* Table Styling */
-td {
+
+#container td {
   padding: .17em;
 }
-.class td {
+#container .class td {
   background: #70a97c; 
 }
-.tdInput {
+#container .tdInput {
   background: none!important; 
 }
-td.center {
+#container td.center {
   text-align:center;
 }
-.section:nth-child(even) td {
+#container .section:nth-child(even) td {
   background: #EEE;
 }
-.section:nth-child(odd) td {
+#container .section:nth-child(odd) td {
   background: #CCC;
 }
-.section.lab td {
+#container .section.lab td {
   background: #96acc4;
 }
-.none {
+#container .none {
   background: none!important; 
 }
-.emptyCell, .removeCell {
+#container .emptyCell, .removeCell {
   background: none!important; 
 }
-.lab .sectionIdentifier {
+#container .lab .sectionIdentifier {
   background: none!important;
 }
-.lab .sectionIdentifier input {
+#container .lab .sectionIdentifier input {
   display: none;
 }
-.lab .deleteSection input {
+#container .lab .deleteSection input {
   display: none;
 }
-.lab .deleteSection:before {
+#container .lab .deleteSection:before {
   content: "LAB";
 }
 
