@@ -294,7 +294,7 @@ function add_sections(cnum, data)
 	function add_class_n(name)
 	{
 		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="10"></td><td class="tdInput"><div class="addSection"><input type="button" value="+" class="gray" /></div></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td></tr>');
+		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="10"></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
 		jQuery('#tr-course-' + classNum).data({course_i: classNum});
@@ -406,7 +406,8 @@ jQuery(document).ready(function() {
 	// Bind the class-adding method
 	//--------------------------------------------------
 	jQuery('#addclass').click(function() {
-		add_class();
+		var classNum = add_class();
+		add_section(classNum);
 	});
 
 	//--------------------------------------------------
