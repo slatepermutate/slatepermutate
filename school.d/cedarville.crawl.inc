@@ -92,6 +92,8 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 
       $semester_year = $semester_name_parts[0];
       $semester_season = strtolower($semester_name_parts[1]);
+      $semester_min_date_start = 0;
+      $semester_max_date_end = 0;
 
       $semester = new Semester($semester_year, $semester_season);
 
@@ -203,17 +205,19 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 	  $meeting_multiple_types = array();
 	  while (strlen($meetings_str) > 5)
 	    {
-	      if (!preg_match(';^ ([A-Z]+) +([A-Z]+[A-Z0-9]*) +([MTWRF]{1,5}) +([0-9:AP]+)-([0-9:AP]+);',
-			      $meetings_str, $meeting_matches))
+	      $meeting_start_regex = ';^';
+	      $meeting_base_regex = ' ([A-Z]+) +([A-Z]+[A-Z0-9]*) +([MTWRF]{1,5}) +([0-9:AP]+)-([0-9:AP]+)';
+	      $meeting_date_regex = 'Dates:[^0-9]+([/0-9]{8})-([/0-9]{8})';
+	      $meeting_end_regex = ';';
+	      if (!preg_match($meeting_start_regex . $meeting_base_regex . $meeting_date_regex . $meeting_end_regex,
+			      $meetings_str, $meeting_matches)
+		  && !preg_match($meeting_start_regex . $meeting_base_regex . $meeting_end_regex,
+				 $meetings_str, $meeting_matches))
 		{
-		  if (preg_match(';^Dates:[^0-9]+([/0-9]{8})-([/0-9]{8});',
+		  if (preg_match($meeting_start_regex . $meeting_date_regex . $meeting_end_regex,
 				 $meetings_str, $meeting_matches))
 		    {
-		      /**
-		       * \todo
-		       *   This is a perfect place to get Semester's
-		       *   time_start and time_end values.
-		       */
+
 		      school_crawl_logf($school_crawl_log, 8, "Skipping some meeting data for %s because it is a date range: `%s'.",
 					implode('-', $section_parts), $meeting_matches[0]);
 		      $meetings_str = substr($meetings_str, strlen($meeting_matches[0]));
@@ -235,6 +239,18 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 	      while (isset($meeting_type_maps[$type]))
 		$type = $meeting_type_maps[$type];
 	      $type = strtolower($type);
+
+	      /* check for daterange information -- i.e., if the first regex successfully matched: */
+	      if (count($meeting_matches) > 7)
+		{
+		  $date_start = school_crawl_mktime(strptime($meeting_matches[6], '%m/%d/%y'));
+		  $date_end = school_crawl_mktime(strptime($meeting_matches[7], '%m/%d/%y'));
+		  if (!empty($date_start) && !empty($date_end))
+		    {
+		      $semester->time_start_set_test($date_start);
+		      $semester->time_end_set_test($date_end);
+		    }
+		}
 
 	      $meetings[] = new SectionMeeting($days, $time_start, $time_end,
 					       $room, $type);
