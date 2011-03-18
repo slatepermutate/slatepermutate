@@ -79,3 +79,9 @@ div.scroller div.section div.txt {
 { 
   display: none;
 }
+
+.top,.multi.,end {
+  -moz-box-shadow: none!important;
+  -webkit-box-shadow: none!important;
+  box-shadow: none!important;
+}

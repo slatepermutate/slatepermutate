@@ -101,6 +101,11 @@ td{
 .class10 { background: #7e2400; color: #fff; }
 .permuteNum { border-bottom: 1px solid #000; font-weight: bold; color: #fff; background: #222; }
 
+.top, .multi, .end {
+  -webkit-box-shadow:0 1px 1px rgba(0,0,0,0.1), -1px 2px 2px rgba(0,0,0,0.6);
+     -moz-box-shadow:0 1px 1px rgba(0,0,0,0.3), -1px 1px 1px rgba(0,0,0,0.2);
+          box-shadow:0 1px 1px rgba(0,0,0,0.3), -1px 1px 1px rgba(0,0,0,0.2);
+}
 #tabs table {
   clear: both;
 }
