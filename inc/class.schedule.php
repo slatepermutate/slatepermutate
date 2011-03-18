@@ -295,7 +295,7 @@ class Schedule
       echo '  });
             </script>';
 
-      echo '<div id="sharedialog" title="Share Schedule"><p>You can share your schedule with the URL below:</p><p>' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</p></div>' . "\n";
+      echo '<div id="sharedialog" title="Share Schedule"><p class="indent"><img class="noborder" src="http://facebook.com/favicon.ico" /> <a target="_blank" href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=My%20Schedule">Share on Facebook</a></p><p class="indent">You can also share your schedule with the URL below:<br /><em class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p></div>' . "\n";
       echo '<p><a href="input.php?s='.$this->id.'" class="button">Edit</a> <span id="printItems"><a href="#" class="button">Print</a></span> <span id="share"><a href="#" class="button">Share</a></span>  <a class="button" href="input.php">Home</a></p>'. "\n";
       echo '<p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p>' . "\n";
       echo '<p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>' . "\n";

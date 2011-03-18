@@ -370,3 +370,10 @@ a:hover {
 .button.large { font-size: 125%; padding: 7px 12px; }
 .button.large:hover { background-position: 0 -35px; }
 .button.large:active { padding: 8px 12px 6px; background-position: 0 top; }
+
+.smallurl {
+  font-size: .9em;
+}
+.indent {
+  margin-left: 1em;
+}
