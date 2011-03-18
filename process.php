@@ -93,7 +93,7 @@ if(!$DEBUG)
       {
 	$savedSched = schedule_store_retrieve($schedule_store, $s);
 	if ($savedSched)
-	  $savedSched->writeoutTables();
+	  $savedSched->writeoutTables($schedule_store);
 	else
 	  page::show_404('Unable to find a saved schedule with an ID of ' . $s . '.');
       }
@@ -122,8 +122,22 @@ if(!$DEBUG)
 	 * it as a schedule to permutate. Then we should redirect the
 	 * user to the canonical URL for that schedule.
 	 */
-		$allClasses = new Schedule($_POST['postData']['name']);
-	
+	$name = '';
+	if (!empty($_POST['postData']['name']))
+	  $name = $_POST['postData']['name'];
+
+	$parent_schedule_id = NULL;
+	if (!empty($_POST['postData']['parent_schedule_id']))
+	  {
+	    $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
+	    $parent_schedule = schedule_store_retrieve($schedule_store, $parent_schedule_id);
+	    /* Detect bad parent_schedule reference. */
+	    if (empty($parent_schedule))
+	      $parent_schedule_id = NULL;
+	  }
+
+	$allClasses = new Schedule($name, $parent_schedule_id);
+
 		foreach($_POST['postData'] as $class)
 		{
 		  /*

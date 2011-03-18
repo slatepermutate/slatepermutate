@@ -52,6 +52,7 @@ class Schedule
   private $possiblePermutations;	// Integer number of possible permutations
   private $scheduleName;			// String name of schedule
   private $storage;				// Integer array of valid schedules
+  /* The <title /> of the page used when rendering this schedule */
   private $title;
 
   /**
@@ -61,16 +62,31 @@ class Schedule
    */
   private $id;
 
+  /*
+   * The identifier of the schedule from which this schedule was
+   * derived or NULL.
+   */
+  private $parent_id;
+
   /**
    * \brief
    *   Create a schedule with the given name.
+   *
+   * \param $name
+   *   A string, the friendly name the user gave this schedule.
+   * \param $parent
+   *   An integer, the id of the schedule from which this schedule is
+   *   derived. A schedule is considered to be derived of another of
+   *   the user created this schedule by clicking ``Edit'' for the
+   *   previous schedule. Or NULL if this schedule stands on its own.
    */
-  function __construct($name)
+  function __construct($name, $parent = NULL)
   {
     $this->courses = array();
     $this->scheduleName = $name;
     $this->storage = array();
     $this->title = "SlatePermutate - Scheduler";
+    $this->parent_id = $parent;
 
     /* mark this as an upgraded Schedule class. See __wakeup() */
     $this->nclasses = -1;
@@ -206,10 +222,16 @@ class Schedule
       } while($counter < $this->possiblePermutations);
   }
     
+  /**
+   * \brief
+   *   Prints out the possible permutations in tables.
+   *
+   * \param $schedule_store
+   *   The schedule_store handle with which this schedule was loaded,
+   *   used to query the parent schedule.
+   */
   //--------------------------------------------------
-  // Prints out the possible permutations in tables.
-  //--------------------------------------------------
-  function writeoutTables()
+  function writeoutTables(array $schedule_store = NULL)
   {
     $filled = false;
     $time = array(700,730,800,830,900,930,1000,1030,1100,1130,1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,1800,1830,1900,1930,2000,2030,2100,2130, 2200);
@@ -264,7 +286,7 @@ class Schedule
 
     }
     else {
-      echo '<script type="text/javascript">';
+      echo '        <script type="text/javascript">';
       echo '  jQuery(document).ready( function() {';
       echo '    jQuery("#tabs").tabs();';
       echo '    jQuery.address.change(function(event){';
@@ -284,15 +306,28 @@ class Schedule
 	        });
 	        jQuery(\'#cancelItems\').click( function() {
 		  jQuery(\'#selectItemsInput\').hide();
-	        });';
-      echo '  });
-            </script>';
+	        });'
+	. '  });' . PHP_EOL
+	. '        </script>' . PHP_EOL;
 
-      echo '<div id="sharedialog" title="Share Schedule"><p class="indent"><img class="noborder" src="http://facebook.com/favicon.ico" /> <a target="_blank" href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=My%20Schedule">Share on Facebook</a></p><p class="indent">You can also share your schedule with the URL below:<br /><em class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p></div>' . "\n";
-      echo '<p><a href="input.php?s='.$this->id.'" class="button">Edit</a> <span id="printItems"><a href="#" class="button">Print</a></span> <span id="share"><a href="#" class="button">Share</a></span>  <a class="button" href="input.php">Home</a></p>'. "\n";
-      echo '<p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p>' . "\n";
-      echo '<p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>' . "\n";
+      echo '        <div id="sharedialog" title="Share Schedule">' . PHP_EOL
+	. '          <p class="indent"><img class="noborder" src="http://facebook.com/favicon.ico" /> <a target="_blank" href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=My%20Schedule">Share on Facebook</a></p><p class="indent">You can also share your schedule with the URL below:<br /><em class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p>' . PHP_EOL
+	. '        </div>' . PHP_EOL
+	. '        <p>' . PHP_EOL
+	. '          <a href="input.php?s='.$this->id.'" class="button">Edit</a>' . PHP_EOL
+	. '          <span id="printItems"><a href="#" class="button">Print</a></span>' . PHP_EOL
+	. '          <span id="share"><a href="#" class="button">Share</a></span>' . PHP_EOL;
 
+
+      if ($schedule_store !== NULL
+	  && $this->parent_get() !== NULL
+	  && ($parent_schedule = schedule_store_retrieve($schedule_store, $this->parent_get())) !== NULL)
+	echo '          <a class="button" href="' . htmlentities($parent_schedule->url()) . '" title="Parent schedule: ' . htmlentities($parent_schedule->getName()) . '">Parent</a>' . PHP_EOL;
+
+      echo '          <a class="button" href="input.php">Home</a>' . PHP_EOL
+	. '        </p>'. PHP_EOL
+	. '        <p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p>' . PHP_EOL
+	. '        <p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>' . PHP_EOL;
     }		
 
     echo "\n";
@@ -598,6 +633,16 @@ class Schedule
 
   /**
    * \brief
+   *   Get the ID of the schedule from which this schedule was
+   *   derived.
+   */
+  public function parent_get()
+  {
+    return $this->parent_id;
+  }
+
+  /**
+   * \brief
    *   A magic function which tries to upgrade old serialized sections
    *   to the new format.
    */
@@ -613,5 +658,8 @@ class Schedule
 	$this->courses[] = $classes->to_course();
       }
     $this->nclasses = -1;
+
+    if (empty($this->parent_id))
+      $this->parent_id = NULL;
   }
 }

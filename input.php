@@ -31,11 +31,12 @@ $schedule_store = FALSE;
 $sch = FALSE;
 $school = $inputPage->get_school();
 
+$parent_schedule_id = NULL;
 if (isset($_REQUEST['s']))
   {
     $schedule_store = schedule_store_init();
-    $schedule_id = (int)$_REQUEST['s'];
-    $sch = schedule_store_retrieve($schedule_store, $schedule_id);
+    $parent_schedule_id = (int)$_REQUEST['s'];
+    $sch = schedule_store_retrieve($schedule_store, $parent_schedule_id);
   }
 
 $my_hc = 'var slate_permutate_example_course_id = \'' . str_replace('\'', '\\\'', school_example_course_id($inputPage->get_school())) . '\';
@@ -135,7 +136,10 @@ $inputPage->showSavedScheds($_SESSION);
 
 <form method="post" action="process.php" id="scheduleForm">
 <p class="nospace" style="border-left: 5px solid #999; padding-left: 5px!important; padding-top: 5px!important;"><label>Schedule Name</label><br />
-  <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="Spring 2011" name="postData[name]" <?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; /*"*/ ?> />
+  <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="Spring 2011" name="postData[name]" <?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; ?> />
+  <?php if (!empty($parent_schedule_id)): ?>
+  <input type="hidden" name="postData[parent_schedule_id]" value="<?php echo htmlentities($parent_schedule_id); ?>" />
+  <?php endif; ?>
 </p>
 
 <table id="container">
