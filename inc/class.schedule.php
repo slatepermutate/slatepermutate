@@ -60,12 +60,6 @@ class Schedule
    *   is processed and first saved.
    */
   private $id;
-  /**
-   * The input format of the sections. Only used for the UI. Valid
-   * values are 'numerous' for custom, 'numbered' for numeric, and 'lettered' for
-   * alphabetical.
-   */
-  public $section_format;
 
   /**
    * \brief
@@ -77,7 +71,6 @@ class Schedule
     $this->scheduleName = $name;
     $this->storage = array();
     $this->title = "SlatePermutate - Scheduler";
-    $this->section_format = 'numerous';
 
     /* mark this as an upgraded Schedule class. See __wakeup() */
     $this->nclasses = -1;
