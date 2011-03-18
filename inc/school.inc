@@ -329,16 +329,38 @@ function school_semester_guess(array $school)
       && isset($semesters[$_SESSION['semester']]))
       return $semesters[$_SESSION['semester']];
 
-  $time = time();
-  $next_semester = FALSE;
+  /*
+   * The following is the most _common_ scenario:
+   *
+   * A student is looking ahead in the last half of March (3) to
+   * register for a semester starting in September (9) and ending in
+   * December. Thus, looking 6 months into the future may put us right
+   * in the middle of the desired semester, also considering that
+   * during the summer (6) one is looking to register for a fall
+   * semester which ends in December (12).
+   */
+  $time_target = time() + 60*60*24*365.25 * 0.5;
+
   $semester = NULL;
+  /* guessed semester */
+  $best_semester = NULL;
+  /*
+   * The absolute value of the difference between the $time_target and
+   * the middle of the guessed semester. Smaller is better.
+   */
+  $best_score = -1;
   foreach ($semesters as $semester)
     {
-      if ($next_semester)
-	return $semester;
-      if ($semester['time_start'] < $time)
-	$next_semester = TRUE;
+      $my_score = abs(($semester['time_end'] + $semester['time_start']) / 2 - $time_target);
+      if ($best_score == -1 || $my_score < $best_score)
+	{
+	  $best_semester = $semester;
+	  $best_score = $my_score;
+	}
+      error_log($semester['name'] . ': ' . $my_score);
     }
+  if (!empty($best_semester))
+    return $best_semester;
   return $semester;
 }
 
