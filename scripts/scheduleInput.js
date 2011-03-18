@@ -407,7 +407,7 @@ jQuery(document).ready(function() {
 	//--------------------------------------------------
 	jQuery('#addclass').click(function() {
 		var classNum = add_class();
-		add_section(classNum);
+		// add_section(classNum); // enable eventually
 	});
 
 	//--------------------------------------------------
