@@ -136,7 +136,7 @@ $inputPage->showSavedScheds($_SESSION);
 
 <form method="post" action="process.php" id="scheduleForm">
 <p class="nospace" style="border-left: 5px solid #999; padding-left: 5px!important; padding-top: 5px!important;"><label>Schedule Name</label><br />
-  <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="Spring 2011" name="postData[name]" <?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; ?> />
+  <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="<?php echo $inputPage->semester['name'] ?>" name="postData[name]" <?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; ?> />
   <?php if (!empty($parent_schedule_id)): ?>
   <input type="hidden" name="postData[parent_schedule_id]" value="<?php echo htmlentities($parent_schedule_id); ?>" />
   <?php endif; ?>
