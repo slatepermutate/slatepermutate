@@ -283,7 +283,7 @@ function add_sections(cnum, data)
     if (data.dependencies)
 	jQuery.each(data.dependencies, function(i, dep)
 		    {
-			var new_course_num = add_class_n(dep.class);
+			var new_course_num = add_class_n(dep['class']);
 			add_sections(new_course_num, dep);
 		    });
 }
