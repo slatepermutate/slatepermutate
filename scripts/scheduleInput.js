@@ -252,6 +252,28 @@ function add_sections(cnum, data)
 		jQuery('#tr-course-' + classNum).data({course_i: classNum});
 
 		var class_elem = jQuery('.className' + classNum);
+
+
+		/*
+		 * Don't let the user accidentally submit the form by
+		 * pressing <ENTER>. Instead, select the first
+		 * autocomplete result if possible.
+		 */
+		class_elem.bind('keyup keydown', function(e)
+				  {
+				      /* <ENTER> is 13 */
+				      if (e.which == 13)
+					  {
+					      /*
+					       * The user has pressed enter before selecting an autocomplete entry, which means the
+					       * form will be submitted without his expecting it to be. We yet need code
+					       * to figure out what the first autocomplete result is :-/.
+					       */
+					      return false;
+					  }
+				      return true;
+				  });
+
 		class_elem.autocomplete({ source: 'auto.php' });
 		class_elem.bind('autocompleteselect', {class_num: classNum, class_elem: class_elem},
 			function(event, ui)
