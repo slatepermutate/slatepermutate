@@ -246,7 +246,7 @@ function add_sections(cnum, data)
 		course_remove(slate_permutate_course_free);
 
 		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="10"></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button class="addSection gray">+</button></td></tr>');
+		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="10"></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
 		jQuery('#tr-course-' + classNum).data({course_i: classNum});
