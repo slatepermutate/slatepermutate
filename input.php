@@ -60,12 +60,11 @@ else
     $default_courses = school_default_courses($school);
     foreach ($default_courses as $default_class)
       $my_hc .= input_class_js($default_class, '    ');
-    $my_hc .= '    class_last = add_class();
-';
   }
+$my_hc .= '    class_last = add_class();' . PHP_EOL;
 if ($qtips_always || !isset($_SESSION['saw_qtips']))
   {
-    $my_hc .= '        addTips();' . PHP_EOL;
+    $my_hc .= '    addTips();' . PHP_EOL;
     $_SESSION['saw_qtips'] = TRUE;
   }
 $my_hc .= '  });

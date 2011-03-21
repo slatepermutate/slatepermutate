@@ -22,8 +22,38 @@
     //--------------------------------------------------
 
 var classNum = 0;
+
+/**
+ * \brief
+ *   The number of section entries for a given course.
+ *
+ * Key is course_i, value is the current number of sections.
+ */
 var sectionsOfClass = new Array();
 
+/**
+ * \brief
+ *   Help to generate a unique section identifier for each section
+ *   added to a given course.
+ *
+ * Necessary to support PHP-style post array thingies, like
+ * classes[0][1][$x] would be all of the data for course_i=0,
+ * section_i=1, variable $x (ex. day of week, start time, end time,
+ * teacher). We can't have two sections for a given course using the
+ * same section_i because those values would override eachother.
+ */
+var last_section_i = 0;
+
+/*
+ * \brief
+ *   The course number which contains nothing.
+ *
+ * To avoid having a user need to click the ``Add course'' button, we
+ * keep a course added at the end of the list of courses. If this
+ * variable is -1, it indicates that no such free course exists. If it
+ * is zero or greater, that number is the class which is the free one.
+ */
+var slate_permutate_course_free = -1;
 
     //--------------------------------------------------
     // Validation Functions
@@ -94,7 +124,7 @@ jQuery.validator.addMethod('classRequired',
 				* to delete the class because of how
 				* our numbering works.
 				*/
-			       if (!sectionsOfClass[cnum])
+			       if (!course_has_sections(cnum))
 				   return true;
 
 			       return false;
@@ -129,7 +159,7 @@ function genSectionHtml(cnum)
 /* @TODO: This should select & set items based on args, if the args != '' */
 function genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location, type)
 {
-		var snum = sectionsOfClass[cnum];
+    var snum = last_section_i ++;
 		
 		var cssclasses = 'section class' + cnum;
 		if(type == 'lab') {
@@ -249,6 +279,9 @@ function add_section_n(cnum, name, synonym, stime, etime, days, prof, location, 
     jQuery('.pclass'+cnum).after(genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location, type));
     sectionsOfClass[cnum] ++;
 
+    /* store course_i in a place the newly added section will look for it */
+    jQuery('.pclass' + cnum).next().data({course_i: cnum});
+
     /* unhide the saturday columns if it's used by autocomplete data */
     if (days.s)
 	jQuery('#jsrows col.saturday').removeClass('collapsed');
@@ -293,8 +326,15 @@ function add_sections(cnum, data)
 	//--------------------------------------------------
 	function add_class_n(name)
 	{
+	    /*
+	     * If we're adding a course entry form with preadded
+	     * content, first remove the empty course.
+	     */
+	    if (name.length && slate_permutate_course_free != -1)
+		course_remove(slate_permutate_course_free);
+
 		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="10"></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"></td></tr>');
+		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="10"></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
 		jQuery('#tr-course-' + classNum).data({course_i: classNum});
@@ -350,11 +390,97 @@ function add_sections(cnum, data)
 
 		return (classNum - 1);
 	}
+
+/**
+ * \brief
+ *   Ensure that there is an empty course entry and return its
+ *   identifier.
+ */
 function add_class()
 {
-    return add_class_n('');
+    /*
+     * Don't add an empty new course entry if there already is
+     * one. Otherwise, set this new class to be the ``hot'' one.
+     */
+    if (slate_permutate_course_free == -1)
+	slate_permutate_course_free = add_class_n('');
+    return slate_permutate_course_free;
 }
 
+/**
+ * \brief
+ *   Remove a course entry.
+ *
+ * Ensures that slate_permutate_course_free is kept consistent.
+ *
+ * \param course_i
+ *   The internal JS identifer for the course (not the course_id which
+ *   the PHP cares about).
+ */
+function course_remove(course_i)
+{
+    jQuery('.class' + course_i).remove();
+
+    /*
+     * Check if the class intended for the user to
+     * enter information into has been removed.
+     */
+    if (slate_permutate_course_free == course_i)
+	slate_permutate_course_free = -1;
+}
+
+/**
+ * \brief
+ *   Figure whether or not a given course entry has sections.
+ *
+ * \param course_i
+ *   The internal javascript representation of a course entry.
+ * \return
+ *   true or false.
+ */
+function course_has_sections(course_i)
+{
+    return sectionsOfClass[course_i] > 0;
+}
+
+/**
+ * \brief
+ *   Figure out whether or not an empty course entry has become filled
+ *   or whether a full course has become emptied and react.
+ *
+ * This mainly ensures that there is always exactly one course entry
+ * spot, eliminating the need of an ``Add class'' button.
+ *
+ * \param that
+ *   If this is not being called as a 'change' or 'keyup' event
+ *   handler for a <input class="className"/>, then that may refer to
+ *   a jQuery object representing the <input class="className"/> to
+ *   inspect.
+ */
+function course_free_check(that)
+{
+    var me;
+    if (jQuery.type(that) == 'undefined')
+	me = that;
+    else
+	me = jQuery(this);
+
+    var course_i = me.parent().parent().data('course_i');
+    if (course_i == slate_permutate_course_free && (me.val().length || course_has_sections(course_i)))
+	{
+	    /* I am no longer the empty course entry */
+	    slate_permutate_course_free = -1;
+	    add_class();
+	}
+    if (course_i != slate_permutate_course_free && !(me.val().length || course_has_sections(course_i)))
+	{
+	    /* I am now an empty course entry */
+	    /* kill an other empty course entry if it exists... */
+	    if (slate_permutate_course_free != -1)
+		course_remove(slate_permutate_course_free);
+	    slate_permutate_course_free = course_i;
+	}
+}
 
 /**
  * \brief
@@ -415,7 +541,7 @@ jQuery(document).ready(function() {
 	//--------------------------------------------------
 	jQuery('.deleteClass').live('click', function() {
 		if(confirm('Delete class and all sections of this class?')) {
-		    jQuery('.class' + jQuery(this).parent().parent().data('course_i')).remove();
+		    course_remove(jQuery(this).parent().parent().data('course_i'));
 		}
 	});
 
@@ -424,8 +550,10 @@ jQuery(document).ready(function() {
 	//--------------------------------------------------
 	jQuery('.deleteSection').live('click', function() {
 	  // Decreases the total number of classes
-		sectionsOfClass[jQuery(this).parent().parent().data('course_i')]--;
-	  
+		var course_i = jQuery(this).parent().parent().data('course_i');
+		sectionsOfClass[course_i]--;
+		course_free_check(jQuery('.pclass' + course_i + ' .className'));
+
 	  // Find the ID cell of the row we're in
 	  var row = jQuery(this).parent().parent().find(".sectionIdentifier");
 
@@ -442,15 +570,16 @@ jQuery(document).ready(function() {
 		jQuery(this).remove();
 	    }
 	  });
-
 	});
+
+	jQuery('.className').live('change', course_free_check).live('keyup', course_free_check);
 
 	//--------------------------------------------------
 	// Bind the section-adding method
 	//--------------------------------------------------
 	jQuery('.addSection').live('click', function() {
 		var course_i = jQuery(this).parent().parent().data('course_i');
-		add_section(course_i, sectionsOfClass[course_i]);
+		add_section(course_i);
 	});
 
 	//--------------------------------------------------
