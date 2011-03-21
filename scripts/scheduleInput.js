@@ -436,14 +436,6 @@ function prettyTime(time_str)
 jQuery(document).ready(function() {
 
 	//--------------------------------------------------
-	// Bind the class-adding method
-	//--------------------------------------------------
-	jQuery('#addclass').click(function() {
-		var classNum = add_class();
-		// add_section(classNum); // enable eventually
-	});
-
-	//--------------------------------------------------
 	// Deletes the selected class from input
 	//--------------------------------------------------
 	jQuery('.deleteClass').live('click', function() {

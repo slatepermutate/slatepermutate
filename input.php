@@ -180,9 +180,6 @@ $inputPage->showSavedScheds($_SESSION);
       </table>
     </td>
   </tr>
-  <tr>
-    <td><span class="gray" style="padding: 0 3.5em 0 3.5em;" id="addclass">Add Class</span></td>
-  </tr>
 </table>
 
 <div class="paddingtop">
