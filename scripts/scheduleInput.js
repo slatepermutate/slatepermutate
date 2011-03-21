@@ -44,7 +44,7 @@ var sectionsOfClass = new Array();
  */
 var last_section_i = 0;
 
-/*
+/**
  * \brief
  *   The course number which contains nothing.
  *
@@ -55,97 +55,9 @@ var last_section_i = 0;
  */
 var slate_permutate_course_free = -1;
 
-    //--------------------------------------------------
-    // Validation Functions
-    //--------------------------------------------------      
-
-	//--------------------------------------------------
-	// Default Error Message
-	//--------------------------------------------------
-	jQuery.each(jQuery.validator.messages, function(i) {
-		jQuery.validator.messages[i] = "<p class=\"error\">Please fill the field</p>";
-	});
-
-	//--------------------------------------------------
-	// Time Selection Validation
-	//--------------------------------------------------
-	jQuery.validator.addMethod( 
-		"selectNone", 
-		function(value, element) { 
-			if (element.value == "none") { 
-				return false; 
-			} 
-			else return true; 
-		}, 
-		"<p class=\"error\">Please select a time</p>"); 
-	
-	//--------------------------------------------------
-	// Days of Week validation
-	//--------------------------------------------------
-	jQuery.validator.addMethod( 
-		"daysRequired", 
-		function(value, element) { 
-			var checkedCount = 0;
-			jQuery(element).parent().parent().children().children('.daysRequired:checked').each( function() {
-				checkedCount++;
-			});
-			if (checkedCount === 0) { 
-				return false; 
-			} 
-			else return true; 
-		}, 
-		"<p class=\"error\">Select a day!</p>"); 
-
-/**
- * Class name validation: only require a class name if it has at least
- * one section. Backend throws out empty classes and it's more
- * convenient if we can let the user have one extra, empty class. This
- * is because we automatically add a new class each time we do an
- * autofill to make the life of the user easier and less confusing.
+/*
+ * General Input Functions
  */
-jQuery.validator.addMethod('classRequired',
-			   function(value, element)
-			   {
-			       if (value.length)
-				   return true;
-
-			       var css_classes = jQuery(element).attr('class');
-			       var cnum_pos = css_classes.indexOf('className');
-			       var cnum = css_classes.substr(cnum_pos + 'className'.length, css_classes.indexOf(' ', cnum_pos) - cnum_pos - 'className'.length) * 1;
-			       if (cnum < 0 || cnum > classNum)
-				   alert('JS error: ' + cnum + ' is an invalid class number.');
-
-			       /*
-				* ignore the class with no
-				* sections. This only works when the
-				* class was added and the user _never_
-				* clicked the Add Section button. Once
-				* the user clicks that button, he has
-				* to delete the class because of how
-				* our numbering works.
-				*/
-			       if (!course_has_sections(cnum))
-				   return true;
-
-			       return false;
-			   },
-			   '<p class="error">Enter Class Name.</p>');
-
-	//--------------------------------------------------
-	// Add validation rules
-	//--------------------------------------------------
-	jQuery.validator.addClassRules("selectRequired", {
-		selectNone: true
-	});
-	jQuery.validator.addClassRules("daysRequired", {
-		daysRequired: true
-	});
-jQuery.validator.addClassRules('classRequired', { classRequired: true });
-
-
-    //--------------------------------------------------
-    // General Input Functions
-    //--------------------------------------------------
 
 /**
  * \brief
@@ -522,11 +434,6 @@ function prettyTime(time_str)
 // Items bound to pageload/events
 //--------------------------------------------------
 jQuery(document).ready(function() {
-
-	//--------------------------------------------------
-	// Validates the form (pre-submission check)
-	//--------------------------------------------------
-	jQuery('#scheduleForm').validate({ debug: false });
 
 	//--------------------------------------------------
 	// Bind the class-adding method
