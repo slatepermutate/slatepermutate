@@ -154,6 +154,19 @@ class Schedule
   //--------------------------------------------------
 	function findPossibilities()
 	{
+	  /*
+	   * Clean crud (completely empty courses) out of the
+	   * schedule. For some crud, it's much easier to detect that
+	   * it's crud now than during parsing of postData[].
+	   */
+	  foreach ($this->courses as $i => $course)
+	    if (!$course->getnsections())
+	      {
+		unset($this->courses[$i]);
+		$this->courses = array_values($this->courses);
+		return $this->findPossibilities();
+	      }
+
 		$this->possiblePermutations = 1;
 		/* special case: there is nothing entered into the schedule and thus there is one, NULL permutation */
 		if (!count($this->courses))
