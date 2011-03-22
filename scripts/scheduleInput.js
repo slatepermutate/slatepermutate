@@ -198,10 +198,15 @@ function add_section_n(cnum, name, synonym, stime, etime, days, prof, location, 
     /* unhide the saturday columns if it's used by autocomplete data */
     if (days.s)
 	jQuery('#jsrows col.saturday').removeClass('collapsed');
+
+    return last_section_i - 1;
 }
 function add_section(cnum)
 {
-    return add_section_n(cnum, '', '', '', '', {m: false, t: false, w: false, h: false, f: false, s: false}, '', '', '');
+    var section_i = add_section_n(cnum, '', '', '', '', {m: false, t: false, w: false, h: false, f: false, s: false}, '', '', '');
+    if (cnum == slate_permutate_course_free)
+	course_free_check(cnum);
+    return section_i;
 }
 
 /**
@@ -386,21 +391,20 @@ function course_has_sections(course_i)
  * This mainly ensures that there is always exactly one course entry
  * spot, eliminating the need of an ``Add class'' button.
  *
- * \param that
+ * \param course_i
  *   If this is not being called as a 'change' or 'keyup' event
- *   handler for a <input class="className"/>, then that may refer to
- *   a jQuery object representing the <input class="className"/> to
- *   inspect.
+ *   handler for a <input class="className"/>, then course_i may refer to
+ *   a the course_i to check.
  */
-function course_free_check(that)
+function course_free_check(course_i)
 {
     var me;
-    if (jQuery.type(that) == 'undefined')
-	me = that;
+    if (jQuery.type(course_i) == 'number')
+	me = jQuery('.pclass' + course_i + ' .className');
     else
 	me = jQuery(this);
 
-    var course_i = me.parent().parent().data('course_i');
+    course_i = me.parent().parent().data('course_i');
     if (course_i == slate_permutate_course_free && (me.val().length || course_has_sections(course_i)))
 	{
 	    /* I am no longer the empty course entry */
@@ -474,7 +478,6 @@ jQuery(document).ready(function() {
 	  // Decreases the total number of classes
 		var course_i = jQuery(this).parent().parent().data('course_i');
 		sectionsOfClass[course_i]--;
-		course_free_check(jQuery('.pclass' + course_i + ' .className'));
 
 	  // Find the ID cell of the row we're in
 	  var row = jQuery(this).parent().parent().find(".sectionIdentifier");
@@ -492,6 +495,7 @@ jQuery(document).ready(function() {
 		jQuery(this).remove();
 	    }
 	  });
+	  course_free_check(course_i);
 	});
 
 	jQuery('.className').live('change', course_free_check).live('keyup', course_free_check);
