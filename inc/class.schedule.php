@@ -405,7 +405,7 @@ class Schedule
 	if ($sort_time)
 	  sort($time);
 
-        echo '<div id="regDialog" title="Registration Codes"><p>Enter these codes into your school\'s online course registration system to register for classes:</p><div id="regDialogList"></div></div>';
+        echo '<div id="regDialog" title="Registration Codes"></div>';
 	echo '<div id="tabs">' . "\n" .
                '<div id="show-box" class="show-buttons">
                   <form action="#"><p class="nospace">
@@ -442,7 +442,14 @@ class Schedule
 		
 	for($i = $first_permutation; $i < $last_permutation; $i++)
 	  {
-             $syns = array();
+	    /*
+	     * Store a JSON list of courses, each with only the one
+	     * section rendered in this permutation. This is used for
+	     * the ``Registration Numbers'' dialog which noramlly
+	     * shows users course synonyms.
+	     */
+	    $permutation_courses = array();
+
 	     echo  '      <div class="section" id="tabs-' . ($i+1) . "\">\n";
   
 	    // Beginning of table
@@ -518,7 +525,15 @@ class Schedule
 					. '<span class="location block">' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . "</span>\n"
 					. '<span class="synonym block">' . htmlentities($section->getSynonym(), ENT_QUOTES) . "</span>\n"
 					. "</td>\n";
-				      $syns[$section->getSynonym()] = $section->getSynonym();
+
+				      /* for the ``Registration Codes'' dialogue: */
+				      if (empty($permutations_courses[$section->getSynonym()]))
+					{
+					  $singleton_course = new Course($course->getName());
+					  $singleton_course->section_add($section);
+					  $permutation_courses[$section->getSynonym()] = $singleton_course->to_json_array();
+					}
+
 				      $filled = TRUE;
 				    }
 			}
@@ -542,11 +557,11 @@ class Schedule
 		echo "          </tr>\n";
 	      }
 
-
-
+	    /* presort */
+	    ksort($permutation_courses);
 	    // End of table
 	    echo "        </table>\n"
-              . '         <span class="syns syns'.$i.'">'.  json_encode($syns) . "</span>\n"
+              . '         <span class="course-data course-data-'.$i.'">'.  htmlentities(json_encode($permutation_courses)) . "</span>\n"
 	      . '      </div> <!-- id="section' . ($i + 1) . "\" -->\n";
 	  }
 

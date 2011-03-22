@@ -404,6 +404,48 @@ function school_example_course_id(array $school)
 
 /**
  * \brief
+ *   Populate a ``Registration Codes'' dialog.
+ *
+ * A school may override the default output by writing a function with
+ * the same signature and semantics as this function with a name of
+ * <school_id>_registration_html().
+ *
+ * \param $page
+ *   The page object; used to conditionally format code as HTML or
+ *   XHTML. Remember, you are writing an XHTML fragment and should not
+ *   call Page::foot() or Page::head().
+ * \param $school
+ *   The school handle.
+ * \param $courses
+ *   An array of courses, where each course only has one section which
+ *   is the section which the user chose.
+ * \return
+ *   A string which is a valid XHTML fragment. This fragment should
+ *   direct the user to his school's registration services. It should
+ *   also render the list of sections in a way appropriate to that
+ *   school -- such as a list of fully-qualified section_ids or a
+ *   listing of section synonyms.
+ */
+function school_registration_html(Page $page, array $school, array $courses)
+{
+  /*
+   * The school from which to call the <school_id>_registration_html()
+   * function. Used to fall back onto the 'default' school if the
+   * selected school doesn't have a <school_id>_registration_html().
+   */
+  $function_school = $school;
+  if (!function_exists($function_school['id'] . '_registration_html'))
+    {
+      $function_school = school_load('default');
+      if (!function_exists($function_school['id'] . '_registration_Html'))
+	return '<div class="error">Unable to load generic <tt>school_registration_html()</tt> function.</div>';
+    }
+  $school_registration_html = $function_school['id'] . '_registration_html';
+  return $school_registration_html($page, $school, $courses);
+}
+
+/**
+ * \brief
  *   Determine if a school has crawler data stored.
  *
  * \param $school

@@ -77,7 +77,7 @@ class SectionMeeting
    *
    * \param $days_str
    *   The days of the week in a string format. One char per
-   *   day. Mon-Fri is represented with 'm', 't', 'w', 'h', 'f'.
+   *   day. Mon-Sat is represented with 'm', 't', 'w', 'h', 'f', 's'.
    */
   private function days_set($days_str)
   {
@@ -225,5 +225,23 @@ class SectionMeeting
       $json_array['days'][$daymap[$day]] = $this->getDay($day);
 
     return $json_array;
+  }
+
+  /**
+   * \brief
+   *   Parse a JSON array into a SectionMeeting.
+   *
+   * \param $json_array
+   *   The JSON array to parse.
+   * \return
+   *   A shiny, new SectionMeeting.
+   */
+  public static function from_json_array(array $json_array)
+  {
+    $days = '';
+    foreach ($json_array['days'] as $day => $meets)
+      if ($meets)
+	$days .= $day;
+    return new SectionMeeting($days, $json_array['time_start'], $json_array['time_end'], $json_array['location'], $json_array['type']);
   }
 }

@@ -18,6 +18,9 @@
  * along with slate_permutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+$inc_dir = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR;
+require_once $inc_dir . 'class.page.php';
+
 function default_info()
 {
   return array('name' => 'Generic College',
@@ -50,4 +53,26 @@ function default_instructions_html()
   <li>Wait until it's your turn to register and grab your preferred sections before they fill up!</li>
 </ol>
 EOF;
+}
+
+/**
+ * \brief
+ *  A generic fallback for school_registration_html().
+ *
+ * \see school_registration_html()
+ */
+function default_registration_html(Page $page, array $school, array $courses)
+{
+  $html = ''
+    . '  <p>' . PHP_EOL
+    . '    Enter these codes into your school\'s online course registration' . PHP_EOL
+    . '    system (<a href="' . htmlentities($school['url']) . '">' . htmlentities($school['name']) . '\'s website</a>)' . PHP_EOL
+    . '    to register for classes:' . PHP_EOL
+    . '  </p>' . PHP_EOL
+    . '  <ul class="synonym-list">' . PHP_EOL;
+  foreach ($courses as $course)
+    foreach ($course as $section)
+      $html .= '    <li>' . htmlentities($section->getSynonym()) . '</li>' . PHP_EOL;
+  $html .= '  </ul>' . PHP_EOL;
+  return $html;
 }

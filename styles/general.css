@@ -256,13 +256,13 @@ a:hover {
   padding:0;
   margin:0;
 }
-.syns {
+.course-data {
   display:none;
 }
 #regCodes {
   float: right;
 }
-.synList {
+.synonym-list {
   margin-left: 1em;
 }
 

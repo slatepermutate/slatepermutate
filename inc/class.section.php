@@ -225,6 +225,42 @@ class Section
     return $json_arrays;
   }
 
+  /**
+   * \brief
+   *   Parse a set of JSON arrays into a Section.
+   *
+   * When this function was written, the JS frontend did not yet have
+   * support for directly supporting sections +
+   * section_meetings. Thus, multiple section meetings were simluated
+   * by having multiple sections with the same section letter. Thus,
+   * multiple ``sections'' of JSON are necessary to form together one
+   * section.
+   *
+   * Thus, the caller must ensure that there is only one section in
+   * the passed-in $json_arrays.
+   *
+   * \param $json_arrays
+   *   The JSON array to be parsed into a Section.
+   * \return
+   *   A Section object.
+   */
+  public static function from_json_arrays(array $json_arrays)
+  {
+    $section_meetings = array();
+    $letter = '';
+    $synonym = NULL;
+    $prof = NULL;
+    foreach ($json_arrays as $meeting)
+      {
+	$letter = $meeting['section'];
+	$synonym = $meeting['synonym'];
+	$prof = $meeting['prof'];
+	$section_meetings[] = SectionMeeting::from_json_array($meeting);
+      }
+    $section = new Section($letter, $section_meetings, $synonym, $prof);
+
+    return $section;
+  }
 
   /* for legacy unserialization */
   private $start;

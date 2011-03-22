@@ -26,7 +26,7 @@
 
 include_once 'class.section.php';
 
-class Course
+class Course implements IteratorAggregate
 {
   private $name;	// String
   private $sections;	// Array of sections
@@ -61,6 +61,15 @@ class Course
   {
     $this->sections[$this->nsections] = $section;
     $this->nsections++;
+  }
+
+  /**
+   * \brief
+   *   Required function to implement the IteratorAggregate interface.
+   */
+  public function getIterator()
+  {
+    return new ArrayIterator($this->sections);
   }
 
   /**
@@ -198,6 +207,30 @@ class Course
       }
 
     return $json_array;
+  }
+
+  /**
+   * \brief
+   *   Produce a Course object based on a JSON array compatible with
+   *   the output of Course::to_json_array().
+   *
+   * \param $json
+   *   The JSON array to parse.
+   * \return
+   *   A Course.
+   */
+  public static function from_json_array($json)
+  {
+    $course = new Course($json['class']);
+
+    if (!empty($json['sections']))
+      $course->section_add(Section::from_json_arrays($json['sections']));
+    
+    if (!empty($json['dependencies']))
+      foreach ($json['dependencies'] as $dependency)
+	$course->dependency_add(Course::from_json_array($dependency));
+
+    return $course;
   }
 
   /**

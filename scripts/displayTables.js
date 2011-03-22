@@ -41,6 +41,65 @@ function show_box_change()
     return false;
 }
 
+/**
+ * \brief
+ *   Do an AJAX loading of data with arbitrary error handling.
+ *
+ * \param target
+ *   The jQuery object which should be populated with an error message
+ *   or the result of loading.
+ * \param data
+ *   The data to send as a request.
+ * \param handler
+ *   A function with the signature handler(target, data) which is called upon
+ *   a successful response. There is a default handler which uses
+ *   .html() to load the data.data.html into target.
+ * \param error_handler
+ *   A function with the signature handler(target, status_text, data)
+ *   which is called upon an error. The default error_handler will
+ *   store an error message in target, possibly provided by
+ *   data.message if the HTTP request itself was successful but the
+ *   server still claimed there is an error. The third argument, data,
+ *   will be null if the error is at the HTTP level.
+ */
+function slate_permutate_load(target, data, handler, error_handler)
+{
+    if (jQuery.type(handler) == 'undefined')
+	handler = function(target, data)
+	    {
+		target.html(data.html);
+	    }
+
+    if (jQuery.type(error_handler) == 'undefined')
+	error_handler = function(target, status_text, data)
+	    {
+		if (data)
+		    if (data.message)
+			target.html(data.message);
+		    else
+			target.html('<div class="error">Unknown error.</div>');
+		else
+		    target.html('<div class="error">HTTP error: ' + status_text + '</div>');
+	    }
+
+    jQuery.ajax({
+                url: 'ajax.php',
+		data: data,
+		success: function(data, status_text, xhr)
+		{
+		    if (data && data.success && jQuery.type(data.data) != 'undefined')
+			handler(target, data.data);
+		    else
+			error_handler(target, status_text, data);
+		},
+		dataType: 'json',
+		error: function(xhr_jq, status_text, error)
+		{
+		    error_handler(target, status_text, null);
+		}
+		});
+}
+
 jQuery(document).ready( function()
   {
       jQuery('#show-box input').change(show_box_change);
@@ -48,21 +107,21 @@ jQuery(document).ready( function()
 
       jQuery("#regDialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });   
       jQuery('#regCodes').click( function() {
-        jQuery('#regDialogList').empty();
+        jQuery('#regDialog').html('<p>Loading registration information...</p>');
+
+	/* hmm... why isn't this information just stored in a global JS variable? */
 	var tab_i = jQuery('#tabs').tabs('option','selected');
 	var tab_fragment_i = /-([^-]+)$/.exec(jQuery('#the-tabs li:eq(' + tab_i + ') a').attr('href'))[1];
-        var currSec = '.syns' + tab_fragment_i;
+        var tab_course_data_json_selector = '.course-data-' + tab_fragment_i;
 	
-        var jHtml = jQuery(currSec).html();
-        var secs = eval('(' + jHtml + ')');
-        var output = '<p class=\'synList\'>';
-        for( var i in secs ) {
-          output = output + secs[i] + '<br />';
-        }
-        output = output + '</p>';
-        jQuery('#regDialogList').append(output);
+        var tab_course_data_json = jQuery(tab_course_data_json_selector).text();
+        var tab_course_data = eval('(' + tab_course_data_json + ')');
 
-        jQuery("#regDialog").dialog("open");
+	slate_permutate_load(jQuery('#regDialog'), {school_registration_html: true, courses: tab_course_data});
+
+        jQuery("#regDialog").dialog('open');
+
+	return false;
       });
   }
 );
