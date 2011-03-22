@@ -49,8 +49,10 @@ jQuery(document).ready( function()
       jQuery("#regDialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });   
       jQuery('#regCodes').click( function() {
         jQuery('#regDialogList').empty();
-        var currSec = '.syns' + jQuery('#tabs').tabs('option','selected');
-
+	var tab_i = jQuery('#tabs').tabs('option','selected');
+	var tab_fragment_i = /-([^-]+)$/.exec(jQuery('#the-tabs li:eq(' + tab_i + ') a').attr('href'))[1];
+        var currSec = '.syns' + tab_fragment_i;
+	
         var jHtml = jQuery(currSec).html();
         var secs = eval('(' + jHtml + ')');
         var output = '<p class=\'synList\'>';
