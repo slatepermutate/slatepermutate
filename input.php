@@ -24,7 +24,7 @@ include_once 'inc' . DIRECTORY_SEPARATOR . 'class.section.php';
 include_once 'inc' . DIRECTORY_SEPARATOR . 'class.page.php';
 require_once('inc' . DIRECTORY_SEPARATOR . 'schedule_store.inc');
 
-$scripts = array('jQuery', 'jQueryUI', 'qTip','schedInput');
+$scripts = array('jQuery', 'jQueryUI', 'qTip2','schedInput');
 $inputPage = page::page_create('Scheduler', $scripts, FALSE);
 
 $schedule_store = FALSE;

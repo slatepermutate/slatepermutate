@@ -377,3 +377,16 @@ a:hover {
 .indent {
   margin-left: 1em;
 }
+
+/* qTip2 Styling */
+.ui-tooltip-dark .ui-tooltip-content{
+  border-color: #303030;
+  border-width: 2px;
+  color: #f3f3f3;
+  background-color: #505050;
+
+  background: rgba(80,80,80,.9)!important;
+
+  font: normal bold 1.2em sans-serif;
+}
+

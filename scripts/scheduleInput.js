@@ -161,25 +161,26 @@ function genOptionHtml(value, content, test_value)
 function addTips()
 {
   var tr = jQuery('tr');
-  var td = tr.eq(tr.length-2);
+  var td = tr.eq(tr.length-1);
 
-  jQuery('td:first', td).qtip({
-    /* slate_permutate_example_course_id is set globally in input.php. */
-    content: 'Start typing your class ID (such as ' + slate_permutate_example_course_id + ') and click a suggestion to add sections',
-    style: {
-      border: { 
-        width: 3,
-        radius: 4,
-        color: '#333'
+ /* slate_permutate_example_course_id is set globally in input.php. */
+ jQuery('td:first', td).qtip(
+   {
+      content: 'Start typing your class ID (such as ' + slate_permutate_example_course_id + ') and click a suggestion to add sections',
+      style: {
+        tip: true,
+        classes: "ui-tooltip-dark ui-tooltip-shadow ui-tooltip-rounded"
       },
-      name: 'dark',
-      tip: true
-    },
-    show: { effect: { type: 'fade', length: 2000 } },
-    show: { ready: true }, 
-/*    hide: { when: { event: 'inactive' } }, */
-    corner: { target: 'topMiddle', tooltip: 'bottomMiddle' }
-  });
+      show: {
+        ready: true
+      },
+      position:{
+        my: 'top left', 
+        at: 'bottom right',
+      }
+    }
+  );
+
 }
 
 /**

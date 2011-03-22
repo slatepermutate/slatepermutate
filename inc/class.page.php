@@ -105,6 +105,7 @@ class page
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['jAddress'] = '<script type="text/javascript" src="http://ohnopub.net/js/jquery.address-1.3.2.min.js"></script>';
     $this->headCode['qTip'] = '<script type="text/javascript" src="http://ohnopub.net/js/jquery.qtip-1.0.min.js"></script>';
+    $this->headCode['qTip2'] = '<script type="text/javascript" src="http://ohnopub.net/js/2011.03.21/jquery.qtip.min.js"></script><link rel="stylesheet" href="http://ohnopub.net/js/2011.03.21/jquery.qtip.min.css" type="text/css" media="screen" />';
     $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
     $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css" type="text/css" media="screen" charset="utf-8" />'; 
