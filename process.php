@@ -72,6 +72,29 @@ function prettyTime($time){
 	return substr($time,0,strlen($time)-2) . ":" . substr($time,strlen($time)-2, strlen($time));
 }
 
+/**
+ * \brief
+ *   Convert a multidimensional array to a set of <input />s.
+ *
+ * Currently just echos out the <input />s as they are created.
+ *
+ * \param $array
+ *   The array to make into a set of <input />s.
+ * \param $base
+ *   The string to prefix. Normally the name of the array variable.
+ * \param $blankness
+ *   A string to insert at the beginning of each line before an <input
+ *   /> for indentation's sake.
+ */
+function array_to_form($array, $base = '',  $blankness = '        ')
+{
+  foreach ($array as $key => $val)
+    if (is_array($val))
+      array_to_form($val, $base . '[' . $key . ']', $blankness);
+    else
+      echo $blankness . '<input name="' . htmlentities($base . '[' . $key . ']') . '" value="' . htmlentities($val) . '" type="hidden" />' . PHP_EOL;
+}
+
 /*
  * The below code relies on sessions being started already.
  */
@@ -138,6 +161,7 @@ if(!$DEBUG)
 
 	$allClasses = new Schedule($name, $parent_schedule_id);
 
+	$errors = array();
 		foreach($_POST['postData'] as $class)
 		{
 		  /*
@@ -154,10 +178,47 @@ if(!$DEBUG)
 				  /* Skip the section name, which isn't a section */
 					if(is_array($section))
 					  {
-					    $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type']);
+					    $error_string = $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays($section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type']);
+					    if ($error_string !== NULL)
+					      $errors[] = $error_string;
 					  }
 			}
 		}
+
+		/*
+		 * Tell the user that his input is erroneous and
+		 * require him to fix it.
+		 */
+		if (count($errors))
+		  {
+		    $error_page = new Page('Process Schedule — Errors');
+
+		    echo '        <p>' . PHP_EOL
+		      . '          You have the following errors in your input:' . PHP_EOL
+		      . '        </p>' . PHP_EOL
+		      . '        <ul>' . PHP_EOL;
+		    foreach ($errors as $error)
+		      echo '          <li>' . $error . '</li>' . PHP_EOL;
+		    echo '        </ul>' . PHP_EOL
+		      . '        <h3>Solving Errors</h3>' . PHP_EOL
+		      . '        <ul>' . PHP_EOL
+		      . '          <li>Most importantly, click the <em>Fix</em> button below to return to the schedule editing page to resolve these errors. Hitting your browser\'s <em>Back</em> button will cause your input to be lost.</li>' . PHP_EOL
+		      . '          <li>Ensure that no section\'s start or end times are left blank. Any blank start or end times are shown as <tt>none</tt> in the above error output.</li>' . PHP_EOL
+		      . '          <li>Ensure that a section\'s end time is later in the day than its start time.</li>' . PHP_EOL
+		      . '          <li>If you are having trouble resolving these issues, please feel free to <a href="feedback.php">leave us feedback</a>. Be sure to describe your problem with as much detail as possible; otherwise we may only be able to make conjectures about the errors instead of finding and fixing any bugs. Thanks! <em>(To provide us with the most reliable data, save this webpage onto disk and paste the entire (X)HTML source into the feedback form.)</em></li>' . PHP_EOL
+		      . '        </ul>' . PHP_EOL;
+
+		    /* Regurgitate the postData into a <form /> */
+		    echo '        <form action="input.php" method="post">' . PHP_EOL
+		      . '          <input name="e" value="1" type="hidden" />' . PHP_EOL;
+		    array_to_form($_POST['postData'], 'postData', '          ');
+		    echo '          <button type="submit" class="gray">Fix Errors!</button>' . PHP_EOL
+		      . '        </form>' . PHP_EOL;
+
+		    $error_page->foot();
+		    exit;
+		  }
+
 		$allClasses->findPossibilities();
 		if (!isset($_SESSION['saved']))
 		  $_SESSION['saved'] = array();

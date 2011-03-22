@@ -29,6 +29,7 @@ $inputPage = page::page_create('Scheduler', $scripts, FALSE);
 
 $schedule_store = FALSE;
 $sch = FALSE;
+$fix_errors = FALSE;
 $school = $inputPage->get_school();
 
 $parent_schedule_id = NULL;
@@ -37,6 +38,16 @@ if (isset($_REQUEST['s']))
     $schedule_store = schedule_store_init();
     $parent_schedule_id = (int)$_REQUEST['s'];
     $sch = schedule_store_retrieve($schedule_store, $parent_schedule_id);
+  }
+elseif (!empty($_REQUEST['e']))
+  {
+    /*
+     * Read an errorful schedule out of $_POST, this $_POST is created
+     * by process.php when the originally sinful user produces bad
+     * data.
+     */
+    $errors_fix = TRUE;
+    $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
   }
 
 $my_hc = 'var slate_permutate_example_course_id = \'' . str_replace('\'', '\\\'', school_example_course_id($inputPage->get_school())) . '\';
@@ -55,6 +66,29 @@ if ($sch)
       $my_hc .= input_class_js($sch->class_get($class_key), '    ');
     }
 }
+elseif ($errors_fix)
+  {
+    foreach ($_POST['postData'] as $course)
+      if (is_array($course))
+	{
+	  if (empty($course['name']))
+	    $my_hc .= '    class_last = add_class();' . PHP_EOL;
+	  else
+	    $my_hc .= '    class_last = add_class_n(\'' . htmlentities($course['name'], ENT_QUOTES) . '\');' . PHP_EOL;
+	  foreach ($course as $section)
+	    if (is_array($section))
+	      $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section['letter'], ENT_QUOTES) . '\', \''
+		. htmlentities($section['synonym'], ENT_QUOTES) . '\', \'' . htmlentities($section['start'], ENT_QUOTES) . '\', \''
+		. htmlentities($section['end'], ENT_QUOTES) . '\', '
+		. json_encode(array('m' => !empty($section['days'][0]), 't' => !empty($section['days'][1]), 'w' => !empty($section['days'][2]),
+				    'h' => !empty($section['days'][3]), 'f' => !empty($section['days'][4]),
+				    's' => !empty($section['days'][5])))
+		. ', \'' . htmlentities($section['professor'], ENT_QUOTES) . '\', \''
+		. htmlentities($section['location'], ENT_QUOTES) . '\', \''
+		. htmlentities($section['type'], ENT_QUOTES) . '\');' . PHP_EOL;
+	  $my_hc .= PHP_EOL;
+	}
+  }
 else
   {
     $default_courses = school_default_courses($school);
@@ -135,7 +169,20 @@ $inputPage->showSavedScheds($_SESSION);
 
 <form method="post" action="process.php" id="scheduleForm">
 <p class="nospace" style="border-left: 5px solid #999; padding-left: 5px!important; padding-top: 5px!important;"><label>Schedule Name</label><br />
-  <input id="scheduleName" style="margin-bottom: 1em;" class="defText required" type="text" size="25" title="<?php echo $inputPage->semester['name'] ?>" name="postData[name]" <?php if ($sch) echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"'; ?> />
+<input
+    id="scheduleName"
+    style="margin-bottom: 1em;"
+    class="defText required"
+    type="text"
+    size="25"
+    title="<?php echo $inputPage->semester['name'] ?>"
+    name="postData[name]"
+    <?php
+      if ($sch)
+        echo 'value="' . htmlentities($sch->getName(), ENT_QUOTES) . '"';
+      elseif ($errors_fix)
+        echo 'value="' . htmlentities($_POST['postData']['name'], ENT_QUOTES) . '"';
+    ?> />
   <?php if (!empty($parent_schedule_id)): ?>
   <input type="hidden" name="postData[parent_schedule_id]" value="<?php echo htmlentities($parent_schedule_id); ?>" />
   <?php endif; ?>

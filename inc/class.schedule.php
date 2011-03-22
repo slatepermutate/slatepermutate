@@ -108,14 +108,27 @@ class Schedule
     $this->courses[] = new Course($n);
   }
 
-  //--------------------------------------------------
-  // Adds a section to the desired class.
-  //--------------------------------------------------
+  /**
+   * \brief
+   *   Adds a section to this semester after finding the class.
+   *
+   * \return
+   *   NULL on success, a string on error which is a message for the
+   *   user and a valid XHTML fragment.
+   */
   function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $faculty = NULL, $location = NULL, $type = 'lecture')
   {
     if (empty($letter) && (empty($time_start) || !strcmp($time_start, 'none')) && (empty($time_end) || !strcmp($time_end, 'none')) && empty($days)
 	&& empty($synonym) && empty($faculty) && empty($location) && (empty($type) || !strcmp($type, 'lecture')))
       return;
+
+    /* reject invalid times */
+    if (!strcmp($time_start, 'none') || !strcmp($time_end, 'none')
+	|| $time_start > $time_end)
+      {
+	return 'Invalid time specifications for ' . htmlentities($course_name) . '-' . htmlentities($letter)
+	  . '. Start time: <tt>' . htmlentities($time_start) . '</tt>. End time: <tt>' . htmlentities($time_end) . '</tt>.';
+      }
 
     foreach ($this->courses as $course)
       if (!strcmp($course_name, $course->getName()))
