@@ -530,11 +530,11 @@ class Schedule
 					. "</td>\n";
 
 				      /* for the ``Registration Codes'' dialogue: */
-				      if (empty($permutations_courses[$section->getSynonym()]))
+				      if (empty($permutations_courses[$j]))
 					{
 					  $singleton_course = new Course($course->getName());
 					  $singleton_course->section_add($section);
-					  $permutation_courses[$section->getSynonym()] = $singleton_course->to_json_array();
+					  $permutation_courses[$j] = $singleton_course->to_json_array();
 					}
 
 				      $filled = TRUE;
