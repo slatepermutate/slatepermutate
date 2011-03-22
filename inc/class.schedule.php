@@ -416,7 +416,7 @@ class Schedule
                     <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
                     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
                     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
-                    <span id="regCodes"><label><a href="#">Registration Codes</a></label></span></p>
+                    <span id="regCodes"><label><a href="#"><strong>Register for Classes</strong></a></label></span></p>
                   </form>';
 
           echo '</div> <!-- id="show-box" -->'
