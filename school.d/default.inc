@@ -63,10 +63,21 @@ EOF;
  */
 function default_registration_html(Page $page, array $school, array $courses)
 {
+  if (!empty($school['registration_url']))
+    {
+      $link_url = $school['registration_url'];
+      $link_text = $school['name'] . '\'s registration system';
+    }
+  else
+    {
+      $link_url = $school['url'];
+      $link_text = $school['name'] . '\'s website';
+    }
+
   $html = ''
     . '  <p>' . PHP_EOL
-    . '    Enter these codes into your school\'s online course registration' . PHP_EOL
-    . '    system (<a href="' . htmlentities($school['url']) . '">' . htmlentities($school['name']) . '\'s website</a>)' . PHP_EOL
+    . '    Enter these codes into ' . htmlentities($school['name']) . '\'s online course registration' . PHP_EOL
+    . '    system (<a href="' . htmlentities($link_url) . '">' . htmlentities($link_text) . '</a>)' . PHP_EOL
     . '    to register for classes:' . PHP_EOL
     . '  </p>' . PHP_EOL
     . '  <ul class="synonym-list">' . PHP_EOL;

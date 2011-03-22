@@ -26,6 +26,7 @@ function cedarville_info()
 				  'cedarville.edu',
 				  ),
 	       'example_course_id' => 'MATH-2510',
+	       'registration_url' => 'http://cedarville.edu/cgi-bin/secure/register_student.pl',
 	       'student_address' => 'Cedarville Student',
 	       );
 }
