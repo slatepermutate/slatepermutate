@@ -119,12 +119,7 @@ class page
    /* Compliant browsers which care, such as gecko, explicitly request xhtml: */
    if(empty($_SERVER['HTTP_ACCEPT'])  /* then the browser doesn't care :-) */
       || strpos($_SERVER['HTTP_ACCEPT'], 'application/xhtml+xml') !== FALSE)
-     {
        $this->xhtml = TRUE;
-       header('Content-Type: application/xhtml+xml; charset=utf-8');
-     }
-   else
-     header('Content-Type: text/html; charset=utf-8');
 
    if (count($ga_trackers))
      {
@@ -207,10 +202,12 @@ class page
    */
   public function head()
   {
-
     if ($this->xhtml) {
+       header('Content-Type: application/xhtml+xml; charset=utf-8');
       echo '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL;
     }
+    else
+      header('Content-Type: text/html; charset=utf-8');
 
     echo '<!DOCTYPE ' . $this->doctype . '>'. PHP_EOL .
 	  '<html ' . $this->htmlargs . '>'. PHP_EOL .
