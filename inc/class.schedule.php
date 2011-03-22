@@ -405,7 +405,10 @@ class Schedule
 	if ($sort_time)
 	  sort($time);
 
-        echo '<div id="regDialog" title="Registration Codes"></div>';
+        echo '    <div id="regDialog" title="Registration Codes">' . PHP_EOL
+	  . '      <div id="regDialog-content"></div>' . PHP_EOL
+	  . '      <p id="regDialog-disclaimer" class="graytext"><em>Note: The registration information above corresponds to the sections displayed on the currently selected tab.</em></p>'
+	  . '    </div>';
 	echo '<div id="tabs">' . "\n" .
                '<div id="show-box" class="show-buttons">
                   <form action="#"><p class="nospace">

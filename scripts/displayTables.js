@@ -107,7 +107,7 @@ jQuery(document).ready( function()
 
       jQuery("#regDialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });   
       jQuery('#regCodes').click( function() {
-        jQuery('#regDialog').html('<p>Loading registration information...</p>');
+        jQuery('#regDialog-content').html('<p>Loading registration information...</p>');
 
 	/* hmm... why isn't this information just stored in a global JS variable? */
 	var tab_i = jQuery('#tabs').tabs('option','selected');
@@ -117,7 +117,7 @@ jQuery(document).ready( function()
         var tab_course_data_json = jQuery(tab_course_data_json_selector).text();
         var tab_course_data = eval('(' + tab_course_data_json + ')');
 
-	slate_permutate_load(jQuery('#regDialog'), {school_registration_html: true, courses: tab_course_data});
+	slate_permutate_load(jQuery('#regDialog-content'), {school_registration_html: true, courses: tab_course_data});
 
         jQuery("#regDialog").dialog('open');
 
