@@ -29,7 +29,7 @@ $inputPage = page::page_create('Scheduler', $scripts, FALSE);
 
 $schedule_store = FALSE;
 $sch = FALSE;
-$fix_errors = FALSE;
+$errors_fix = FALSE;
 $school = $inputPage->get_school();
 
 $parent_schedule_id = NULL;
