@@ -113,8 +113,9 @@ class Schedule
   //--------------------------------------------------
   function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $faculty = NULL, $location = NULL, $type = 'lecture')
   {
-    $found = false;
-    $counter = 0;
+    if (empty($letter) && (empty($time_start) || !strcmp($time_start, 'none')) && (empty($time_end) || !strcmp($time_end, 'none')) && empty($days)
+	&& empty($synonym) && empty($faculty) && empty($location) && (empty($type) || !strcmp($type, 'lecture')))
+      return;
 
     foreach ($this->courses as $course)
       if (!strcmp($course_name, $course->getName()))
@@ -130,6 +131,7 @@ class Schedule
 	  return;
 	}
 
+    error_log('Could not find class when parsing schedule from postData: ' . $course_name);
     echo 'Could not find class: ' . $course_name . "<br />\n";
   }
 
