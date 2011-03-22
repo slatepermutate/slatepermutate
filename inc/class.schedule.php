@@ -564,7 +564,7 @@ class Schedule
 	    ksort($permutation_courses);
 	    // End of table
 	    echo "        </table>\n"
-              . '         <span class="course-data course-data-'.$i.'">'.  htmlentities(json_encode($permutation_courses)) . "</span>\n"
+              . '         <span class="course-data">'.  htmlentities(json_encode($permutation_courses)) . "</span>\n"
 	      . '      </div> <!-- id="section' . ($i + 1) . "\" -->\n";
 	  }
 

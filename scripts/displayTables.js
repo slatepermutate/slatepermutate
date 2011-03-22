@@ -112,7 +112,7 @@ jQuery(document).ready( function()
 	/* hmm... why isn't this information just stored in a global JS variable? */
 	var tab_i = jQuery('#tabs').tabs('option','selected');
 	var tab_fragment_i = /-([^-]+)$/.exec(jQuery('#the-tabs li:eq(' + tab_i + ') a').attr('href'))[1];
-        var tab_course_data_json_selector = '.course-data-' + tab_fragment_i;
+        var tab_course_data_json_selector = '#tabs-' + tab_fragment_i + ' .course-data';
 	
         var tab_course_data_json = jQuery(tab_course_data_json_selector).text();
         var tab_course_data = eval('(' + tab_course_data_json + ')');
