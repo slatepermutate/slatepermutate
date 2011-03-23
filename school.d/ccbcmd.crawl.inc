@@ -22,8 +22,8 @@
  * \brief
  *   Crawl CCBCMD's registration stuffage.
  *
- * \param $semester
- *   The Semester object which I should populate.
+ * \param $semesters
+ *   The array of Semester objects which I should populate.
  * \param $school_crawl_log
  *   The school_crawl_log handle.
  * \return
