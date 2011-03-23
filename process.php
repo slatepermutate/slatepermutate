@@ -162,23 +162,26 @@ if(!$DEBUG)
 	$allClasses = new Schedule($name, $parent_schedule_id);
 
 	$errors = array();
-		foreach($_POST['postData'] as $class)
-		{
-		  /*
-		   * Only add classes if the user added at least one
-		   * section to the class. We know that $class['name']
-		   * is not a section, so count() needs to be > 1 and
-		   * we need to skip over 'name' in our loop.
-		   */
-			if(is_array($class) && count($class) > 1)
-			{
-				$allClasses->addCourse($class['name']);
-		
-				foreach($class as $section)
+	foreach($_POST['postData'] as $course)
+	  {
+	    /*
+	     * Only add classes if the user added at least one
+	     * section to the class. We know that $course['name']
+	     * is not a section, so count() needs to be > 1 and
+	     * we need to skip over 'name' in our loop.
+	     */
+	    if(is_array($course) && count($course) > 1)
+	      {
+		if (empty($course['title']))
+		  $course['title'] = '';
+
+		$allClasses->addCourse($course['name'], $course['title']);
+
+				foreach($course as $section)
 				  /* Skip the section name, which isn't a section */
 					if(is_array($section))
 					  {
-					    $error_string = $allClasses->addSection($class['name'], $section['letter'], $section['start'], $section['end'], arrayToDays(empty($section['days']) ? array() : $section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type']);
+					    $error_string = $allClasses->addSection($course['name'], $section['letter'], $section['start'], $section['end'], arrayToDays(empty($section['days']) ? array() : $section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type']);
 					    if ($error_string !== NULL)
 					      $errors[] = $error_string;
 					  }

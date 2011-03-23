@@ -29,6 +29,7 @@ include_once 'class.section.php';
 class Course implements IteratorAggregate
 {
   private $name;	// String
+  private $title;
   private $sections;	// Array of sections
   private $nsections;	// int
   /**
@@ -42,13 +43,18 @@ class Course implements IteratorAggregate
   /**
    * \brief
    *    Creates a class with the given name.
-   * \param $n
-   *    The name of the class.
+   * \param $course_id
+   *    The identifier of the class. Ex., MATH-101 in
+   *    MATH-101-A. Retrieved with Course::getName().
+   * \param $title
+   *    The human-friendly course title, such as 'Introduction to
+   *    Algebra', or NULL.
    */
-  function __construct($n)
+  function __construct($course_id, $title = NULL)
   {
     $this->sections = array();
-    $this->name = $n;
+    $this->name = $course_id;
+    $this->title = $title;
     $this->nsections = 0;
     $this->dependencies = array();
   }
@@ -128,6 +134,19 @@ class Course implements IteratorAggregate
 
   /**
    * \brief
+   *   Retrieve the human-friendly course title.
+   *
+   * \return
+   *   A string, the human-friendly course title, or NULL if there is
+   *   no title.
+   */
+  public function title_get()
+  {
+    return $this->title;
+  }
+
+  /**
+   * \brief
    *   Add a dependency on another course.
    *
    * \param $course
@@ -189,6 +208,7 @@ class Course implements IteratorAggregate
 
     $json_array = array(
 			'class' => $this->getName(),
+			'title' => $this->title_get(),
 			'sections' => array(),
 			'dependencies' => array(),
 			);
@@ -221,7 +241,10 @@ class Course implements IteratorAggregate
    */
   public static function from_json_array($json)
   {
-    $course = new Course($json['class']);
+    $title = NULL;
+    if (!empty($json['title']))
+      $title = $json['title'];
+    $course = new Course($json['class'], $title);
 
     if (!empty($json['sections']))
       $course->section_add(Section::from_json_arrays($json['sections']));
@@ -241,5 +264,8 @@ class Course implements IteratorAggregate
   {
     if (!isset($this->dependencies))
       $this->dependencies = array();
+
+    if (!isset($this->title))
+      $this->title = NULL;
   }
 }

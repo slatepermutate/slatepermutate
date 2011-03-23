@@ -100,12 +100,13 @@ class Schedule
     return $this->scheduleName;
   }    
 
-  //--------------------------------------------------
-  // Adds a new class to the schedule.
-  //--------------------------------------------------
-  function addCourse($n)
+  /**
+   * \brief
+   *   Adds a new class to the schedule.
+   */
+  function addCourse($course_id, $title)
   {
-    $this->courses[] = new Course($n);
+    $this->courses[] = new Course($course_id, $title);
   }
 
   /**
@@ -413,6 +414,7 @@ class Schedule
                '<div id="show-box" class="show-buttons">
                   <form action="#"><p class="nospace">
                     <label><strong>Display:</strong></label>
+                    <input id="show-course-title" name="show-course-title" type="checkbox" /><label for="show-course-title">Course Title</label>
                     <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
                     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
                     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
@@ -486,9 +488,9 @@ class Schedule
 		    {
 		      for($j = 0; $j < count($this->courses); $j++)
 			{
-			  $class = $this->courses[$j];
+			  $course = $this->courses[$j];
 			  $section_index = $this->storage[$i][$j];
-			  $section = $class->getSection($section_index);
+			  $section = $course->getSection($section_index);
 				  /* iterate through all of a class's meeting times */
 				  $meetings = $section->getMeetings();
 
@@ -517,12 +519,19 @@ class Schedule
 				      if ($rowspan[$dayLoop] > 1)
 					$single_multi = 'multi';
 
+				      $title = $course->title_get();
+				      if (empty($title))
+					$title = '';
+				      else
+					$title .= ' ';
 				      echo '            <td rowspan="' . $rowspan[$dayLoop]
 					. '" class="' . $single_multi . ' class' . $j
-					. '" title="prof: ' . htmlentities($section->getProf(), ENT_QUOTES)
+					. '" title="' . htmlentities($title, ENT_QUOTES)
+					. 'prof: ' . htmlentities($section->getProf(), ENT_QUOTES)
 					. ', room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES)
 					. ', type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . '">'
-					. htmlentities($class->getName(), ENT_QUOTES) . '-'
+					. '<span class="course-title block">' . htmlentities($title) . '</span>' . PHP_EOL
+					. htmlentities($course->getName(), ENT_QUOTES) . '-'
 					. htmlentities($section->getLetter(), ENT_QUOTES) . "\n"
 					. '<span class="prof block">' . htmlentities($section->getProf(), ENT_QUOTES) . "</span>\n"
 					. '<span class="location block">' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . "</span>\n"
@@ -532,7 +541,7 @@ class Schedule
 				      /* for the ``Registration Codes'' dialogue: */
 				      if (empty($permutations_courses[$j]))
 					{
-					  $singleton_course = new Course($course->getName());
+					  $singleton_course = new Course($course->getName(), $course->title_get());
 					  $singleton_course->section_add($section);
 					  $permutation_courses[$j] = $singleton_course->to_json_array();
 					}
@@ -560,8 +569,6 @@ class Schedule
 		echo "          </tr>\n";
 	      }
 
-	    /* presort */
-	    ksort($permutation_courses);
 	    // End of table
 	    echo "        </table>\n"
               . '         <span class="course-data">'.  htmlentities(json_encode($permutation_courses)) . "</span>\n"

@@ -215,6 +215,10 @@ function add_section(cnum)
 function add_sections(cnum, data)
 {
     var i;
+
+    if (data.title)
+	jQuery('.pclass' + cnum + ' .course-title-entry').val(data.title);
+
     if (!data.sections)
 	return;
     /*
@@ -234,25 +238,33 @@ function add_sections(cnum, data)
     if (data.dependencies)
 	jQuery.each(data.dependencies, function(i, dep)
 		    {
-			var new_course_num = add_class_n(dep['class']);
+			var new_course_num = add_class_n(dep['class'], dep['title'] ? dep['title'] : '');
 			add_sections(new_course_num, dep);
 		    });
 }
 
-	//--------------------------------------------------
-	// Adds a new class to the input.
-	//--------------------------------------------------
-	function add_class_n(name)
+/**
+ * \brief
+ *   Adds a new class to the input.
+ *
+ * \param course_id
+ *   The course_id.
+ * \param title
+ *   The human-friendly course title.
+ * \return
+ *   The javascript-local course entry identifying number.
+ */
+function add_class_n(course_id, title)
 	{
 	    /*
 	     * If we're adding a course entry form with preadded
 	     * content, first remove the empty course.
 	     */
-	    if (name.length && slate_permutate_course_free != -1)
+	    if (course_id.length && slate_permutate_course_free != -1)
 		course_remove(slate_permutate_course_free);
 
 		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + name + '" /></td><td colspan="10"></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
+		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + course_id + '" /></td><td colspan="10"><label for="postData[' + classNum + '][title]">Course Title:</label><input type="text" name="postData[' + classNum + '][title]" class="course-title-entry" value="' + title + '" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
 		jQuery('#tr-course-' + classNum).data({course_i: classNum});
@@ -343,7 +355,7 @@ function add_class()
      * one. Otherwise, set this new class to be the ``hot'' one.
      */
     if (slate_permutate_course_free == -1)
-	slate_permutate_course_free = add_class_n('');
+	slate_permutate_course_free = add_class_n('', '');
     return slate_permutate_course_free;
 }
 

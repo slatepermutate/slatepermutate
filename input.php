@@ -71,10 +71,13 @@ elseif ($errors_fix)
     foreach ($_POST['postData'] as $course)
       if (is_array($course))
 	{
+	  $title = '';
+	  if (!empty($course['title']))
+	    $title = $course['title'];
 	  if (empty($course['name']))
 	    $my_hc .= '    class_last = add_class();' . PHP_EOL;
 	  else
-	    $my_hc .= '    class_last = add_class_n(\'' . htmlentities($course['name'], ENT_QUOTES) . '\');' . PHP_EOL;
+	    $my_hc .= '    class_last = add_class_n(\'' . htmlentities($course['name'], ENT_QUOTES) . '\', \'' . htmlentities($title, ENT_QUOTES) . '\');' . PHP_EOL;
 	  foreach ($course as $section)
 	    if (is_array($section))
 	      $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section['letter'], ENT_QUOTES) . '\', \''
@@ -245,14 +248,18 @@ $inputPage->showSavedScheds($_SESSION);
 $inputPage->showSchoolInstructions();
 $inputPage->foot();
 
-function input_class_js(Course $class, $whitespace = '  ')
+function input_class_js(Course $course, $whitespace = '  ')
 {
-  $js = $whitespace . 'class_last = add_class_n(\'' . htmlentities($class->getName(), ENT_QUOTES) . "');\n";
+  $title = $course->title_get();
+  if (empty($title))
+    $title = '';
+  $js = $whitespace . 'class_last = add_class_n(\'' . htmlentities($course->getName(), ENT_QUOTES) . '\', \''
+    . htmlentities($title, ENT_QUOTES) . "');\n";
 
-  $nsections  = $class->getnsections();
+  $nsections  = $course->getnsections();
   for ($section_key = $nsections - 1; $section_key >= 0; $section_key --)
     {
-      $section = $class->getSection($section_key);
+      $section = $course->getSection($section_key);
       $meetings = $section->getMeetings();
       foreach ($meetings as $meeting)
 	{

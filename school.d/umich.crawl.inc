@@ -20,17 +20,17 @@
 
 
 /** Filter out whitepace items */
-function umich_arrayfilter_callback($item){
-    if(ltrim($item) == ''){
-      return false;
-    }
-    else{
-      return true;
-    }
+function umich_arrayfilter_callback($item)
+{
+  if(ltrim($item) == '')
+    return TRUE;
+  else
+    return TRUE;
 }
 
 /** Parse html at URL into array, first row is row headers */
-function umich_table_parse($url) {
+function umich_table_parse($url)
+{
   $arr = array();
   $dom = new DOMDocument;
   $html = file_get_contents($url);
@@ -64,9 +64,26 @@ function umich_table_parse($url) {
   return $arr;
 }
 
-/** Crawls uMich course listings. $season is "f" or "s", year is 2-digit year */
-function umich_crawl($semester)
+/**
+ * \brief
+ *  Crawls University of Michigan's schedule.
+ *
+ * \param $semesters
+ *   An array to be filled with semesters.
+ * \param $school_crawl_log
+ *   The school_crawl_log handle.
+ * \return
+ *   1 on failure, 0 on success.
+ */
+function umich_crawl(array &$semesters, $school_crawl_log)
 {
+  $url = 'http://lsa.umich.edu/cg/cg_advsearch.aspx';
+  $cookies = array();
+
+  /* determine list of semesters: */
+  $semesters_dom = new DOMDocument();
+  $semesters_dom->loadHTML(school_crawl_geturi($url, $cookies, $school_crawl_log));
+
   $year = substr($semester->year_get(), 2);
   $season = strtolower(substr($semester->season_get(), 0, 1));
 
