@@ -273,8 +273,12 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  /* parse */
 	  $section_id = Section::parse($sec_short_title);
 	  $synonym = NULL;
-	  if (preg_match(';\(([0-9]+)\);', $sec_short_title, $matches))
-	    $synonym = $matches[1];
+	  $title = NULL;
+	  if (preg_match(';\(([0-9]+)\)(.*);', $sec_short_title, $matches))
+	    {
+	      $synonym = $matches[1];
+	      $title = $matches[2];
+	    }
 
 	  school_crawl_logf($school_crawl_log, 10, "");
 	  school_crawl_logf($school_crawl_log, 10, implode('-', $section_id) . ': ' . $sec_short_title);
@@ -283,6 +287,8 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  school_crawl_logf($school_crawl_log, 10, $faculty_name);
 	  school_crawl_logf($school_crawl_log, 10, $credits);
 	  school_crawl_logf($school_crawl_log, 10, $comment);
+	  school_crawl_logf($school_crawl_log, 10, "synonym: %s", $synonym);
+	  school_crawl_logf($school_crawl_log, 10, "title: %s", $title);
 
 	  /*
 	   * The input format for this is, thankfully, pretty rigid
@@ -316,7 +322,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 				. $sec_meeting_info . '\'');
 	      $skipped_sections['incomplete meeting info'] ++;
 	      /* Still add to have less confusing autocomplete */
-	      calvin_crawl_course_add($semester, $section_id['department'], $section_id['course']);
+	      calvin_crawl_course_add($semester, $section_id['department'], $section_id['course'], $title);
 	      continue;
 	    }
 
@@ -329,7 +335,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	       * Still add at least the course to the semester so that
 	       * it shows up in autocmoplete.
 	       */
-	      calvin_crawl_course_add($semester, $section_id['department'], $section_id['course']);
+	      calvin_crawl_course_add($semester, $section_id['department'], $section_id['course'], $title);
 	      continue;
 	    }
 	  $date_start = $meeting_info_matches[1];
@@ -346,7 +352,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	    school_crawl_logf($school_crawl_log, 10, "%s:%s", $var, ${$var});
 
 	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type)), $synonym, $faculty_name);
-	  $semester->section_add($section_id['department'], $section_id['course'], $section);
+	  $semester->section_add($section_id['department'], $section_id['course'], $section, $title);
 
 	  /*
 	   * Try to update semester's longetivity stats to help the
@@ -496,8 +502,8 @@ function calvin_crawl_noscript_filter($html)
  *   The course_id which, with the department string, forms a
  *   fully-qualified course_id.
  */
-function calvin_crawl_course_add(Semester $semester, $department, $course_id)
+function calvin_crawl_course_add(Semester $semester, $department, $course_id, $title)
 {
   if ($semester->class_get($department, $course_id) == NULL)
-    $semester->class_add(new Course($department . '-' . $course_id));
+    $semester->class_add(new Course($department . '-' . $course_id, $title));
 }

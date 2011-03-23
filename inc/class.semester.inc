@@ -150,8 +150,10 @@ class Semester
    *   The class this section belongs to.
    * \param $section
    *   The section itself.
+   * \param $title
+   *   The course human-friendly title.
    */
-  public function section_add($dept, $class, Section $section)
+  public function section_add($dept, $class, Section $section, $title = NULL)
   {
     $dept = strtoupper($dept);
     $class = strtoupper($class);
@@ -159,7 +161,7 @@ class Semester
     if (!isset($this->departments[$dept])
 	|| !isset($this->departments[$dept][$class]))
       {
-	$classobj = new Course($dept . '-' . $class);
+	$classobj = new Course($dept . '-' . $class, $title);
 	$this->class_add($classobj);
       }
     else
