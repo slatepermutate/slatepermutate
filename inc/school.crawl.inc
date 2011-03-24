@@ -452,7 +452,7 @@ function school_crawl_form(DOMElement $form_node)
 	   * Skip over checkboxes which are not ``successful''
 	   * (http://w3.org/ terminology).
 	   */
-	  if (!stricmp($input_node->getAttribute('type'), 'checkbox')
+	  if (!strcasecmp($input_node->getAttribute('type'), 'checkbox')
 	      && !$input_node->hasAttribute('checked'))
 	    continue;
 
@@ -507,7 +507,7 @@ function school_crawl_form_select_array(DOMElement $select, $get_textcontent = T
 
   foreach ($select->childNodes as $child_node)
     if ($child_node->nodeType == XML_ELEMENT_NODE
-	&& !stricmp($child_node->tagName, 'options')
+	&& !strcasecmp($child_node->tagName, 'options')
 	&& $child_node->hasAttribute('name'))
       {
 	$name = $child_node->getAttribute('name');
