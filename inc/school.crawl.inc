@@ -448,6 +448,14 @@ function school_crawl_form(DOMElement $form_node)
     {
       if ($input_node->hasAttribute('name'))
 	{
+	  /*
+	   * Skip over checkboxes which are not ``successful''
+	   * (http://w3.org/ terminology).
+	   */
+	  if (!stricmp($input_node->getAttribute('type'), 'checkbox')
+	      && !$input_node->hasAttribute('checked'))
+	    continue;
+
 	  $input_name = $input_node->getAttribute('name');
 	  if (!isset($form[$input_name]))
 	    $form[$input_name] = array();
@@ -473,6 +481,46 @@ function school_crawl_form(DOMElement $form_node)
     }
 
   return $form;
+}
+
+/**
+ * \brief
+ *   Parses a <select />'s <option />s into an associative array.
+ *
+ * \param $select
+ *   The DOMElement representing the <select />.
+ * \param $get_textcontent
+ *   Whether or not the returned array should point at DOMElements or
+ *   at the textcontent of each <option /> node. Defaults to
+ *   textcontent.
+ * \param $selected
+ *   Will be set to an array of the currently selected keys if passed.
+ * \return
+ *   An associative array mapping an <option />'s name attribute onto
+ *   either the <option />'s textcontent (if $get_textcontent is TRUE)
+ *   or onto the <option /> DOMElement itself.
+ */
+function school_crawl_form_select_array(DOMElement $select, $get_textcontent = TRUE, &$selected = NULL)
+{
+  $selected = array();
+  $options = array();
+
+  foreach ($select->childNodes as $child_node)
+    if ($child_node->nodeType == XML_ELEMENT_NODE
+	&& !stricmp($child_node->tagName, 'options')
+	&& $child_node->hasAttribute('name'))
+      {
+	$name = $child_node->getAttribute('name');
+	if ($child_node->hasAttribute('selected'))
+	  $selected[] = $name;
+
+	if ($get_textcontent)
+	  $options[$name] = $child_node->textContent;
+	else
+	  $options[$name] = $child_node;
+      }
+
+  return $options;
 }
 
 /**
