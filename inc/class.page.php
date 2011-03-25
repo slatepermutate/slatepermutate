@@ -100,8 +100,7 @@ class page
     require_once('school.inc');
 
     /* Scripts and styles available for inclusion */
-    /* jQuery-1.5.1 has some weird issues with HTML insertion, reverting to 1.5.0 */
-    $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js" type="text/javascript"></script>';
+    $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js" type="text/javascript"></script>';
     $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['jAddress'] = '<script type="text/javascript" src="http://ohnopub.net/js/jquery.address-1.3.2.min.js"></script>';
