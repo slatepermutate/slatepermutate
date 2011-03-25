@@ -217,6 +217,36 @@ function school_crawl_days_str_format($days_str)
 
 /**
  * \brief
+ *   Try to guess a more standardized section_meeting type.
+ *
+ * \param $meeting_type
+ *   The upstream's meeting_type, such as 'LEC', 'lec', 'LAB',
+ *   etc. New mappings should be added to this function as long as
+ *   they are general enough.
+ */
+function school_crawl_meeting_type($meeting_type = 'lecture')
+{
+  static $meeting_type_maps =
+    array(
+	  'lec' => 'lecture',
+	  'lab' => 'lab',
+	  'dis' => 'discussion',
+	  );
+
+  if (empty($meeting_type))
+    $meeting_type = 'lecture';
+
+  $meeting_type = strtolower($meeting_type);
+  if (!empty($meeting_type_maps[$meeting_type]))
+    $meeting_type = $meeting_type_maps[$meeting_type];
+  elseif (!empty($meeting_type_maps[substr($meeting_type, 0, 3)]))
+    $meeting_type = $meeting_type_maps[substr($meeting_type, 0, 3)];
+
+  return $meeting_type;
+}
+
+/**
+ * \brief
  *   Simulate some aspects of a web browser while retreiving a
  *   document.
  *
@@ -577,8 +607,10 @@ function school_crawl_url($orig_url, $url)
  * \param $column_name
  *   The name of the column to search for.
  * \param $strcmp
- *   The function to use with a strcmp() interface when judging
+
+ *   The function to use with a strcmp($text_content, $column_name) interface when judging
  *   whether or not a <th />'s textContent matches $column_name.
+
  * \param $trim
  *   The function to apply to the <th />'s textContent before
  *   subjecting it to the $strcmp test.
@@ -591,9 +623,21 @@ function school_crawl_table_resolve_column(DOMElement $tr_node, $column_name, $s
 {
   $th_nodelist = school_crawl_table_rownodes($tr_node);
   for ($i = 0; $i < $th_nodelist->length; $i ++)
-    if (!$strcmp($column_name, $trim($th_nodelist->item($i)->textContent)))
+    if (!$strcmp($trim($th_nodelist->item($i)->textContent), $column_name))
       return $i;
   return FALSE;
+}
+
+/**
+ * \brief
+ *   A strcmp() compatible function for testing regular expressions
+ *   for school_crawl_table_resolve_column()'s $strcmp argument.
+ */
+function school_crawl_table_resolve_column_regexcmp($text_content, $column_name_regex)
+{
+  if (preg_match($column_name_regex, $text_content))
+    return 0;
+  return 1;
 }
 
 /**
@@ -602,6 +646,9 @@ function school_crawl_table_resolve_column(DOMElement $tr_node, $column_name, $s
  *   the way.
  *
  * Helpful when using school_crawl_table_resolve_column() to get data.
+ *
+ * \return
+ *   A DOMNodeList.
  */
 function school_crawl_table_rownodes(DOMElement $tr_node)
 {

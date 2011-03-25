@@ -144,6 +144,9 @@ class Semester
    *   Utility function to add a section to the semester,
    *   automatically creating classes as necessary.
    *
+   * Crawler functions should generally use this instead of
+   * Semester::class_add().
+   *
    * \param $dept
    *   The department this section belongs to.
    * \param $class
@@ -170,6 +173,51 @@ class Semester
       }
 
     $classobj->section_add($section);
+  }
+
+  /**
+   * \brief
+   *   Add a section_meeting, calling Semester::section_add() as
+   *   necessary.
+   *
+   * To be used by crawlers when parsing data which only presents one
+   * section_meeting at a time. I.e., when they do tabular data right.
+   *
+   * \param $dept
+   *   The department this section_meeting's course belongs to.
+   * \param $course
+   *   The course number this section_meeting's section belongs to.
+   * \param $title
+   *   The course title of the given course the section_meeting or
+   *   NULL.
+   *   belongs to.
+   * \param $section
+   *   The letter or numbers which make up the section's name.
+   * \param $synonym
+   *   The section synonym or NULL.
+   * \param $professor
+   *   The section's professor or NULL.
+   * \param $section_meeting
+   *   The SectionMeeting to be added to a section which may or may
+   *   not already be in this Semester.
+   */
+  public function section_meeting_add($dept, $course, $title, $section, $synonym, $professor, $section_meeting)
+  {
+    $dept = strtoupper($dept);
+    $course = strtoupper($course);
+
+    if (empty($this->departments[$dept][$course]))
+      $course_obj = NULL;
+    else
+      {
+	$course_obj = $this->departments[$dept][$course];
+	$section_obj = $course_obj->section_get($section);
+      }
+    if (empty($course_obj) || empty($section_obj))
+      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym, $professor), $title);
+
+    $section_obj->meeting_add($section_meeting);
+    return;
   }
 
   /**
@@ -276,6 +324,18 @@ class Semester
   public function name_get()
   {
     return ucfirst($this->season_get()) . ' ' . $this->year_get();
+  }
+
+  /**
+   * \brief
+   *   Handle conversion to a string.
+   *
+   * \return
+   *   A string.
+   */
+  public function __tostring()
+  {
+    return $this->name_get();
   }
 
   /**
