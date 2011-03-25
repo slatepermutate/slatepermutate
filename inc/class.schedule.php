@@ -528,7 +528,7 @@ class Schedule
 				      $carret = '&#013;' . htmlentities("<br />");
 				      echo '            <td rowspan="' . $rowspan[$dayLoop]
 					. '" class="qTipCell ' . $single_multi . ' class' . $j
-					. '" title="' . htmlentities($title, ENT_QUOTES) . $carret
+					. '" title="' . htmlspecialchars(str_replace('&','and', $title)) . $carret /* Must kill ampersands, qTip doesn't like them. */
 					. 'Prof: ' . htmlentities($section->getProf(), ENT_QUOTES) . $carret
 					. 'Room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . $carret
 					. 'Type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . $carret . '">'
