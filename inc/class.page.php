@@ -112,6 +112,7 @@ class page
     $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8" />'; 
     $this->headCode['uiTabsKeyboard'] = '<script type="text/javascript" src="scripts/uiTabsKeyboard.js"></script>';
     $this->headCode['displayTables'] = '<script type="text/javascript" src="scripts/displayTables.js"></script>';
+    $this->headCode['inPlace'] = '<script type="text/javascript" src="scripts/jeip.js"></script>';
 
     $this->pagetitle = $ntitle;
     $this->scripts = $nscripts;

@@ -29,7 +29,7 @@ include_once 'class.section.php';
 class Course implements IteratorAggregate
 {
   private $name;	// String
-  private $title;
+  private $title;       // String
   private $sections;	// Array of sections
   private $nsections;	// int
   /**

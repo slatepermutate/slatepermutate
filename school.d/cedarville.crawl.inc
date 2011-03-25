@@ -188,6 +188,7 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 	    }
 
 	  $instructor = $course_table[3];
+          $title = $course_table[2];
 
 	  /*
 	   * Each course may have multiple meeting times associated
@@ -258,7 +259,7 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 
 	  $semester->section_add($section_parts['department'], $section_parts['course'],
 				 new Section($section_parts['section'], $meetings,
-					     $synonym, $instructor));
+					     $synonym, $instructor), $title);
 	}
     }
 

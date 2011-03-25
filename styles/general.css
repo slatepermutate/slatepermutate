@@ -390,3 +390,8 @@ a:hover {
   font: normal bold 1.2em sans-serif;
 }
 
+.inPlace {
+  color: #000;
+  border: none;
+  background: transparent;
+}

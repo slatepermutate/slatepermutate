@@ -264,7 +264,7 @@ function add_class_n(course_id, title)
 		course_remove(slate_permutate_course_free);
 
 		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + course_id + '" /></td><td colspan="10"><label for="postData[' + classNum + '][title]">Course Title:</label><input type="text" name="postData[' + classNum + '][title]" class="course-title-entry" value="' + title + '" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
+		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + course_id + '" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace course-title-entry" value="' + title + '" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
 		jQuery('#tr-course-' + classNum).data({course_i: classNum});
@@ -575,4 +575,13 @@ jQuery(document).ready(function() {
 	});
 
 
+        //-------------------------------------------------
+        // Style course titles as inputs when clicked
+        //-------------------------------------------------
+        jQuery('.course-title-entry').live('click', function() {
+          jQuery(this).toggleClass('inPlace');
+        });
+        jQuery('.course-title-entry').live('blur', function() {
+          jQuery(this).addClass('inPlace');
+        });
 });

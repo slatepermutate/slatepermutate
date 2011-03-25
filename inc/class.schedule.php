@@ -288,7 +288,7 @@ class Schedule
       $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'outputStyle', 'outputPrintStyle', 'displayTables');
     }
     else {
-      $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'jAddress', 'uiTabsKeyboard', 'displayTables');
+      $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'jAddress', 'uiTabsKeyboard', 'qTip2','displayTables');
     }
     $outputPage = page::page_create(htmlentities($this->getName()), $headcode);
     $outputPage->head();
@@ -524,12 +524,14 @@ class Schedule
 					$title = '';
 				      else
 					$title .= ' ';
+
+				      $carret = '&#013;' . htmlentities("<br />");
 				      echo '            <td rowspan="' . $rowspan[$dayLoop]
-					. '" class="' . $single_multi . ' class' . $j
-					. '" title="' . htmlentities($title, ENT_QUOTES)
-					. 'prof: ' . htmlentities($section->getProf(), ENT_QUOTES)
-					. ', room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES)
-					. ', type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . '">'
+					. '" class="qTipCell ' . $single_multi . ' class' . $j
+					. '" title="' . htmlentities($title, ENT_QUOTES) . $carret
+					. 'Prof: ' . htmlentities($section->getProf(), ENT_QUOTES) . $carret
+					. 'Room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . $carret
+					. 'Type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . $carret . '">'
 					. '<span class="course-title block">' . htmlentities($title) . '</span>' . PHP_EOL
 					. htmlentities($course->getName(), ENT_QUOTES) . '-'
 					. htmlentities($section->getLetter(), ENT_QUOTES) . "\n"

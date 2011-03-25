@@ -121,8 +121,22 @@ jQuery(document).ready( function()
 
         jQuery("#regDialog").dialog('open');
 
+	
+	
 	return false;
       });
+
+      jQuery('.qTipCell').qtip(
+       {
+          style: {
+            tip: true,
+            classes: "ui-tooltip-dark ui-tooltip-shadow ui-tooltip-rounded"
+          },
+          position:{
+            my: 'bottom left',
+            at: 'center',
+          }
+      });  
   }
 );
 
