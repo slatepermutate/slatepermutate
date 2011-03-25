@@ -147,9 +147,9 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
 		  'Term' => FALSE /* $semester->season_get() . ' ' . $semester->year_get() */,
 		  'Session' => FALSE /* "Regular Academic Session", "First 7 Week Session", "Second 7 Week Session" <-- half-semester support? */,
 		  'Acad Group' => FALSE /* long version of the department sorta, more general than the subject field */,
-		  'Class Nbr' => FALSE /* unqualified course_id */,
+		  'Class Nbr' => FALSE /* section synonym */,
 		  'Subject' => FALSE /* "Mathematics (MATH)" */,
-		  'Catalog Nbr' => FALSE /* "10001", i.e. section synonym */,
+		  'Catalog Nbr' => FALSE /* "201", unqualified course_id */,
 		  'Section' => FALSE /* You still reading these comments? */,
 		  'Course Title' => FALSE /* for your sake, I hope you aren't */,
 		  'Component' => FALSE /* "LAB", "LEC", "REC" -- i.e., meeting_type(?) */,
@@ -200,7 +200,8 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
   foreach ($csv as $row)
     {
       $row = str_getcsv($row);
-      $synonym = trim($row[$fields['Catalog Nbr']]);
+      $synonym = trim($row[$fields['Class Nbr']]);
+      $course_id = trim($row[$fields['Catalog Nbr']]);
 
       if (!preg_match(';\(([A-Z]+)\)$;', $row[$fields['Subject']], $matches))
 	{
@@ -213,7 +214,7 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
       $days = '';
       foreach (array('M' => 'm', 'T' => 't', 'W' => 'w', 'TH' => 'h', 'F' => 'f', 'S' => 's')
 	       as $field => $day)
-	if (!strlen(trim($row[$fields[$field]])))
+	if (strlen(trim($row[$fields[$field]])))
 	  $days .= $day;
 
       if (!preg_match(';^([0-9]+)-([0-9]+)([AP])M$;', $row[$fields['Time']], $matches))
@@ -221,16 +222,16 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
 	  school_crawl_logf($school_crawl_log, 4, "Unable to parse meeting time: `%s'. Skipping section/meeting (synonym=%s).",
 			    $row[$fields['Time']], $synonym);
 	  /* ensure that the class is added nonetheless */
-	  if ($semester->class_get($dept, $row[$fields['Class Nbr']]) === NULL)
-	    $semester->class_add(new Course($dept . '-' . $row[$fields['Class Nbr']], $row[$fields['Course Title']]));
+	  if ($semester->class_get($dept, $course_id) === NULL)
+	    $semester->class_add(new Course($dept . '-' . $course_id, $row[$fields['Course Title']]));
 	  continue;
 	}
       $time_end = umich_crawl_time($matches[2], $matches[3]);
       $time_start = umich_crawl_time($matches[1], FALSE, $time_end);
 
-      $semester->section_meeting_add($dept, $row[$fields['Class Nbr']], $row[$fields['Course Title']],
-				     $row[$fields['Section']], $row[$fields['Catalog Nbr']], $row[$fields['Instructor']],
-				     new SectionMeeting($days, $time_start, $time_end, $row[$fields['Location']], school_crawl_meeting_type($row[$fields['Component']])));
+      $semester->section_meeting_add($dept, $course_id, trim($row[$fields['Course Title']]),
+				     trim($row[$fields['Section']]), $synonym, trim($row[$fields['Instructor']]),
+				     new SectionMeeting($days, $time_start, $time_end, trim($row[$fields['Location']]), school_crawl_meeting_type(trim($row[$fields['Component']]))));
     }
 }
 
