@@ -271,27 +271,6 @@ function add_class_n(course_id, title)
 
 		var class_elem = jQuery('.className' + classNum);
 
-
-		/*
-		 * Don't let the user accidentally submit the form by
-		 * pressing <ENTER>. Instead, select the first
-		 * autocomplete result if possible.
-		 */
-		class_elem.bind('keyup keydown', function(e)
-				  {
-				      /* <ENTER> is 13 */
-				      if (e.which == 13)
-					  {
-					      /*
-					       * The user has pressed enter before selecting an autocomplete entry, which means the
-					       * form will be submitted without his expecting it to be. We yet need code
-					       * to figure out what the first autocomplete result is :-/.
-					       */
-					      return false;
-					  }
-				      return true;
-				  });
-
 		class_elem.autocomplete({ source: 'auto.php' });
 		class_elem.bind('autocompleteselect', {class_num: classNum, class_elem: class_elem},
 			function(event, ui)
@@ -431,6 +410,28 @@ function course_free_check(course_i)
 		course_remove(slate_permutate_course_free);
 	    slate_permutate_course_free = course_i;
 	}
+}
+
+/**
+ * \brief
+ *   A function to prevent accidental form submission.
+ *
+ * To be bound to keyup and keydown events for objects which may
+ * accidentally be used to cause form submission.
+ */
+function slate_permutate_nullify_enter(e)
+{
+    /* <ENTER> is 13 */
+    if (e.which == 13)
+    {
+	/*
+	 * The user has pressed enter before selecting an autocomplete entry, which means the
+	 * form will be submitted without his expecting it to be. We yet need code
+	 * to figure out what the first autocomplete result is :-/.
+	 */
+	return false;
+    }
+    return true;
 }
 
 /**
@@ -581,6 +582,12 @@ jQuery(document).ready(function() {
         jQuery('.course-title-entry').live('click', function() {
           jQuery(this).toggleClass('inPlace');
         });
+    /*
+     * Prevent accidental form submission for className and course
+     * title entry text fields.
+     */
+    jQuery('.course-title-entry').live('keyup keydown', slate_permutate_nullify_enter);
+    jQuery('.className').live('keyup keydown', slate_permutate_nullify_enter);
         jQuery('.course-title-entry').live('blur', function() {
           jQuery(this).addClass('inPlace');
         });
