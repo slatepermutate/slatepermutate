@@ -50,7 +50,7 @@ elseif (!empty($_REQUEST['e']))
     $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
   }
 
-$my_hc = 'var slate_permutate_example_course_id = \'' . str_replace('\'', '\\\'', school_example_course_id($inputPage->get_school())) . '\';
+$my_hc = 'var slate_permutate_example_course_id = ' . json_encode(school_example_course_id($inputPage->get_school())) . ';
 
 jQuery(document).ready(
   function()
@@ -77,18 +77,18 @@ elseif ($errors_fix)
 	  if (empty($course['name']))
 	    $my_hc .= '    class_last = add_class();' . PHP_EOL;
 	  else
-	    $my_hc .= '    class_last = add_class_n(\'' . htmlentities($course['name'], ENT_QUOTES) . '\', \'' . htmlentities($title, ENT_QUOTES) . '\');' . PHP_EOL;
+	    $my_hc .= '    class_last = add_class_n(' . json_encode($course['name']) . ', ' . json_encode($title) . ');' . PHP_EOL;
 	  foreach ($course as $section)
 	    if (is_array($section))
-	      $my_hc .= '    add_section_n(class_last, \'' . htmlentities($section['letter'], ENT_QUOTES) . '\', \''
-		. htmlentities($section['synonym'], ENT_QUOTES) . '\', \'' . htmlentities($section['start'], ENT_QUOTES) . '\', \''
-		. htmlentities($section['end'], ENT_QUOTES) . '\', '
+	      $my_hc .= '    add_section_n(class_last, ' . json_encode($section['letter']) . ', '
+		. json_encode($section['synonym']) . ', ' . json_encode($section['start']) . ', '
+		. json_encode($section['end']) . ', '
 		. json_encode(array('m' => !empty($section['days'][0]), 't' => !empty($section['days'][1]), 'w' => !empty($section['days'][2]),
 				    'h' => !empty($section['days'][3]), 'f' => !empty($section['days'][4]),
 				    's' => !empty($section['days'][5])))
-		. ', \'' . htmlentities($section['professor'], ENT_QUOTES) . '\', \''
-		. htmlentities($section['location'], ENT_QUOTES) . '\', \''
-		. htmlentities($section['type'], ENT_QUOTES) . '\');' . PHP_EOL;
+		. ', ' . json_encode($section['professor']) . ', '
+		. json_encode($section['location']) . ', '
+		. json_encode($section['type']) . ');' . PHP_EOL;
 	  $my_hc .= PHP_EOL;
 	}
   }
@@ -187,7 +187,7 @@ $inputPage->showSavedScheds($_SESSION);
         echo 'value="' . htmlentities($_POST['postData']['name'], ENT_QUOTES) . '"';
     ?> />
   <?php if (!empty($parent_schedule_id)): ?>
-  <input type="hidden" name="postData[parent_schedule_id]" value="<?php echo htmlentities($parent_schedule_id); ?>" />
+  <input type="hidden" name="postData[parent_schedule_id]" value="<?php echo htmlentities($parent_schedule_id, ENT_QUOTES); ?>" />
   <?php endif; ?>
 </p>
 
@@ -253,8 +253,8 @@ function input_class_js(Course $course, $whitespace = '  ')
   $title = $course->title_get();
   if (empty($title))
     $title = '';
-  $js = $whitespace . 'class_last = add_class_n(\'' . htmlentities($course->getName(), ENT_QUOTES) . '\', \''
-    . htmlentities($title, ENT_QUOTES) . "');\n";
+  $js = $whitespace . 'class_last = add_class_n(' . json_encode($course->getName()) . ', '
+    . json_encode($title) . ');' . PHP_EOL;
 
   $nsections  = $course->getnsections();
   for ($section_key = $nsections - 1; $section_key >= 0; $section_key --)
@@ -263,15 +263,15 @@ function input_class_js(Course $course, $whitespace = '  ')
       $meetings = $section->getMeetings();
       foreach ($meetings as $meeting)
 	{
-	  $js .= $whitespace . 'add_section_n(class_last, \'' . htmlentities($section->getLetter(), ENT_QUOTES) . '\', \''
-	    . htmlentities($section->getSynonym(), ENT_QUOTES) . '\', \''
-	    . $meeting->getStartTime() . '\', \''
-	    . $meeting->getEndTime() . '\', '
+	  $js .= $whitespace . 'add_section_n(class_last, ' . json_encode($section->getLetter()) . ', '
+	    . json_encode($section->getSynonym()) . ', '
+	    . json_encode($meeting->getStartTime()) . ', '
+	    . json_encode($meeting->getEndTime()) . ', '
 	    . json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4),
-				's' => $meeting->getDay(5))) . ', \''
-	    . htmlentities($section->getProf(), ENT_QUOTES) . '\', \''
-	    . htmlentities($meeting->getLocation(), ENT_QUOTES) . '\',\''
-	    . htmlentities($meeting->type_get(), ENT_QUOTES) . "');\n";
+				's' => $meeting->getDay(5))) . ', '
+	    . json_encode($section->getProf()) . ', '
+	    . json_encode($meeting->getLocation()) . ','
+	    . json_encode($meeting->type_get()) . ');' . PHP_EOL;
 	}
     }
 

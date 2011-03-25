@@ -60,91 +60,6 @@ var slate_permutate_course_free = -1;
  */
 
 /**
- * \brief
- * Returns the common inputs for each new section.
- */
-function genSectionHtml(cnum)
-{
-    genSectionHtml_n(cnum, '', '', '', '', '', '', '');
-}
-
-/* @TODO: This should select & set items based on args, if the args != '' */
-function genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location, type)
-{
-    var snum = last_section_i ++;
-		
-		var cssclasses = 'section class' + cnum;
-		if(type == 'lab') {
-		    cssclasses += ' lab';
-		}
-		
-		var result = '<tr class="' + cssclasses + '"><td class="none"></td>';
-	        result = result + '<td class="sectionIdentifier center"><input type="text" size="1" class="required" name="postData[' + cnum + '][' + snum + '][letter]" value="' + name + '" /><input type="hidden" name="postData[' + cnum + '][' + snum + '][synonym]" value="' + synonym + '" /></td>';
-		result = result + '<td class="professor center"><input type="text" size="10" class="profName" name="postData[' + cnum + ']['+ snum + '][professor]" value="' + prof + '" /></td>';
-		result = result + '<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>' +
-		    genOptionHtml("0700", "7:00 am", stime) + genOptionHtml("0730", "7:30 am", stime) +
-		    genOptionHtml("0800", "8:00 am", stime) + genOptionHtml("0830", "8:30 am", stime) +
-		    genOptionHtml("0900", "9:00 am", stime) + genOptionHtml("0930", "9:30 am", stime) +
-		    genOptionHtml("1000", "10:00 am", stime) + genOptionHtml("1030", "10:30 am", stime) +
-		    genOptionHtml("1100", "11:00 am", stime) + genOptionHtml("1130", "11:30 am", stime) +
-		    genOptionHtml("1200", "12:00 pm", stime) + genOptionHtml("1230", "12:30 pm", stime) +
-		    genOptionHtml("1300", "1:00 pm", stime) + genOptionHtml("1330", "1:30 pm", stime) +
-		    genOptionHtml("1400", "2:00 pm", stime) + genOptionHtml("1430", "2:30 pm", stime) +
-		    genOptionHtml("1500", "3:00 pm", stime) + genOptionHtml("1530", "3:30 pm", stime) +
-		    genOptionHtml("1600", "4:00 pm", stime) + genOptionHtml("1630", "4:30 pm", stime) +
-		    genOptionHtml("1700", "5:00 pm", stime) + genOptionHtml("1730", "5:30 pm", stime) +
-		    genOptionHtml("1800", "6:00 pm", stime) + genOptionHtml("1830", "6:30 pm", stime) +
-		    genOptionHtml("1900", "7:00 pm", stime) + genOptionHtml("1930", "7:30 pm", stime) +
-		    genOptionHtml("2000", "8:00 pm", stime) + genOptionHtml("2030", "8:30 pm", stime) +
-		    genOptionHtml("2100", "9:00 pm", stime);
-
-		if (stime.length > 0)
-		    {
-			var stime_end = stime.substr(2);
-			if (stime_end != '00' && stime_end != '30')
-			    result = result + genOptionHtml(stime, prettyTime(stime), stime);
-		    }
-
-		result = result + '</select></td>\
-			<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][end]"><option value="none"></option>' +
-		    genOptionHtml("0720", "7:20 am", etime) + genOptionHtml("0750", "7:50 am", etime) +
-		    genOptionHtml("0820", "8:20 am", etime) + genOptionHtml("0850", "8:50 am", etime) +
-		    genOptionHtml("0920", "9:20 am", etime) + genOptionHtml("0950", "9:50 am", etime) +
-		    genOptionHtml("1020", "10:20 am", etime) + genOptionHtml("1050", "10:50 am", etime) +
-		    genOptionHtml("1120", "11:20 am", etime) + genOptionHtml("1150", "11:50 am", etime) +
-		    genOptionHtml("1220", "12:20 pm", etime) + genOptionHtml("1250", "12:50 pm", etime) +
-		    genOptionHtml("1320", "1:20 pm", etime) + genOptionHtml("1350", "1:50 pm", etime) +
-		    genOptionHtml("1420", "2:20 pm", etime) + genOptionHtml("1450", "2:50 pm", etime) +
-		    genOptionHtml("1520", "3:20 pm", etime) + genOptionHtml("1550", "3:50 pm", etime) +
-		    genOptionHtml("1620", "4:20 pm", etime) + genOptionHtml("1650", "4:50 pm", etime) +
-		    genOptionHtml("1720", "5:20 pm", etime) + genOptionHtml("1750", "5:50 pm", etime) +
-		    genOptionHtml("1820", "6:20 pm", etime) + genOptionHtml("1850", "6:50 pm", etime) +
-		    genOptionHtml("1920", "7:20 pm", etime) + genOptionHtml("1950", "7:50 pm", etime) +
-		    genOptionHtml("2020", "8:20 pm", etime) + genOptionHtml("2050", "8:50 pm", etime) +
-		    genOptionHtml("2120", "9:20 pm", etime);
-
-		if (etime.length > 0)
-		    {
-			var etime_end = etime.substr(2);
-			if (etime_end != '50' && etime_end != '20')
-			    result = result + genOptionHtml(etime, prettyTime(etime), etime);
-		    }
-
-		result = result + '</select></td>\
-			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][0]" value="1" ' + (days.m ? 'checked="checked"' : '') + ' /></td>\
-			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][1]" value="1" ' + (days.t ? 'checked="checked"' : '') + ' /></td>\
-			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][2]" value="1" ' + (days.w ? 'checked="checked"' : '') + ' /></td>\
-			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][3]" value="1" ' + (days.h ? 'checked="checked"' : '') + ' /></td>\
-			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][4]" value="1" ' + (days.f ? 'checked="checked"' : '') + ' /></td>\
-			<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][5]" value="1" ' + (days.s ? 'checked="checked"' : '') + ' /></td>';
-		result = result + '<td class="removeCell"><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td class="emptyCell">' +
-		    '<input type="hidden" name="postData[' + cnum + '][' + snum + '][location]" value="' + location + '" />' +
-		    '<input type="hidden" name="postData[' + cnum + '][' + snum + '][type]" value="' + type + '" />' +
-		    '</td></tr>';
-		return result;
-	}
-
-/**
  * Outputs an <option/> element. It will inlcude selected="selected"
  * if the value param equals the test_value param.
  */
@@ -189,11 +104,94 @@ function addTips()
  */
 function add_section_n(cnum, name, synonym, stime, etime, days, prof, location, type)
 {
-    jQuery('.pclass'+cnum).after(genSectionHtml_n(cnum, name, synonym, stime, etime, days, prof, location, type));
+    var snum = last_section_i ++;
+    var cssclasses = 'section class' + cnum;
+
+    if(type == 'lab')
+	cssclasses += ' lab';
+
+    var section_html = '<tr class="' + cssclasses + '"><td class="none"></td>' +
+	'<td class="sectionIdentifier center"><input type="text" size="1" class="required section-letter-entry" name="postData[' + cnum + '][' + snum + '][letter]" /><input class="section-synonym-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][synonym]" /></td>' +
+	'<td class="professor center"><input type="text" size="10" class="profName" name="postData[' + cnum + ']['+ snum + '][professor]" /></td>' +
+	'<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>' +
+	genOptionHtml("0700", "7:00 am", stime) + genOptionHtml("0730", "7:30 am", stime) +
+	genOptionHtml("0800", "8:00 am", stime) + genOptionHtml("0830", "8:30 am", stime) +
+	genOptionHtml("0900", "9:00 am", stime) + genOptionHtml("0930", "9:30 am", stime) +
+	genOptionHtml("1000", "10:00 am", stime) + genOptionHtml("1030", "10:30 am", stime) +
+	genOptionHtml("1100", "11:00 am", stime) + genOptionHtml("1130", "11:30 am", stime) +
+	genOptionHtml("1200", "12:00 pm", stime) + genOptionHtml("1230", "12:30 pm", stime) +
+	genOptionHtml("1300", "1:00 pm", stime) + genOptionHtml("1330", "1:30 pm", stime) +
+	genOptionHtml("1400", "2:00 pm", stime) + genOptionHtml("1430", "2:30 pm", stime) +
+	genOptionHtml("1500", "3:00 pm", stime) + genOptionHtml("1530", "3:30 pm", stime) +
+	genOptionHtml("1600", "4:00 pm", stime) + genOptionHtml("1630", "4:30 pm", stime) +
+	genOptionHtml("1700", "5:00 pm", stime) + genOptionHtml("1730", "5:30 pm", stime) +
+	genOptionHtml("1800", "6:00 pm", stime) + genOptionHtml("1830", "6:30 pm", stime) +
+	genOptionHtml("1900", "7:00 pm", stime) + genOptionHtml("1930", "7:30 pm", stime) +
+	genOptionHtml("2000", "8:00 pm", stime) + genOptionHtml("2030", "8:30 pm", stime) +
+	genOptionHtml("2100", "9:00 pm", stime);
+
+    if (stime.length > 0)
+    {
+	var stime_end = stime.substr(2);
+	if (stime_end != '00' && stime_end != '30')
+	    section_html = section_html + genOptionHtml(stime, prettyTime(stime), stime);
+    }
+
+    section_html = section_html + '</select></td>\
+<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][end]"><option value="none"></option>' +
+	genOptionHtml("0720", "7:20 am", etime) + genOptionHtml("0750", "7:50 am", etime) +
+	genOptionHtml("0820", "8:20 am", etime) + genOptionHtml("0850", "8:50 am", etime) +
+	genOptionHtml("0920", "9:20 am", etime) + genOptionHtml("0950", "9:50 am", etime) +
+	genOptionHtml("1020", "10:20 am", etime) + genOptionHtml("1050", "10:50 am", etime) +
+	genOptionHtml("1120", "11:20 am", etime) + genOptionHtml("1150", "11:50 am", etime) +
+	genOptionHtml("1220", "12:20 pm", etime) + genOptionHtml("1250", "12:50 pm", etime) +
+	genOptionHtml("1320", "1:20 pm", etime) + genOptionHtml("1350", "1:50 pm", etime) +
+	genOptionHtml("1420", "2:20 pm", etime) + genOptionHtml("1450", "2:50 pm", etime) +
+	genOptionHtml("1520", "3:20 pm", etime) + genOptionHtml("1550", "3:50 pm", etime) +
+	genOptionHtml("1620", "4:20 pm", etime) + genOptionHtml("1650", "4:50 pm", etime) +
+	genOptionHtml("1720", "5:20 pm", etime) + genOptionHtml("1750", "5:50 pm", etime) +
+	genOptionHtml("1820", "6:20 pm", etime) + genOptionHtml("1850", "6:50 pm", etime) +
+	genOptionHtml("1920", "7:20 pm", etime) + genOptionHtml("1950", "7:50 pm", etime) +
+	genOptionHtml("2020", "8:20 pm", etime) + genOptionHtml("2050", "8:50 pm", etime) +
+	genOptionHtml("2120", "9:20 pm", etime);
+
+    if (etime.length > 0)
+    {
+	var etime_end = etime.substr(2);
+	if (etime_end != '50' && etime_end != '20')
+	    section_html = section_html + genOptionHtml(etime, prettyTime(etime), etime);
+    }
+
+    section_html = section_html + '</select></td>\
+<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][0]" value="1" ' + (days.m ? 'checked="checked"' : '') + ' /></td>\
+<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][1]" value="1" ' + (days.t ? 'checked="checked"' : '') + ' /></td>\
+<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][2]" value="1" ' + (days.w ? 'checked="checked"' : '') + ' /></td>\
+<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][3]" value="1" ' + (days.h ? 'checked="checked"' : '') + ' /></td>\
+<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][4]" value="1" ' + (days.f ? 'checked="checked"' : '') + ' /></td>\
+<td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][5]" value="1" ' + (days.s ? 'checked="checked"' : '') + ' /></td>' +
+	'<td class="removeCell"><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td class="emptyCell">' +
+	'<input class="section-location-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][location]" />' +
+	'<input class="section-type-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][type]" />' +
+	'</td></tr>';
+
+
+    jQuery('.pclass' + cnum).after(section_html);
     sectionsOfClass[cnum] ++;
 
+    var section_tr = jQuery('.pclass' + cnum).next();
     /* store course_i in a place the newly added section will look for it */
-    jQuery('.pclass' + cnum).next().data({course_i: cnum});
+    section_tr.data({course_i: cnum});
+
+    /*
+     * Store data into the newly created HTML. With this method we
+     * have to _avoid_ escaping entities in the text we're setting as
+     * values because the DOM stuff will escape it for us.
+     */
+    section_tr.find('.section-letter-entry').val(name);
+    section_tr.find('.section-synonym-entry').val(synonym);
+    section_tr.find('.profName').val(prof);
+    section_tr.find('.section-location-entry').val(location);
+    section_tr.find('.section-type-entry').val(type);
 
     /* unhide the saturday columns if it's used by autocomplete data */
     if (days.s)
@@ -255,19 +253,22 @@ function add_sections(cnum, data)
  *   The javascript-local course entry identifying number.
  */
 function add_class_n(course_id, title)
-	{
-	    /*
-	     * If we're adding a course entry form with preadded
-	     * content, first remove the empty course.
-	     */
-	    if (course_id.length && slate_permutate_course_free != -1)
-		course_remove(slate_permutate_course_free);
+{
+    /*
+     * If we're adding a course entry form with preadded
+     * content, first remove the empty course.
+     */
+    if (course_id.length && slate_permutate_course_free != -1)
+	course_remove(slate_permutate_course_free);
 
-		sectionsOfClass[classNum] = 0; // Initialize at 0
-		jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" value="' + course_id + '" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace course-title-entry" value="' + title + '" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
+    sectionsOfClass[classNum] = 0; // Initialize at 0
+    jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace course-title-entry" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
-		jQuery('#tr-course-' + classNum).data({course_i: classNum});
+    var tr_course = jQuery('#tr-course-' + classNum);
+    tr_course.data({course_i: classNum});
+    tr_course.find('.course-title-entry').val(title);
+    tr_course.find('.className').val(course_id);
 
 		var class_elem = jQuery('.className' + classNum);
 
