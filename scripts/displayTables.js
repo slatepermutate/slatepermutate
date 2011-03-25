@@ -132,9 +132,12 @@ jQuery(document).ready( function()
             tip: true,
             classes: "ui-tooltip-dark ui-tooltip-shadow ui-tooltip-rounded"
           },
+          hide: {
+            event: 'mouseleave click'
+          },
           position:{
             my: 'bottom left',
-            at: 'center',
+            at: 'top center',
           }
       });  
   }
