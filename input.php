@@ -269,7 +269,7 @@ function input_class_js(Course $course, $whitespace = '  ')
 	    . json_encode($meeting->getEndTime()) . ', '
 	    . json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4),
 				's' => $meeting->getDay(5))) . ', '
-	    . json_encode($section->getProf()) . ', '
+	    . json_encode($meeting->instructor_get()) . ', '
 	    . json_encode($meeting->getLocation()) . ','
 	    . json_encode($meeting->type_get()) . ');' . PHP_EOL;
 	}

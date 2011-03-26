@@ -102,7 +102,7 @@ function addTips()
  * \brief
  *   Add a section to a class.
  */
-function add_section_n(cnum, name, synonym, stime, etime, days, prof, location, type)
+function add_section_n(cnum, name, synonym, stime, etime, days, instructor, location, type)
 {
     var snum = last_section_i ++;
     var cssclasses = 'section class' + cnum;
@@ -189,7 +189,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, prof, location, 
      */
     section_tr.find('.section-letter-entry').val(name);
     section_tr.find('.section-synonym-entry').val(synonym);
-    section_tr.find('.profName').val(prof);
+    section_tr.find('.profName').val(instructor);
     section_tr.find('.section-location-entry').val(location);
     section_tr.find('.section-type-entry').val(type);
 
@@ -227,7 +227,7 @@ function add_sections(cnum, data)
     for (i = data.sections.length - 1; i >= 0; i --)
 	{
 	    section = data.sections[i];
-	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.prof, section.location, section.type);
+	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.instructor, section.location, section.type);
 	}
 
     /*

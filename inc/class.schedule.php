@@ -529,13 +529,13 @@ class Schedule
 				      echo '            <td rowspan="' . $rowspan[$dayLoop]
 					. '" class="qTipCell ' . $single_multi . ' class' . $j
 					. '" title="' . htmlentities($title, ENT_QUOTES) . $carret
-					. 'Prof: ' . htmlentities($section->getProf(), ENT_QUOTES) . $carret
+					. 'Prof: ' . htmlentities($current_meeting->instructor_get(), ENT_QUOTES) . $carret
 					. 'Room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . $carret
 					. 'Type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . $carret . '">'
 					. '<span class="course-title block">' . htmlentities($title) . '</span>' . PHP_EOL
 					. htmlentities($course->getName(), ENT_QUOTES) . '-'
 					. htmlentities($section->getLetter(), ENT_QUOTES) . "\n"
-					. '<span class="prof block">' . htmlentities($section->getProf(), ENT_QUOTES) . "</span>\n"
+					. '<span class="prof block">' . htmlentities($current_meeting->instructor_get(), ENT_QUOTES) . "</span>\n"
 					. '<span class="location block">' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . "</span>\n"
 					. '<span class="synonym block">' . htmlentities($section->getSynonym(), ENT_QUOTES) . "</span>\n"
 					. "</td>\n";

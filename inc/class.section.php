@@ -30,7 +30,7 @@ class Section
 {
 
   private $letter;	// Section letter
-  private $prof;	// Professor
+  private $prof;	// Professor, preserved for Section::__wakeup()
 
   /* meeting times, array of SectionMeeting */
   private $meetings;
@@ -56,28 +56,19 @@ class Section
    * \param $synonym
    *   Some schools have a unique number for each section. This field
    *   is for that number.
-   * \param $prof
-   *   The faculty person(s) who teaches this section.
    */
-  function __construct ($letter, array $section_meetings = array(), $synonym = NULL, $prof = NULL)
+  function __construct ($letter, array $section_meetings = array(), $synonym = NULL)
   {
     $this->letter = $letter;
 
     $this->meetings = $section_meetings;
 
     $this->synonym = $synonym;
-
-    $this->prof = $prof;
   }
 
   public function getLetter()
   {
     return $this->letter;
-  }
-
-  public function getProf()
-  {
-    return $this->prof;
   }
 
   /**
@@ -214,7 +205,6 @@ class Section
     foreach ($this->meetings as $meeting)
       {
 	$json_array = array('section' => $this->letter,
-			    'prof' => $this->prof,
 			    'synonym' => $this->synonym,
 			    );
 
@@ -249,15 +239,13 @@ class Section
     $section_meetings = array();
     $letter = '';
     $synonym = NULL;
-    $prof = NULL;
     foreach ($json_arrays as $meeting)
       {
 	$letter = $meeting['section'];
 	$synonym = $meeting['synonym'];
-	$prof = $meeting['prof'];
 	$section_meetings[] = SectionMeeting::from_json_array($meeting);
       }
-    $section = new Section($letter, $section_meetings, $synonym, $prof);
+    $section = new Section($letter, $section_meetings, $synonym);
 
     return $section;
   }
@@ -287,12 +275,19 @@ class Section
 	$this->prof = '';
 
 	$this->meetings = array();
-	$this->meeting_add(new SectionMeeting($days, $this->start, $this->tend, '', 'lecture'));
+	$this->meeting_add(new SectionMeeting($days, $this->start, $this->tend, '', 'lecture', $this->prof));
 
 	/*
 	 * if we're reserialized in the future, make sure we don't do this same upgrade procedure again ;-).
 	 */
 	unset($this->start);
+      }
+    elseif (!empty($this->prof))
+      /* Move the instructor (old $this->prof) property to our SectionMeeting children */
+      foreach ($this->meetings as $meeting)
+      {
+	$meeting->instructor_set();
+	unset($this->prof);
       }
   }
 }

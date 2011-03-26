@@ -132,8 +132,6 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
       $tables[$department] = table_parse(cedarville_html_fix($html));
     }
 
-  $meeting_type_maps = array('LAB' => 'lab', 'LECT' => 'lecture');
-
   foreach ($tables as $dept_table)
     {
       /*
@@ -236,10 +234,7 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 	      $time_end = school_crawl_time_format(strptime($meeting_matches[5] . 'M', '%I:%M%p'));
 	      $room = $meeting_matches[2];
 
-	      $type = $meeting_matches[1];
-	      while (isset($meeting_type_maps[$type]))
-		$type = $meeting_type_maps[$type];
-	      $type = strtolower($type);
+	      $type = school_crawl_meeting_type($meeting_matches[1]);
 
 	      /* check for daterange information -- i.e., if the first regex successfully matched: */
 	      if (count($meeting_matches) > 7)
@@ -254,12 +249,12 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 		}
 
 	      $meetings[] = new SectionMeeting($days, $time_start, $time_end,
-					       $room, $type);
+					       $room, $type, $instructor);
 	    }
 
 	  $semester->section_add($section_parts['department'], $section_parts['course'],
 				 new Section($section_parts['section'], $meetings,
-					     $synonym, $instructor), $title);
+					     $synonym), $title);
 	}
     }
 

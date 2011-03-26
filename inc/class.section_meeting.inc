@@ -39,6 +39,7 @@ class SectionMeeting
   private $time_end;
   private $days;
   private $location;
+  private $instructor;
 
   /**
    * \brief
@@ -58,8 +59,10 @@ class SectionMeeting
    *   The type of meeting this is. For lectures, please use
    *   'lecture'. For labs, please use 'lab'. For others, use the
    *   school's notation.
+   * \param $instructor
+   *   The instructor for this section meeting.
    */
-  public function __construct($days, $time_start, $time_end, $location = NULL, $type = 'lecture')
+  public function __construct($days, $time_start, $time_end, $location = NULL, $type = 'lecture', $instructor = NULL)
   {
     $this->days_set($days);
 
@@ -69,6 +72,7 @@ class SectionMeeting
     $this->location = $location;
 
     $this->type = $type;
+    $this->instructor = $instructor;
   }
 
   /**
@@ -101,6 +105,31 @@ class SectionMeeting
 			      0  => 0,  1  => 1,  2  => 2,  3  => 3,  4  => 4,  5  => 5);
 
     return $day_atoi[$day_c];
+  }
+
+  /**
+   * \brief
+   *   For Section::__wakeup().
+   *
+   * \param $instructor
+   *   New instructor's name, a string.
+   */
+  public function instructor_set($instructor)
+  {
+    $this->instructor = $instructor;
+  }
+
+  /**
+   * \brief
+   *   Get the instructor's name.
+   *
+   * \return
+   *   The instructor's name as a string or NULL if there is no given
+   *   instructor.
+   */
+  public function instructor_get()
+  {
+    return $this->instructor;
   }
 
   /**
@@ -218,6 +247,7 @@ class SectionMeeting
 			'time_end' => $this->time_end,
 			'days' => array(),
 			'location' => $this->location,
+			'instructor' => $this->instructor,
 			'type' => $this->type,
 			);
 
@@ -242,6 +272,6 @@ class SectionMeeting
     foreach ($json_array['days'] as $day => $meets)
       if ($meets)
 	$days .= $day;
-    return new SectionMeeting($days, $json_array['time_start'], $json_array['time_end'], $json_array['location'], $json_array['type']);
+    return new SectionMeeting($days, $json_array['time_start'], $json_array['time_end'], $json_array['location'], $json_array['type'], $json_array['instructor']);
   }
 }

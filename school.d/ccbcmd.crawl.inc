@@ -193,7 +193,7 @@ function ccbcmd_crawl(array &$semesters, &$school_crawl_log)
 	     * empty now).
 	     */
 	    $semester->section_add($section_id_parts['department'], $section_id_parts['course'],
-				   new Section($section_id_parts['section'], $section_meetings, $registration_number, $instructor));
+				   new Section($section_id_parts['section'], $section_meetings, $registration_number));
 	    continue;
 
 	  }
@@ -231,7 +231,8 @@ function ccbcmd_crawl(array &$semesters, &$school_crawl_log)
 	$days = school_crawl_days_str_format($children->item($section_offsets['days'])->textContent);
 
 	$section_meetings[] = new SectionMeeting($days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
-						 $children->item($section_offsets['location'])->textContent);
+						 $children->item($section_offsets['location'])->textContent,
+						 $instructor);
 
 	/* check if a semester's date range should be increased */
 	$section_dates = $children->item($section_offsets['dates'])->textContent;
@@ -243,7 +244,7 @@ function ccbcmd_crawl(array &$semesters, &$school_crawl_log)
       }
 
       $semester->section_add($section_id_parts['department'], $section_id_parts['course'],
-			     new Section($section_id_parts['section'], $section_meetings, $registration_number, $instructor));
+			     new Section($section_id_parts['section'], $section_meetings, $registration_number));
     }
 
   $semesters[] = $semester;

@@ -351,7 +351,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place', 'meeting_type') as $var)
 	    school_crawl_logf($school_crawl_log, 10, "%s:%s", $var, ${$var});
 
-	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type)), $synonym, $faculty_name);
+	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type, $faculty_name)), $synonym);
 	  $semester->section_add($section_id['department'], $section_id['course'], $section, $title);
 
 	  /*

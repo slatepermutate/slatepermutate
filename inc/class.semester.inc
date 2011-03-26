@@ -195,13 +195,11 @@ class Semester
    *   The letter or numbers which make up the section's name.
    * \param $synonym
    *   The section synonym or NULL.
-   * \param $professor
-   *   The section's professor or NULL.
    * \param $section_meeting
    *   The SectionMeeting to be added to a section which may or may
    *   not already be in this Semester.
    */
-  public function section_meeting_add($dept, $course, $title, $section, $synonym, $professor, $section_meeting)
+  public function section_meeting_add($dept, $course, $title, $section, $synonym, $section_meeting)
   {
     $dept = strtoupper($dept);
     $course = strtoupper($course);
@@ -214,7 +212,7 @@ class Semester
 	$section_obj = $course_obj->section_get($section);
       }
     if (empty($course_obj) || empty($section_obj))
-      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym, $professor), $title);
+      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym), $title);
 
     $section_obj->meeting_add($section_meeting);
     return;
