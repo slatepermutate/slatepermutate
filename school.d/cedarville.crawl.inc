@@ -229,7 +229,7 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 	      /* prepare for parsing the next meeting time */
 	      $meetings_str = substr($meetings_str, strlen($meeting_matches[0]));
 
-	      $days = school_crawl_days_str_format($meeting_matches[3]);
+	      $days = school_crawl_days_str_format($school_crawl_log, $meeting_matches[3]);
 	      $time_start = school_crawl_time_format(strptime($meeting_matches[4] . 'M', '%I:%M%p'));
 	      $time_end = school_crawl_time_format(strptime($meeting_matches[5] . 'M', '%I:%M%p'));
 	      $room = $meeting_matches[2];

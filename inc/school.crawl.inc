@@ -149,8 +149,10 @@ function school_crawl_mktime(array $tm)
  * This function is intended to make it easy for one to take the
  * output of an explode() call. For example, to decode $days_str =
  * 'Monday, Tuesday, Friday', one would do
- * school_crawl_days_format(explode(', ', $days_str));
+ * school_crawl_days_format($school_crawl_log, explode(', ', $days_str));
  *
+ * \param $school_crawl_log
+ *   A school_crawl_log handle to report errors to.
  * \param $days
  *   An array of day names. These may be common abbreviations or
  *   truncations (any truncations must be two chars long for
@@ -161,7 +163,7 @@ function school_crawl_mktime(array $tm)
  * \return
  *   slate_permutate's strange internal days representation.
  */
-function school_crawl_days_format($days)
+function school_crawl_days_format(array $school_crawl_log, $days)
 {
   static $daymap_1 = array('m' => 'm', 't' => 't', 'w' => 'w', 'h' => 'h', 'r' => 'h', 'f' => 'f', 's' => 's');
   static $daymap_2 = array('th' => 'h');
@@ -186,8 +188,8 @@ function school_crawl_days_format($days)
       if (isset($daymap_1[$day]))
 	$my_days[$daymap_1[$day]] = TRUE;
       else
-	error_log('school_crawl_days_format() got invalid day specifier:'
-		  . ' `' . $day_orig . '\' => `' . $day . '\'');
+	school_crawl_logf($school_crawl_log, 5, "school_crawl_days_format() got invalid day specifier: `%s' => `%s'.",
+			  $day_orig, $day);
     }
 
   $day_str = '';
@@ -201,18 +203,20 @@ function school_crawl_days_format($days)
  * \brief
  *   Take a string of day initials and format it.
  *
+ * \param $school_crawl_log
+ *   The school_crawl_log handle to write errors out to.
  * \param $days_str
  *   Example input: 'mwf', 'TR'.
  * \return
  *   Same as school_crawl_days_format()
  */
-function school_crawl_days_str_format($days_str)
+function school_crawl_days_str_format(array $school_crawl_log, $days_str)
 {
   $day_initials = array();
   for ($i = 0; $i < strlen($days_str); $i ++)
     $day_initials[] = $days_str[$i];
 
-  return school_crawl_days_format($day_initials);
+  return school_crawl_days_format($school_crawl_log, $day_initials);
 }
 
 /**

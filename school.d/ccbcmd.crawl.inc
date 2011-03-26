@@ -228,7 +228,7 @@ function ccbcmd_crawl(array &$semesters, &$school_crawl_log)
 	    return 1;
 	  }
 
-	$days = school_crawl_days_str_format($children->item($section_offsets['days'])->textContent);
+	$days = school_crawl_days_str_format($school_crawl_log, $children->item($section_offsets['days'])->textContent);
 
 	$section_meetings[] = new SectionMeeting($days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
 						 $children->item($section_offsets['location'])->textContent,
