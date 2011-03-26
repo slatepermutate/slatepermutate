@@ -357,7 +357,6 @@ function school_semester_guess(array $school)
 	  $best_semester = $semester;
 	  $best_score = $my_score;
 	}
-      error_log($semester['name'] . ': ' . $my_score);
     }
   if (!empty($best_semester))
     return $best_semester;
