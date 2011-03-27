@@ -282,6 +282,29 @@ function school_instructions_html($school)
 
 /**
  * \brief
+ *   Get CSS specific to a school.
+ *
+ * For a school to get custom CSS into slate_permutate's <head />,
+ * just create a <school_id>_page_css($school) function which returns
+ * a string of CSS.
+ *
+ * \param $school
+ *   The school from which to fetch CSS.
+ * \return
+ *   A string of valid CSS.
+ */
+function school_page_css(array $school)
+{
+  if (empty($school))
+    return '';
+  $school_page_css = $school['id'] . '_page_css';
+  if (!function_exists($school_page_css))
+    return '';
+  return $school_page_css($school);
+}
+
+/**
+ * \brief
  *   Return information about available semesters.
  *
  * \param $school

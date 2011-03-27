@@ -137,15 +137,6 @@ a:hover {
 #container .emptyCell, .removeCell {
   background: none!important; 
 }
-#container .lab .sectionIdentifier {
-  background: none!important;
-}
-#container .lab .sectionIdentifier input {
-  display: none;
-}
-#container .lab .deleteSection input {
-  display: none;
-}
 #container .lab .deleteSection:before {
   content: "LAB";
 }

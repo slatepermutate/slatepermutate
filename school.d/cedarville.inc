@@ -65,3 +65,22 @@ function cedarville_default_courses()
 
   return array($chapel);
 }
+
+/**
+ * \brief
+ *   Implement <school_id>_page_css().
+ */
+function cedarville_page_css($school)
+{
+  return <<<'CSS'
+#container .lab .sectionIdentifier {
+  background: none!important;
+}
+#container .lab .sectionIdentifier input {
+  display: none;
+}
+#container .lab .deleteSection input {
+  display: none;
+}
+CSS;
+}

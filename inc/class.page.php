@@ -218,8 +218,10 @@ class page
           '    <!--[if IE]>'. PHP_EOL .
           '      <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" href="styles/ie.css" />'. PHP_EOL .
           '    <![endif]-->'. PHP_EOL .
-          '    <link rel="shortcut icon" href="images/favicon.png" />'. PHP_EOL;
-
+          '    <link rel="shortcut icon" href="images/favicon.png" />'. PHP_EOL
+      . '    <style type="text/css">' . PHP_EOL
+      . $this->cdata_wrap(school_page_css($this->school))
+      . '    </style>' . PHP_EOL;
     // Write out all passed scripts
     foreach ($this->scripts as $i)
       echo '    ' . $this->headCode["$i"] . "\n";
@@ -535,11 +537,29 @@ class page
    */
   public function script_wrap($js, $type = 'text/javascript')
   {
-    return '<script type="' . $type . '">' . PHP_EOL
-         . ($this->xhtml ? '<![CDATA[' : '') . PHP_EOL
-         . $js . PHP_EOL
-	 . ($this->xhtml ? ']]>' : '') . PHP_EOL
-         . '// </script>';
+    return ''
+      . '<script type="' . $type . '">' . PHP_EOL
+      . $this->cdata_wrap($js)
+      . '// </script>';
+  }
+
+  /**
+   * \brief
+   *   Wrap something in CDATA or not wrap depending on if we're
+   *   serving HTML.
+   *
+   * Lower-level than Page::script_wrap().
+   * \param $content
+   *   The stuff to wrap in CDATA.
+   * \return
+   *   The wrapped string.
+   */
+  public function cdata_wrap($content)
+  {
+    return ''
+      . ($this->xhtml ? '<![CDATA[' : '') . PHP_EOL
+      . $content . PHP_EOL
+      . ($this->xhtml ? ']]>' : '') . PHP_EOL;
   }
 
   /**
