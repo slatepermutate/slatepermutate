@@ -91,7 +91,7 @@ function addTips()
       },
       position:{
         my: 'top left', 
-        at: 'bottom right',
+        at: 'bottom right'
       }
     }
   );
