@@ -47,7 +47,8 @@ elseif (!empty($_REQUEST['e']))
      * data.
      */
     $errors_fix = TRUE;
-    $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
+    if (!empty($_POST['postData']['parent_schedule_id']))
+      $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
   }
 
 $my_hc = 'var slate_permutate_example_course_id = ' . json_encode(school_example_course_id($inputPage->get_school())) . ';
