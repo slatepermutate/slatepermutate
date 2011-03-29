@@ -59,8 +59,8 @@ EOF;
 
 function cedarville_default_courses()
 {
-  $chapel = new Course('Chapel');
-  $chapel->section_add(new Section('_', array(new SectionMeeting('mtwhf', '1000', '1045', '', 'chapel')),
+  $chapel = new Course('Chapel','Chapel');
+  $chapel->section_add(new Section('_', array(new SectionMeeting('mtwhf', '1000', '1045', '', 'chapel','n/a')),
 				   '', '_'));
 
   return array($chapel);
