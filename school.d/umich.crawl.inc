@@ -274,7 +274,7 @@ function umich_crawl_time($raw, $xm = FALSE, $before = '2400')
 	$xm = 'A';
     }
 
-  if (!strcmp($xm, 'P'))
+  if (!strcmp($xm, 'P') && $h < 12)
     $h += 12;
 
   return sprintf('%02d%02d', $h, $m);
