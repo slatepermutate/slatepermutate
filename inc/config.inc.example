@@ -122,3 +122,15 @@
  * whole concept may appear silly ;-).
  */
 /* $qtips_always = FALSE; */
+
+
+/**
+ * \brief
+ *   Specify whether or not to log feedback to disk
+ *
+ * Set to TRUE to log to file in addition to email logging (if available).
+ * $feedback_disk_log_file must be set to a fully-qualified filepath.
+ * 
+ */
+/* $feedback_disk_log = TRUE; */
+/* $feedback_disk_log_file = "/var/log/sp-feedback.log"; */

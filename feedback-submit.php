@@ -94,6 +94,11 @@ Deployment = $fromdom
 	mail($toaddr, $subject, $message, $from);
       }
 
+    if($feedback_disk_log) {
+      $file = fopen($feedback_disk_log_file,'a') or die("Can't open file.");
+      fwrite($file, $message . "----------------------------------------\n");
+      fclose($file);
+    }
     echo '<p>Thanks for helping make SlatePermutate better. Your feedback is greatly appreciated.</p>';
     echo '<p>We will attempt to respond via email if your feedback lends itself to a response.</p>';
   }
