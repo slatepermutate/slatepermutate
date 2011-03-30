@@ -113,14 +113,17 @@ class Schedule
    * \brief
    *   Adds a section to this semester after finding the class.
    *
+   * \param $instructor
+   *   The instructor of this section/section_meeting.
+   *
    * \return
    *   NULL on success, a string on error which is a message for the
    *   user and a valid XHTML fragment.
    */
-  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $faculty = NULL, $location = NULL, $type = 'lecture')
+  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $instructor = NULL, $location = NULL, $type = 'lecture')
   {
     if (empty($letter) && (empty($time_start) || !strcmp($time_start, 'none')) && (empty($time_end) || !strcmp($time_end, 'none')) && empty($days)
-	&& empty($synonym) && empty($faculty) && empty($location) && (empty($type) || !strcmp($type, 'lecture')))
+	&& empty($synonym) && empty($instructor) && empty($location) && (empty($type) || !strcmp($type, 'lecture')))
       return;
 
     /* reject invalid times */
@@ -137,10 +140,10 @@ class Schedule
 	  $section = $course->section_get($letter);
 	  if (!$section)
 	    {
-	      $section = new Section($letter, array(), $synonym, $faculty);
+	      $section = new Section($letter, array(), $synonym);
 	      $course->section_add($section);
 	    }
-	  $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type));
+	  $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type, $instructor));
 
 	  return;
 	}
