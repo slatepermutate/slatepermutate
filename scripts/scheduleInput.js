@@ -133,7 +133,9 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
     if (stime.length > 0)
     {
 	var stime_end = stime.substr(2);
-	if (stime_end != '00' && stime_end != '30')
+	var stime_begin = stime.substr(0, 2);
+	if (stime_end != '00' && stime_end != '30'
+	   || stime_begin < 7 || stime_begin > 21)
 	    section_html = section_html + genOptionHtml(stime, prettyTime(stime), stime);
     }
 
@@ -158,7 +160,9 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
     if (etime.length > 0)
     {
 	var etime_end = etime.substr(2);
-	if (etime_end != '50' && etime_end != '20')
+	var etime_begin = etime.substr(0, 2);
+	if (etime_end != '50' && etime_end != '20'
+	   || etime_begin < 7 || etime_begin > 21)
 	    section_html = section_html + genOptionHtml(etime, prettyTime(etime), etime);
     }
 
@@ -173,7 +177,6 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 	'<input class="section-location-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][location]" />' +
 	'<input class="section-type-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][type]" />' +
 	'</td></tr>';
-
 
     jQuery('.pclass' + cnum).after(section_html);
     sectionsOfClass[cnum] ++;

@@ -391,12 +391,16 @@ class Schedule
 		  /* very late / very early classes */
 		  while ($meeting->getEndTime() > $max_time)
 		    {
-		      $max_time += 30;
+		      $max_time = sprintf("%04d", $max_time + 30);
+		      while (substr($max_time, -2) >= 60)
+			$max_time = sprintf("%02d%02d", substr($max_time, 0, 2) + 1, substr($max_time, -2) - 60);
 		      $time[] = $max_time;
 		    }
 		  while ($meeting->getStartTime() < $min_time)
 		    {
-		      $min_time -= 30;
+		      if (substr($min_time, -2) < 30)
+			$min_time = sprintf("%02d%02d", substr($min_time, 0, 2) - 1, substr($min_time, -2) + 60);
+		      $min_time = sprintf("%04d", $min_time - 30);
 		      $time[] = $min_time;
 		      $sort_time = TRUE;
 		    }
