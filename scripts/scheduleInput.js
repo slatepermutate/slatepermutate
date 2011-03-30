@@ -452,14 +452,15 @@ function prettyTime(time_str)
     var m;
 
     i_hour = time_str.substr(0, 2) * 1;
-    if (i_hour <= 12)
+    if (i_hour < 12)
 	{
 	    m = 'a';
 	}
     else
 	{
 	    m = 'p';
-	    i_hour -= 12;
+	    if (i_hour > 12)
+		i_hour -= 12;
 	}
     hour_str = new String(i_hour);
     /* uncomment to have 08:01 instead of 8:01 */
@@ -480,9 +481,18 @@ jQuery(document).ready(function() {
 	// Deletes the selected class from input
 	//--------------------------------------------------
 	jQuery('.deleteClass').live('click', function() {
-		if(confirm('Delete class and all sections of this class?')) {
-		    course_remove(jQuery(this).parent().parent().data('course_i'));
-		}
+	    /* The user is not allowed to interactively delete the one empty course */
+	    var course_i = jQuery(this).parent().parent().data('course_i');
+	    if (slate_permutate_course_free == course_i)
+		return false;
+	    if(confirm('Delete class and all sections of this class?')) {
+		/* The one empty course may have became this course in that time */
+		if (slate_permutate_course_free == course_i)
+		    return false;
+		course_remove(course_i);
+		return false;
+	    }
+	    return false;
 	});
 
 	//--------------------------------------------------
