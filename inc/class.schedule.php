@@ -263,7 +263,14 @@ class Schedule
   function writeoutTables(array $schedule_store = NULL)
   {
     $filled = false;
-    $time = array(700,730,800,830,900,930,1000,1030,1100,1130,1200,1230,1300,1330,1400,1430,1500,1530,1600,1630,1700,1730,1800,1830,1900,1930,2000,2030,2100,2130, 2200);
+    $time = array(700 => 700, 730 => 730, 800 => 800, 830 => 830,
+		  900 => 900, 930 => 930,1000 =>1000,1030 =>1030,
+		  1100 => 1100, 1130 => 1130, 1200 => 1200, 1230 => 1230,
+		  1300 => 1300, 1330 => 1330, 1400 => 1400, 1430 => 1430,
+		  1500 => 1500, 1530 => 1530, 1600 => 1600, 1630 => 1630,
+		  1700 => 1700, 1730 => 1730, 1800 => 1800, 1830 => 1830,
+		  1900 => 1900, 1930 => 1930, 2000 => 2000, 2030 => 2030,
+		  2100 => 2100, 2130 => 2130, 2200 => 2200);
 
     define('SP_PERMUTATIONS_PER_PAGE', 64); /** @TODO: Define this in config.inc */
 
@@ -394,14 +401,14 @@ class Schedule
 		      $max_time = sprintf("%04d", $max_time + 30);
 		      while (substr($max_time, -2) >= 60)
 			$max_time = sprintf("%02d%02d", substr($max_time, 0, 2) + 1, substr($max_time, -2) - 60);
-		      $time[] = $max_time;
+		      $time[(int)$max_time] = $max_time;
 		    }
 		  while ($meeting->getStartTime() < $min_time)
 		    {
 		      if (substr($min_time, -2) < 30)
 			$min_time = sprintf("%02d%02d", substr($min_time, 0, 2) - 1, substr($min_time, -2) + 60);
 		      $min_time = sprintf("%04d", $min_time - 30);
-		      $time[] = $min_time;
+		      $time[(int)$min_time] = (int)$min_time;
 		      $sort_time = TRUE;
 		    }
 		}
