@@ -452,14 +452,15 @@ function prettyTime(time_str)
     var m;
 
     i_hour = time_str.substr(0, 2) * 1;
-    if (i_hour <= 12)
+    if (i_hour < 12)
 	{
 	    m = 'a';
 	}
     else
 	{
 	    m = 'p';
-	    i_hour -= 12;
+	    if (i_hour > 12)
+		i_hour -= 12;
 	}
     hour_str = new String(i_hour);
     /* uncomment to have 08:01 instead of 8:01 */
