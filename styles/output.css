@@ -158,7 +158,7 @@ td{
 }
 #tabs {
   min-width: 400px;
-  max-width: 650px;
+  max-width: 750px;
   margin: auto;
 }
 #tabs li /* , .ui-corner-all, .ui-corner-top */ { background: none!important; }
