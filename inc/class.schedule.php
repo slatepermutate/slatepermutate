@@ -416,8 +416,22 @@ class Schedule
 
         echo '    <div id="regDialog" title="Registration Codes">' . PHP_EOL
 	  . '      <div id="regDialog-content"></div>' . PHP_EOL
-	  . '      <p id="regDialog-disclaimer" class="graytext"><em>Note: The registration information above corresponds to the sections displayed on the currently selected tab.</em></p>'
-	  . '    </div>';
+	  . '      <p class="regDialog-disclaimer graytext">' . PHP_EOL
+	  . '        <em>' . PHP_EOL
+	  . '          Note: The registration information above corresponds to the sections' . PHP_EOL
+	  . '          displayed on the currently selected tab.' . PHP_EOL
+	  . '        </em>' . PHP_EOL
+	  . '      </p>' . PHP_EOL
+	  . '      <p class="regDialog-disclaimer graytext">' . PHP_EOL
+	  . '        <em>' . PHP_EOL
+	  . '          Disclaimer: You are responsible for' . PHP_EOL
+	  . '          double-checking the information you get from and input into slate_permutate' . PHP_EOL
+	  . '          when registering for classes. There is no guarantee that the harvested' . PHP_EOL
+	  . '          information is correct or that slate_permutate will handle' . PHP_EOL
+	  . '          the information you enter correctly.' . PHP_EOL
+	  . '        </em>' . PHP_EOL
+	  . '      </p>' . PHP_EOL
+	  . '    </div>' . PHP_EOL;
 	echo '<div id="tabs">' . "\n" .
                '<div id="show-box" class="show-buttons">
                   <form action="#"><p class="nospace">
