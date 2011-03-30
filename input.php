@@ -179,7 +179,7 @@ $inputPage->showSavedScheds($_SESSION);
     class="defText required"
     type="text"
     size="25"
-    title="<?php echo $inputPage->semester['name'] ?>"
+    title="My <?php echo $inputPage->semester['name'] ?> Schedule"
     name="postData[name]"
     <?php
       if ($sch)
