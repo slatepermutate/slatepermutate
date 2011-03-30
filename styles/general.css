@@ -381,6 +381,11 @@ a:hover {
   font: normal bold 1.2em sans-serif;
 }
 
+.course-title-entry
+{
+    width: 80%;
+}
+
 .inPlace {
   color: #000;
   border: none;
