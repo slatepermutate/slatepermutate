@@ -610,9 +610,10 @@ class Schedule
   // Make the time "pretty"
   //--------------------------------------------------
   function prettyTime($t){
-    if($t > 1259)
+    if($t >= 1200)
       {
-	$t = ($t-1200);
+	if ($t > 1259)
+	  $t = ($t - 1200);
 	return substr($t, 0, strlen($t)-2) . ":" . substr($t, strlen($t)-2, strlen($t)) . " PM";
       } else {
       return substr($t, 0, strlen($t)-2) . ":" . substr($t, strlen($t)-2, strlen($t)) . " AM";
