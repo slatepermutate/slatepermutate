@@ -72,7 +72,7 @@ function cedarville_default_courses()
  */
 function cedarville_page_css($school)
 {
-  return <<<'CSS'
+  return <<<CSS
 #container .lab .sectionIdentifier {
   background: none!important;
 }
