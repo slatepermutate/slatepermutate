@@ -23,6 +23,9 @@ require_once('inc/class.page.php');
 if (!$use_captcha)
   page::show_404('Captchas are disabled.');
 
-require('securimage/securimage.php');
+/* Make sure that securimage works without our own sessions */
+page::session_start();
+
+require_once 'securimage/securimage.php';
 $securimage = new Securimage();
 echo $securimage->show();

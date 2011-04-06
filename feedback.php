@@ -18,13 +18,26 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'inc/class.page.php'; 
+include_once 'inc/class.page.php';
+require_once 'inc/class.schedule.php';
 
 $feedbackpage = page::page_create('Feedback');
 $feedbackpage->head();
 $ipi = $_SERVER['REMOTE_ADDR'];
 $fromdom = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 $httpagenti = $_SERVER['HTTP_USER_AGENT'];
+
+$referrer = '';
+if (!empty($_SERVER['HTTP_REFERER']))
+  $referrer = $_SERVER['HTTP_REFERER'];
+if (!empty($_POST['referrer']))
+  $referrer = $_POST['referrer'];
+
+$saved_schedules = array();
+if (!empty($_SESSION['saved']))
+  foreach ($_SESSION['saved'] as $key => $val)
+    $saved_schedules[] = '<a href="' . htmlentities(Schedule::url($key)) . '">' . htmlentities($key) . '</a>';
+$saved_schedules = implode(', ', $saved_schedules);
 
 /* some prefill support */
 $school = $feedbackpage->get_school();
@@ -43,8 +56,9 @@ $n = "\n";
 
 <table>
 <tr><td><label for="nameis">Name: </label></td><td><input type="text" name="nameis" size="20" /></td></tr>
-<tr><td><label for="visitormail">Email:</label></td><td><input type="text" name="visitormail" size="20" /> <span class="graytext">(if you want us to get back to you)</span></td></tr>
+<tr><td><label for="visitormail">Email:</label></td><td><input type="text" name="visitormail" size="20" /></td></tr>
 <tr><td><label for="school">School: </label></td><td><input type="text" name="school" value="<?php echo htmlentities($school['id']); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
+  <tr><td><label for="referrer">Relevant Page:</label></td><td><input type="text" name="referrer" value="<?php echo htmlentities($referrer); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
 </table>
 <br/> Overall Rating:<br/> <input checked="checked" name="rating" type="radio" value="Great" />Great <input name="rating" type="radio" value="Usable" />Usable  <input name="rating" type="radio" value="Buggy/Hard to Use" />Buggy/Hard to Use <input name="rating" type="radio" value="Don't know" />Don't Know <!-- ' -->
 
@@ -68,6 +82,23 @@ $n = "\n";
 ?>
 
 <input class="gray" type="submit" value="Send Feedback" />
+
+<?php if (!empty($saved_schedules)): ?>
+<p class="graytext" style="margin-top: 20pt;">
+  The following information will also be submitted when you send feedback:
+</p>
+<table class="graytext">
+  <tr>
+    <th>Type</th>
+    <th>Value</th>
+  </tr>
+  <tr>
+  <td>Saved Schedules:</td>
+    <td><?php echo $saved_schedules; ?></td>
+  </tr>
+</table>
+<?php endif; ?>
+
 </form>
 
 <?php

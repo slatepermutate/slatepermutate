@@ -18,11 +18,14 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-  include_once 'inc/class.page.php';
+include_once 'inc/class.page.php';
+
+/* Make sure we start our own named session and to not let securimage create its own :-p */
+page::session_start();
 
 if ($use_captcha)
   {
-    require_once('securimage/securimage.php');
+    require_once 'securimage/securimage.php';
     $securimage = new Securimage();
   }
 
@@ -34,7 +37,6 @@ $subject = '[SlatePermutate] - Feedback';
 <h3>Thanks!</h3>
 
 <?php
-Page::session_start();
 
 $ip = $_POST['ip'];
 $httpagent = $_POST['httpagent'];
@@ -45,6 +47,13 @@ $school = $_POST['school'];
 $school_id = isset($_SESSION['school']) ? $_SESSION['school'] : '';
 $feedback = $_POST['feedback'];
 $rating = $_POST['rating'];
+$referrer = $_POST['referrer'];
+
+$saved_schedules = array();
+if (!empty($_SESSION['saved']))
+  foreach ($_SESSION['saved'] as $key => $val)
+    $saved_schedules[] = $key;
+$saved_schedules = implode(', ', $saved_schedules);
 
 $reject = FALSE;
 
@@ -84,6 +93,8 @@ Feedback: $feedback
 IP = $ip 
 Browser = $httpagent 
 Deployment = $fromdom
+Referrer = $referrer
+saved_schedules = $saved_schedules
 ";
 
     $from = "From: $visitormail\r\n";
