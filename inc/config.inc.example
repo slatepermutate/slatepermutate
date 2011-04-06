@@ -134,3 +134,17 @@
  */
 /* $feedback_disk_log = TRUE; */
 /* $feedback_disk_log_file = "/var/log/sp-feedback.log"; */
+
+
+/**
+ * \brief
+ *   A banner to display to users on input.php for temporary warnings.
+ *
+ * Used to inform users about known data problems, etc.
+ *
+ * Set to a string to display a banner. Otherwise, set to FALSE to
+ * hide the banner. Must be a valid XHTML fragment which may be placed
+ * into a <div /> verbatim.
+ */
+/* $input_warning_banner = FALSE; */
+/* $input_warning_banner = '<p>Warning: BIOL-111\'s autocomplete data does not include all sections. Please use <a href="http://csx.calvin.edu/sp/input.php?s=7578">schedule 7578</a> to get a correct BIOL-111 entry.</p>'; */

@@ -156,6 +156,13 @@ if (!empty($_REQUEST['selectsemester']))
 
 $inputPage->showSavedScheds($_SESSION);
 ?>
+
+<?php if (!empty($input_warning_banner)): ?>
+<div class="warning">
+  <?php echo $input_warning_banner; ?>
+</div>
+<?php endif; ?>
+
 <p>
   Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '', FALSE); ?>!
   <?php if (school_has_auto($inputPage->get_school())): ?>

@@ -47,6 +47,7 @@ $feedback_emails = array('ez@ethanzonca.com, ngelderloos7@gmail.com, ohnobinki@o
 $use_captcha = FALSE;
 $admin_enable_purge = FALSE;
 $qtips_always = FALSE;
+$input_warning_banner = FALSE;
 
 $config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
 if (file_exists($config_inc)) {

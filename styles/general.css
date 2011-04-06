@@ -391,3 +391,9 @@ a:hover {
   border: none;
   background: transparent;
 }
+
+.warning
+{
+  background: #ffffdd;
+  border: 1pt solid yellow;
+}
