@@ -96,7 +96,8 @@ function slate_permutate_load(target, data, handler, error_handler)
 		error: function(xhr_jq, status_text, error)
 		{
 		    error_handler(target, status_text, null);
-		}
+		},
+		type: 'POST'
 		});
 }
 
