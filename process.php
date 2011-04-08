@@ -229,10 +229,7 @@ if(!$DEBUG)
 		if ($schedule_id != NULL)
 		  $_SESSION['saved'][$schedule_id] = $allClasses->getName();
 
-		$process_php_s = '';
-		if (!$clean_urls)
-		  $process_php_s = 'process.php?s=';
-		page::redirect($process_php_s . $schedule_id);
+		page::redirect($allClasses->url());
 		exit;
       }
   }
