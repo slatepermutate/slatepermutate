@@ -227,7 +227,7 @@ function school_list_html($highlight = NULL, $linkto = NULL)
     $linkto = '?';
   elseif (strpos($linkto, '?') === FALSE)
     $linkto .= '?';
-  else
+  elseif (strpos('?&', strstr($linkto, -1)) !== FALSE)
     $linkto .= '&';
   $linkto .= 'school=';
   $linkto = htmlentities($linkto);
@@ -239,7 +239,7 @@ function school_list_html($highlight = NULL, $linkto = NULL)
       if ($school_id == $highlight)
 	$class_highlight = ' highlight';
       $html .= '<li class="school' . $class_highlight . '"><a href="' . $linkto . $school_id . '">'
-	. $school_info['name'] . "</a></li>\n";
+	. htmlentities($school_info['name']) . "</a></li>\n";
     }
   $html .= "</ul>\n";
 
@@ -352,7 +352,7 @@ function school_semesters(array $school)
  *   to the same keys in the arrays returned by school_semesters() or
  *   NULL if no semester can be found.
  */
-function school_semester_guess(array $school, $update_session = FALSE)
+function school_semester_guess(array $school, $update_session = TRUE)
 {
   $semesters = school_semesters($school);
 

@@ -24,6 +24,14 @@ include_once 'inc' . DIRECTORY_SEPARATOR . 'class.section.php';
 include_once 'inc' . DIRECTORY_SEPARATOR . 'class.page.php';
 require_once('inc' . DIRECTORY_SEPARATOR . 'schedule_store.inc');
 
+/*
+ * Help constrol whether or not the school selection dialogue should
+ * be shown or whether or not $_SESSION['school_chosen'] should be set
+ * TRUE. These things should generally be false when loading a saved
+ * schedule.
+ */
+$creating_new_schedule = TRUE;
+
 $schedule_store = FALSE;
 $sch = FALSE;
 $errors_fix = FALSE;
@@ -35,8 +43,14 @@ if (isset($_REQUEST['s']))
     $schedule_store = schedule_store_init();
     $parent_schedule_id = (int)$_REQUEST['s'];
     $sch = schedule_store_retrieve($schedule_store, $parent_schedule_id);
-    $inputPage_options += array('school' => $sch->school_get(),
-				'semester' => $sch->semester_get());
+    if (!empty($sch))
+      {
+	$creating_new_schedule = FALSE;
+	$inputPage_options += array('school' => $sch->school_get(),
+				    'semester' => $sch->semester_get());
+      }
+    else
+      $parent_schedule_id = NULL;
   }
 elseif (!empty($_REQUEST['e']))
   {
@@ -48,6 +62,8 @@ elseif (!empty($_REQUEST['e']))
     $errors_fix = TRUE;
     if (!empty($_POST['postData']['parent_schedule_id']))
       $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
+
+    $creating_new_schedule = FALSE;
   }
 
 /*
@@ -59,7 +75,7 @@ $scripts = array('jQuery', 'jQueryUI', 'qTip2', 'schedInput');
 $inputPage = page::page_create('Scheduler', $scripts, $inputPage_options);
 $school = $inputPage->get_school();
 
-$my_hc = 'var slate_permutate_example_course_id = ' . json_encode(school_example_course_id($inputPage->get_school())) . ';
+$my_hc = 'var slate_permutate_example_course_id = ' . json_encode(school_example_course_id($school)) . ';
 
 jQuery(document).ready(
   function()
@@ -125,20 +141,22 @@ $inputPage->head();
  * student before displaying the input form. To do this, we need
  * another variable in $_SESSION: $_SESSION['school_chosen'].
  */
-if ($school && (!empty($_REQUEST['school']) || $school['id'] != 'default'))
+if (!empty($_REQUEST['school']) && !empty($_SESSION['school']) && !strcmp($_REQUEST['school'], $_SESSION['school']))
   $_SESSION['school_chosen'] = TRUE;
 if (!empty($_REQUEST['selectschool'])
-    || $school['id'] == 'default' && !isset($_SESSION['school_chosen']))
+    || empty($school) || $school['id'] == 'default' && empty($_SESSION['school_chosen']))
   {
-    $next_page = 'input.php';
+    $next_page = 'input.php?';
     if (isset($_GET['s']))
-      $next_page .= '?s=' . (int)$_GET['s'];
+      $next_page .= 's=' . (int)$_GET['s'] . '&';
+    if (isset($_GET['semester']))
+      $next_page .= 'semester=' . htmlentities($$_GET['semester']) . '&';
 ?>
 <h2>School Selection</h2>
 <p>
   Choose the school you attend from the list below. <strong>If you cannot
   find your school</strong>, you may proceed using
-  the <a href="<?php echo $next_page . (strpos($next_page, '?') === FALSE ? '?' : '&amp;'); ?>school=default">generic
+  the <a href="<?php echo htmlentities($next_page); ?>school=default">generic
   settings</a>.
 </p>
 <?php
@@ -157,7 +175,13 @@ if (!empty($_REQUEST['selectsemester']))
   href="feedback.php?feedback=My+school+is+missing+the+&lt;semester+name&gt;+semester.">let us know</a>.
 </p>
 <?php
-  $inputPage->showSemesters();
+  $next_page = 'input.php?';
+  if (isset($_GET['s']))
+    $next_page .= 's=' . (int)$_GET['s'] . '&';
+  if (!empty($_GET['school']))
+    $next_page .= 'school=' . $_GET['school'] . '&';
+
+  $inputPage->showSemesters($next_page);
   $inputPage->foot();
   exit;
   }

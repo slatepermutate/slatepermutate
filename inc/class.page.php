@@ -257,6 +257,11 @@ class page
     foreach ($this->scripts as $i)
       echo '    ' . $this->headCode["$i"] . "\n";
 
+    $selectschool_query = '&amp;school=' . $this->school['id'];
+    /* kludge */
+    if (!empty($_REQUEST['s']))
+      $selectschool_query .= '&amp;s=' . (int)$_REQUEST['s'];
+
     echo '  </head>' . PHP_EOL .
 	 '  <body>'. PHP_EOL .
          '    <div id="page">'. PHP_EOL .
@@ -266,9 +271,9 @@ class page
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
   	 '            <span id="menu">' . PHP_EOL
-      . '              Profile: <em>' . $this->school['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectschool=1">(change)</a>') . PHP_EOL;
+      . '              Profile: <em>' . $this->school['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectschool=1' . $selectschool_query . '">(change)</a>') . PHP_EOL;
     if (!empty($this->semester))
-      echo  '             Semester: <em>' . $this->semester['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectsemester=1">(change)</a>') . PHP_EOL;
+      echo  '             Semester: <em>' . $this->semester['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectsemester=1' . $selectschool_query . '">(change)</a>') . PHP_EOL;
     echo '            </span>'. PHP_EOL .
          '          </p>'. PHP_EOL .
          '        </div>'. PHP_EOL .

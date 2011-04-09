@@ -117,7 +117,7 @@ class Schedule
     $this->parent_id = $parent;
 
     if (empty($school))
-      $school = school_load_guess();
+      $school = school_load_guess(FALSE);
     $this->school_id = $school['id'];
 
     if (empty($semester))
@@ -211,7 +211,7 @@ class Schedule
       {
 	/* Ensure we have $_SESSION. */
 	page::session_start();
-	$school = school_load_guess();
+	$school = school_load_guess(FALSE);
       }
 
     return $school;
@@ -822,7 +822,7 @@ class Schedule
       {
 	/* Ensure we have $_SESSION. */
 	page::session_start();
-	$school = school_load_guess();
+	$school = school_load_guess(FALSE);
 	$this->school_id = $school['id'];
       }
     if (empty($this->semester))
