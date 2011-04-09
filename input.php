@@ -54,7 +54,7 @@ if (isset($_REQUEST['s']))
       $school = $sch->school_get();
 
     if (!empty($_GET['semester']))
-      $semester = school_semester_guess(FALSE);
+      $semester = school_semester_guess($school, FALSE);
     else
       $semester = $sch->semester_get();
 
