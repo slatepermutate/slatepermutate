@@ -93,6 +93,14 @@ class page
   private $school_semester_constant;
 
   /**
+   * \brief
+   *   Construct a new page.
+   *
+   * Only to be called by page::page_construct(). Use that function
+   * instead of the new keyword.
+   *
+   * \see page::page_construct()
+   *
    * \param $ntitle
    *   Must be a valid HTML string (i.e., escaped with htmlentities()).
    * \param $nscripts
@@ -102,7 +110,7 @@ class page
    *     - 'school': The school to use instead of the autodetected one.
    *     - 'semester': The semester to use instead of the autodetected one.
    */
-  public function __construct($ntitle, $nscripts = array(), $immediate = TRUE, array $options = array())
+  protected function __construct($ntitle, $nscripts = array(), $immediate = TRUE, array $options = array())
   {
     /* Begin tracking generation time */
     $this->pageGenTime = round(microtime(),4);

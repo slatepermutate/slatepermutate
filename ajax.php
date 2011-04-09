@@ -76,7 +76,7 @@ if (isset($_REQUEST['school_registration_html']))
 	  slate_permutate_json_error('Unable to load any school.');
       }
 
-    $page = new Page('', array(), FALSE);
+    $page = page::page_create('');
 
     $courses = array();
     if (!empty($_REQUEST['courses']) && is_array($_REQUEST['courses']))
