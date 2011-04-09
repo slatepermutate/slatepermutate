@@ -92,7 +92,7 @@ function school_cache($schools)
       $list_cache[$school['id']] = array(
 					 'name' => $school['name'],
 					 'url' => $school['url'],
-					 'crawled' => $school['crawled'],
+					 'crawled' => !empty($school['crawled']),
 					 );
       foreach ($school['domains'] as $school_domain)
 	{
@@ -124,7 +124,7 @@ function school_cache($schools)
        * just debugging one of the school crawling scripts and doesn't
        * want to run all crawlers ;-).
        */
-      if ($school['crawled'] && !isset($school['crawled_notreally']))
+      if (!empty($school['crawled']) && !isset($school['crawled_notreally']))
 	{
 	  $cache_auto_school_dir_name = $cache_auto_dir_name . $school['id'] . DIRECTORY_SEPARATOR;
 	  if (!is_dir($cache_auto_school_dir_name))
