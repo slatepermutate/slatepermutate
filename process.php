@@ -145,24 +145,51 @@ if(!$DEBUG)
 	 * it as a schedule to permutate. Then we should redirect the
 	 * user to the canonical URL for that schedule.
 	 */
+	$page_create_options = array();
+	if (!empty($_POST['postData']))
+	  $postData = $_POST['postData'];
+
 	$name = '';
-	if (!empty($_POST['postData']['name']))
-	  $name = $_POST['postData']['name'];
+	if (!empty($postData['name']))
+	  $name = $postData['name'];
 
 	$parent_schedule_id = NULL;
-	if (!empty($_POST['postData']['parent_schedule_id']))
+	if (!empty($postData['parent_schedule_id']))
 	  {
-	    $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
+	    $parent_schedule_id = (int)$postData['parent_schedule_id'];
 	    $parent_schedule = schedule_store_retrieve($schedule_store, $parent_schedule_id);
 	    /* Detect bad parent_schedule reference. */
 	    if (empty($parent_schedule))
 	      $parent_schedule_id = NULL;
 	  }
 
-	$allClasses = new Schedule($name, $parent_schedule_id);
+	$school = NULL;
+	if (!empty($postData['school']))
+	  {
+	    /*
+	     * This function returns NULL if it can't find the school_id
+	     * so we're all good -- this is a type of error which is
+	     * better to silently ignore ;-).
+	     */
+	    $school = school_load($postData['school']);
+	    $page_create_options['school'] = $school;
+	  }
+
+	$semester = NULL;
+	if (!empty($school) && !empty($postData['semester']))
+	  {
+	    $semesters = school_semesters($school);
+	    if (!empty($semesters[$postData['semester']]))
+	      {
+		$semester = $semesters[$postData['semester']];
+		$page_create_options['semester'] = $semester;
+	      }
+	  }
+
+	$allClasses = new Schedule($name, $parent_schedule_id, $school, $semester);
 
 	$errors = array();
-	foreach($_POST['postData'] as $course)
+	foreach($postData as $course)
 	  {
 	    /*
 	     * Only add classes if the user added at least one
@@ -194,7 +221,8 @@ if(!$DEBUG)
 		 */
 		if (count($errors))
 		  {
-		    $error_page = new Page('Process Schedule — Errors');
+		    $error_page = page::page_create('Process Schedule — Errors', array(), $page_create_options);
+		    $error_page->head();
 
 		    echo '        <p>' . PHP_EOL
 		      . '          You have the following errors in your input:' . PHP_EOL
@@ -214,7 +242,7 @@ if(!$DEBUG)
 		    /* Regurgitate the postData into a <form /> */
 		    echo '        <form action="input.php" method="post">' . PHP_EOL
 		      . '          <input name="e" value="1" type="hidden" />' . PHP_EOL;
-		    array_to_form($_POST['postData'], 'postData', '          ');
+		    array_to_form($postData, 'postData', '          ');
 		    echo '          <button type="submit" class="gray">Fix Errors!</button>' . PHP_EOL
 		      . '        </form>' . PHP_EOL;
 

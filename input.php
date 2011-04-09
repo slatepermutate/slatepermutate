@@ -43,14 +43,35 @@ if (isset($_REQUEST['s']))
     $schedule_store = schedule_store_init();
     $parent_schedule_id = (int)$_REQUEST['s'];
     $sch = schedule_store_retrieve($schedule_store, $parent_schedule_id);
+
+    /*
+     * Allow a user to change the school and semester of a
+     * saved_schedule he's trying to revive if he really wants to.
+     */
+    if (!empty($_GET['school']))
+      $school = school_load_guess(FALSE);
+    else
+      $school = $sch->school_get();
+
+    if (!empty($_GET['semester']))
+      $semester = school_semester_guess(FALSE);
+    else
+      $semester = $sch->semester_get();
+
     if (!empty($sch))
       {
 	$creating_new_schedule = FALSE;
-	$inputPage_options += array('school' => $sch->school_get(),
-				    'semester' => $sch->semester_get());
+	$inputPage_options += array('school' => $school,
+				    'semester' => $semester);
       }
     else
       $parent_schedule_id = NULL;
+
+    /*
+     * Code outside of this block should _not_ assume $school and/or
+     * $semester are defined. But it'd be more expensive to unset()
+     * them here than to just overwrite them later...
+     */
   }
 elseif (!empty($_REQUEST['e']))
   {
@@ -60,8 +81,26 @@ elseif (!empty($_REQUEST['e']))
      * data.
      */
     $errors_fix = TRUE;
-    if (!empty($_POST['postData']['parent_schedule_id']))
-      $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
+
+    if (!empty($_POST['postData']))
+      $postData = $_POST['postData'];
+
+    if (!empty($postData['parent_schedule_id']))
+      $parent_schedule_id = (int)$postData['parent_schedule_id'];
+
+    if (!empty($postData['school']))
+      {
+	$school = school_load($postData['school']);
+	if (!empty($school))
+	  $inputPage_options['school'] = $school;
+      }
+
+    if (!empty($school) && !empty($postData['semester']))
+      {
+	$semesters = school_semesters($school);
+	if (!empty($semesters[$postData['semester']]))
+	  $inputPage_options['semester'] = $semester;
+      }
 
     $creating_new_schedule = FALSE;
   }
@@ -74,6 +113,7 @@ elseif (!empty($_REQUEST['e']))
 $scripts = array('jQuery', 'jQueryUI', 'qTip2', 'schedInput');
 $inputPage = page::page_create('Scheduler', $scripts, $inputPage_options);
 $school = $inputPage->get_school();
+$semester = $inputPage->semester_get();
 
 $my_hc = 'var slate_permutate_example_course_id = ' . json_encode(school_example_course_id($school)) . ';
 
@@ -218,7 +258,7 @@ $inputPage->showSavedScheds($_SESSION);
     class="defText required"
     type="text"
     size="25"
-    title="My <?php $semester = $inputPage->semester_get(); echo $semester['name'] ?> Schedule"
+    title="My <?php echo $semester['name']; ?> Schedule"
     name="postData[name]"
     <?php
       if ($sch)
@@ -228,6 +268,8 @@ $inputPage->showSavedScheds($_SESSION);
     ?> />
   <?php if (!empty($parent_schedule_id)): ?>
   <input type="hidden" name="postData[parent_schedule_id]" value="<?php echo htmlentities($parent_schedule_id, ENT_QUOTES); ?>" />
+  <input type="hidden" name="postData[school]" value="<?php echo htmlentities($school['id']); ?>" />
+  <input type="hidden" name="postData[semester]" value="<?php echo htmlentities($semester['id']); ?>" />
   <?php endif; ?>
 </p>
 

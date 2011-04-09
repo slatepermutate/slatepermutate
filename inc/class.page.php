@@ -202,7 +202,7 @@ class page
    */
   public static function page_create($title, array $scripts = array(), array $options = array())
   {
-    return new page(htmlentities($title), $scripts, FALSE, $options);
+    return new page(htmlentities($title, ENT_QUOTES, 'UTF-8'), $scripts, FALSE, $options);
   }
 
   /**
