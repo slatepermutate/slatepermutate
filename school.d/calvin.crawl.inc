@@ -49,28 +49,8 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 
   $cookies = array();
 
-  $baseuri = 'https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
-
-  $token_uri = $baseuri . '&TOKENIDX=NULL';
-  $token_html = calvin_crawl_noscript_filter(school_crawl_geturi($token_uri, $cookies, $school_crawl_log));
-  if (!preg_match('/setWindowHTML\(\'\', \'([0-9]+)\'\);/', $token_html, $matches))
-    {
-      school_crawl_logf($school_crawl_log, 1, "Could not steal the token: crawling failed.");
-      return 1;
-    }
-  $token = $matches[1];
-
-  school_crawl_logf($school_crawl_log, 7, "token: %s.", $token);
-  school_crawl_logf($school_crawl_log, 7, "");
-
-  /*
-   * here we have arrived at the main webadvisor screen which lists the
-   * search form. From here, we can get a list of all of the departments
-   * that Calvin College has and then know enough to query each
-   * individual department for courses.
-   */
-  $uri = $baseuri . '&TOKENIDX=' . $token;
-  $departments_html = calvin_crawl_noscript_filter(school_crawl_geturi($uri, $cookies, $school_crawl_log));
+  $uri = 'https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
+  $departments_html = calvin_crawl_geturi($uri, $cookies, $school_crawl_log);
 
   $departments_dom = new DOMDocument();
   $departments_dom->loadHTML($departments_html);
@@ -253,10 +233,10 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  /* either 'Open' (or 'Closed'?) */
 	  $openness = dom_input_value($results_dom, 'LIST.VAR1_' . $list_row);
 	  $sec_short_title = dom_id_content($results_dom, 'SEC_SHORT_TITLE_' . $list_row);
-	  $sec_meeting_info = dom_id_content($results_dom, 'SEC_MEETING_INFO_' . $list_row);
+	  $sec_meetings_info = dom_id_content($results_dom, 'SEC_MEETING_INFO_' . $list_row);
 
 	  /* check if we're done with this particular page */
-	  if (!strlen($openness) && !strlen($sec_short_title) && !strlen($sec_meeting_info))
+	  if (!strlen($openness) && !strlen($sec_short_title) && !strlen($sec_meetings_info))
 	    {
 	      $list_done = TRUE;
 	      break;
@@ -269,6 +249,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  $faculty_name = dom_input_value($results_dom, 'SEC.FACULTY.INFO_' . $list_row);
 	  $credits = dom_input_value($results_dom, 'SEC.MIN.CRED_' . $list_row); /* or id="SEC_FACULTY_INFO_$list_row" */
 	  $comment = dom_id_content($results_dom, 'SEC_COMMENTS_' . $list_row); /* or name="SEC.COMMENTS_$list_row" */
+	  $short_title_onclick = $results_dom->getElementById('SEC_SHORT_TITLE_' . $list_row)->getAttribute('onclick');
 
 	  /* parse */
 	  $section_id = Section::parse($sec_short_title);
@@ -283,7 +264,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  school_crawl_logf($school_crawl_log, 10, "");
 	  school_crawl_logf($school_crawl_log, 10, implode('-', $section_id) . ': ' . $sec_short_title);
 	  school_crawl_logf($school_crawl_log, 10, $openness);
-	  school_crawl_logf($school_crawl_log, 10, $sec_meeting_info);
+	  school_crawl_logf($school_crawl_log, 10, $sec_meetings_info);
 	  school_crawl_logf($school_crawl_log, 10, $faculty_name);
 	  school_crawl_logf($school_crawl_log, 10, $credits);
 	  school_crawl_logf($school_crawl_log, 10, $comment);
@@ -304,8 +285,22 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	   *
 	   * '01/31/2011-05/12/2011 Music Ensemble Monday, Wednesday, Thursday, Friday 03:30PM - 04:20PM, Covenant Fine Arts Center, Room 135'
 	   *
+	   * OR, per
+	   * https://protofusion.org/bugzilla/show_bug.cgi?id=109 , we
+	   * must parse the following on the main listing page and
+	   * then parse more on the ``course details'' page:
+	   *
+	   * '09/06/2011-12/16/2011 Lecture Tuesday, Wednesday, Friday 12:30PM - 01:20PM, Science Building, Room 276 (more)...'
+	   *
+	   * The more on the ``course details'' page:
+	   *
+	   * '09/06/2011-12/16/2011 Lecture Tuesday, Wednesday, Friday 12:30PM - 01:20PM, Science Building, Room 276 09/06/2011-12/16/2011 Lecture Thursday 10:30AM - 12:20PM, Science Building, Room 276'
+	   *
+	   * Looks like in this last case parsing from right-to-left
+	   * will be best.
+	   *
 	   * In the second case.... we'll just ignore the section. In
-	   * the last case, we have to be careful about parsing out
+	   * the third case, we have to be careful about parsing out
 	   * Monday.
 	   *
 	   * At this point, we don't parse most tokens. We group them
@@ -314,19 +309,58 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	   * the list of days of week the section meets, the start
 	   * time, the end time, and then the meeting location.
 	   */
-	  if (strpos($sec_meeting_info, 'Times to be Announced') !== FALSE
-	      || strpos($sec_meeting_info, 'Days to be Announced') !== FALSE)
+	  if (strpos($sec_meetings_info, 'Times to be Announced') !== FALSE
+	      || strpos($sec_meetings_info, 'Days to be Announced') !== FALSE)
 	    {
 	      school_crawl_logf($school_crawl_log, 8, 'Skipping class because of incomplete meeting time information: '
 				. implode('-', $section_id) . ' has meeting info of `'
-				. $sec_meeting_info . '\'');
+				. $sec_meetings_info . '\'');
 	      $skipped_sections['incomplete meeting info'] ++;
 	      /* Still add to have less confusing autocomplete */
 	      calvin_crawl_course_add($semester, $section_id['department'], $section_id['course'], $title);
 	      continue;
 	    }
 
-	  if (!preg_match(';^([0-9]{2}/[0-9]{2}/[0-9]{4})-([0-9]{2}/[0-9]{2}/[0-9]{4}) (([^ ,]+ )+)([^0-9]+) ([^ ]+) - ([^ ]+), (.*)$;', $sec_meeting_info, $meeting_info_matches))
+	  /*
+	   * Check whether or not we have to pursue details on the
+	   * ``course detail page''. If we do, we might as well just
+	   * parse the line of information available there instead of
+	   * the same from the main listing page.
+	   */
+	  if (preg_match('; \\(more\\)...$;', $sec_meetings_info)
+	      && preg_match(';^javascript:window\\.open\\(\'(.*?[^\\\\])\',;', $short_title_onclick, $short_title_onclick_matches))
+	    {
+	      $more_details_url = $short_title_onclick_matches[1];
+	      $more_details_uri = strstr($uri, '?', TRUE) . $more_details_url;
+
+	      school_crawl_logf($school_crawl_log, 8, 'Fetching extra course information page for %s-%s-%s from %s.',
+				$section_id['department'], $section_id['course'], $section_id['section'],
+				$more_details_uri);
+	      $more_details_html = calvin_crawl_geturi($more_details_uri, $cookies, $school_crawl_log);
+	      $more_details_dom = new DOMDocument();
+	      $more_details_dom->loadHTML($more_details_html);
+
+	      /* Hopefully 'LIST_VAR12_1' is pretty constant... */
+	      foreach ($more_details_dom->getElementById('LIST_VAR12_1')->childNodes as $more_details_child)
+		{
+		  if ($more_details_child->nodeType != XML_TEXT_NODE)
+		    continue;
+		  $sec_meetings_info = $more_details_child->wholeText;
+		  break;
+		}
+	      school_crawl_log($school_crawl_log, 8, "Result of fetching additional meeting information on next line(s):\n%s",
+			       $sec_meetings_info);
+	    }
+
+	  /*
+	   * If we have a course with multiple section_meetings, then
+	   * $sec_meetings_info is split into each meeting by a
+	   * "\n"
+	   */
+
+	  foreach (explode("\n", $sec_meetings_info) as $sec_meeting_info)
+	    {
+	      if (!preg_match(';^([0-9]{2}/[0-9]{2}/[0-9]{4})-([0-9]{2}/[0-9]{2}/[0-9]{4}) (([^ ,]+ )+)([^0-9]+) ([^ ]+) - ([^ ]+), (.*)$;', $sec_meeting_info, $meeting_info_matches))
 	    {
 	      school_crawl_logf($school_crawl_log, 8, 'Unable to parse calvin section meeting info string into start/end/days information for '
 				. implode('-', $section_id) . ': ``' . $sec_meeting_info . '\'\'');
@@ -341,7 +375,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  $date_start = $meeting_info_matches[1];
 	  $date_end = $meeting_info_matches[2];
 	  /* e.g., 'Lecture', 'Practicum' */
-	  $meeting_type = strtolower(trim($meeting_info_matches[3]));
+	  $meeting_type = school_crawl_meeting_type($meeting_info_matches[3]);
 
 	  $days = school_crawl_days_format($school_crawl_log, explode(', ', $meeting_info_matches[5]));
 	  $time_start = school_crawl_time_format(strptime($meeting_info_matches[6], '%I:%M%p'));
@@ -351,8 +385,8 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place', 'meeting_type') as $var)
 	    school_crawl_logf($school_crawl_log, 10, "%s:%s", $var, ${$var});
 
-	  $section = new Section($section_id['section'], array(new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type, $faculty_name)), $synonym);
-	  $semester->section_add($section_id['department'], $section_id['course'], $section, $title);
+	  $semester->section_meeting_add($section_id['department'], $section_id['course'], $title, $section_id['section'], $synonym,
+					 new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type, $faculty_name));
 
 	  /*
 	   * Try to update semester's longetivity stats to help the
@@ -372,6 +406,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	      if ($semester_end_max < $date_end_time)
 		$semester_end_max = $date_end_time;
 	    }
+	}
 	}
 
       if (!preg_match(';Page ([0-9]+) of ([0-9]+)\</td\>$;m', $html, $pages))
@@ -403,6 +438,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
     /*
      * Calculate lab-based course dependencies.
      */
+    school_crawl_logf($school_crawl_log, 7, 'Adding implicit lab dependencies.');
     foreach ($semester->departments_get() as $department)
       foreach ($semester->department_classes_get($department) as $course)
         {
@@ -487,6 +523,60 @@ function dom_id_content($domdocument, $id)
 function calvin_crawl_noscript_filter($html)
 {
   return preg_replace(';\<(noscript)\>.*?\</\1\>;s', '', $html);
+}
+
+/**
+ * \brief
+ *   Follows a URL with support for WebAdvisor's silly TOKENIDX=
+ *   thing.
+ *
+ * Automatically filters with calvin_crawl_noscript_filter().
+ *
+ * \param $uri
+ *   The URL.
+ * \param $cookies
+ *   The cookies (yum!).
+ * \param $school_crawl_log
+ *   The school_crawl_log.
+ */
+function calvin_crawl_geturi(&$uri, array &$cookies, &$school_crawl_log)
+{
+  if (strpos($uri, 'TOKENIDX') === FALSE)
+    {
+      if (strpos($uri, '?') === FALSE)
+	$uri .= '?';
+      else
+	$uri .= '&';
+
+      /* Starting value. */
+      $uri .= 'TOKENIDX=NULL';
+    }
+
+  $token_html = calvin_crawl_noscript_filter(school_crawl_geturi($uri, $cookies, $school_crawl_log));
+
+  if (!preg_match('/setWindowHTML\(\'\', \'([0-9]+)\'\);/', $token_html, $matches))
+    return $token_html;
+$token = $matches[1];
+
+  school_crawl_logf($school_crawl_log, 7, "Using WebAdvisor token: %s.", $token);
+  school_crawl_logf($school_crawl_log, 7, "");
+
+  /*
+   * setWindowHTML() will first remove the query string parameters
+   * 'CLONE' and 'FORCEIDX'. Then it appends TOKENIDX=<token> to the
+   * query parameters.
+   *
+   * Example, where TOKENIDX does not start out as NULL but where a
+   * CLONE=Y command is being sent:
+   *
+   * Input: HTTPS://kvdata.calvin.edu/walive/WebAdvisor?TYPE=P&PID=ST-WESTS13C&CLONE=Y&CLONE_PROCESS=Y&SPAUKQ=708501792841963&CONSTITUENCY=WBST&TOKENIDX=1507971558
+   *
+   * Result: HTTPS://kvdata.calvin.edu/walive/WebAdvisor?TYPE=P&PID=ST-WESTS13C&CLONE_PROCESS=Y&SPAUKQ=708501792841963&CONSTITUENCY=WBST&TOKENIDX=2281086932
+   */
+  $uri = preg_replace('/([?&])TOKENIDX=[^&]+/', '$1TOKENIDX=' . $token,
+		      preg_replace('/([?&])(CLONE|FORCEIDX)=[^&]+&?/', '$1', $uri));
+
+  return calvin_crawl_noscript_filter(school_crawl_geturi($uri, $cookies, $school_crawl_log));
 }
 
 /**

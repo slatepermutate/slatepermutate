@@ -240,7 +240,7 @@ function school_crawl_meeting_type($meeting_type = 'lecture')
   if (empty($meeting_type))
     $meeting_type = 'lecture';
 
-  $meeting_type = strtolower($meeting_type);
+  $meeting_type = strtolower(trim($meeting_type));
   if (!empty($meeting_type_maps[$meeting_type]))
     $meeting_type = $meeting_type_maps[$meeting_type];
   elseif (!empty($meeting_type_maps[substr($meeting_type, 0, 3)]))
