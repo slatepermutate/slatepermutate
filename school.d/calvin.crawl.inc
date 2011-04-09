@@ -348,7 +348,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 		  $sec_meetings_info = $more_details_child->wholeText;
 		  break;
 		}
-	      school_crawl_log($school_crawl_log, 8, "Result of fetching additional meeting information on next line(s):\n%s",
+	      school_crawl_logf($school_crawl_log, 9, "Result of fetching additional meeting information on next line(s):\n%s",
 			       $sec_meetings_info);
 	    }
 
