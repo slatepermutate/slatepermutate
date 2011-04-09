@@ -46,6 +46,13 @@ var last_section_i = 0;
 
 /**
  * \brief
+ *   A quick hash to prevent there from being two AJAX requests for a
+ *   given course at one time.
+ */
+var course_ajax_requests = [];
+
+/**
+ * \brief
  *   The course number which contains nothing.
  *
  * To avoid having a user need to click the ``Add course'' button, we
@@ -220,6 +227,16 @@ function add_sections(cnum, data)
     if (data.title)
 	jQuery('.pclass' + cnum + ' .course-title-entry').val(data.title);
 
+    /*
+     * If the user enterred something iffy, correct him. Or do so
+     * regardless ;-).
+     */
+    /* this data['class'] stuff is for the old JSON format we used... */
+    if (data['class'])
+	data.course = data['class'];
+    if (data.course)
+	jQuery('.className' + cnum).val(data.course);
+
     if (!data.sections)
 	return;
     /*
@@ -265,6 +282,7 @@ function add_class_n(course_id, title)
 	course_remove(slate_permutate_course_free);
 
     sectionsOfClass[classNum] = 0; // Initialize at 0
+    course_ajax_requests[classNum] = false;
     jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace course-title-entry" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
@@ -284,31 +302,7 @@ function add_class_n(course_id, title)
 
 				if (ui.item.value.indexOf('-') != -1)
 				    {
-					jQuery.ajax(
-						    {
-							url: 'auto.php',
-							    data: {
-    							        getsections: 1,
-								term: ui.item.value,
-								school: slate_permutate_school,
-								semester: slate_permutate_semester
-								},
-							    context: {'class_num': event.data.class_num},
-							    success: function(data, textStatus, reqobj)
-							    {
-								var new_course_num;
-
-								if (data.sections)
-								    {
-									add_sections(this.class_num, data);
-									new_course_num = add_class();
-
-									/* position the user's cursor the new class's input box */
-									jQuery('#input-course-' + new_course_num).focus();
-								    }
-							    }
-						    }
-						    );
+					course_autocomplete(event.data.class_num, ui.item.value);
 				    }
 				else
 				    {
@@ -345,6 +339,85 @@ function add_class()
     if (slate_permutate_course_free == -1)
 	slate_permutate_course_free = add_class_n('', '');
     return slate_permutate_course_free;
+}
+
+/**
+ * \brief
+ *   Try to fetch a section once the user has chosen an autocomplete
+ *   entry.
+ *
+ * Since this can be called also when the user just types in a course
+ * and hits enter without what he typed necessarily matching an
+ * autocomplete item, this function handles the case where the
+ * requested course might not have information on the server.
+ *
+ * \param course_i
+ *   The javascript/postData index of the course to autocomplete.
+ * \param term
+ *   The term which the user entered. Optional.
+ * \return
+ *   Nothing.
+ */
+function course_autocomplete(course_i, term)
+{
+    var course_name_elem = jQuery('.className' + course_i);
+
+    /*
+     * A safety mechanism: don't autocomplete a course if it already
+     * has sections. Since this is AJAX, this same check must also
+     * show up in the AJAX callback.
+
+
+     */
+    if (course_ajax_requests[course_i] || sectionsOfClass[course_i])
+	return;
+
+    course_ajax_requests[course_i] = true;
+
+    if (jQuery.type(term) == 'undefined')
+	term = course_name_elem.val();
+
+    jQuery.ajax(
+	{
+	    url: 'auto.php',
+	    complete: function()
+	    {
+		/*
+		 * Not matter how the request goes -- if it fails or
+		 * returns nothing or whatnot -- the channel must be
+		 * opened up for more AJAX requests.
+		 */
+		course_ajax_requests[course_i] = false;
+	    },
+	    data: {
+    		getsections: 1,
+		term: term,
+		school: slate_permutate_school,
+		semester: slate_permutate_semester
+	    },
+	    success: function(data, textStatus, reqobj)
+	    {
+		var new_course_num;
+
+		if (data.sections)
+		{
+		    if (sectionsOfClass[course_i])
+			return;
+
+		    add_sections(course_i, data);
+
+		    new_course_num = add_class();
+
+		    if (course_name_elem.val() != data.course_id)
+
+		    /* position the user's cursor the new class's input box */
+		    jQuery('#input-course-' + new_course_num).focus();
+		}
+	    }
+	}
+    );
+
+    return;
 }
 
 /**
@@ -606,7 +679,16 @@ jQuery(document).ready(function() {
      * title entry text fields.
      */
     jQuery('.course-title-entry').live('keyup keydown', slate_permutate_nullify_enter);
-    jQuery('.className').live('keyup keydown', slate_permutate_nullify_enter);
+    jQuery('.className').live('keyup keydown', function(e)
+			      {
+				  if (e.which == 13)
+				  {
+				      course_autocomplete(jQuery(this).parent().parent().data('course_i'));
+
+				      /* Prevent form submission like slate_permutate_nullify_enter() does. */
+				      return false;
+				  }
+			      });
         jQuery('.course-title-entry').live('blur', function() {
           jQuery(this).addClass('inPlace');
         });
