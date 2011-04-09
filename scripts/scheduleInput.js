@@ -155,7 +155,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 	genOptionHtml("1820", "6:20 pm", etime) + genOptionHtml("1850", "6:50 pm", etime) +
 	genOptionHtml("1920", "7:20 pm", etime) + genOptionHtml("1950", "7:50 pm", etime) +
 	genOptionHtml("2020", "8:20 pm", etime) + genOptionHtml("2050", "8:50 pm", etime) +
-	genOptionHtml("2120", "9:20 pm", etime);
+	genOptionHtml("2120", "9:20 pm", etime) + genOptionHtml('2150', '9:50 pm', etime);
 
     if (etime.length > 0)
     {
