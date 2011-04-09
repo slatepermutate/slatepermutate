@@ -75,7 +75,7 @@ if ($use_captcha)
   {
     if (!$securimage->check($_REQUEST['captcha_code']))
       {
-	echo '<p>Your captcha response was incorrect, please try again.</p>';
+	echo '<p>Your captcha response was incorrect or expired. Please try again.</p>';
 	$reject = TRUE;
       }
   }
