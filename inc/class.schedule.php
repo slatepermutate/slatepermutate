@@ -30,6 +30,7 @@ $incdir = dirname(__FILE__) . DIRECTORY_SEPARATOR;
 include_once $incdir . 'class.course.inc';
 include_once $incdir . 'class.section.php';
 include_once $incdir . 'class.page.php';
+require_once $incdir . 'school.inc';
 
 /*
  * Load a Classes -> Course converter class for the sake of the
@@ -52,6 +53,24 @@ class Schedule
   private $possiblePermutations;	// Integer number of possible permutations
   private $scheduleName;			// String name of schedule
   private $storage;				// Integer array of valid schedules
+  /**
+   * \brief
+   *   The school_id of the school this schedule was created for.
+   */
+  private $school_id;
+  /**
+   * \brief
+   *   The semester this schedule was created for.
+   *
+   * The semester array is stored in full in a schedule because some
+   * schools do not keep a backlog of all semesters for their course
+   * data. Such a school is calvin. We want to be able to access, for
+   * example, the friendly name and so on of a semester even one year
+   * after the semester is created without worrying about having that
+   * semester be stored in the autocomplete cache.
+   */
+  private $semester;
+
   /* The <title /> of the page used when rendering this schedule */
   private $title;
 
@@ -79,14 +98,33 @@ class Schedule
    *   derived. A schedule is considered to be derived of another of
    *   the user created this schedule by clicking ``Edit'' for the
    *   previous schedule. Or NULL if this schedule stands on its own.
+   * \param $school
+   *   The school used for this schedule. The intention of storing
+   *   this data is that people from different schools may share
+   *   schedules with eachother. Also, people who bookmark their
+   *   schedules and want to edit their schedules should not have to
+   *   go through the school selection dialogue again but should just
+   *   be set to use the correct school.
+   * \param $semester
+   *   The semester used for this schedule.
    */
-  function __construct($name, $parent = NULL)
+  function __construct($name, $parent = NULL, array $school = NULL, array $semester = NULL)
   {
     $this->courses = array();
     $this->scheduleName = $name;
     $this->storage = array();
     $this->title = "SlatePermutate - Scheduler";
     $this->parent_id = $parent;
+
+    if (empty($school))
+      $school = school_load_guess();
+    $this->school_id = $school['id'];
+
+    if (empty($semester))
+      {
+	$semester = school_semester_guess($school);
+      }
+    $this->semester = $semester;
 
     /* mark this as an upgraded Schedule class. See __wakeup() */
     $this->nclasses = -1;
@@ -150,6 +188,45 @@ class Schedule
 
     error_log('Could not find class when parsing schedule from postData: ' . $course_name);
     echo 'Could not find class: ' . $course_name . "<br />\n";
+  }
+
+  /**
+   * \brief
+   *   Get the school associated with this schedule.
+   *
+   * \return
+   *   The school associated with this schedule or some fallback.
+   */
+  public function school_get()
+  {
+    $school = NULL;
+
+    if (!empty($this->school_id))
+      /*
+       * May return NULL, so we don't just return this value right
+       * away -- we fall through.
+       */
+      $school = school_load($this->school_id);
+    if (empty($school))
+      {
+	/* Ensure we have $_SESSION. */
+	page::session_start();
+	$school = school_load_guess();
+      }
+
+    return $school;
+  }
+
+  /**
+   * \brief
+   *   Get the semester associated with this schedule.
+   *
+   * \return
+   *   The schedule's associated semester.
+   */
+  public function semester_get()
+  {
+    return $this->semester;
   }
 
   //--------------------------------------------------
@@ -293,7 +370,8 @@ class Schedule
     else {
       $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'jAddress', 'uiTabsKeyboard', 'qTip2','displayTables');
     }
-    $outputPage = page::page_create(htmlentities($this->getName()), $headcode);
+    $outputPage = page::page_create(htmlentities($this->getName()), $headcode,
+				    array('school' => $this->school_get(), 'semester' => $this->semester_get()));
     $outputPage->head();
 
 
@@ -739,5 +817,24 @@ class Schedule
 
     if (empty($this->parent_id))
       $this->parent_id = NULL;
+
+    if (empty($this->school_id))
+      {
+	/* Ensure we have $_SESSION. */
+	page::session_start();
+	$school = school_load_guess();
+	$this->school_id = $school['id'];
+      }
+    if (empty($this->semester))
+      {
+	if (empty($school))
+	  {
+	    /* Ensure we have $_SESSION. */
+	    page::session_start();
+
+	    $school = school_load($this->school_id);
+	    $this->semester = school_semester_guess($school);
+	  }
+      }
   }
 }

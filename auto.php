@@ -59,11 +59,16 @@ if (!count($term_parts)) {
   clean_empty_exit();
 }
 
-$school = school_load_guess();
+/*
+ * We let the *_load_guess() functions check $_REQUEST['school'] and
+ * $_REQUEST['semester'] for us, asking them not to update the
+ * session.
+ */
+$school = school_load_guess(FALSE);
 if (!$school['crawled']) {
   clean_empty_exit();
 }
-$semester = school_semester_guess($school);
+$semester = school_semester_guess($school, FALSE);
 
 $cache_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'auto'
   . DIRECTORY_SEPARATOR . $school['id'] . DIRECTORY_SEPARATOR . $semester['id'] . DIRECTORY_SEPARATOR;

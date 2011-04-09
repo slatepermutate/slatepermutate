@@ -112,18 +112,29 @@ function school_load($school_id, $load_all_inc = FALSE)
  * use. Then it tries to make a best guess as to the school he's from
  * using the rDNS information provided by the httpd.
  *
+ * \param $update_session
+ *   Whether or not the results should be stored into the session for
+ *   later use. A value of disabled makes sense for the auto.php AJAX
+ *   callback script, where the user is not loading a page himself but
+ *   the current school is being specified in the URL
+ *   parameters... thus updating the session value here would be a
+ *   side-effect. We're doing this so that the user can do
+ *   autocomplete for two different school/semester pairs in two
+ *   different browser tabs under the same session.
+ *
  * \return
  *   A school profile or NULL if the school isn't in the session and
  *   can't be guessed.
  */
-function school_load_guess()
+function school_load_guess($update_session = TRUE)
 {
   if (isset($_REQUEST['school']))
     {
       $school = school_load($_REQUEST['school']);
       if ($school)
 	{
-	  $_SESSION['school'] = $school['id'];
+	  if ($update_session)
+	    $_SESSION['school'] = $school['id'];
 	  return $school;
 	}
     }
@@ -160,7 +171,8 @@ function school_load_guess()
 	      $school = school_load($domain_school);
 	      if ($school)
 		{
-		  $_SESSION['school'] = $domain_school;
+		  if ($update_sesssion)
+		    $_SESSION['school'] = $domain_school;
 		  return school_load($domain_school);
 		}
 	    }
@@ -172,10 +184,11 @@ function school_load_guess()
    * doesn't have to be done too often. (the isset() call above should
    * detect even the empty string).
    */
-  $_SESSION['school'] = 'default';
+  if ($update_session)
+    $_SESSION['school'] = 'default';
 
   /* loading the school_id of 'default' MUST always work */
-  return school_load($_SESSION['school']);
+  return school_load('default');
 }
 
 /**
@@ -331,12 +344,15 @@ function school_semesters(array $school)
  *
  * \param $school
  *   The school for which a semester should be guessed.
+ * \param $update_session
+ *   Whether or not $_SESSION should be updatd with the new value. A
+ *   value of FALSE makes sense for the ajax.php callback script.
  * \return
  *   An array with the keys 'id', 'name', and 'weight' corresponding
  *   to the same keys in the arrays returned by school_semesters() or
  *   NULL if no semester can be found.
  */
-function school_semester_guess(array $school)
+function school_semester_guess(array $school, $update_session = FALSE)
 {
   $semesters = school_semesters($school);
 
@@ -344,7 +360,8 @@ function school_semester_guess(array $school)
       && isset($semesters[$_REQUEST['semester']]))
     {
       $semester = $semesters[$_REQUEST['semester']];
-      $_SESSION['semester'] = $semester['id'];
+      if ($update_session)
+	$_SESSION['semester'] = $semester['id'];
       return $semester;
     }
 

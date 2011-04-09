@@ -275,7 +275,7 @@ function add_class_n(course_id, title)
 
 		var class_elem = jQuery('.className' + classNum);
 
-		class_elem.autocomplete({ source: 'auto.php' });
+		class_elem.autocomplete({ source: 'auto.php?school=' + slate_permutate_school + '&semester=' + slate_permutate_semester });
 		class_elem.bind('autocompleteselect', {class_num: classNum, class_elem: class_elem},
 			function(event, ui)
 			    {
@@ -287,7 +287,12 @@ function add_class_n(course_id, title)
 					jQuery.ajax(
 						    {
 							url: 'auto.php',
-							    data: {'getsections': 1, 'term': ui.item.value},
+							    data: {
+    							        getsections: 1,
+								term: ui.item.value,
+								school: slate_permutate_school,
+								semester: slate_permutate_semester
+								},
 							    context: {'class_num': event.data.class_num},
 							    success: function(data, textStatus, reqobj)
 							    {

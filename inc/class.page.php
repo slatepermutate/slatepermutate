@@ -84,14 +84,25 @@ class page
   /* the current school. See get_school(). */
   private $school;
 
+  private $semester;
+
+  /*
+   * Whether or not the user should be presented with the option to
+   * change the school profile or semester.
+   */
+  private $school_semester_constant;
 
   /**
    * \param $ntitle
    *   Must be a valid HTML string (i.e., escaped with htmlentities()).
    * \param $nscripts
    *   An array of strings identifying the scripts to include for this page.
+   * \param $options
+   *   An array containing any of the following keys:
+   *     - 'school': The school to use instead of the autodetected one.
+   *     - 'semester': The semester to use instead of the autodetected one.
    */
-  public function __construct($ntitle, $nscripts = array(), $immediate = TRUE)
+  public function __construct($ntitle, $nscripts = array(), $immediate = TRUE, array $options = array())
   {
     /* Begin tracking generation time */
     $this->pageGenTime = round(microtime(),4);
@@ -149,8 +160,17 @@ class page
     self::session_start();
     /* everything that needs sessions started to work: */
 
-    $this->school = school_load_guess();
-    $this->semester = school_semester_guess($this->school);
+    if (empty($options['school']))
+      $options['school'] = school_load_guess();
+    $this->school = $options['school'];
+
+    if (empty($options['semester']))
+      $options['semester'] = school_semester_guess($this->school);
+    $this->semester = $options['semester'];
+
+    if (!isset($options['school_semester_constant']))
+      $options['school_semester_constant'] = TRUE;
+    $this->school_semester_constant = (bool)$options['school_semester_constant'];
 
     if($immediate
        && $ntitle != "NOHEAD")
@@ -172,10 +192,17 @@ class page
    *   A list of scripts which the page desires to be included in the
    *   <head /> of the page. Should this param just be moved to the
    *   page::head() function?
+   * \param $options
+   *   An array containing any of the following keys:
+   *     - 'school': The school to use instead of the autodetected one.
+   *     - 'semester': The semester to use instead of the autodetected one.
+   *     - 'school_semester_constant': Whether the options to change
+   *        the current school and semester should be hidden. TRUE by
+   *        default.
    */
-  public static function page_create($title, array $scripts = array())
+  public static function page_create($title, array $scripts = array(), array $options = array())
   {
-    return new page(htmlentities($title), $scripts, FALSE);
+    return new page(htmlentities($title), $scripts, FALSE, $options);
   }
 
   /**
@@ -222,7 +249,10 @@ class page
           '    <link rel="shortcut icon" href="images/favicon.png" />'. PHP_EOL
       . '    <style type="text/css">' . PHP_EOL
       . $this->cdata_wrap(school_page_css($this->school))
-      . '    </style>' . PHP_EOL;
+      . '    </style>' . PHP_EOL
+      . $this->script_wrap(''
+			   . 'var slate_permutate_school = ' . json_encode($this->school['id']) . ';' . PHP_EOL
+			   . 'var slate_permutate_semester = ' . json_encode($this->semester['id']) . ';' . PHP_EOL);
     // Write out all passed scripts
     foreach ($this->scripts as $i)
       echo '    ' . $this->headCode["$i"] . "\n";
@@ -236,9 +266,9 @@ class page
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
   	 '            <span id="menu">' . PHP_EOL
-      . '              Profile: '.$this->school['name'].' <a href="input.php?selectschool=1">(change)</a>' . PHP_EOL;
-    if ($this->semester !== NULL)
-      echo  '             Semester: ' . $this->semester['name'] . '<a href="input.php?selectsemester=1">(change)</a>' . PHP_EOL;
+      . '              Profile: <em>' . $this->school['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectschool=1">(change)</a>') . PHP_EOL;
+    if (!empty($this->semester))
+      echo  '             Semester: <em>' . $this->semester['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectsemester=1">(change)</a>') . PHP_EOL;
     echo '            </span>'. PHP_EOL .
          '          </p>'. PHP_EOL .
          '        </div>'. PHP_EOL .
@@ -522,6 +552,15 @@ class page
   public function get_school()
   {
     return $this->school;
+  }
+
+  /**
+   * \brief
+   *   Get the current semester.
+   */
+  public function semester_get()
+  {
+    return $this->semester;
   }
 
   /**

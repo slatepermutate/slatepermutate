@@ -24,13 +24,10 @@ include_once 'inc' . DIRECTORY_SEPARATOR . 'class.section.php';
 include_once 'inc' . DIRECTORY_SEPARATOR . 'class.page.php';
 require_once('inc' . DIRECTORY_SEPARATOR . 'schedule_store.inc');
 
-$scripts = array('jQuery', 'jQueryUI', 'qTip2', 'schedInput');
-$inputPage = page::page_create('Scheduler', $scripts, FALSE);
-
 $schedule_store = FALSE;
 $sch = FALSE;
 $errors_fix = FALSE;
-$school = $inputPage->get_school();
+$inputPage_options = array('school_semester_constant' => FALSE);
 
 $parent_schedule_id = NULL;
 if (isset($_REQUEST['s']))
@@ -38,6 +35,8 @@ if (isset($_REQUEST['s']))
     $schedule_store = schedule_store_init();
     $parent_schedule_id = (int)$_REQUEST['s'];
     $sch = schedule_store_retrieve($schedule_store, $parent_schedule_id);
+    $inputPage_options += array('school' => $sch->school_get(),
+				'semester' => $sch->semester_get());
   }
 elseif (!empty($_REQUEST['e']))
   {
@@ -50,6 +49,15 @@ elseif (!empty($_REQUEST['e']))
     if (!empty($_POST['postData']['parent_schedule_id']))
       $parent_schedule_id = (int)$_POST['postData']['parent_schedule_id'];
   }
+
+/*
+ * We cannot initialize the page object nor guess the school before
+ * figuring loading a saved schedule because we'll default to that
+ * saved_schedule's school/semester.
+ */
+$scripts = array('jQuery', 'jQueryUI', 'qTip2', 'schedInput');
+$inputPage = page::page_create('Scheduler', $scripts, $inputPage_options);
+$school = $inputPage->get_school();
 
 $my_hc = 'var slate_permutate_example_course_id = ' . json_encode(school_example_course_id($inputPage->get_school())) . ';
 
@@ -186,7 +194,7 @@ $inputPage->showSavedScheds($_SESSION);
     class="defText required"
     type="text"
     size="25"
-    title="My <?php echo $inputPage->semester['name'] ?> Schedule"
+    title="My <?php $semester = $inputPage->semester_get(); echo $semester['name'] ?> Schedule"
     name="postData[name]"
     <?php
       if ($sch)
