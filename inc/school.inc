@@ -171,7 +171,7 @@ function school_load_guess($update_session = TRUE)
 	      $school = school_load($domain_school);
 	      if ($school)
 		{
-		  if ($update_sesssion)
+		  if ($update_session)
 		    $_SESSION['school'] = $domain_school;
 		  return school_load($domain_school);
 		}
