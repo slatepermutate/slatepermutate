@@ -283,10 +283,10 @@ class Section
 	unset($this->start);
       }
     elseif (!empty($this->prof))
-      /* Move the instructor (old $this->prof) property to our SectionMeeting children */
-      foreach ($this->meetings as $meeting)
       {
-	$meeting->instructor_set($this->prof);
+	/* Move the instructor (old $this->prof) property to our SectionMeeting children */
+	foreach ($this->meetings as $meeting)
+	  $meeting->instructor_set($this->prof);
 	unset($this->prof);
       }
   }
