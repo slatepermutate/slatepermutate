@@ -404,6 +404,8 @@ function course_autocomplete(course_i, term)
 			return;
 
 		    add_sections(course_i, data);
+		    /* Close the autocomplete menu thingy. */
+		    course_name_elem.autocomplete('close');
 
 		    new_course_num = add_class();
 
