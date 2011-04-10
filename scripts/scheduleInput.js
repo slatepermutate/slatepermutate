@@ -117,7 +117,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
     if(type == 'lab')
 	cssclasses += ' lab';
 
-    var section_html = '<tr class="' + cssclasses + '"><td class="none"></td>' +
+    var section_html = '<tr id="tr-section-' + String(snum) + '" class="' + cssclasses + '"><td class="none"></td>' +
 	'<td class="sectionIdentifier center"><input type="text" size="1" class="required section-letter-entry" name="postData[' + cnum + '][' + snum + '][letter]" /><input class="section-synonym-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][synonym]" /></td>' +
 	'<td class="professor center"><input type="text" size="10" class="profName" name="postData[' + cnum + ']['+ snum + '][professor]" /></td>' +
 	'<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>' +
@@ -185,10 +185,10 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 	'<input class="section-type-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][type]" />' +
 	'</td></tr>';
 
-    jQuery('.pclass' + cnum).after(section_html);
+    jQuery('tr.class' + cnum + ':last').after(section_html);
     sectionsOfClass[cnum] ++;
 
-    var section_tr = jQuery('.pclass' + cnum).next();
+    var section_tr = jQuery('#tr-section-' + String(snum));
     /* store course_i in a place the newly added section will look for it */
     section_tr.data({course_i: cnum});
 
@@ -239,16 +239,11 @@ function add_sections(cnum, data)
 
     if (!data.sections)
 	return;
-    /*
-     * we get the sections in the correct order. For the user to see
-     * them in the correct order, we must reverse the add_setion_n()
-     * calls.
-     */
-    for (i = data.sections.length - 1; i >= 0; i --)
-	{
-	    section = data.sections[i];
-	    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.instructor, section.location, section.type);
-	}
+
+    jQuery.each(data.sections, function(i, section)
+		{
+		    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.instructor, section.location, section.type);
+		});
 
     /*
      * Handle course-level interdependencies.
@@ -256,7 +251,11 @@ function add_sections(cnum, data)
     if (data.dependencies)
 	jQuery.each(data.dependencies, function(i, dep)
 		    {
-			var new_course_num = add_class_n(dep['class'], dep['title'] ? dep['title'] : '');
+			/* Gracefully deprecate the old crawler's JSON format. */
+			if (dep['class'])
+			    dep.course = dep['class'];
+
+			var new_course_num = add_class_n(dep.course, dep['title'] ? dep['title'] : '');
 			add_sections(new_course_num, dep);
 		    });
 }
