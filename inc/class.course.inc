@@ -207,7 +207,7 @@ class Course implements IteratorAggregate
     $recursion_trace[$this->getName()] = TRUE;
 
     $json_array = array(
-			'class' => $this->getName(),
+			'course' => $this->getName(),
 			'title' => $this->title_get(),
 			'sections' => array(),
 			'dependencies' => array(),
@@ -244,7 +244,12 @@ class Course implements IteratorAggregate
     $title = NULL;
     if (!empty($json['title']))
       $title = $json['title'];
-    $course = new Course($json['class'], $title);
+    if (!empty($json['class']))
+      {
+	$json['course'] = $json['class'];
+	unset($json['class']);
+      }
+    $course = new Course($json['course'], $title);
 
     if (!empty($json['sections']))
       $course->section_add(Section::from_json_arrays($json['sections']));
