@@ -18,14 +18,12 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//--------------------------------------------------
-// class.section.php  Author:Nathan Gelderloos
-//
-// Represents a section of a class.
-//--------------------------------------------------
-
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.section_meeting.inc';
    
+/**
+ * \brief
+ *   Represent a Section associated with a Course.
+ */
 class Section
 {
 

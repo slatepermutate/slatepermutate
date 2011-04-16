@@ -18,14 +18,6 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//**************************************************
-// class.schedule.php	Author: Nathan Gelderloos
-//
-// Represents a schedule of a week. Stores the
-// classes that are part of that week and calculates
-// all the possible permutations.
-//**************************************************
-
 $incdir = dirname(__FILE__) . DIRECTORY_SEPARATOR;
 include_once $incdir . 'class.course.inc';
 include_once $incdir . 'class.section.php';
@@ -38,6 +30,14 @@ require_once $incdir . 'school.inc';
  */
 require_once $incdir . 'class.classes_convert.inc';
 
+/**
+ * \brief
+ *   Finds possible Section combinations for a user's given Courses
+ *   and stores and displays the results.
+ *
+ * Represents a schedule of a week. Stores the classes that are part
+ * of that week and calculates all the possible permutations.
+ */
 class Schedule
 {
   /*

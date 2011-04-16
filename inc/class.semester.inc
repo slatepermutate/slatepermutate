@@ -24,7 +24,7 @@ require_once($inc_dir . 'class.section.php');
 
 /**
  * \brief
- *   Identifies a school semester and acts as a container for courses
+ *   Identifies a school semester and acts as a container for Course s
  *   offered in a semester.
  */
 class Semester

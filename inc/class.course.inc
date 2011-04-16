@@ -18,14 +18,17 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * \file
- *    This file represents a course (formerly class). It stores
- *    the section associated with the course.
- */
-
 include_once 'class.section.php';
 
+/**
+ * \brief
+ *   Represents a Course containing multiple Sections.
+ *
+ * A course is associated with a certain subject material. For each
+ * course, a student has to choose a particular Section to
+ * take. Courses are not associated with professors or meeting times,
+ * those are in the realm of the Section and SectionMeeting.
+ */
 class Course implements IteratorAggregate
 {
   private $name;	// String

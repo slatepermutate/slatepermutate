@@ -55,13 +55,14 @@ if (file_exists($config_inc)) {
 }
 
 
-//**************************************************
-// class.page.php   Author: Ethan Zonca
-//
-// Provides an interface for generating a styled
-// XHTML page, supporting modular script inclusion
-// and other various features
-//**************************************************
+/**
+ * \brief
+ *   Produces XHTML output for the user and helps with other browser
+ *   interaction.
+ *
+ * Supports styled XHTML pages, modular script inclusion, and other
+ * various features.
+ */
 class page
 {
 
