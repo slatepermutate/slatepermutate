@@ -238,7 +238,7 @@ $inputPage->showSavedScheds($_SESSION);
 <p>
   Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '', FALSE); ?>!
   <?php if (school_has_auto($inputPage->get_school())): ?>
-  To get started, enter in some a course identifier (e.g., <em>
+  To get started, enter in a course identifier (e.g., <em>
   <?php echo school_example_course_id($inputPage->get_school()); ?></em>)
   and click the autosuggestion to automatically load available sections
   for each class.
