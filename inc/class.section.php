@@ -194,7 +194,7 @@ class Section
    *
    * \return
    *   An array of arrays that should be merged with the return value
-   *   of other Section::to_json_array() calls.
+   *   of other Section::to_json_arrays() calls.
    */
   public function to_json_arrays()
   {
