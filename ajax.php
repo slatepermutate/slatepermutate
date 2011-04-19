@@ -67,14 +67,15 @@ function slate_permutate_json_success(array $data = array())
 
 if (isset($_REQUEST['school_registration_html']))
   {
-    if (!empty($_REQUEST['school']))
-      $school = school_load($_REQUEST['school']);
+    /*
+     * Since we're just an AJAX callback, ask school_load_guess() not
+     * to update $_SESSION with the school the user is using... And
+     * make sure that the frontend actually tells us what school the
+     * user is using ;-).
+     */
+    $school = school_load_guess(FALSE);
     if (empty($school))
-      {
-	$school = school_load_guess();
-	if (empty($school))
-	  slate_permutate_json_error('Unable to load any school.');
-      }
+      slate_permutate_json_error('Unable to load any school.');
 
     $page = page::page_create('');
 

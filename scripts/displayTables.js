@@ -49,7 +49,8 @@ function show_box_change()
  *   The jQuery object which should be populated with an error message
  *   or the result of loading.
  * \param data
- *   The data to send as a request.
+ *   The data to send as a request. The school and semester keys shall
+ *   automatically be set.
  * \param handler
  *   A function with the signature handler(target, data) which is called upon
  *   a successful response. There is a default handler which uses
@@ -69,6 +70,11 @@ function slate_permutate_load(target, data, handler, error_handler)
 	    {
 		target.html(data.html);
 	    }
+
+    if (!data.school)
+	data.school = slate_permutate_school;
+    if (!data.semester)
+	data.semester = slate_permutate_semester;
 
     if (jQuery.type(error_handler) == 'undefined')
 	error_handler = function(target, status_text, data)
