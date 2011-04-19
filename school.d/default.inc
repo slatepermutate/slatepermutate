@@ -82,8 +82,9 @@ function default_registration_html(Page $page, array $school, array $courses)
     . '  </p>' . PHP_EOL
     . '  <ul class="synonym-list">' . PHP_EOL;
   foreach ($courses as $course)
-    foreach ($course as $section)
-      $html .= '    <li>' . htmlentities($section->getSynonym()) . '</li>' . PHP_EOL;
+    foreach ($course as $course_slot)
+      foreach ($course_slot as $section)
+        $html .= '    <li>' . htmlentities($section->getSynonym()) . '</li>' . PHP_EOL;
   $html .= '  </ul>' . PHP_EOL;
   return $html;
 }

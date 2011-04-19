@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
+ * Copyright 2011 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
  *
  * This file is part of SlatePermutate.
  *
@@ -18,7 +18,8 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'class.section.php';
+require_once 'class.section.php';
+require_once 'class.course_slot.inc';
 
 /**
  * \brief
@@ -28,13 +29,22 @@ include_once 'class.section.php';
  * course, a student has to choose a particular Section to
  * take. Courses are not associated with professors or meeting times,
  * those are in the realm of the Section and SectionMeeting.
+ *
+ * Iterating over this object will return CourseSlot objects, which
+ * act exactly like most universities' idea of a course. However, some
+ * universities have one Course and require students to take one
+ * section from each of different categories of sections within in a
+ * course. For example, at umich for any course which has a listing of
+ * Sections of the type 'discussion' the student _must_ take one of
+ * these 'discussion' sections in addition to, for example, a
+ * 'lecture' Section.
  */
 class Course implements IteratorAggregate
 {
   private $name;	// String
   private $title;       // String
-  private $sections;	// Array of sections
-  private $nsections;	// int
+  private $sections;	// Array of sections, for __wakeup() to convert to CourseSlots.
+  private $nsections;	// int, for __wakeup() to convert to CourseSlots.
   /**
    * \brief
    *   Other courses that this course depends on.
@@ -46,6 +56,11 @@ class Course implements IteratorAggregate
   /**
    * \brief
    *    Creates a class with the given name.
+   *
+   * When updating this function, update the call to ``new Course()''
+   * in Schedule::findPossibilities(), Schedule::writeoutTables(), and
+   * Schedule::courses_get().
+   *
    * \param $course_id
    *    The identifier of the class. Ex., MATH-101 in
    *    MATH-101-A. Retrieved with Course::getName().
@@ -53,23 +68,45 @@ class Course implements IteratorAggregate
    *    The human-friendly course title, such as 'Introduction to
    *    Algebra', or NULL.
    */
-  function __construct($course_id, $title = NULL)
+  public function __construct($course_id, $title = NULL)
   {
-    $this->sections = array();
+    $this->slots = array();
     $this->name = $course_id;
     $this->title = $title;
-    $this->nsections = 0;
     $this->dependencies = array();
   }
 	
   /**
    * \brief
-   *   Adds an already-instantiated section to this class.
+   *   Adds an already-instantiated Section to this class.
+   *
+   * \param $section
+   *   The Section to append to this Course.
+   * \param $course_slot_id
+   *   The string identifer of the CourseSlot to place the given
+   *   Section into. Most schools will not specify this.
    */
-  public function section_add(Section $section)
+  public function section_add(Section $section, $course_slot_id = 'default')
   {
-    $this->sections[$this->nsections] = $section;
-    $this->nsections++;
+    if (empty($this->slots[$course_slot_id]))
+      $this->slots[$course_slot_id] = new CourseSlot($course_slot_id);
+    $this->slots[$course_slot_id]->section_add($section);
+  }
+
+  /**
+   * \brief
+   *   Append a CourseSlot to this Course.
+   *
+   * If this course already contains a CourseSlot with the same
+   * CourseSlot identifier as $course_slot, then the new CourseSlot
+   * will replace the old one.
+   *
+   * \param $course_slot
+   *   The CourseSlot to append.
+   */
+  public function course_slot_add(CourseSlot $course_slot)
+  {
+    $this->slots[$course_slot->id_get()] = $course_slot;
   }
 
   /**
@@ -78,37 +115,17 @@ class Course implements IteratorAggregate
    */
   public function getIterator()
   {
-    return new ArrayIterator($this->sections);
+    return new ArrayIterator($this->slots);
   }
 
   /**
    * \brief
-   *    Returns the number of sections in the class.
-   */
-  function getnsections()
-  {
-    return $this->nsections;
-  }
-	
-  /**
-   * \brief
-   *    Returns the desired section for analysis.
-   * \return
-   *    The selected section of the course.
-   */
-  function getSection($i)
-  {
-    $result = $this->sections[$i];
-    return $result;
-  }
-
-  /**
-   * \brief
-   *   Retrieve a section of this class based on its letter.
+   *   Retrieve a section of this Course based on its letter.
    *
-   * \todo Make this function replace completely the getSection()
-   * function, have $this->sections be keyed by letter, and have a
-   * __wakup() convert the old $this->sections format to the new one.
+   * This function will automatically search CourseSlots for this
+   * Section. Why? Because even though we support multiple
+   * CourseSlots, the section_id must _still_ be unique -- no two
+   * CourseSlots should share a fully-qualified section_id.
    *
    * \return
    *   The requested section or NULL if that section does not yet
@@ -116,19 +133,20 @@ class Course implements IteratorAggregate
    */
   public function section_get($letter)
   {
-    foreach ($this->sections as $section) {
-      if ($section->getLetter() == $letter) {
-	return $section;
+    foreach ($this->slots as $slot)
+      {
+	$section = $slot->section_get($letter);
+	if (!empty($section))
+	  return $section;
       }
-    }
     return NULL;
   }
 
   /**
    * \brief
-   *    Returns the name of the class.
+   *    Returns the name of the Course.
    * \return
-   *    The name of the class.
+   *    The name of the Course.
    */
   public function getName()
   {
@@ -180,16 +198,15 @@ class Course implements IteratorAggregate
   public static function parse($course_spec)
   {
     $section_parts = Section::parse($course_spec);
-    if (isset($section_parts['section'])) {
+    if (isset($section_parts['section']))
       unset($section_parts['section']);
-    }
 
     return $section_parts;
   }
 
   /**
    * \brief
-   *   Represent this class as a string.
+   *   Represent this Course as a string.
    */
   public function __toString()
   {
@@ -215,12 +232,9 @@ class Course implements IteratorAggregate
 			'sections' => array(),
 			'dependencies' => array(),
 			);
-    foreach ($this->sections as $section)
-      {
-	$section_json_arrays = $section->to_json_arrays();
-	foreach ($section_json_arrays as $section_json_array)
-	  $json_array['sections'][] = $section_json_array;
-      }
+    foreach ($this->slots as $slot)
+      foreach ($slot->to_json_arrays() as $slot_json_section_array)
+        $json_array['sections'][] = $slot_json_section_array;
 
     foreach ($this->dependencies as $dependency)
       {
@@ -255,8 +269,23 @@ class Course implements IteratorAggregate
     $course = new Course($json['course'], $title);
 
     if (!empty($json['sections']))
-      $course->section_add(Section::from_json_arrays($json['sections']));
-    
+      {
+	$json_course_slot_sections = array();
+	foreach ($json['sections'] as $json_section)
+	  {
+	    $slot_id = 'default';
+	    if (!empty($json_section['slot']))
+	      $slot_id = $json_section['slot'];
+
+	    if (empty($json_course_slot_sections[$slot_id]))
+	      $json_course_slot_sections[$slot_id] = array();
+	    $json_course_slot_sections[$slot_id][] = $json_section;
+	  }
+
+	foreach ($json_course_slot_sections as $slot_id => $json_course_slot_section)
+	  $course->section_add(Section::from_json_arrays($json_course_slot_section), $slot_id);
+      }
+
     if (!empty($json['dependencies']))
       foreach ($json['dependencies'] as $dependency)
 	$course->dependency_add(Course::from_json_array($dependency));
@@ -275,5 +304,16 @@ class Course implements IteratorAggregate
 
     if (!isset($this->title))
       $this->title = NULL;
+
+    if (empty($this->slots) && !empty($this->sections))
+      {
+	$this->slots = array();
+
+	foreach ($this->sections as $section)
+	  $this->section_add($section);
+
+	unset($this->sections);
+	unset($this->nsections);
+      }
   }
 }

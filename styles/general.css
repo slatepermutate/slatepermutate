@@ -386,6 +386,11 @@ a:hover {
     width: 80%;
 }
 
+.tr-slot-id-hidden
+{
+  display: none;
+}
+
 .inPlace {
   color: #000;
   border: none;

@@ -47,6 +47,21 @@ class Schedule
   private $classStorage;			// array of courses
   private $nclasses;				// Integer number of classes
 
+  /**
+   * \brief
+   *   Provides a mapping to regain the user's original input.
+   *
+   * Currently, the Schedule object cannot natively handle CourseSlot
+   * objects properly. It assumes that each Course has one and only
+   * one CourseSlot. This array maps each Course object stored in
+   * $classStorage onto the index of the course it was originally
+   * from. I.e., if the Course at index 0 had two CourseSlot objects,
+   * array(0 => 0, 1 => 0, 2 => 1) would map these two CourseSlot
+   * objects onto the same Course object and have the next CourseSlot
+   * be mapped into a separate Course object.
+   */
+  private $course_slot_mappings;
+
   /* My member variables. */
   private $courses;
   private $nPermutations = 0;		// Integer number of real permutations
@@ -111,6 +126,7 @@ class Schedule
   function __construct($name, $parent = NULL, array $school = NULL, array $semester = NULL)
   {
     $this->courses = array();
+    $this->course_slot_mappings = array();
     $this->scheduleName = $name;
     $this->storage = array();
     $this->title = "SlatePermutate - Scheduler";
@@ -141,6 +157,12 @@ class Schedule
   /**
    * \brief
    *   Adds a new class to the schedule.
+   *
+   * \param $slot
+   *   Currently, the Schedule class is not smart enough to understand
+   *   CourseSlots. At a lower level, we split Courses with multiple
+   *   CourseSlots into multiple Course objects with redundant
+   *   information.
    */
   function addCourse($course_id, $title)
   {
@@ -158,10 +180,11 @@ class Schedule
    *   NULL on success, a string on error which is a message for the
    *   user and a valid XHTML fragment.
    */
-  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $instructor = NULL, $location = NULL, $type = 'lecture')
+  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $instructor = NULL, $location = NULL, $type = 'lecture', $slot = 'default')
   {
     if (empty($letter) && (empty($time_start) || !strcmp($time_start, 'none')) && (empty($time_end) || !strcmp($time_end, 'none')) && empty($days)
-	&& empty($synonym) && empty($instructor) && empty($location) && (empty($type) || !strcmp($type, 'lecture')))
+	&& empty($synonym) && empty($instructor) && empty($location) && (empty($type) || !strcmp($type, 'lecture'))
+	&& (empty($slot) || !strcmp($slot, 'default')))
       return;
 
     /* reject invalid times */
@@ -179,7 +202,7 @@ class Schedule
 	  if (!$section)
 	    {
 	      $section = new Section($letter, array(), $synonym);
-	      $course->section_add($section);
+	      $course->section_add($section, $slot);
 	    }
 	  $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type, $instructor));
 
@@ -236,17 +259,42 @@ class Schedule
 	function findPossibilities()
 	{
 	  /*
+	   * Split out any Course objects with multiple CourseSlots
+	   * into multiple Course objects...
+	   */
+	  $new_courses = array();
+	  foreach ($this->courses as $i => $course)
+	    foreach ($course as $course_slot)
+	      {
+		$new_course = new Course($course->getName(), $course->title_get());
+		$new_course->course_slot_add($course_slot);
+		$new_courses[] = $new_course;
+
+		$this->course_slot_mappings[count($new_courses) - 1] = $i;
+	      }
+	  $this->courses = $new_courses;
+	  unset($new_courses);
+
+	  /*
 	   * Clean crud (completely empty courses) out of the
 	   * schedule. For some crud, it's much easier to detect that
 	   * it's crud now than during parsing of postData[].
+	   *
+	   * Now we may assume that each Course only has one
+	   * CourseSlot...
 	   */
 	  foreach ($this->courses as $i => $course)
-	    if (!$course->getnsections())
-	      {
-		unset($this->courses[$i]);
-		$this->courses = array_values($this->courses);
-		return $this->findPossibilities();
-	      }
+	    {
+	      $course_slot = NULL;
+	      foreach ($course as $course_slot)
+		break;
+	      if (empty($course_slot) || !$course_slot->sections_count())
+		{
+		  unset($this->courses[$i]);
+		  $this->courses = array_values($this->courses);
+		  return $this->findPossibilities();
+		}
+	    }
 
 		$this->possiblePermutations = 1;
 		/* special case: there is nothing entered into the schedule and thus there is one, NULL permutation */
@@ -263,7 +311,15 @@ class Schedule
 		$i = 0;
 		foreach ($this->courses as $course)
 		{
-			$this->possiblePermutations = $this->possiblePermutations * $course->getnsections();
+		  /*
+		   * Kludge for until we support course_slots natively
+		   * or find a better solution.
+		   */
+		  unset($course_slot);
+		  foreach ($course as $course_slot)
+		    break;
+
+			$this->possiblePermutations = $this->possiblePermutations * $course_slot->sections_count();
 			$cs[$i] = 0;	// Sets the counter array to all zeroes.
 			$i ++;
 		}
@@ -279,15 +335,22 @@ class Schedule
 	    
 			  for ($downCounter = count($this->courses) - 1; $downCounter > $upCounter && !$conflict; $downCounter --)
 				{
-				  if ($this->courses[$upCounter]->getSection($cs[$upCounter])
-				      ->conflictsWith($this->courses[$downCounter]->getSection($cs[$downCounter])))
+				  unset($course_slot_up);
+				  foreach ($this->courses[$upCounter] as $course_slot_up)
+				    break;
+
+				  unset($course_slot_down);
+				  foreach ($this->courses[$downCounter] as $course_slot_down)
+				    break;
+
+				  if ($course_slot_up->section_get_i($cs[$upCounter])->conflictsWith($course_slot_down->section_get_i($cs[$downCounter])))
 				    {
 				      $conflict = TRUE;
 				      break;
 				    }
 				}
 			}
-	
+
 	// Store to storage if no conflict is found.
 	if(!$conflict)
 	  {
@@ -297,15 +360,19 @@ class Schedule
 	      }
 	    $this->nPermutations++;
 	  }
-			
+
 	// Increase the counter by one to get the next combination of class sections.
 	$cs[$position] = $cs[$position] + 1;
-			
+
 	// Check to make sure the counter is still valid.
 	$valid = false;
 	while(!$valid)
 	  {
-	    if($cs[$position] == $this->courses[$position]->getnsections())
+	    unset($course_slot);
+	    foreach ($this->courses[$position] as $course_slot)
+	      break;
+
+	    if($cs[$position] == $course_slot->sections_count())
 	      {
 		$cs[$position] = 0;
 
@@ -330,7 +397,7 @@ class Schedule
 	$counter++;
       } while($counter < $this->possiblePermutations);
   }
-    
+
   /**
    * \brief
    *   Prints out the possible permutations in tables.
@@ -458,9 +525,10 @@ class Schedule
 	$min_time = (int)min($time);
 	$sort_time = FALSE;
 	foreach ($this->courses as $course)
+	  foreach ($course as $course_slot)
 	  {
-	    for ($si = 0; $si < $course->getnsections(); $si ++)
-	      foreach ($course->getSection($si)->getMeetings() as $meeting)
+	    for ($si = 0; $si < $course_slot->sections_count(); $si ++)
+	      foreach ($course_slot->section_get_i($si)->getMeetings() as $meeting)
 		{
 		  /* Saturdayness */
 		  if ($meeting->getDay(5))
@@ -589,10 +657,13 @@ class Schedule
 		      for($j = 0; $j < count($this->courses); $j++)
 			{
 			  $course = $this->courses[$j];
-			  $section_index = $this->storage[$i][$j];
-			  $section = $course->getSection($section_index);
-				  /* iterate through all of a class's meeting times */
-				  $meetings = $section->getMeetings();
+			  foreach ($course as $course_slot)
+			    {
+			      $section_index = $this->storage[$i][$j];
+			      $section = $course_slot->section_get_i($section_index);
+
+			      /* iterate through all of a class's meeting times */
+			      $meetings = $section->getMeetings();
 
 				  /* find any meeting which are going on at this time */
 				  $current_meeting = NULL;
@@ -644,12 +715,13 @@ class Schedule
 				      if (empty($permutations_courses[$j]))
 					{
 					  $singleton_course = new Course($course->getName(), $course->title_get());
-					  $singleton_course->section_add($section);
+					  $singleton_course->section_add($section, $course_slot->id_get());
 					  $permutation_courses[$j] = $singleton_course->to_json_array();
 					}
 
 				      $filled = TRUE;
 				    }
+			    } /* $course_slot */
 			}
 		    }
 
@@ -723,11 +795,42 @@ class Schedule
 
   /**
    * \brief
-   *   fetch a specified class by its key
+   *   Fetch a specified class by its key.
+   *
+   * Use Schedule::courses_get() instead of this function if the code
+   * you're writing understand CourseSlot objects.
+   *
+   * \see Schedule::courses_get().
    */
-  function class_get($class_key)
+  public function class_get($class_key)
   {
     return $this->courses[$class_key];
+  }
+
+  /**
+   * \brief
+   *   Get an array of Course objects as originally inputted by the
+   *   user.
+   */
+  public function courses_get()
+  {
+    /*
+     * As Mr. Westra would say, just map them courses back into their
+     * original forms.
+     */
+
+    $courses = array();
+    foreach ($this->courses as $course_i => $course)
+      {
+	$mapping = $this->course_slot_mappings[$course_i];
+	if (empty($courses[$mapping]))
+	  $courses[$mapping] = new Course($course->getName(), $course->title_get());
+
+	foreach ($course as $course_slot)
+	  $courses[$mapping]->course_slot_add($course_slot);
+      }
+
+    return $courses;
   }
 
   /**
@@ -804,16 +907,15 @@ class Schedule
    */
   function __wakeup()
   {
-    if ($this->nclasses == -1)
-      /* this Schedule doesn't need to be upgraded from Classes to Course */
-      return;
-
-    $this->courses = array();
-    foreach ($this->classStorage as $classes)
+    if ($this->nclasses != -1)
       {
-	$this->courses[] = $classes->to_course();
+	/* this Schedule needs to be upgraded from Classes to Course */
+
+	$this->courses = array();
+	foreach ($this->classStorage as $classes)
+	  $this->courses[] = $classes->to_course();
+	$this->nclasses = -1;
       }
-    $this->nclasses = -1;
 
     if (empty($this->parent_id))
       $this->parent_id = NULL;
@@ -835,6 +937,13 @@ class Schedule
 	    $school = school_load($this->school_id);
 	    $this->semester = school_semester_guess($school);
 	  }
+      }
+
+    if (empty($this->course_slot_mappings))
+      {
+	$this->course_slot_mappings = array();
+	foreach ($this->courses as $course_i => $course)
+	  $this->course_slot_mappings[$course_i] = count($this->course_slot_mappings);
       }
   }
 }

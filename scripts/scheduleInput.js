@@ -62,6 +62,16 @@ var course_ajax_requests = [];
  */
 var slate_permutate_course_free = -1;
 
+/**
+ * \brief
+ *   Whether or not we should divulge the existence of course slots to
+ *   the user.
+ *
+ * This will automatically be set to true as soon as a course
+ * utilizing multiple slots is added using autocomplete.
+ */
+var show_course_slots = false;
+
 /*
  * General Input Functions
  */
@@ -109,16 +119,20 @@ function addTips()
  * \brief
  *   Add a section to a class.
  */
-function add_section_n(cnum, name, synonym, stime, etime, days, instructor, location, type)
+function add_section_n(cnum, name, synonym, stime, etime, days, instructor, location, type, slot)
 {
     var snum = last_section_i ++;
-    var cssclasses = 'section class' + cnum;
+    var cssclasses = 'section class' + cnum + ' ' + safe_css_class('slot-' + slot);
+    var last_tr;
 
     if(type == 'lab')
 	cssclasses += ' lab';
 
     var section_html = '<tr id="tr-section-' + String(snum) + '" class="' + cssclasses + '"><td class="none"></td>' +
-	'<td class="sectionIdentifier center"><input type="text" size="1" class="required section-letter-entry" name="postData[' + cnum + '][' + snum + '][letter]" /><input class="section-synonym-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][synonym]" /></td>' +
+	'<td class="sectionIdentifier center"><input type="text" size="1" class="required section-letter-entry" name="postData[' + cnum + '][' + snum + '][letter]" />' + 
+	'  <input class="section-synonym-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][synonym]" />' +
+	'  <input class="section-slot-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][slot]" />' +
+	'</td>' +
 	'<td class="professor center"><input type="text" size="10" class="profName" name="postData[' + cnum + ']['+ snum + '][professor]" /></td>' +
 	'<td><select class="selectRequired" name="postData[' + cnum + '][' + snum + '][start]"><option value="none"></option>' +
 	genOptionHtml("0700", "7:00 am", stime) + genOptionHtml("0730", "7:30 am", stime) +
@@ -185,7 +199,18 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 	'<input class="section-type-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][type]" />' +
 	'</td></tr>';
 
-    jQuery('tr.class' + cnum + ':last').after(section_html);
+    /*
+     * Try to append this section to the last section in its
+     * associated CourseSlot...
+     */
+    last_tr = jQuery('tr.class' + cnum + '.' + safe_css_class('slot-' + slot) + ':last');
+    if (!last_tr.length)
+    {
+	/* Also append a a new ``we are this slot'' row... */
+	course_add_slot_row(cnum, slot);
+	last_tr = jQuery('tr.class' + cnum + ':last');
+    }
+    last_tr.after(section_html);
     sectionsOfClass[cnum] ++;
 
     var section_tr = jQuery('#tr-section-' + String(snum));
@@ -199,6 +224,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
      */
     section_tr.find('.section-letter-entry').val(name);
     section_tr.find('.section-synonym-entry').val(synonym);
+    section_tr.find('.section-slot-entry').val(slot);
     section_tr.find('.profName').val(instructor);
     section_tr.find('.section-location-entry').val(location);
     section_tr.find('.section-type-entry').val(type);
@@ -211,7 +237,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 }
 function add_section(cnum)
 {
-    var section_i = add_section_n(cnum, '', '', '', '', {m: false, t: false, w: false, h: false, f: false, s: false}, '', '', '');
+    var section_i = add_section_n(cnum, '', '', '', '', {m: false, t: false, w: false, h: false, f: false, s: false}, '', '', '', 'default');
     if (cnum == slate_permutate_course_free)
 	course_free_check(cnum);
     return section_i;
@@ -242,7 +268,10 @@ function add_sections(cnum, data)
 
     jQuery.each(data.sections, function(i, section)
 		{
-		    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.instructor, section.location, section.type);
+		    if (!section.slot)
+			section.slot = 'default';
+
+		    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.instructor, section.location, section.type, section.slot);
 		});
 
     /*
@@ -258,6 +287,57 @@ function add_sections(cnum, data)
 			var new_course_num = add_class_n(dep.course, dep['title'] ? dep['title'] : '');
 			add_sections(new_course_num, dep);
 		    });
+}
+
+/**
+ * \brief
+ *   Adds an identifier for a course slot.
+ *
+ * \param course_i
+ *   The javascript index of the course to which a slot is being
+ *   added.
+ * \param slot_id
+ *   The idenfifier of the slot.
+ */
+function course_add_slot_row(course_i, slot_id)
+{
+    var extra_classes = '';
+
+    if (!show_course_slots)
+    {
+	var aclass;
+	/*
+	 * Then check if this course has multiple slots and we should
+	 * enable displaying them to the user.
+	 */
+	aclass = jQuery('.' + safe_css_class('class' + course_i) + '.section .section-slot-entry');
+	if (aclass.length && aclass.val() != slot_id)
+	{
+	    enable_course_slots();
+	}
+    }
+    if (!show_course_slots)
+	extra_classes += ' tr-slot-id-hidden';
+
+    jQuery('tr.class' + course_i + ':last').after(
+	'<tr class="class' + course_i + ' tr-slot-id ' + safe_css_class('slot-' + slot_id) + extra_classes + '">\n' +
+	    '  <td><span /></td>\n' +
+	    '  <td colspan="10"><span class="slot-id-text" /></td>\n' +
+	    '  <td colspan="2"><span /></td>\n' +
+	    '</tr>\n'
+    );
+    jQuery('tr.class' + course_i + ':last .slot-id-text').text('The following are ' + slot_id + ' sections and will be scheduled as a group.');
+}
+
+/**
+ * \brief
+ * Dynamically enable the displification of course slots to the user.
+ */
+function enable_course_slots()
+{
+    show_course_slots = true;
+
+    jQuery('.tr-slot-id-hidden').removeClass('tr-slot-id-hidden');
 }
 
 /**
@@ -552,6 +632,18 @@ function prettyTime(time_str)
     */
 
     return hour_str + ':' + time_str.substr(2) + ' ' + m + 'm';
+}
+
+/**
+ * \brief
+ *   Takes any value classname and tries to smooth it out to a valid
+ *   CSS class name.
+ *
+ * \todo STUB
+ */
+function safe_css_class(classname)
+{
+    return classname;
 }
 
 //--------------------------------------------------

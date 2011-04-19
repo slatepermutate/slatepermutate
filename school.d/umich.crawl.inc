@@ -228,13 +228,16 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
 	}
       $time_end = umich_crawl_time($matches[2], $matches[3]);
       $time_start = umich_crawl_time($matches[1], FALSE, $time_end);
+      /* umich defines course_slots by meeting_type. */
+      $meeting_type = school_crawl_meeting_type(trim($row[$fields['Component']]));
 
       $semester->section_meeting_add($dept, $course_id, trim($row[$fields['Course Title']]),
 				     trim($row[$fields['Section']]), $synonym,
 				     new SectionMeeting($days, $time_start, $time_end,
 							trim($row[$fields['Location']]),
-							school_crawl_meeting_type(trim($row[$fields['Component']])),
-							trim($row[$fields['Instructor']])));
+							$meeting_type,
+							trim($row[$fields['Instructor']])),
+				     $meeting_type);
     }
 }
 

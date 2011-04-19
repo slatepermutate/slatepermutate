@@ -208,7 +208,10 @@ if(!$DEBUG)
 				  /* Skip the section name, which isn't a section */
 					if(is_array($section))
 					  {
-					    $error_string = $allClasses->addSection($course['name'], $section['letter'], $section['start'], $section['end'], arrayToDays(empty($section['days']) ? array() : $section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type']);
+					    if (empty($section['slot']))
+					      $section['slot'] = 'default';
+
+					    $error_string = $allClasses->addSection($course['name'], $section['letter'], $section['start'], $section['end'], arrayToDays(empty($section['days']) ? array() : $section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type'], $section['slot']);
 					    if ($error_string !== NULL)
 					      $errors[] = $error_string;
 					  }

@@ -125,10 +125,9 @@ jQuery(document).ready(
 ';
 if ($sch)
 {
-  $nclasses = $sch->nclasses_get();
-  for ($class_key = 0; $class_key < $nclasses; $class_key ++)
+  foreach ($sch->courses_get() as $course)
     {
-      $my_hc .= input_class_js($sch->class_get($class_key), '    ');
+      $my_hc .= input_course_js($course, '    ');
     }
 }
 elseif ($errors_fix)
@@ -153,7 +152,8 @@ elseif ($errors_fix)
 				    's' => !empty($section['days'][5])))
 		. ', ' . json_encode($section['professor']) . ', '
 		. json_encode($section['location']) . ', '
-		. json_encode($section['type']) . ');' . PHP_EOL;
+		. json_encode($section['type']) . ', '
+		. json_encode($section['slot']) . ');' . PHP_EOL;
 	  $my_hc .= PHP_EOL;
 	}
   }
@@ -161,7 +161,7 @@ else
   {
     $default_courses = school_default_courses($school);
     foreach ($default_courses as $default_class)
-      $my_hc .= input_class_js($default_class, '    ');
+      $my_hc .= input_course_js($default_class, '    ');
   }
 $my_hc .= '    class_last = add_class();' . PHP_EOL;
 if ($qtips_always || !isset($_SESSION['saw_qtips']))
@@ -330,7 +330,7 @@ $inputPage->showSavedScheds($_SESSION);
 $inputPage->showSchoolInstructions();
 $inputPage->foot();
 
-function input_class_js(Course $course, $whitespace = '  ')
+function input_course_js(Course $course, $whitespace = '  ')
 {
   $title = $course->title_get();
   if (empty($title))
@@ -338,11 +338,10 @@ function input_class_js(Course $course, $whitespace = '  ')
   $js = $whitespace . 'class_last = add_class_n(' . json_encode($course->getName()) . ', '
     . json_encode($title) . ');' . PHP_EOL;
 
-  $nsections  = $course->getnsections();
-  for ($section_key = $nsections - 1; $section_key >= 0; $section_key --)
-    {
-      $section = $course->getSection($section_key);
-      $meetings = $section->getMeetings();
+  foreach ($course as $course_slot)
+    foreach ($course_slot as $section)
+      {
+	$meetings = $section->getMeetings();
       foreach ($meetings as $meeting)
 	{
 	  $js .= $whitespace . 'add_section_n(class_last, ' . json_encode($section->getLetter()) . ', '
@@ -352,8 +351,9 @@ function input_class_js(Course $course, $whitespace = '  ')
 	    . json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4),
 				's' => $meeting->getDay(5))) . ', '
 	    . json_encode($meeting->instructor_get()) . ', '
-	    . json_encode($meeting->getLocation()) . ','
-	    . json_encode($meeting->type_get()) . ');' . PHP_EOL;
+	    . json_encode($meeting->getLocation()) . ', '
+	    . json_encode($meeting->type_get()) . ', '
+	    . json_encode($course_slot->id_get()) . ');' . PHP_EOL;
 	}
     }
 

@@ -155,8 +155,14 @@ class Semester
    *   The section itself.
    * \param $title
    *   The course human-friendly title.
+   * \param $course_slot_id
+   *   The slot of the course which this section should be added
+   *   to. Use 'default' (or don't pass this parameter) if your school
+   *   does not have the concept of course slots. Ask binki for help
+   *   figuring this out. Course slots are a sort of
+   *   inverse/complement to section_meetings.
    */
-  public function section_add($dept, $class, Section $section, $title = NULL)
+  public function section_add($dept, $class, Section $section, $title = NULL, $course_slot_id = 'default')
   {
     $dept = strtoupper($dept);
     $class = strtoupper($class);
@@ -172,7 +178,7 @@ class Semester
 	$classobj = $this->departments[$dept][$class];
       }
 
-    $classobj->section_add($section);
+    $classobj->section_add($section, $course_slot_id);
   }
 
   /**
@@ -198,8 +204,11 @@ class Semester
    * \param $section_meeting
    *   The SectionMeeting to be added to a section which may or may
    *   not already be in this Semester.
+   * \param $course_slot_id
+   *   The name of the new CourseSlot to create if the given section
+   *   does not yet exist.
    */
-  public function section_meeting_add($dept, $course, $title, $section, $synonym, $section_meeting)
+  public function section_meeting_add($dept, $course, $title, $section, $synonym, $section_meeting, $course_slot_id = 'default')
   {
     $dept = strtoupper($dept);
     $course = strtoupper($course);
@@ -212,7 +221,7 @@ class Semester
 	$section_obj = $course_obj->section_get($section);
       }
     if (empty($course_obj) || empty($section_obj))
-      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym), $title);
+      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym), $title, $course_slot_id);
 
     $section_obj->meeting_add($section_meeting);
     return;
