@@ -104,6 +104,12 @@ class Schedule
 
   /**
    * \brief
+   *   When I was created, a unix timestamp.
+   */
+  private $created;
+
+  /**
+   * \brief
    *   Create a schedule with the given name.
    *
    * \param $name
@@ -141,6 +147,8 @@ class Schedule
 	$semester = school_semester_guess($school);
       }
     $this->semester = $semester;
+
+    $this->created = time();
 
     /* mark this as an upgraded Schedule class. See __wakeup() */
     $this->nclasses = -1;
@@ -431,22 +439,22 @@ class Schedule
 
     $footcloser = '';
 
-    if(isset($_REQUEST['print']) && $_REQUEST['print'] != ''){
-      $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'outputStyle', 'outputPrintStyle', 'displayTables');
-    }
-    else {
-      $headcode = array('outputStyle',  'jQuery', 'jQueryUI', 'jAddress', 'uiTabsKeyboard', 'qTip2','displayTables');
-    }
+    $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'displayTables', 'outputStyle', 'jQuery.cuteTime');
+    if(!empty($_REQUEST['print']))
+      array_push($headcode, 'outputPrintStyle');
+    else
+      array_push($headcode, 'jAddress', 'qTip2');
+
     $outputPage = page::page_create(htmlentities($this->getName()), $headcode,
 				    array('school' => $this->school_get(), 'semester' => $this->semester_get()));
     $outputPage->head();
 
 
 
-    if(isset($_REQUEST['print'])) {
- 
-     echo '<script type="text/javascript">';
-      echo 'jQuery(document).ready( function() {';
+    if(!empty($_REQUEST['print']))
+      {
+	echo '<script type="text/javascript">';
+	echo 'jQuery(document).ready( function() {';
  
       /* If user entered items to print */
       if($_REQUEST['print'] != 'all'){
@@ -484,6 +492,8 @@ class Schedule
 	        jQuery(\'#cancelItems\').click( function() {
 		  jQuery(\'#selectItemsInput\').hide();
 	        });'
+	. '    ' . PHP_EOL
+	. '    jQuery(\'.cute-time\').cuteTime();' . PHP_EOL
 	. '  });' . PHP_EOL
 	. '        </script>' . PHP_EOL;
 
@@ -757,7 +767,14 @@ class Schedule
       echo '<html><body><p>There are no possible schedules. Please <a href="input.php?s='.$this->id.'">try again</a>.</p></body></html>';
     }
 
-    echo "<p id=\"possiblestats\">There were a total of " . $this->possiblePermutations . " possible permutations. Only " . $this->nPermutations . " permutations had no class conflicts.</p>";
+    echo '<p id="possiblestats">' . PHP_EOL
+      . '  There were a total of ' . $this->possiblePermutations . ' possible permutations. Only ' . $this->nPermutations . ' permutations had no class conflicts.' . PHP_EOL
+      . '</p>' . PHP_EOL;
+    if ($this->created)
+      echo ''
+	. '<p id="created-time">' . PHP_EOL
+	. '  Created <span class="cute-time">' . date('c', $this->created) . '</span>.' . PHP_EOL
+	. '</p>' . PHP_EOL;
 
     $outputPage->foot();
   }
@@ -902,6 +919,19 @@ class Schedule
 
   /**
    * \brief
+   *   Get the unix timestamp of when this schedule was created
+   *   (saved).
+   *
+   * \return
+   *   A unix timestamp. 0 if the timestamp is unavailable.
+   */
+  public function created_get()
+  {
+    return $this->created;
+  }
+
+  /**
+   * \brief
    *   A magic function which tries to upgrade old serialized sections
    *   to the new format.
    */
@@ -945,5 +975,8 @@ class Schedule
 	foreach ($this->courses as $course_i => $course)
 	  $this->course_slot_mappings[$course_i] = count($this->course_slot_mappings);
       }
+
+    if (empty($this->created))
+      $this->created = 0;
   }
 }
