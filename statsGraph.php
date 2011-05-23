@@ -1,4 +1,4 @@
-<?php
+<?php /* -*- mode: php; -*- */
 
   include_once 'inc/class.graph.php';
 

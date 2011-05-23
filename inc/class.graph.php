@@ -1,4 +1,4 @@
-<?php
+<?php /* -*- mode: php; -*- */
 
 class barGraph {
 

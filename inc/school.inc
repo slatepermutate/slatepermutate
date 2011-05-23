@@ -1,4 +1,4 @@
-<?php
+<?php /* -*- mode: php; -*- */
 /*
  * Copyright 2010 Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
  *

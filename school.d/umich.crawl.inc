@@ -1,4 +1,4 @@
-<?php
+<?php /* -*- mode: php; -*- */
 /*
  * Copyright 2011 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
  *
