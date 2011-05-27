@@ -498,7 +498,7 @@ class Schedule
 	. '        </script>' . PHP_EOL;
 
       echo '        <div id="sharedialog" title="Share Schedule">' . PHP_EOL
-	. '          <p class="indent"><img class="noborder" src="http://facebook.com/favicon.ico" /> <a target="_blank" href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=My%20Schedule">Share on Facebook</a></p><p class="indent">You can also share your schedule with the URL below:<br /><em class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p>' . PHP_EOL
+	. '          <p class="indent"><img alt="[fb]" class="noborder" src="http://facebook.com/favicon.ico" /> <a href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=My%20Schedule">Share on Facebook</a></p><p class="indent">You can also share your schedule with the URL below:<br /><em class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p>' . PHP_EOL
 	. '        </div>' . PHP_EOL
 	. '        <p>' . PHP_EOL
 	. '          <a href="input.php?s='.$this->id.'" class="button">Edit</a>' . PHP_EOL
@@ -597,9 +597,8 @@ class Schedule
                     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
                     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
                     <span id="regCodes"><label><a href="#"><strong>Register for Classes</strong></a></label></span></p>
-                  </form>';
-
-          echo '</div> <!-- id="show-box" -->'
+                  </form>
+                </div> <!-- id="show-box" -->'
 	     . '<div id="the-tabs"><ul>' . "\n";
 			
 	for($nn = $first_permutation + 1; $nn <= $last_permutation; $nn++)
