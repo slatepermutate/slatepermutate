@@ -50,19 +50,25 @@ $n = "\n";
 ?>
 
 <form action="feedback-submit.php" method="post">
-<input type="hidden" name="ip" value="<?php echo $ipi ?>" />
-<input type="hidden" name="fromdom" value="<?php echo $fromdom ?>" />
-<input type="hidden" name="httpagent" value="<?php echo $httpagenti ?>" />
+<div id="feedback-form-content">
+<input type="hidden" id="ip" name="ip" value="<?php echo $ipi ?>" />
+<input type="hidden" id="fromdom" name="fromdom" value="<?php echo $fromdom ?>" />
+<input type="hidden" id="httpagent" name="httpagent" value="<?php echo $httpagenti ?>" />
 
 <table>
-<tr><td><label for="nameis">Name: </label></td><td><input type="text" name="nameis" size="20" /></td></tr>
-<tr><td><label for="visitormail">Email:</label></td><td><input type="text" name="visitormail" size="20" /></td></tr>
-<tr><td><label for="school">School: </label></td><td><input type="text" name="school" value="<?php echo htmlentities($school['id']); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
-  <tr><td><label for="referrer">Relevant Page:</label></td><td><input type="text" name="referrer" value="<?php echo htmlentities($referrer); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
+<tr><td><label for="nameis">Name: </label></td><td><input type="text" id="nameis" name="nameis" size="20" /></td></tr>
+<tr><td><label for="visitormail">Email:</label></td><td><input type="text" id="visitormail" name="visitormail" size="20" /></td></tr>
+<tr><td><label for="school">School: </label></td><td><input type="text" id="school" name="school" value="<?php echo htmlentities($school['id']); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
+  <tr><td><label for="referrer">Relevant Page:</label></td><td><input type="text" id="referrer" name="referrer" value="<?php echo htmlentities($referrer); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
 </table>
-<br/> Overall Rating:<br/> <input checked="checked" name="rating" type="radio" value="Great" />Great <input name="rating" type="radio" value="Usable" />Usable  <input name="rating" type="radio" value="Buggy/Hard to Use" />Buggy/Hard to Use <input name="rating" type="radio" value="Don't know" />Don't Know <!-- ' -->
-
-<br /><br />
+<br/>
+<div id="ratings">
+  <div id="ratings-label">Overall Rating:</div>
+  <input checked="checked" id="rating-great" name="rating" type="radio" value="Great" /><label for="rating-great">Great</label>
+  <input id="rating-usable" name="rating" type="radio" value="Usable" /><label for="rating-usable">Usable</label>
+  <input id="rating-buggy" name="rating" type="radio" value="Buggy/Hard to Use" /><label for="rating-buggy">Buggy/Hard to Use</label>
+  <input id="rating-unknown" name="rating" type="radio" value="Don't know" /><label for="rating-unknown">Don't Know <!-- ' --></label>
+</div>
 <h3>General Comments</h3>
 <p>
   <textarea name="feedback" rows="6" cols="40"><?php echo htmlentities($feedback_text); ?></textarea>
@@ -76,7 +82,7 @@ $n = "\n";
       . '<p>' . $n
       . '  <img id="captcha_img" src="captcha_img.php" alt="captcha image" /><br />' . $n
       . '  <label for="captcha_code">Enter the obfuscated text from the above image:</label><br />' . $n
-      . '  <input name="captcha_code" type="textbox" />' . $n
+      . '  <input id="captcha_code" name="captcha_code" type="text" />' . $n
       . '</p>' . $n;
     }
 ?>
@@ -98,7 +104,7 @@ $n = "\n";
   </tr>
 </table>
 <?php endif; ?>
-
+</div>
 </form>
 
 <?php
