@@ -14,3 +14,7 @@ style: regex
 
 # ignore common unwanted suffixes
 (~|\.orig|\.rej)$
+
+# Doxygen-generated stuff
+^slate_permutate.tagfile
+^html/
