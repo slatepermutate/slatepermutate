@@ -78,6 +78,10 @@ function school_load($school_id, $load_all_inc = FALSE)
   $school_info = $school_id . '_info';
   $school += $school_info();
 
+  /* Overridable defaults: */
+  $school += array('domains' => array($school_id . '.edu'),
+		   'url' => 'http://' . $school_id . '.edu/');
+
   /*
    * append small amount of info from the cache entry for this school:
    * whether or not it was crawled.
