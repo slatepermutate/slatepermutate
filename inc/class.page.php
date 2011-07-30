@@ -312,7 +312,7 @@ class page
 	 '          <a href="feedback.php">Contact Us</a>'. PHP_EOL .
          '        </div>'. PHP_EOL .
          '        <div id="rightfoot">'. PHP_EOL .
-         '          <h5>&copy; '. date('Y').' <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a><br /></h5>'. PHP_EOL .
+         '          <h5>&copy; 2011 <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a><br /></h5>'. PHP_EOL .
 	 '        </div>'. PHP_EOL .
          '      </div> <!-- id="footer" -->'. PHP_EOL .
          '    </div> <!-- id="page" -->'. PHP_EOL;
