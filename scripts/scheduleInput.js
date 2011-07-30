@@ -1,4 +1,4 @@
-/*
+/* -*- tab-width: 4; -*-
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
  *
  * This file is part of SlatePermutate.
@@ -740,9 +740,10 @@ jQuery(document).ready(function() {
         // Show/Hide instructions
         //--------------------------------------------------
 	jQuery('#schoolInstructionsBox').hide();
-	jQuery('#showInstructions').click( function() {
+	jQuery('#showInstructions').click( function(e) {
 		jQuery('#showInstructions').hide();
 		jQuery('#schoolInstructionsBox').slideToggle();
+		e.preventDefault();
 	});
 
 
