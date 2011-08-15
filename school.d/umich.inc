@@ -35,9 +35,11 @@ function umich_instructions_html()
   return <<<EOF
 <h2>U of M-specific Instructions</h2>
 <p>
-  <em>Note that there is another scheduler targeted particularly at U
+  <em>
+    Note that there is another scheduler targeted particularly at U
   of M students, <a href="http://mschedule.com/" title="Java
   applets... Ew!">MSchedule</a>.
+    </em>
 </p>
 <ol>
   <li>Get in touch with your adviser during advising/reading recess.</li>
