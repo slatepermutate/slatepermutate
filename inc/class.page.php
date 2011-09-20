@@ -122,12 +122,7 @@ class page
 
     /* Scripts and styles available for inclusion */
 
-    /*
-     * Because https://github.com/jquery/jquery/pull/478/files#r112668
-     * is included in jQuery-1.6.2, we revert to 1.6.1 until 1.6.3
-     * with the fix is released:
-     */
-    $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript"></script>';
+    $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>';
     $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['jAddress'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/jquery.address-1.3.2.min.js"></script>';
