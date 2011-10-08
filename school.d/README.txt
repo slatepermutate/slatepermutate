@@ -126,16 +126,17 @@ each of these files are listed below:
   crawlable semesters for the school. Then
   <school_id>_crawl_semester_get() is called once for each semester.
 
-** <school_id>_crawl_semester_list(array $school)
+** <school_id>_crawl_semester_list(array $school, array &$semesters)
   - $school: The school handle for <school_id>.
-  Returns an array of Semester objects or FALSE on failure.
+  - $semesters: An array to wh
+  Returns 0 on success and nonzero on failure.
 
   This function should scrape the school's website and build a list of
   scrapable semesters. For each semester, it should instantiate a
   Semester object with metadata about that semester and then return an
   array of these Semester objects.
 
-** <school_id>_crawl_semester_get(array $school, Semester $semester)
+** <school_id>_crawl_semester(array $school, Semester $semester)
   - $school: The school handle for <school_id>
   - $semester: The semester object to which courses are added.
   Returns 0 on success and otherwise on failure.
