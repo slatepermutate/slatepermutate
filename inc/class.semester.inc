@@ -1,4 +1,4 @@
-<?php /* -*- mode: php; -*- */
+<?php /* -*- mode: php; indent-tabs-mode: nil; -*- */
 /*
  * Copyright 2010 Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
  *
@@ -21,6 +21,7 @@
 $inc_dir = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR;
 require_once($inc_dir . 'class.course.inc');
 require_once($inc_dir . 'class.section.php');
+require_once($inc_dir . 'math.inc');
 
 /**
  * \brief
@@ -69,6 +70,8 @@ class Semester
   {
     $this->time_start = 0;
     $this->time_end = 0;
+    $this->time_starts = array();
+    $this->time_ends = array();
     $this->season = $season;
 
     if (strlen($year) != 4 || !is_numeric($year))
@@ -259,8 +262,23 @@ class Semester
       $this->time_end_set($time_end);
   }
 
+  /**
+   * \brief
+   *   Add a potential end time to the pool of end times.
+   */
+  public function time_end_pool_add($time_end)
+  {
+    $this->time_ends[] = $time_end;
+  }
+
   public function time_end_get()
   {
+    if (count($this->time_ends))
+      {
+        $times = filter_outliers($this->time_ends);
+        $this->time_end = max($times);
+      }
+
     return $this->time_end;
   }
 
@@ -298,8 +316,30 @@ class Semester
       $this->time_start_set($time_start);
   }
 
+  /**
+   * \brief
+   *   Add a potential semester start time to the pool of potential
+   *   start times.
+   *
+   * The idea is that there might be erroneous entries in a school's
+   * database (
+   * http://www.facebook.com/CalvinRegistrar/posts/299438720070457 )
+   * which would skew the detected start time. Use statistics to
+   * detect and kill outliers by using a pool of endtimes :-D.
+   */
+  public function time_start_pool_add($time_start)
+  {
+    $this->time_starts[] = $time_start;
+  }
+
   public function time_start_get()
   {
+    if (count($this->time_starts))
+      {
+        $times = filter_outliers($this->time_starts);
+        $this->time_end = min($times);
+      }
+
     return $this->time_start;
   }
 
@@ -377,5 +417,13 @@ class Semester
   public function purge()
   {
     $this->departments = array();
+    /*
+     * Make sure that time_end is set to the proper end time before
+     * clearing out the pool in the time_ends array.
+     */
+    $this->time_end_get();
+    $this->time_ends = array();
+    $this->time_start_get();
+    $this->time_starts = array();
   }
 }

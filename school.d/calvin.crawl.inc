@@ -384,20 +384,16 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
 	   */
 	  $date_start_time = strptime($date_start, '%m/%d/%Y');
 	  $date_end_time = strptime($date_end, '%m/%d/%Y');
+
 	  if ($date_start_time !== FALSE)
 	    {
 	      $date_start_time = school_crawl_gmmktime($date_start_time, -5 * 60*60);
-	      if (!$semester_start_min || $semester_start_min > $date_start_time)
-		{
-		  school_crawl_logf($school_crawl_log, 1, "Using section %s for the minimum start time.", $section_id['department'] . '-' . $section_id['course'] . '-' . $section_id['section']);
-		  $semester_start_min = $date_start_time;
-		}
+	      $semester->time_start_pool_add($date_start_time);
 	    }
 	  if ($date_end_time !== FALSE)
 	    {
 	      $date_end_time = school_crawl_gmmktime($date_end_time, -5 * 60*60);
-	      if ($semester_end_max < $date_end_time)
-		$semester_end_max = $date_end_time;
+	      $semester->time_end_pool_add($date_end_time);
 	    }
 	}
 	}
@@ -424,9 +420,6 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
 	school_crawl_logf($school_crawl_log, 7, 'Skipped some sections for <reason>: <number skipped>:');
       school_crawl_logf($school_crawl_log, 7, "%s: %d", $reason, $num);
     }
-
-  $semester->time_end_set($semester_end_max);
-  $semester->time_start_set($semester_start_min);
 
   /*
    * Calculate lab-based course dependencies.
