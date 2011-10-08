@@ -58,7 +58,7 @@ function main($argc, $argv)
 
   $crawl_only = NULL;
   if (isset($opts['crawl-only']))
-    $crawl_only = split(',', $opts['crawl-only']);
+    $crawl_only = explode(',', $opts['crawl-only']);
 
   $verbosity = 5;
   if (isset($opts['verbosity']))
