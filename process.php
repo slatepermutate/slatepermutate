@@ -224,7 +224,7 @@ if(!$DEBUG)
 		 */
 		if (count($errors))
 		  {
-		    $error_page = page::page_create('Process Schedule — Errors', array(), $page_create_options);
+		    $error_page = page::page_create('Process Schedule — Errors', array('qTip2'), $page_create_options);
 		    $error_page->head();
 
 		    echo '        <p>' . PHP_EOL
