@@ -126,18 +126,24 @@ function school_crawl_time_format($time)
 
 /**
  * \brief
- *   Equivalent of mktime() except that it accepts strptime()'s output
- *   format as an input.
+ *   Equivalent of gmmktime() except that it accepts strptime()'s
+ *   output format as an input.
  *
  * \param $tm
  *   An array formatted as the output of strptime().
+ * \param $timezone_offset
+ *   Optional offset of the school's timezone in seconds from
+ *   UTC. This offset gets _added_ to the resulting timestamp. So, for
+ *   example, Eastern Daylight Time would use a value of 60*60 * -4
+ *   since it is -0400 during Daylight time.
  * \return
  *   A unix timestamp.
  */
-function school_crawl_mktime(array $tm)
+function school_crawl_gmmktime(array $tm, $timezone_offset = 0)
 {
-  return mktime($tm['tm_hour'], $tm['tm_min'], $tm['tm_sec'],
-		$tm['tm_mon'] + 1, $tm['tm_mday'], $tm['tm_year'] + 1900);
+  return gmmktime($tm['tm_hour'], $tm['tm_min'], $tm['tm_sec'],
+		$tm['tm_mon'] + 1, $tm['tm_mday'], $tm['tm_year'] + 1900)
+    + $timezone_offset;
 }
 
 /**

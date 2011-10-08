@@ -152,39 +152,6 @@ function school_cache($schools)
 						  'weight' => $semester_weights ++,
 						  'name' => $semester->name_get(),
 						  );
-
-	      $cache_auto_school_semester_dir_name = $cache_auto_school_dir_name . $semester->id() . DIRECTORY_SEPARATOR;
-	      if (!is_dir($cache_auto_school_semester_dir_name))
-		{
-		  if (!mkdir($cache_auto_school_semester_dir_name, 0755, TRUE))
-		    error_log('Unable to create needed directory: `' . $cache_auto_school_semester_dir_name . '\'');
-		}
-
-	      $departments = $semester->departments_get();
-	      sort($departments);
-
-	      $dept_file = fopen($cache_auto_school_semester_dir_name . '-depts', 'wb');
-	      fwrite($dept_file, serialize($departments));
-	      fclose($dept_file);
-
-	      /* now per-department autocomplete */
-	      foreach ($departments as $department)
-		{
-		  $classes = $semester->department_classes_get($department);
-		  $classes_file = fopen($cache_auto_school_semester_dir_name . $department . '.sects', 'wb');
-		  fwrite($classes_file, serialize($classes));
-		  fclose($classes_file);
-
-		  /* now individual section informations, pre-JSON-ized */
-		  foreach ($classes as $class)
-		    {
-		      if (!is_dir($cache_auto_school_semester_dir_name . $department))
-			mkdir($cache_auto_school_semester_dir_name . $department);
-		      $class_file = fopen($cache_auto_school_semester_dir_name . $department . DIRECTORY_SEPARATOR . $class, 'wb');
-		      fwrite($class_file, json_encode($semester->class_get($department, $class)->to_json_array()));
-		      fclose($class_file);
-		    }
-		}
 	    } /* foreach ( => $semester) */
 	  /*
 	   * Store/cache the semester metadata:
@@ -260,10 +227,20 @@ function school_cache_semesters_sort (Semester $sem_a, Semester $sem_b)
  */
 function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
 {
+  $cache_dir_name = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
+    . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
+  $cache_auto_dir_name = $cache_dir_name . 'auto' . DIRECTORY_SEPARATOR;
+  $cache_auto_school_dir_name = $cache_auto_dir_name . $school['id'] . DIRECTORY_SEPARATOR;
+  if (!is_dir($cache_auto_school_dir_name))
+    {
+      if (!mkdir($cache_auto_school_dir_name, 0755, TRUE))
+	error_log('Unable to create needed directory: `' . $cache_auto_dir_name . '\'');
+    }
+
   $school['crawled'] = FALSE;
 
-  $school_crawl_func = $school['id'] . '_crawl';
-  if (!function_exists($school_crawl_func))
+  $school_crawl_semesters_list_func = $school['id'] . '_crawl_semester_list';
+  if (!function_exists($school_crawl_semesters_list_func))
     return;
 
   $school_crawl_log_opts = array('verbosity' => $verbosity);
@@ -276,20 +253,81 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
   $semesters = array();
 
   if ($verbosity > 0)
-    school_crawl_logf($school_crawl_log, 2, "Calling crawler...");
+    school_crawl_logf($school_crawl_log, 2, "Calling %s()...", $school_crawl_semesters_list_func);
 
-  $ret = $school_crawl_func($semesters, $school_crawl_log, $verbosity);
+  $ret = $school_crawl_semesters_list_func($school, $semesters, $school_crawl_log);
   if ($ret)
     {
       school_crawl_logf($school_crawl_log, 1, "Crawling %s failed: %s() returned nonzero",
-			$school['id'], $school_crawl_func);
+			$school['id'], $school_crawl_semesters_list_func);
       school_crawl_logf($school_crawl_log, 6, "");
       return;
     }
-  $school['crawled'] = TRUE;
-  $school['crawled_semesters'] = $semesters;
 
-  school_crawl_logf($school_crawl_log, 6, "");
+  $successful_semesters = array();
+  $school_crawl_semester_func = $school['id'] . '_crawl_semester';
+  if (!function_exists($school_crawl_semester_func))
+    {
+      school_crawl_logf($school_crawl_log, 3, "%s() is defined but %s() isn't.",
+			$school_crawl_semesters_list_func, $school_crawl_semester_func);
+      return;
+    }
+
+  foreach ($semesters as $semester)
+    {
+      school_crawl_logf($school_crawl_log, 2, "Calling %s(%s)...", $school_crawl_semester_func, $semester);
+      $ret = $school_crawl_semester_func($school, $semester, $school_crawl_log);
+      if ($ret)
+	{
+	  school_crawl_logf($school_crawl_log, 1, "Failed to crawl semester %s. Skipping semester.", $semester);
+	  continue;
+	}
+
+      /*
+       * Write out this semester's cache now that we're here.
+       */
+      $cache_auto_school_semester_dir_name = $cache_auto_school_dir_name . $semester->id() . DIRECTORY_SEPARATOR;
+	      if (!is_dir($cache_auto_school_semester_dir_name))
+		{
+		  if (!mkdir($cache_auto_school_semester_dir_name, 0755, TRUE))
+		    error_log('Unable to create needed directory: `' . $cache_auto_school_semester_dir_name . '\'');
+		}
+
+	      $departments = $semester->departments_get();
+	      sort($departments);
+
+	      $dept_file = fopen($cache_auto_school_semester_dir_name . '-depts', 'wb');
+	      fwrite($dept_file, serialize($departments));
+	      fclose($dept_file);
+
+	      /* now per-department autocomplete */
+	      foreach ($departments as $department)
+		{
+		  $classes = $semester->department_classes_get($department);
+		  $classes_file = fopen($cache_auto_school_semester_dir_name . $department . '.sects', 'wb');
+		  fwrite($classes_file, serialize($classes));
+		  fclose($classes_file);
+
+		  /* now individual section informations, pre-JSON-ized */
+		  foreach ($classes as $class)
+		    {
+		      if (!is_dir($cache_auto_school_semester_dir_name . $department))
+			mkdir($cache_auto_school_semester_dir_name . $department);
+		      $class_file = fopen($cache_auto_school_semester_dir_name . $department . DIRECTORY_SEPARATOR . $class, 'wb');
+		      fwrite($class_file, json_encode($semester->class_get($department, $class)->to_json_array()));
+		      fclose($class_file);
+		    }
+		}
+
+      /* Purge the data written to disk from memory */
+      $semester->purge();
+
+      school_crawl_logf($school_crawl_log, 6, "");
+      $successful_semesters[] = $semester;
+    }
+
+  $school['crawled'] = TRUE;
+  $school['crawled_semesters'] = $successful_semesters;
 
   return $school_crawl_log;
 }
@@ -319,7 +357,7 @@ function school_cache_recreate($crawl_only = NULL, Page $page = NULL, $verbosity
     foreach ($crawl_only as $crawl_only_school_id)
       if (!in_array($crawl_only_school_id, $school_id_list))
 	{
-	  fprintf(STDERR, "error: Invalid school_id specified for crawling: %s",
+	  fprintf(STDERR, "error: Invalid school_id specified for crawling: %s\n",
 		  $crawl_only_school_id);
 	  return 1;
 	}

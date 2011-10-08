@@ -20,16 +20,26 @@
 
 /**
  * \brief
- *   Crawl's Calvin's registration course listing pages.
+ *   Retrieve a list of crawlable semesters from Calvin College.
  *
+ * \param $school
+ *   The calvin school handle.
  * \param $semesters
- *   An array to be filled with Semester objects which I should
- *   populate.
+ *   The array to populate with empty Semester objects.
  * \param $school_crawl_log
- *   A school_crawl_log handle.
+ *   A school_crawl_log handle for informing the user/developer of
+ *   progress.
  */
-function calvin_crawl(array &$semesters, &$school_crawl_log)
+function calvin_crawl_semester_list(array $school, array &$semesters, &$school_crawl_log)
 {
+  $season_map = array(
+		      'FA' => Semester::SEASON_FALL,
+		      'IN' => 'interim',
+		      'SP' => Semester::SEASON_SPRING,
+		      'MA' => 'may',
+		      /* I don't know if SU is a valid Calvin Semester ID or not */
+		      'SU' => Semester::SEASON_SUMMER);
+
   /**
    * The first link we start at is the one from KV into WebAdvisor.
    *
@@ -48,95 +58,68 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
    */
 
   $cookies = array();
-
   $uri = 'https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
-  $departments_html = calvin_crawl_geturi($uri, $cookies, $school_crawl_log);
+  $semesters_html = calvin_crawl_geturi($uri, $cookies, $school_crawl_log);
 
-  $departments_dom = new DOMDocument();
-  $departments_dom->loadHTML($departments_html);
+  $semesters_dom = new DOMDocument();
+  $semesters_dom->loadHTML($semesters_html);
 
   /*
    * Discover the available semesters
    */
-  $semesters_select_nodes = $departments_dom->getElementById('VAR1')->childNodes;
-  $semester_strs = array();
+  $semesters_var1 = $semesters_dom->getElementById('VAR1');
+  if (empty($semesters_var1))
+    {
+      school_crawl_logf($school_crawl_log, 0, "Error: Unable to load list of semesters.");
+      return 1;
+    }
+  $semesters_select_nodes = $semesters_var1->childNodes;
   foreach ($semesters_select_nodes as $semester_node)
     {
       if ($semester_node->tagName != 'option'
 	  || !$semester_node->hasAttribute('value')
 	  || !strlen($semester_node->getAttribute('value')))
 	continue;
-      $semester_strs[$semester_node->getAttribute('value')] =
-	$semester_node->nodeValue;
-    }
-  $semester_strs = array_reverse($semester_strs, TRUE);
 
-  $departments_select_nodes = $departments_dom->getElementById('LIST_VAR1_1')->childNodes;
-  $departments = array();
-  foreach ($departments_select_nodes as $dept_node)
-    {
-      if ($dept_node->tagName != 'option'
-	  || !$dept_node->hasAttribute('value'))
-	continue;
-      $departments[$dept_node->getAttribute('value')] =
-	$dept_node->nodeValue;
-    }
+      $semester_str = $semester_node->getAttribute('value');
 
-
-  /*
-   * get all of the different possible course levels... dynamically
-   * rather than hardcodedly ;-).
-   */
-  $departments_select_nodes = $departments_dom->getElementById('LIST_VAR1_2')->childNodes;
-  $course_levels = array();
-  foreach ($departments_select_nodes as $courselevel_node)
-    {
-      if ($courselevel_node->tagName != 'option'
-	  || !$courselevel_node->hasAttribute('value'))
-	continue;
-      $course_levels[] = $courselevel_node->getAttribute('value');
-    }
-
-  $return_url = dom_input_value($departments_dom, 'RETURN.URL');
-
-
-  school_crawl_logf($school_crawl_log, 7, "Available semesters: %s.", implode($semester_strs, ', '));
-
-  $semester_start_uri = $uri;
-
-  $season_map = array(
-		      'FA' => Semester::SEASON_FALL,
-		      'IN' => 'interim',
-		      'SP' => Semester::SEASON_SPRING,
-		      'MA' => 'may',
-		      /* I don't know if SU is a valid Calvin Smester ID or not */
-		      'SU' => Semester::SEASON_SUMMER);
-  foreach ($semester_strs as $semester_str => $semester_info)
-    {
       if (empty($season_map[substr($semester_str, 3)]))
 	{
 	  school_crawl_logf($school_crawl_log, 6, "Warning: Unknown semester identification chars: %s. Skipping this semester.",
-		  $semester_str);
+			    $semester_str);
 	  continue;
 	}
       $season = $season_map[substr($semester_str, 3)];
       $year_timespec = strptime(substr($semester_str, 0, 2), '%y');
-      $year =  $year_timespec['tm_year'] + 1900;
+      $year = $year_timespec['tm_year'] + 1900;
 
       $semester = new Semester($year, $season);
+      $semesters[$semester_str] = $semester;
+    }
+  $semester = array_reverse($semesters, TRUE);
 
-      /* useful and necessary stats */
-      $skipped_sections = array('incomplete meeting info' => 0, 'invalid meeting info format' => 0);
+  return 0;
+}
 
-      $semester_start_min = 0;
-      $semester_end_max = 0;
-
-      $dept = '';
-      $course_level = '';
-      $uri = $semester_start_uri;
-
-      school_crawl_logf($school_crawl_log, 6, "Crawling semester %s->%s.",
-			$semester_str, $semester_info);
+/**
+ * \brief
+ *   Crawl the courses for a semester from Calvin College.
+ *
+ * \param $school
+ *   The calvin school handle.
+ * \param $semester
+ *   The Semester object to populate with courses.
+ * \param $school_crawl_log
+ *   The logger handle.
+ */
+function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl_log)
+{
+  $cookies = array();
+  $uri = 'https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
+  $html = calvin_crawl_geturi($uri, $cookies, $school_crawl_log);
+  $seed_dom = new DOMDocument();
+  $seed_dom->loadHTML($html);
+  $return_url = dom_input_value($seed_dom, 'RETURN.URL');
 
   /*
    * LIST.VAR<X>_<N>: <X> is the column, <N> is the row. There
@@ -150,9 +133,12 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
    * LIST.VAR4: I forget
    *
    */
+  $semester_str = sprintf("%02d/%s", $semester->year_get() % 100, strtoupper(substr($semester->season, 0, 2)));
+  school_crawl_logf($school_crawl_log, 6, 'Using %s for a semester string.',
+		    $semester_str);
   $form = array('VAR1' => $semester_str,
-		'LIST.VAR1_1' => $dept,
-		'LIST.VAR2_1' => $course_level,
+		'LIST.VAR1_1' => '',
+		'LIST.VAR2_1' => '',
 
 		/*
 		 * Other form items we're not querying but which need
@@ -216,10 +202,14 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
     $form['VAR' . $day] = '';
   */
 
+  $semester_start_min = 0;
+  $semester_end_max = 0;
+
+  $skipped_sections = array('incomplete meeting info' => 0, 'invalid meeting info format' => 0);
   /*
    * pages is populated by preg_match() below after the first looping.
    */
-  $pages = array(1 => 0, 2=> 1);
+  $pages = array(1 => 0, 2 => 1);
   while ($pages[1] < $pages[2])
     {
       $html = calvin_crawl_noscript_filter(school_crawl_geturi($uri, $cookies, $school_crawl_log, $form));
@@ -243,7 +233,7 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	    }
 
 	  /*
-	   * the same info below should be gettable with 
+	   * The same info below should be retrievable with 
 	   * dom_id_content($results_dom, 'SEC_FACULTY_INFO_' . $list_row);
 	   */
 	  $faculty_name = dom_input_value($results_dom, 'SEC.FACULTY.INFO_' . $list_row);
@@ -396,13 +386,16 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
 	  $date_end_time = strptime($date_end, '%m/%d/%Y');
 	  if ($date_start_time !== FALSE)
 	    {
-	      $date_start_time = school_crawl_mktime($date_start_time);
+	      $date_start_time = school_crawl_gmmktime($date_start_time, -5 * 60*60);
 	      if (!$semester_start_min || $semester_start_min > $date_start_time)
-		$semester_start_min = $date_start_time;
+		{
+		  school_crawl_logf($school_crawl_log, 1, "Using section %s for the minimum start time.", $section_id['department'] . '-' . $section_id['course'] . '-' . $section_id['section']);
+		  $semester_start_min = $date_start_time;
+		}
 	    }
 	  if ($date_end_time !== FALSE)
 	    {
-	      $date_end_time = school_crawl_mktime($date_end_time);
+	      $date_end_time = school_crawl_gmmktime($date_end_time, -5 * 60*60);
 	      if ($semester_end_max < $date_end_time)
 		$semester_end_max = $date_end_time;
 	    }
@@ -432,29 +425,24 @@ function calvin_crawl(array &$semesters, &$school_crawl_log)
       school_crawl_logf($school_crawl_log, 7, "%s: %d", $reason, $num);
     }
 
-    $semester->time_end_set($semester_end_max);
-    $semester->time_start_set($semester_start_min);
+  $semester->time_end_set($semester_end_max);
+  $semester->time_start_set($semester_start_min);
 
-    /*
-     * Calculate lab-based course dependencies.
-     */
-    school_crawl_logf($school_crawl_log, 7, 'Adding implicit lab dependencies.');
-    foreach ($semester->departments_get() as $department)
-      foreach ($semester->department_classes_get($department) as $course)
-        {
-	  $the_course = $semester->class_get($department, $course);
-	  $lab_course = $semester->class_get($department, $course . 'L');
-	  if (!empty($lab_course))
-	    {
-	      $the_course->dependency_add($lab_course);
-	      school_crawl_logf($school_crawl_log, 8, "Adding dependency of %s-%s for %s-%s.",
-				$department, $course . 'L', $department, $course);
-	    }
+  /*
+   * Calculate lab-based course dependencies.
+   */
+  school_crawl_logf($school_crawl_log, 7, 'Adding implicit lab dependencies.');
+  foreach ($semester->departments_get() as $department)
+    foreach ($semester->department_classes_get($department) as $course)
+    {
+      $the_course = $semester->class_get($department, $course);
+      $lab_course = $semester->class_get($department, $course . 'L');
+      if (!empty($lab_course))
+	{
+	  $the_course->dependency_add($lab_course);
+	  school_crawl_logf($school_crawl_log, 8, "Adding dependency of %s-%s for %s-%s.",
+			    $department, $course . 'L', $department, $course);
 	}
-
-    $semesters[] = $semester;
-
-    school_crawl_logf($school_crawl_log, 6, "");
     }
 
   return 0;

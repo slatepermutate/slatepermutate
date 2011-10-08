@@ -18,6 +18,282 @@
  * along with slate_permutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+define('CCBCMD_CRAWL_URI', 'http://ccbcmd.edu/schedule/sched.html');
+
+/**
+ * \brief
+ *   Obtain list of crawlable semesters offered by CCBCMD.
+ *
+ * \parram $school
+ *   The CCBCMD school handle.
+ * \param $semesters
+ *   Array to populate with available semesters.
+ * \return
+ *   0 on success.
+ */
+function ccbcmd_crawl_semester_list(array $school, array &$semesters, &$school_crawl_log)
+{
+  $cookies = array();
+
+  /*
+   * It seems that http://ccbcmd.edu/schedule/sched.html is what we're
+   * meant to start from. That's just a redirect to some other page
+   * from which we get a listing of available semesters and choose
+   * one.
+   */
+  $uri = CCBCMD_CRAWL_URI;
+  $semesters_dom = new DOMDocument();
+  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, 'ccbcmd_crawl_curlhook'));
+  $semesters_select_node = $semesters_dom->getElementById('term_input_id');
+  if ($semesters_select_node === NULL)
+    {
+      school_crawl_logf($school_crawl_log, 0, "Could not get list of available semesters to choose from.");
+      return 1;
+    }
+
+  foreach ($semesters_select_node->childNodes as $semesters_option_node)
+    {
+      $semester_text = $semesters_option_node->textContent;
+      $semester_value = $semesters_option_node->getAttribute('value');
+      if (empty($semester_value))
+	/* skip the empty ``None'' semester */
+	continue;
+
+      if (stripos($semester_text, 'continuing') !== FALSE)
+	/* skip the year-long semesters dedicated to continuing education */
+	continue;
+
+      list($semester_season, $semester_year) = explode(' ', $semester_text);
+
+      /* the college has two separate summer sessions, so distinguish between them */
+      if (preg_match(';session ([0-9]+);i', $semester_text, $matches))
+	$semester_season .= '_' . $matches[1];
+
+      $semesters[] = new Semester($semester_year, strtolower($semester_season));
+    }
+
+  return 0;
+}
+
+/**
+ * \brief
+ *   Crawl a CCBCMD semester.
+ *
+ * \param $school
+ *   The CCBCMD school handle.
+ * \param $semester
+ *   The semester to fill with courses.
+ */
+function ccbcmd_crawl_semester($school, $semester, &$school_crawl_log)
+{
+  $cookies = array();
+  $uri = CCBCMD_CRAWL_URI;
+  $semesters_dom = new DOMDocument();
+  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, 'ccbcmd_crawl_curlhook'));
+  $semesters_select_node = $semesters_dom->getElementById('term_input_id');
+  if (empty($semesters_select_node))
+    {
+      school_crawl_logf($school_crawl_log, 0, "Could not locate the list of semesters from which to choose.");
+      return 1;
+    }
+
+  $semesters_form = school_crawl_element_ancestor($semesters_select_node, 'form');
+  if ($semesters_form === NULL)
+    {
+      school_crawl_logf($school_crawl_log, 0, "Unable to find <form /> associated with semester.");
+      return 1;
+    }
+  $semesters_post = school_crawl_form($semesters_form);
+
+  $semester_found = FALSE;
+  foreach ($semesters_select_node->childNodes as $semesters_option_node)
+    {
+      $semester_text = $semesters_option_node->textContent;
+      $semester_value = $semesters_option_node->getAttribute('value');
+      if (empty($semester_value))
+	continue;
+
+      list($semester_season, $semester_year) = explode(' ', $semester_text);
+      if (preg_match(';session ([0-9]+);i', $semester_text, $matches))
+	$semester_season .= '_' . $matches[1];
+      $semester_season = strtolower($semester_season);
+
+      if ($semester_year == $semester->year_get()
+	  && $semester_season == $semester->season_get())
+	{
+	  $semester_found = TRUE;
+	  break;
+	}
+    }
+  if (!$semester_found)
+    {
+      school_crawl_logf($school_crawl_log, 1, "Unable to find the entry for semester %s.", $semester);
+      return 1;
+    }
+
+  $semesters_post[$semesters_select_node->getAttribute('name')] = $semester_value;
+
+  $subjects_dom = new DOMDocument();
+  $uri = school_crawl_url($uri, $semesters_form->getAttribute('action'));
+  $subjects_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $semesters_post, TRUE, 'ccbcmd_crawl_curlhook'));
+
+  $subjects_form_nodelist = $subjects_dom->getElementsByTagName('form');
+  if (!$subjects_form_nodelist->length)
+    {
+      school_crawl_logf($school_crawl_log, 0, "Unable to find <form /> to submit for the subjects-choosing page.");
+      return 1;
+    }
+  $subjects_form_node = $subjects_form_nodelist->item(0);
+  $subjects_post = school_crawl_form($subjects_form_node);
+
+  $subjects_select_node = $subjects_dom->getElementById('subj_id');
+  foreach ($subjects_select_node->childNodes as $subjects_option_node)
+    if (!strcasecmp('all', trim($subjects_option_node->textContent)))
+      $subjects_post[$subjects_select_node->getAttribute('name')][] = $subjects_option_node->getAttribute('value');
+
+  $courses_dom = new DOMDocument();
+  $uri = school_crawl_url($uri, $subjects_form_node->getAttribute('action'));
+  $courses_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $subjects_post, TRUE, 'ccbcmd_crawl_curlhook'));
+
+  $courses_xpath = new DOMXPath($courses_dom);
+
+  /* The second row of the table has all of the headers in it */
+  $tr_header_nodelist = $courses_xpath->query('//table[@class="datadisplaytable" and position()=1]//tr[position()=2]');
+  if (!$tr_header_nodelist->length)
+    {
+      school_crawl_logf($school_crawl_log, 0, "Unable to find the row of the course/section data table which gives us the mappings of column names onto columns.");
+      return 1;
+    }
+  $tr_header_node = $tr_header_nodelist->item(0);
+
+  $section_offsets = array(
+			   'registration_number' => school_crawl_table_resolve_column($tr_header_node, 'CRN'),
+			   'section_id' => school_crawl_table_resolve_column($tr_header_node, 'subj/crse/sec'),
+			   /* there's a boolean column which says whether or not the course has any prerequisites/corequisites.... */
+			   'credits' => school_crawl_table_resolve_column($tr_header_node, 'credhrs'),
+			   /* there's a column for the number of contact hours, vs. credit hours */
+			   'dates' => school_crawl_table_resolve_column($tr_header_node, 'sessiondates'),
+			   );
+  foreach (array('title', 'days', 'times', 'instructor', 'location') as $column_key)
+    $section_offsets[$column_key] = school_crawl_table_resolve_column($tr_header_node, $column_key);
+  /* there's also a column for ``session dates'' */
+
+  /* error check and calculate the number of children that a node must have to be  */
+  $max_offset = 0;
+  foreach ($section_offsets as $name => $value)
+    {
+      if ($value === FALSE)
+	{
+	  school_crawl_logf($school_crawl_log, 0, "Unable to find column offset for `%s'.",
+		  $name);
+	  return 1;
+	}
+      else
+	school_crawl_logf($school_crawl_log, 9, "%s -> %s", $name, $value);
+
+      $max_offset = max($max_offset, $value);
+    }
+      
+  foreach ($courses_xpath->query('//table[@class="datadisplaytable" and position()=1]//tr') as $tr_node)
+    {
+      $children = school_crawl_table_rownodes($tr_node);
+      if ($children->length < $max_offset)
+	/*
+	 * Skip this row because it doesn't have all of the columns we
+	 * want and thus it can't be a row containing information
+	 * about a section.
+	 */
+	continue;
+      if (!strcmp($children->item($section_offsets['section_id'])->tagName, 'th'))
+	/*
+	 * We've hit one of the <tr/>s filled with <th/>s. Skip this one.
+	 */
+	continue;
+
+      /*
+       * There are some rows with the time set to TBA and with empty
+       * section_id columns. Respond to this by skipping empty
+       * section_id columns since there's no useful data in these
+       * rows. We use strlen() < 3 because trim() doesn't take care of
+       * &nbsp; :-/
+       */
+      $section_id = trim($children->item($section_offsets['section_id'])->textContent);
+      if (strlen($section_id) < 3)
+	continue;
+
+      $section_id_parts = Section::parse($section_id);
+
+      $registration_number = $children->item($section_offsets['registration_number'])->textContent;
+      $instructor = $children->item($section_offsets['instructor'])->textContent;
+
+      $section_meetings = array();
+      {
+	$time_range_text = $children->item($section_offsets['times'])->textContent;
+	if (strpos($time_range_text, 'TBA') !== FALSE)
+	  {
+	    /*
+	     * Add the section to the autocomplete list, just without
+	     * any meeting info (i.e., $section_meetings is still
+	     * empty now).
+	     */
+	    $semester->section_add($section_id_parts['department'], $section_id_parts['course'],
+				   new Section($section_id_parts['section'], $section_meetings, $registration_number));
+	    continue;
+
+	  }
+	if (($dash_pos = strpos($time_range_text, '-')) === FALSE)
+	  {
+	    school_crawl_logf($school_crawl_log, 0, "Unable to understand course's time range format, cannot find dash: ``%s''.",
+		    $time_range_text);
+	    return 1;
+	  }
+
+	$time_start_text = substr($time_range_text, 0, $dash_pos);
+	$time_start = strptime($time_start_text, '%I:%M %p');
+	$time_end_text = substr($time_range_text, $dash_pos + 1);
+	/*
+	 * Make sure that _only_ one date range is specified to ensure
+	 * data integrity. I.e., make sure that the college doesn't
+	 * suddenly support multiple meeting times without our
+	 * anticipating that and then cause us to have invalid
+	 * data. ;-). --binki
+	 */
+	if (strpos($time_end_text, '-') !== FALSE)
+	  {
+	    school_crawl_logf($school_crawl_log, 0, "College seems to support multiple meeting times per semester which we don't know how to parse (even though slate_permutate itself can handle this situation): ``%s'' time_end_text: ``%s''.",
+		    $time_range_text, $time_end_text);
+	    return 1;
+	  }
+	$time_end = strptime($time_end_text, '%I:%M %p');
+	if ($time_end === FALSE || $time_start === FALSE)
+	  {
+	    school_crawl_logf($school_crawl_log, 0, "Error parsing start or end time: start: ``%s'' end: ``%s''.",
+		    $time_start_text, $time_end_text);
+	    return 1;
+	  }
+
+	$days = school_crawl_days_str_format($school_crawl_log, $children->item($section_offsets['days'])->textContent);
+
+	$section_meetings[] = new SectionMeeting($days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
+						 $children->item($section_offsets['location'])->textContent,
+						 $instructor);
+
+	/* check if a semester's date range should be increased */
+	$section_dates = $children->item($section_offsets['dates'])->textContent;
+	if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches))
+	  {
+	    $semester->time_start_set_test(gmmktime(0, 0, 0, $section_dates_matches[1], $section_dates_matches[2], $semester->year_get()));
+	    $semester->time_end_set_test(gmmktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get()));
+	  }
+      }
+
+      $semester->section_add($section_id_parts['department'], $section_id_parts['course'],
+			     new Section($section_id_parts['section'], $section_meetings, $registration_number));
+    }
+
+  return 0;
+}
+
 /**
  * \brief
  *   Crawl CCBCMD's registration stuffage.

@@ -52,81 +52,107 @@ function table_parse($html)
   return $arr;
 }
 
-/** Crawls Cedarville course listings. $season is "fa" or "sp", year is 4-digit year */
-function cedarville_crawl(array &$semesters, &$school_crawl_log)
-{  
-  $basepath = 'http://cedarville.edu/courses/schedule/';
+define('CEDARVILLE_BASE_URI', 'http://cedarville.edu/courses/schedule/');
+define('CEDARVILLE_TIMEZONE_OFFSET', 60*60 * -4);
 
-  school_crawl_logf($school_crawl_log, 6, "Beginning crawl of Cedarville:");
-
-  school_crawl_logf($school_crawl_log, 7, "Determining list of departments.");
-
-  school_crawl_logf($school_crawl_log, 8, "Determining list of semesters.");
-  $semesters_dom = new DOMDocument();
-  $semesters_dom->loadHTML(file_get_contents($basepath));
-
-  $content_div_dom = $semesters_dom->getElementById('contenttext');
-  if (!$content_div_dom)
+/**
+ * \brief
+ *   Obtain the list of crawlable semesters offered by Cedarville.
+ *
+ * \param $school
+ *   The school's info array/handle.
+ * \param $semesters
+ *   An array to insert the semesters into.
+ * \return
+ *   0 on success.
+ */
+function cedarville_crawl_semester_list(array $school, array &$semesters, &$school_crawl_log)
+{
+  $uri = CEDARVILLE_BASE_URI;
+  $cookies = array();
+  $html = school_crawl_geturi($uri, $cookies, $school_crawl_log);
+  if (empty($html))
     {
-      school_crawl_logf($school_crawl_log, 6, "Error finding location of the list of departments.");
-      if (count($semesters))
-	{
-	  school_crawl_logf($school_crawl_log, 6, "Assuming that I got enough info anyways, returning successful code so that the few semesters I was able to crawl will be cached.");
-	  return 0;
-	}
-      school_crawl_logf($school_crawl_log, 0, "Couldn't find any departments.");
+      school_crawl_logf($school_crawl_log, 1, "Unable to fetch %s.", CEDARVILLE_BASE_URI);
       return 1;
     }
+
+  $semesters_dom = new DOMDocument();
+  $semesters_dom->loadHTML($html);
+
   $departments_xpath = new DOMXPath($semesters_dom);
-  foreach ($departments_xpath->query('.//li/a') as $department_a_dom)
+  $have_semesters = FALSE;
+  foreach ($departments_xpath->query('//*[@id="contenttext"]//li/a') as $department_a_dom)
     {
       $semester_href = $department_a_dom->getAttribute('href');
-      $semester_href_parts = split('_', $semester_href);
+      $semester_href_parts = explode('_', $semester_href);
 
       $semester_name = $department_a_dom->textContent;
       if (stripos($semester_name, 'graduate') !== FALSE
 	  || strpos($semester_href, 'index') === FALSE)
 	/* cedarville has about 1 graduate course, lol */
 	continue;
-      $semester_name_parts = split(' ', $semester_name);
+
+      $semester_name_parts = explode(' ', $semester_name);
 
       $semester_year = $semester_name_parts[0];
       $semester_season = strtolower($semester_name_parts[1]);
-      $semester_min_date_start = 0;
-      $semester_max_date_end = 0;
 
-      $semester = new Semester($semester_year, $semester_season);
-
-      school_crawl_logf($school_crawl_log, 6, "Crawling semester: %s.",
-			$semester_name);
+      $semesters[] = new Semester($semester_year, $semester_season);
+      $have_semesters = TRUE;
+    }
 
   /*
-   * We need two passes because the first department's code name is
-   * not accessible available in the first pageload.
+   * Prime cedarville_semester_uri()'s cache to have one fewer page
+   * load.
+   */
+  cedarville_semester_uri(NULL, $school_crawl_log, $semesters_dom);
+
+  return $have_semesters ? 0 : 1;
+}
+
+/**
+ * \brief
+ *   Crawl a given Cedarville semester.
+ *
+ * \param $school
+ *   The school handle.
+ * \param $semester
+ *   The semester to populate with courses.
+ */
+function cedarville_crawl_semester(array $school, Semester $semester, &$school_crawl_log)
+{
+  $semester_uri = cedarville_semester_uri($semester, $school_crawl_log);
+  if (empty($semester_uri))
+    return 1;
+  list($season_string) = explode('_', $semester_uri);
+
+  /*
+   * Two passes are needed to determine the listing of departments
+   * because the first department's code name is not accessible
+   * available in the first pageload.
    */
   $departments = array();
-  if (cedarville_crawl_departments_get($basepath . $semester_href, $departments, $semester_href_parts[0], $school_crawl_log))
+  if (cedarville_crawl_departments_get(CEDARVILLE_BASE_URI . $semester_uri, $departments, $season_string, $school_crawl_log))
     return 1;
   if (!count($departments))
     {
-      school_crawl_logf($school_crawl_log, 6, "Unable to get a listing of departments.");
-      if (count($semesters))
-	{
-	  school_crawl_logf($school_crawl_log, 6, "Assuming that I got enough info anyways, returning successful code so that the few semesters I was able to crawl will be cached.");
-	  return 0;
-	}
-      school_crawl_logf($school_crawl_log, 0, "Unable to get listing of departments.");
+      school_crawl_logf($school_crawl_log, 2, "Unable to get a listing of departments.");
       return 1;
     }
+
   /* find the first department whose name we don't yet know */
-  if (cedarville_crawl_departments_get($basepath . $semester_href_parts[0] . '_' . current(array_keys($departments)) . '_all.htm', $departments, $semester_href_parts[0], $school_crawl_log))
+  if (cedarville_crawl_departments_get(CEDARVILLE_BASE_URI . $season_string . '_' . current(array_keys($departments)) . '_all.htm', $departments, $season_string, $school_crawl_log))
     return 1;
 
   $tables = array();
+  $cookies = array();
   foreach ($departments as $department => $dept_name)
     {
       school_crawl_logf($school_crawl_log, 7, "Crawling department %s (%s).", $department, $dept_name);
-      $html = file_get_contents($basepath . $semester_href_parts[0] . '_' . $department . '_' . 'all.htm');
+
+      $uri = CEDARVILLE_BASE_URI . $season_string . '_' . $department . '_all.htm';
+      $html = school_crawl_geturi($uri, $cookies, $school_crawl_log);
       if (!$html)
 	continue;
       $tables[$department] = table_parse(cedarville_html_fix($html));
@@ -239,8 +265,8 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 	      /* check for daterange information -- i.e., if the first regex successfully matched: */
 	      if (count($meeting_matches) > 7)
 		{
-		  $date_start = school_crawl_mktime(strptime($meeting_matches[6], '%m/%d/%y'));
-		  $date_end = school_crawl_mktime(strptime($meeting_matches[7], '%m/%d/%y'));
+		  $date_start = school_crawl_gmmktime(strptime($meeting_matches[6], '%m/%d/%y'), CEDARVILLE_TIMEZONE_OFFSET);
+		  $date_end = school_crawl_gmmktime(strptime($meeting_matches[7], '%m/%d/%y'), CEDARVILLE_TIMEZONE_OFFSET);
 		  if (!empty($date_start) && !empty($date_end))
 		    {
 		      $semester->time_start_set_test($date_start);
@@ -258,10 +284,66 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
 	}
     }
 
-  $semesters[] = $semester;
+  return 0;
+}
+
+/**
+ * \brief
+ *   Look up the URI used to access information about a particular
+ *   Cedarville semester.
+ *
+ * \param $semester
+ *   The semester whose URI is being retrieved.
+ * \param $document
+ *   Optional DOMDocument of the Cedarville semester listing page, to
+ *   aid seeding the cache. To prime the cache, just set $semester to
+ *   NULL and pass in $document.
+ * \return
+ *   The URI for that semester's courses relative to
+ *   CEDARVILLE_BASE_URI.
+ */
+function cedarville_semester_uri(Semester $semester = NULL, &$school_crawl_log, DOMDocument $document = NULL)
+{
+  static $semester_to_uri = array();
+
+  if (empty($semester_to_uri))
+    {
+      if (empty($document))
+	{
+	  $uri = CEDARVILLE_BASE_URI;
+	  $cookies = array();
+	  $html = school_crawl_geturi($uri, $cookies, $school_crawl_log);
+	  if (empty($html))
+	    return NULL;
+
+	  $document = new DOMDocument();
+	  $document->loadHTML($html);
+	}
+
+      $departments_xpath = new DOMXPath($document);
+      foreach ($departments_xpath->query('//*[@id="contenttext"]//li/a') as $department_a_dom)
+	{
+	  $semester_href = $department_a_dom->getAttribute('href');
+
+	  $semester_name = $department_a_dom->textContent;
+
+	  list($semester_year, $semester_season) = explode(' ', $semester_name);
+	  $semester_season = strtolower($semester_season);
+
+	  $semester_to_uri += array($semester_year => array());
+	  $semester_to_uri[$semester_year][$semester_season] = $semester_href;
+	}
     }
 
-  return 0;
+  if (empty($semester))
+    return NULL;
+
+  $year = $semester->year_get();
+  $season = $semester->season_get();
+  if (empty($semester_to_uri[$year][$season]))
+    return NULL;
+
+  return $semester_to_uri[$year][$season];
 }
 
 /**
@@ -274,7 +356,8 @@ function cedarville_crawl(array &$semesters, &$school_crawl_log)
  */
 function cedarville_crawl_departments_get($dept_url, array &$departments, $season_string, $school_crawl_log)
 {
-  $html = file_get_contents($dept_url);
+  $cookies = array();
+  $html = school_crawl_geturi($dept_url, $cookies, $school_crawl_log);
   $dept_dom = new DOMDocument();
   if (!$dept_dom->loadHTML(cedarville_html_fix($html)))
     {

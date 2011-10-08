@@ -369,4 +369,13 @@ class Semester
   {
     return array(self::SEASON_SPRING, self::SEASON_SUMMER, self::SEASON_FALL);
   }
+
+  /**
+   * \brief
+   *   Clean the semester of all sections, keeping metadata intact.
+   */
+  public function purge()
+  {
+    $this->departments = array();
+  }
 }
