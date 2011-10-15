@@ -150,7 +150,9 @@ function school_load_guess($update_session = TRUE)
   if (isset($_SERVER['REMOTE_HOST']) || isset($_SERVER['REMOTE_ADDR']))
     {
       $addr = NULL;
-      if (!isset($_SERVER['REMOTE_HOST']))
+      /* http://ietf.org/rfc/rfc3875 */
+      if (!isset($_SERVER['REMOTE_HOST'])
+	  || !strcmp($_SERVER['REMOTE_HOST'], $_SERVER['REMOTE_ADDR']))
 	$addr = gethostbyaddr($_SERVER['REMOTE_ADDR']);
 
       $cache = _school_cache_load();
