@@ -362,7 +362,7 @@ function add_class_n(course_id, title)
 
     sectionsOfClass[classNum] = 0; // Initialize at 0
     course_ajax_requests[classNum] = false;
-    jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace course-title-entry" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
+    jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace course-title-entry input-submit-disable" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
     var tr_course = jQuery('#tr-course-' + classNum);
@@ -772,7 +772,7 @@ jQuery(document).ready(function() {
      * Prevent accidental form submission for className and course
      * title entry text fields.
      */
-    jQuery('.course-title-entry').live('keyup keydown', slate_permutate_nullify_enter);
+    jQuery('.input-submit-disable').live('keyup keydown', slate_permutate_nullify_enter);
     jQuery('.className').live('keyup keydown', function(e)
 			      {
 				  if (e.which == 13)

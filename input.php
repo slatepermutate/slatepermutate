@@ -255,7 +255,7 @@ $inputPage->showSavedScheds($_SESSION);
 <input
     id="scheduleName"
     style="margin-bottom: 1em;"
-    class="defText required"
+    class="defText required input-submit-disable"
     type="text"
     size="25"
     title="My <?php echo $semester['name']; ?> Schedule"
