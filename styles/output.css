@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
+ * Copyright 2011 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
  *
  * This file is part of SlatePermutate.
  *
@@ -87,7 +87,7 @@ td{
 }
 
 /* Class Coloring */
-
+.multi {  }
 .class0 { background: #69c76f; }
 .class1 { background: #c5c769; }
 .class2 { background: #c76b69; }

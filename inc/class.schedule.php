@@ -498,7 +498,8 @@ class Schedule
 	. '        </script>' . PHP_EOL;
 
       echo '        <div id="sharedialog" title="Share Schedule">' . PHP_EOL
-	. '          <p class="indent"><img alt="[fb]" class="noborder" src="http://facebook.com/favicon.ico" /> <a href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=My%20Schedule">Share on Facebook</a></p><p class="indent">You can also share your schedule with the URL below:<br /><em class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p>' . PHP_EOL
+	. '          <p class="indent"><img alt="[fb]" class="noborder" src="http://facebook.com/favicon.ico" /> <a href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=My%20Schedule">Share on Facebook</a></p>
+		     <p class="indent"><img alt="[sp]" class="noborder" src="images/favicon.png" style="margin-right: 5px;"/><span class="clicktoclipboard"><a href="#">Share with URL</a><span class="toclipboard hidden"><p>Copy the share URL below:<br /><em class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p></span></span></p>' . PHP_EOL
 	. '        </div>' . PHP_EOL
 	. '        <p>' . PHP_EOL
 	. '          <a href="input.php?s='.$this->id.'" class="button">Edit</a>' . PHP_EOL

@@ -147,6 +147,10 @@ jQuery(document).ready( function()
             at: 'top center',
           }
       });  
+
+      jQuery(".clicktoclipboard").click( function() {
+        jQuery('.toclipboard', this).toggle();
+      });
   }
 );
 

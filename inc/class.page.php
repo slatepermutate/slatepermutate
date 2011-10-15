@@ -321,7 +321,8 @@ class page
     echo '  </body>'. PHP_EOL .
          '</html>' . PHP_EOL;
     $this->pageGenTime = round(microtime() - $this->pageGenTime,4);
-    echo '<!-- Page generated in ' . $this->pageGenTime . ' seconds -->';
+    echo '<!-- Page generated in ' . $this->pageGenTime . ' seconds -->' . PHP_EOL;
+
   }
 
   /**
