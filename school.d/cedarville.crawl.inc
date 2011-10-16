@@ -31,7 +31,7 @@
  * \param $html
  *   HTML that PHP's DOM would willingly would eat.
  */
-function table_parse($html)
+function cedarville_table_parse($html)
 {
   libxml_use_internal_errors(true); // Suppress warnings
   $arr = array();
@@ -46,7 +46,7 @@ function table_parse($html)
   foreach ($rows as $rownum => $row) {
     $cols = $row->getElementsByTagName('td');
     foreach($cols as $colnum => $col){
-      $arr[$rownum][$colnum] = $col->nodeValue;
+      $arr[$rownum][$colnum] = $col;
     }
   }
   return $arr;
@@ -155,7 +155,7 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
       $html = school_crawl_geturi($uri, $cookies, $school_crawl_log);
       if (!$html)
 	continue;
-      $tables[$department] = table_parse(cedarville_html_fix($html));
+      $tables[$department] = cedarville_table_parse(cedarville_html_fix($html));
     }
 
   foreach ($tables as $dept_table)
@@ -202,17 +202,43 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 	   * LES: something for some PFMU/PLMU class?
 	   */
 
-	  $synonym = $course_table[0];
-	  $section_parts = Section::parse($course_table[1]);
+	  $synonym = $course_table[0]->nodeValue;
+	  $section_parts = Section::parse($course_table[1]->nodeValue);
 	  if (count($section_parts) < 3)
 	    {
 	      school_crawl_logf($school_crawl_log, 6, "Error parsing section_id. Given `%s'; interpreted as `%s'. Skipping.",
-				$course_table[1], implode('-', $section_parts));
+				$course_table[1]->nodeValue, implode('-', $section_parts));
 	      continue;
 	    }
 
-	  $instructor = $course_table[3];
-          $title = $course_table[2];
+          $title = $course_table[2]->nodeValue;
+
+	  /*
+	   * For courses with multiple section meetings, each
+	   * instructor for each section meeting is separated by <br/>.
+	   */
+	  $instructors = array('');
+	  foreach ($course_table[3]->childNodes as $child)
+	    switch ($child->nodeType)
+	      {
+	      case XML_ELEMENT_NODE:
+		end($instructors);
+		if (!strcmp($child->tagName, 'br')
+		    && strlen(trim($instructors[key($instructors)])))
+		  $instructors[] = '';
+		else
+		  {
+		    end($instructors);
+		    $instructors[key($instructors)] .= $child->nodeValue;
+		  }
+		break;
+	      case XML_TEXT_NODE:
+		end($instructors);
+		$instructors[key($instructors)] .= $child->data;
+		break;
+	      }
+	  foreach ($instructors as $key => $instructor)
+	    $instructors[$key] = trim($instructor);
 
 	  /*
 	   * Each course may have multiple meeting times associated
@@ -220,13 +246,14 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 	   * quite, because different class sections may be tied with
 	   * different lab meetings and stuff...
 	   */
-	  $meetings_str = $course_table[6];
+	  $meetings_str = $course_table[6]->nodeValue;
 	  if (strpos($meetings_str, 'TBA') !== FALSE)
 	    {
 	      school_crawl_logf($school_crawl_log, 8, "Skipping %s because its meeting time info has `TBA' in it.", implode('-', $section_parts));
 	      continue;
 	    }
 	  $meetings = array();
+	  $meeting_i = 0;
 	  $meeting_multiple_types = array();
 	  while (strlen($meetings_str) > 5)
 	    {
@@ -274,8 +301,19 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 		    }
 		}
 
+	      /*
+	       * The tables are made for humans, not computers. If
+	       * there aren't enough instructors for the number of
+	       * section meetings, just reuse the first listed
+	       * instructor:
+	       */
+	      if ($meeting_i >= count($instructors))
+		$instructors[$meeting_i] = $instructors[0];
+
 	      $meetings[] = new SectionMeeting($days, $time_start, $time_end,
-					       $room, $type, $instructor);
+					       $room, $type, $instructors[$meeting_i]);
+
+	      $meeting_i ++;
 	    }
 
 	  $semester->section_add($section_parts['department'], $section_parts['course'],
