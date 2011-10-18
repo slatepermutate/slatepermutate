@@ -48,6 +48,7 @@ $use_captcha = FALSE;
 $admin_enable_purge = FALSE;
 $qtips_always = FALSE;
 $input_warning_banner = FALSE;
+$feedback_disk_log = FALSE;
 
 $config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
 if (file_exists($config_inc)) {

@@ -57,7 +57,7 @@ $saved_schedules = implode(', ', $saved_schedules);
 
 $reject = FALSE;
 
-if (eregi('http:', $feedback)) { 
+if (preg_match('/https?:/i', $feedback)) { 
   echo '<p>Please do not include URLs in your submission! Please click "back" and try again.</p>';
   $reject = TRUE;
 }
