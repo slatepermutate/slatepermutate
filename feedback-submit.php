@@ -84,7 +84,7 @@ if (!$reject)
   {
     $feedback = stripcslashes($feedback);
 
-    $message = date('l, F j, Y, g:i a') ."
+    $message = gmdate('l, F j, Y, g:i a') ."
 From: $nameis ($visitormail)
 School: $school ($school_id)\n
 Rating: $rating 

@@ -773,7 +773,7 @@ class Schedule
     if ($this->created)
       echo ''
 	. '<p id="created-time">' . PHP_EOL
-	. '  Created <span class="cute-time">' . date('c', $this->created) . '</span>.' . PHP_EOL
+	. '  Created <span class="cute-time">' . gmdate('c', $this->created) . '</span>.' . PHP_EOL
 	. '</p>' . PHP_EOL;
 
     $outputPage->foot();
