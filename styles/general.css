@@ -48,6 +48,16 @@ body {
   background: #fff;
   padding: 1em;
 }
+@media print
+{
+    #content
+    {
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+    }
+}
+
 #header {
   text-align: left;
   width: 100%;
