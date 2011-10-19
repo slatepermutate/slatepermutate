@@ -206,3 +206,11 @@ table {
   border-bottom: 1px dotted #ccc;
 }
 
+.section
+{
+    page-break-before: always;
+}
+.section:first-child
+{
+    page-break-before: auto;
+}
