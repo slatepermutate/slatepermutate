@@ -439,11 +439,11 @@ class Schedule
 
     $footcloser = '';
 
-    $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'displayTables', 'outputStyle', 'jQuery.cuteTime');
+    $headcode = array('jQuery', 'jQueryUI', 'uiTabsKeyboard', 'displayTables', 'outputStyle', 'jQuery.cuteTime', 'qTip2');
     if(!empty($_REQUEST['print']))
       array_push($headcode, 'outputPrintStyle');
     else
-      array_push($headcode, 'jAddress', 'qTip2');
+      array_push($headcode, 'jAddress');
 
     $outputPage = page::page_create(htmlentities($this->getName()), $headcode,
 				    array('school' => $this->school_get(), 'semester' => $this->semester_get()));
@@ -453,22 +453,12 @@ class Schedule
 
     if(!empty($_REQUEST['print']))
       {
-	echo '<script type="text/javascript">';
-	echo 'jQuery(document).ready( function() {';
- 
-      /* If user entered items to print */
-      if($_REQUEST['print'] != 'all'){
-	echo 'jQuery(\'.section\').hide();';
-	$items = explode(',', $_REQUEST['print']);
-	foreach($items as $item){
-	  echo 'jQuery(\'#tabs-'.$item.'\').show();';
-	}
-      }
-      echo '}); '; /* Close document.ready for jQuery */
-      echo 'window.print(); </script>';
-
-      echo '<p><a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">&laquo; Return to normal view</a> </p>';
-
+	$script = ''
+	  . 'jQuery(document).ready( function() {' . PHP_EOL
+	  . '  window.print();' . PHP_EOL
+	  . '});';
+	echo $outputPage->script_wrap($script);
+	echo '<p><a href="'.$_SERVER['SCRIPT_NAME'].'?s=' . $this->id_get() . '">&laquo; Return to normal view</a> </p>';
     }
     else {
       echo '        <script type="text/javascript">';
@@ -601,9 +591,24 @@ class Schedule
                   </form>
                 </div> <!-- id="show-box" -->'
 	     . '<div id="the-tabs"><ul>' . "\n";
-			
+
+	$suppressed_permutations = array();
+	if (!empty($_REQUEST['print']))
+	  {
+	    $print = $_REQUEST['print'];
+	    if ($print !== 'all')
+	      {
+		for ($i = $first_permutation; $i <= $last_permutation; $i ++)
+		  $suppressed_permutations[$i] = TRUE;
+		foreach (explode(',', $print) as $item_to_print)
+		  unset($suppressed_permutations[((int)$item_to_print) - 1]);
+	      }
+	  }
+
 	for($nn = $first_permutation + 1; $nn <= $last_permutation; $nn++)
 	  {
+	    if (!empty($suppressed_permutations[$nn - 1]))
+	      continue;
 	    echo  "<li><a href=\"#tabs-" . $nn . "\">&nbsp;" . $nn . "&nbsp;</a></li>\n";
 	  }
 			
@@ -625,6 +630,13 @@ class Schedule
 		
 	for($i = $first_permutation; $i < $last_permutation; $i++)
 	  {
+	    /*
+	     * Skip suppressed permutations, such as when displaying a
+	     * page for printing a particular permutation.
+	     */
+	    if (!empty($suppressed_permutations[$i]))
+	      continue;
+
 	    /*
 	     * Store a JSON list of courses, each with only the one
 	     * section rendered in this permutation. This is used for
