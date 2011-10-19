@@ -510,7 +510,7 @@ class Schedule
       if ($schedule_store !== NULL
 	  && $this->parent_get() !== NULL
 	  && ($parent_schedule = schedule_store_retrieve($schedule_store, $this->parent_get())) !== NULL)
-	echo '          <a class="button" href="' . htmlentities($parent_schedule->url()) . '" title="Parent schedule: ' . htmlentities($parent_schedule->getName()) . '">Parent</a>' . PHP_EOL;
+	echo '          <a class="button" href="' . htmlentities($parent_schedule->my_url()) . '" title="Parent schedule: ' . htmlentities($parent_schedule->getName()) . '">Parent</a>' . PHP_EOL;
 
       echo '          <a class="button" href="input.php">Home</a>' . PHP_EOL
 	. '        </p>'. PHP_EOL
@@ -612,11 +612,11 @@ class Schedule
 	echo "    <div id=\"pagers\">\n";
 	/* Previous button */
 	if ($page > 0)
-	  echo '      <div id="pager-previous" class="pager left"><a href="' . htmlentities($this->url($this->id, $page - 1)) . '">&laquo; Previous</a></div>' . "\n";
+	  echo '      <div id="pager-previous" class="pager left"><a href="' . htmlentities($this->my_url($this->id, $page - 1)) . '">&laquo; Previous</a></div>' . "\n";
 
 	/* Next button */
 	if ($page + 1 < $npages)
-	  echo '      <div id="pager-next" class="pager right"><a href="' . htmlentities($this->url($this->id, $page + 1)) . '">Next &raquo;</a></div>' . "\n";
+	  echo '      <div id="pager-next" class="pager right"><a href="' . htmlentities($this->my_url($this->id, $page + 1)) . '">Next &raquo;</a></div>' . "\n";
 	echo "    </div> <!-- id=\"pagers\" -->\n";
 
 
@@ -877,15 +877,15 @@ class Schedule
    * Takes into account the $clean_urls setting.
    *
    * \param $id
-   *   The ID of the schedule to link to. Defaults to the current schedule object.
+   *   The ID of the schedule to link to.
    * \param $page
-   *   The page of the schedule to link to. Defaults to 0.
+   *   The page/tab of the schedule to link to. Defaults to 0.
    * \return
-   *   A string, the URL used to access this schedule. Remember that
-   *   if this string is inserted into an XHTML document,
-   *   htmlentities() must be called on it.
+   *   A string, the URL used to access the specified
+   *   schedule. Remember that if this string is inserted into an
+   *   XHTML document, htmlentities() must be called on it.
    */
-  function url($id = NULL, $page = 0)
+  public static function url($id, $page = 0)
   {
     global $clean_urls;
 
@@ -893,8 +893,6 @@ class Schedule
     if (!$clean_urls)
       $url .= 'process.php?s=';
 
-    if (!$id)
-      $id = $this->id;
     $url .= (int)$id;
     if ($clean_urls)
       $url .= '?';
@@ -905,6 +903,23 @@ class Schedule
       $url .= 'page=' . (int)$page . '&';
 
     return $url;
+  }
+
+  /**
+   * \brief
+   *   Return the URL used to access this schedule.
+   *
+   * Convenience wrapper around Schedule::url().
+   *
+   * \param $page
+   *   Which page (tab) of the schedule to link to.
+   * \return
+   *   A raw URL (one that must be htmlentities()ized before putting
+   *   into HTML).
+   */
+  public function my_url($page = 0)
+  {
+    return Schedule::url($this->id, $page);
   }
 
   /**

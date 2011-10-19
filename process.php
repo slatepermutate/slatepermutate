@@ -260,7 +260,7 @@ if(!$DEBUG)
 		if ($schedule_id != NULL)
 		  $_SESSION['saved'][$schedule_id] = $allClasses->getName();
 
-		page::redirect($allClasses->url());
+		page::redirect($allClasses->my_url());
 		exit;
       }
   }
