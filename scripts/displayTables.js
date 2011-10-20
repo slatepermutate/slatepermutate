@@ -151,6 +151,13 @@ jQuery(document).ready( function()
       jQuery(".clicktoclipboard").click( function() {
         jQuery('.toclipboard', this).toggle();
       });
+      /*
+       * Don't let the event bubble up if the user is clicking trying
+       * to select the permalink.
+       */
+      jQuery('.toclipboard').click(function(e) {
+	      e.stopPropagation();
+	  });
   }
 );
 
