@@ -617,11 +617,11 @@ class Schedule
 	echo "    <div id=\"pagers\">\n";
 	/* Previous button */
 	if ($page > 0)
-	  echo '      <div id="pager-previous" class="pager left"><a href="' . htmlentities($this->my_url($this->id, $page - 1)) . '">&laquo; Previous</a></div>' . "\n";
+	  echo '      <div id="pager-previous" class="pager left"><a href="' . htmlentities($this->my_url($page - 1)) . '">&laquo; Previous</a></div>' . "\n";
 
 	/* Next button */
 	if ($page + 1 < $npages)
-	  echo '      <div id="pager-next" class="pager right"><a href="' . htmlentities($this->my_url($this->id, $page + 1)) . '">Next &raquo;</a></div>' . "\n";
+	  echo '      <div id="pager-next" class="pager right"><a href="' . htmlentities($this->my_url($page + 1)) . '">Next &raquo;</a></div>' . "\n";
 	echo "    </div> <!-- id=\"pagers\" -->\n";
 
 
