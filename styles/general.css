@@ -138,17 +138,11 @@ a:hover {
 #container .section:nth-child(odd) td {
   background: #CCC;
 }
-#container .section.lab td {
-  background: #96acc4;
-}
 #container .none {
   background: none!important; 
 }
 #container .emptyCell, .removeCell {
   background: none!important; 
-}
-#container .lab .deleteSection:before {
-  content: "LAB";
 }
 
 /* Input Formatting */

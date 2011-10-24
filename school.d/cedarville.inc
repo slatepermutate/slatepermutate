@@ -73,14 +73,34 @@ function cedarville_default_courses()
 function cedarville_page_css($school)
 {
   return <<<CSS
-#container .lab .sectionIdentifier {
-  background: none!important;
+#container .type-lab .sectionIdentifier,
+#container .type-ilb .sectionIdentifier
+{
+  background: none !important;
 }
-#container .lab .sectionIdentifier input {
+#container .type-lab .sectionIdentifier input,
+#container .type-ilb .sectionIdentifier input
+{
   display: none;
 }
-#container .lab .deleteSection input {
+#container .type-lab .deleteSection input,
+#container .type-ilb .deleteSection
+{
   display: none;
+}
+
+#container .section.type-lab td,
+#container .section.type-ilb td
+{
+  background: #96acc4;
+}
+#container .type-lab .deleteSection:before
+{
+  content: "LAB";
+}
+#container .type-ilb .deleteSection:before
+{
+    content: "ILB";
 }
 CSS;
 }

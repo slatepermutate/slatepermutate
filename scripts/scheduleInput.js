@@ -125,8 +125,13 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
     var cssclasses = 'section class' + cnum + ' ' + safe_css_class('slot-' + slot);
     var last_tr;
 
-    if(type == 'lab')
-	cssclasses += ' lab';
+	/*
+	 * Add the type of the course to the CSS if it's a valid (and
+	 * _clean-looking_ CSS class). Supports things like Cedarville's
+	 * coloration of labs/ILB.
+	 */
+	if (/[a-z-]+/.exec(type) != null)
+		cssclasses += ' type-' + type;
 
     var section_html = '<tr id="tr-section-' + String(snum) + '" class="' + cssclasses + '"><td class="none"></td>' +
 	'<td class="sectionIdentifier center"><input type="text" size="1" class="required section-letter-entry" name="postData[' + cnum + '][' + snum + '][letter]" />' + 
