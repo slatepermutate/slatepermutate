@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
+ * Copyright 2011 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
  *
  * This file is part of SlatePermutate.
  *
@@ -125,6 +125,15 @@ a:hover {
 }
 #container .class td {
   background: #70a97c; 
+}
+#container .class input
+{
+    display: inline-block;
+}
+#container .class .course-credit-hours
+{
+    width: 20%;
+    text-align: right;
 }
 #container .tdInput {
   background: none!important; 
@@ -387,7 +396,7 @@ a:hover {
 
 .course-title-entry
 {
-    width: 80%;
+    width: 70%;
 }
 
 .tr-slot-id-hidden
@@ -397,7 +406,7 @@ a:hover {
 
 .inPlace {
   color: #000;
-  border: none;
+  border-color: transparent;
   background: transparent;
 }
 
@@ -405,4 +414,19 @@ a:hover {
 {
   background: #ffffdd;
   border: 1pt solid yellow;
+}
+
+#content .course-credit-hours,
+#content .credit-hours-total
+{
+    display: none;
+}
+
+#content.credit-hours-shown .course-credit-hours
+{
+    display: inline-block;
+}
+#content.credit-hours-shown .credit-hours-total
+{
+    display: block;
 }

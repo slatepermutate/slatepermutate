@@ -210,8 +210,11 @@ class Semester
    * \param $course_slot_id
    *   The name of the new CourseSlot to create if the given section
    *   does not yet exist.
+   * \param $credit_hours
+   *   The number of credit hours of the associated course or a
+   *   negative value if unknown.
    */
-  public function section_meeting_add($dept, $course, $title, $section, $synonym, $section_meeting, $course_slot_id = 'default')
+  public function section_meeting_add($dept, $course, $title, $section, $synonym, $section_meeting, $course_slot_id = 'default', $credit_hours = -1.0)
   {
     $dept = strtoupper($dept);
     $course = strtoupper($course);
@@ -224,7 +227,7 @@ class Semester
 	$section_obj = $course_obj->section_get($section);
       }
     if (empty($course_obj) || empty($section_obj))
-      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym), $title, $course_slot_id);
+      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym, $credit_hours), $title, $course_slot_id);
 
     $section_obj->meeting_add($section_meeting);
     return;

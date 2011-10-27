@@ -47,6 +47,26 @@ if (!function_exists('mean'))
     }
   }
 
+if (!function_exists('sum'))
+  {
+    /**
+     * \brief
+     *   Add all elements in a set together.
+     *
+     * \parram $S
+     *   The set to sum up.
+     * \return
+     *   The sum of all elements in the set.
+     */
+    function sum($S)
+    {
+      $ret = 0;
+      foreach ($S as $S_i)
+        $ret += $S_i;
+      return $ret;
+    }
+  }
+
 if (!function_exists('stddev'))
   {
     function stddev(array $values)

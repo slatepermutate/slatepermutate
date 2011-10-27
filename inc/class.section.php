@@ -35,6 +35,11 @@ class Section
 
   /* the section synonym which uniquely identifies this section/course combination */
   private $synonym;
+  /**
+   * \brief
+   *   The number of credit hours this course has.
+   */
+  private $credit_hours;
 
   /**
    * \brief
@@ -54,14 +59,15 @@ class Section
    * \param $synonym
    *   Some schools have a unique number for each section. This field
    *   is for that number.
+   * \param $credit_hours
+   *   The number of credit hours this course is worth.
    */
-  function __construct ($letter, array $section_meetings = array(), $synonym = NULL)
+  function __construct ($letter, array $section_meetings = array(), $synonym = NULL, $credit_hours = -1.0)
   {
     $this->letter = $letter;
-
     $this->meetings = $section_meetings;
-
     $this->synonym = $synonym;
+    $this->credit_hours = (float)$credit_hours;
   }
 
   public function getLetter()
@@ -89,6 +95,18 @@ class Section
   public function getMeetings()
   {
     return $this->meetings;
+  }
+
+  /**
+   * \brief
+   *   Retrieve the number of credit hours this course has.
+   * \return
+   *   The number of credit hours this course has, or a negative
+   *   number if not specified.
+   */
+  public function credit_hours_get()
+  {
+    return $this->credit_hours;
   }
 
   /**
@@ -202,7 +220,9 @@ class Section
 
     foreach ($this->meetings as $meeting)
       {
-	$json_array = array('section' => $this->letter,
+	$json_array = array(
+			    'credit_hours' => $this->credit_hours_get(),
+			    'section' => $this->letter,
 			    'synonym' => $this->synonym,
 			    );
 
@@ -241,9 +261,12 @@ class Section
       {
 	$letter = $meeting['section'];
 	$synonym = $meeting['synonym'];
+	if (!isset($json['credit_hours']) || $json['credit_hours'] < 0)
+	  $json['credit_hours'] = -1.0;
+	$credit_hours = $json['credit_hours'];
 	$section_meetings[] = SectionMeeting::from_json_array($meeting);
       }
-    $section = new Section($letter, $section_meetings, $synonym);
+    $section = new Section($letter, $section_meetings, $synonym, $credit_hours);
 
     return $section;
   }
@@ -287,5 +310,8 @@ class Section
 	  $meeting->instructor_set($this->prof);
 	unset($this->prof);
       }
+
+    if (!isset($this->credit_hours))
+      $this->credit_hours = -1.0;
   }
 }

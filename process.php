@@ -202,6 +202,8 @@ if(!$DEBUG)
 		if (empty($course['title']))
 		  $course['title'] = '';
 
+		if (empty($course['credit_hours']))
+		  $course['credit_hours'] = -1;
 		$allClasses->addCourse($course['name'], $course['title']);
 
 				foreach($course as $section)
@@ -211,7 +213,7 @@ if(!$DEBUG)
 					    if (empty($section['slot']))
 					      $section['slot'] = 'default';
 
-					    $error_string = $allClasses->addSection($course['name'], $section['letter'], $section['start'], $section['end'], arrayToDays(empty($section['days']) ? array() : $section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type'], $section['slot']);
+					    $error_string = $allClasses->addSection($course['name'], $section['letter'], $section['start'], $section['end'], arrayToDays(empty($section['days']) ? array() : $section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type'], $section['slot'], $section['credit_hours']);
 					    if ($error_string !== NULL)
 					      $errors[] = $error_string;
 					  }

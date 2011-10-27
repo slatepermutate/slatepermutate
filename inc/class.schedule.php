@@ -1,4 +1,4 @@
-<?php /* -*- mode: php; -*- */
+<?php /* -*- mode: php; indent-tabs-mode: nil; -*- */
 /*
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
  *
@@ -23,6 +23,7 @@ include_once $incdir . 'class.course.inc';
 include_once $incdir . 'class.section.php';
 include_once $incdir . 'class.page.php';
 require_once $incdir . 'school.inc';
+require_once $incdir . 'math.inc';
 
 /*
  * Load a Classes -> Course converter class for the sake of the
@@ -188,7 +189,7 @@ class Schedule
    *   NULL on success, a string on error which is a message for the
    *   user and a valid XHTML fragment.
    */
-  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $instructor = NULL, $location = NULL, $type = 'lecture', $slot = 'default')
+  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $instructor = NULL, $location = NULL, $type = 'lecture', $slot = 'default', $credit_hours = -1.0)
   {
     if (empty($letter) && (empty($time_start) || !strcmp($time_start, 'none')) && (empty($time_end) || !strcmp($time_end, 'none')) && empty($days)
 	&& empty($synonym) && empty($instructor) && empty($location) && (empty($type) || !strcmp($type, 'lecture'))
@@ -203,13 +204,18 @@ class Schedule
 	  . '. Start time: <tt>' . htmlentities($time_start) . '</tt>. End time: <tt>' . htmlentities($time_end) . '</tt>.';
       }
 
+    if (!empty($credit_hours) && !is_numeric($credit_hours))
+      {
+        return 'Invalid credit-hour specification of <tt>' . htmlentities($credit_hours) . '</tt> for ' . htmlentities($course_name) . '-' . htmlentities($letter) . '. Please use a floating point number or do not enter anything if the number of credit hours is not known.';
+      }
+
     foreach ($this->courses as $course)
       if (!strcmp($course_name, $course->getName()))
 	{
 	  $section = $course->section_get($letter);
 	  if (!$section)
 	    {
-	      $section = new Section($letter, array(), $synonym);
+              $section = new Section($letter, array(), $synonym, $credit_hours);
 	      $course->section_add($section, $slot);
 	    }
 	  $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type, $instructor));
@@ -529,7 +535,7 @@ class Schedule
 	  foreach ($course as $course_slot)
 	  {
 	    for ($si = 0; $si < $course_slot->sections_count(); $si ++)
-	      foreach ($course_slot->section_get_i($si)->getMeetings() as $meeting)
+              foreach ($course_slot->section_get_i($si)->getMeetings() as $meeting)
 		{
 		  /* Saturdayness */
 		  if ($meeting->getDay(5))
@@ -587,6 +593,7 @@ class Schedule
                     <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
                     <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
                     <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
+                    <input id="show-credit-hours" name="show-credit-hours" type="checkbox" /><label for="show-credit-hours">Credits</label>
                     <span id="regCodes"><label><a href="#"><strong>Register for Classes</strong></a></label></span></p>
                   </form>
                 </div> <!-- id="show-box" -->'
@@ -644,6 +651,13 @@ class Schedule
 	     * shows users course synonyms.
 	     */
 	    $permutation_courses = array();
+
+            /*
+             * Count the number of credit hours in this particular
+             * schedule.
+             */
+            $credit_hours = array();
+            $have_credit_hours = FALSE;
 
 	     echo  '      <div class="section" id="tabs-' . ($i+1) . "\">\n";
   
@@ -724,13 +738,24 @@ class Schedule
 					. '" title="' . htmlentities($title, ENT_QUOTES) . $carret
 					. 'Prof: ' . htmlentities($current_meeting->instructor_get(), ENT_QUOTES) . $carret
 					. 'Room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . $carret
-					. 'Type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . $carret . '">'
+                                        . 'Type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . $carret;
+
+                                      $section_credit_hours = $section->credit_hours_get();
+                                      if ($section_credit_hours >= 0)
+                                        {
+                                          $credit_hours[$section->getSynonym()] = $section_credit_hours;
+                                          $have_credit_hours = TRUE;
+
+                                          echo 'Credits: ' . htmlentities($section_credit_hours, ENT_QUOTES) . $carret;
+                                        }
+                                      echo '">'
 					. '<span class="course-title block">' . htmlentities($title) . '</span>' . PHP_EOL
 					. htmlentities($course->getName(), ENT_QUOTES) . '-'
 					. htmlentities($section->getLetter(), ENT_QUOTES) . "\n"
 					. '<span class="prof block">' . htmlentities($current_meeting->instructor_get(), ENT_QUOTES) . "</span>\n"
 					. '<span class="location block">' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . "</span>\n"
 					. '<span class="synonym block">' . htmlentities($section->getSynonym(), ENT_QUOTES) . "</span>\n"
+                                        . '<span class="credit-hours block">' . htmlentities($section_credit_hours, ENT_QUOTES) . ' Credits</span>' . PHP_EOL
 					. "</td>\n";
 
 				      /* for the ``Registration Codes'' dialogue: */
@@ -766,8 +791,13 @@ class Schedule
 	      }
 
 	    // End of table
-	    echo "        </table>\n"
-              . '         <span class="course-data">'.  htmlentities(json_encode($permutation_courses)) . "</span>\n"
+	    echo "        </table>\n";
+
+            if ($have_credit_hours)
+              echo '        <p>Credit Hours: ' . sum($credit_hours) . '</p>' . PHP_EOL;
+
+            echo ''
+              . '        <span class="course-data">'.  htmlentities(json_encode($permutation_courses)) . "</span>\n"
 	      . '      </div> <!-- id="section' . ($i + 1) . "\" -->\n";
 	  }
 

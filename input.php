@@ -153,7 +153,8 @@ elseif ($errors_fix)
 		. ', ' . json_encode($section['professor']) . ', '
 		. json_encode($section['location']) . ', '
 		. json_encode($section['type']) . ', '
-		. json_encode($section['slot']) . ');' . PHP_EOL;
+		. json_encode($section['slot']) . ', '
+		. json_encode(isset($section['credit_hours']) ? $section['credit_hours'] : -1) . ');' . PHP_EOL;
 	  $my_hc .= PHP_EOL;
 	}
   }
@@ -314,6 +315,10 @@ $inputPage->showSavedScheds($_SESSION);
   </tr>
 </table>
 
+<div class="credit-hours-total">
+  <p>Credit Hours: <span class="credit-hours-total-value">0</span></p>
+</div>
+
 <div class="paddingtop">
   <input class="button olive" type="submit" value="Find a schedule" />
 </div>
@@ -353,7 +358,8 @@ function input_course_js(Course $course, $whitespace = '  ')
 	    . json_encode($meeting->instructor_get()) . ', '
 	    . json_encode($meeting->getLocation()) . ', '
 	    . json_encode($meeting->type_get()) . ', '
-	    . json_encode($course_slot->id_get()) . ');' . PHP_EOL;
+	    . json_encode($course_slot->id_get()) . ', '
+	    . json_encode($section->credit_hours_get()) . ');' . PHP_EOL;
 	}
     }
 

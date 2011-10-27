@@ -212,6 +212,7 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 	    }
 
           $title = $course_table[2]->nodeValue;
+	  $credit_hours = $course_table[4]->nodeValue;
 
 	  /*
 	   * For courses with multiple section meetings, each
@@ -318,7 +319,7 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 
 	  $semester->section_add($section_parts['department'], $section_parts['course'],
 				 new Section($section_parts['section'], $meetings,
-					     $synonym), $title);
+					     $synonym, $credit_hours), $title);
 	}
     }
 

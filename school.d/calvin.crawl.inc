@@ -376,7 +376,7 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
 	    school_crawl_logf($school_crawl_log, 10, "%s:%s", $var, ${$var});
 
 	  $semester->section_meeting_add($section_id['department'], $section_id['course'], $title, $section_id['section'], $synonym,
-					 new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type, $faculty_name));
+					 new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type, $faculty_name), 'default', $credits);
 
 	  /*
 	   * Try to update semester's longetivity stats to help the

@@ -21,6 +21,14 @@
     // General Notes
     //--------------------------------------------------
 
+/**
+ * \brief
+ *   The next course_i value that will be produced when add_class() is
+ *   called.
+ *
+ * If iterating through all of the possible courses, use (classNum -
+ * 1) as the upper bound.
+ */
 var classNum = 0;
 
 /**
@@ -119,7 +127,7 @@ function addTips()
  * \brief
  *   Add a section to a class.
  */
-function add_section_n(cnum, name, synonym, stime, etime, days, instructor, location, type, slot)
+function add_section_n(cnum, name, synonym, stime, etime, days, instructor, location, type, slot, credit_hours)
 {
     var snum = last_section_i ++;
     var cssclasses = 'section class' + cnum + ' ' + safe_css_class('slot-' + slot);
@@ -202,6 +210,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 	'<td class="removeCell"><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td class="emptyCell">' +
 	'<input class="section-location-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][location]" />' +
 	'<input class="section-type-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][type]" />' +
+		'<input class="section-credit-hours-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][credit_hours]" />' +
 	'</td></tr>';
 
     /*
@@ -233,16 +242,19 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
     section_tr.find('.profName').val(instructor);
     section_tr.find('.section-location-entry').val(location);
     section_tr.find('.section-type-entry').val(type);
+	section_tr.find('.section-credit-hours-entry').val(credit_hours);
 
     /* unhide the saturday columns if it's used by autocomplete data */
     if (days.s)
 	jQuery('#jsrows col.saturday').removeClass('collapsed');
 
+	credit_hours_change(cnum);
+
     return last_section_i - 1;
 }
 function add_section(cnum)
 {
-    var section_i = add_section_n(cnum, '', '', '', '', {m: false, t: false, w: false, h: false, f: false, s: false}, '', '', '', 'default');
+    var section_i = add_section_n(cnum, '', '', '', '', {m: false, t: false, w: false, h: false, f: false, s: false}, '', '', '', 'default', -1);
     if (cnum == slate_permutate_course_free)
 	course_free_check(cnum);
     return section_i;
@@ -275,21 +287,22 @@ function add_sections(cnum, data)
 		{
 		    if (!section.slot)
 			section.slot = 'default';
+			if (section.credit_hours === undefined)
+				section.credit_hours = -1;
 
-		    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.instructor, section.location, section.type, section.slot);
+		    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.instructor, section.location, section.type, section.slot, section.credit_hours);
 		});
 
     /*
      * Handle course-level interdependencies.
      */
     if (data.dependencies)
-	jQuery.each(data.dependencies, function(i, dep)
-		    {
+	jQuery.each(data.dependencies, function(i, dep) {
 			/* Gracefully deprecate the old crawler's JSON format. */
 			if (dep['class'])
 			    dep.course = dep['class'];
 
-			var new_course_num = add_class_n(dep.course, dep['title'] ? dep['title'] : '');
+		var new_course_num = add_class_n(dep.course, dep['title'] ? dep['title'] : '');
 			add_sections(new_course_num, dep);
 		    });
 }
@@ -367,13 +380,14 @@ function add_class_n(course_id, title)
 
     sectionsOfClass[classNum] = 0; // Initialize at 0
     course_ajax_requests[classNum] = false;
-    jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace course-title-entry input-submit-disable" /></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
+    jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace inPlace-enable course-title-entry input-submit-disable" /><span class="course-credit-hours course-credit-hours-' + classNum + '"></span></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
     var tr_course = jQuery('#tr-course-' + classNum);
     tr_course.data({course_i: classNum});
     tr_course.find('.course-title-entry').val(title);
     tr_course.find('.className').val(course_id);
+	tr_course.find('.course-credit-hours-label').attr('for', 'course-credit-hours-entry-' + classNum);
 
 		var class_elem = jQuery('.className' + classNum);
 
@@ -421,7 +435,7 @@ function add_class()
      * one. Otherwise, set this new class to be the ``hot'' one.
      */
     if (slate_permutate_course_free == -1)
-	slate_permutate_course_free = add_class_n('', '');
+		slate_permutate_course_free = add_class_n('', '');
     return slate_permutate_course_free;
 }
 
@@ -526,6 +540,8 @@ function course_remove(course_i)
      */
     if (slate_permutate_course_free == course_i)
 	slate_permutate_course_free = -1;
+
+	credit_hours_change(course_i);
 }
 
 /**
@@ -651,6 +667,128 @@ function safe_css_class(classname)
     return classname;
 }
 
+/**
+ * \internal
+ * \brief
+ *   Whether or not to display the credit_hours column is currently
+ *   being displayed to the user.
+ *
+ * An internal state variable for show_credit_hours().
+ */
+var credit_hours_shown = false;
+
+/**
+ * \brief
+ *   Display the Credit Hours column to the user.
+ */
+function show_credit_hours()
+{
+	if (credit_hours_shown)
+		return;
+
+	jQuery('#content').addClass('credit-hours-shown');
+
+	credit_hours_shown = true;
+}
+
+/**
+ * \brief
+ *   Hide the Credit Hours column from the user.
+ */
+function hide_credit_hours()
+{
+	if (!credit_hours_shown)
+		return;
+
+	jQuery('#content').removeClass('credit-hours-shown');
+
+	credit_hours_shown = false;
+}
+
+/**
+ * \brief
+ *   State for the displification of the total number of credit hours.
+ */
+var credit_hours = [];
+
+/**
+ * \brief
+ *   Update the running credit hours total.
+ */
+function credit_hours_change(course_i)
+{
+	var objs = jQuery('.section.class' + course_i + ' .section-credit-hours-entry');
+
+	if (objs.length)
+	{
+		var course_credit_hours = {min: -1, max: -1};
+
+		objs.each(function(i, e) {
+			var obj = jQuery(e);
+			var section = obj.closest('.section').find('.section-letter-entry').val();
+
+			var val = obj.val();
+			if (!val.length)
+				return true;
+			var hours = parseFloat(val);
+			if (!isNaN(hours) && hours >= 0)
+			{
+				if (hours > course_credit_hours.max)
+					course_credit_hours.max = hours;
+				if (course_credit_hours.min < 0 || hours < course_credit_hours.min)
+					course_credit_hours.min = hours;
+			}
+		});
+		credit_hours[course_i] = course_credit_hours;
+
+		if (course_credit_hours.min >= 0)
+		{
+			var text = course_credit_hours.min;
+			if (course_credit_hours.max != course_credit_hours.min)
+				text += '-' + course_credit_hours.max;
+			text += ' Credits';
+			jQuery('#tr-course-' + course_i + ' .course-credit-hours').text(text);
+		}
+	}
+	else
+		/* course_i was deleted or is void */
+		credit_hours[course_i] = {min: -1, max: -1};
+
+	var credit_hours_total = {min: 0, max: 0};
+	var saw_credit_hours = false;
+	var course_j;
+	for (course_j = 0; course_j < classNum; course_j ++)
+	{
+		if (credit_hours[course_j] === undefined)
+			continue;
+
+		/* Ignore deleted courses */
+		if (credit_hours[course_j] && !jQuery('tr.class' + course_j).length)
+		{
+			credit_hours[course_j] = undefined;
+			continue;
+		}
+
+		/* Ignore courses which have no credit_hours set. */
+		if (credit_hours[course_j].min < 0)
+			continue;
+		saw_credit_hours = true;
+
+		credit_hours_total.min += credit_hours[course_j].min;
+		credit_hours_total.max += credit_hours[course_j].max;
+	}
+
+	if (saw_credit_hours)
+		show_credit_hours();
+	else
+		hide_credit_hours();
+
+	var text = credit_hours_total.min;
+	if (credit_hours_total.max != credit_hours_total.min)
+		text += '-' + credit_hours_total.max;
+	jQuery('.credit-hours-total-value').text(text);
+}
+
 //--------------------------------------------------
 // Items bound to pageload/events
 //--------------------------------------------------
@@ -680,7 +818,6 @@ jQuery(document).ready(function() {
 	jQuery('.deleteSection').live('click', function() {
 	  // Decreases the total number of classes
 		var course_i = jQuery(this).parent().parent().data('course_i');
-		sectionsOfClass[course_i]--;
 
 	  // Find the ID cell of the row we're in
 	  var row = jQuery(this).parent().parent().find(".sectionIdentifier");
@@ -694,9 +831,10 @@ jQuery(document).ready(function() {
 	  // Iterate over each section of this class
 	  jQuery(classClass).each( function() {
 	    // If this section has the same course ID as the item clicked, remove it.
-	    if(jQuery(this).find("input").val() == toMatch){
-		jQuery(this).remove();
-	    }
+		  if(jQuery(this).find("input").val() == toMatch) {
+			  jQuery(this).remove();
+			  sectionsOfClass[course_i]--;
+	      }
 	  });
 	  course_free_check(course_i);
 	});
@@ -770,8 +908,8 @@ jQuery(document).ready(function() {
         //-------------------------------------------------
         // Style course titles as inputs when clicked
         //-------------------------------------------------
-        jQuery('.course-title-entry').live('click', function() {
-          jQuery(this).toggleClass('inPlace');
+        jQuery('.inPlace-enable').live('click', function() {
+          jQuery(this).removeClass('inPlace');
         });
     /*
      * Prevent accidental form submission for className and course
@@ -788,7 +926,12 @@ jQuery(document).ready(function() {
 				      return false;
 				  }
 			      });
-        jQuery('.course-title-entry').live('blur', function() {
+        jQuery('.inPlace-enable').live('blur', function() {
           jQuery(this).addClass('inPlace');
         });
+
+	credit_hours_shown = jQuery('#content').is('.credit-hours-shown');
+	jQuery('.section-credit-hours-entry').live('change', function() {
+		credit_hours_change(jQuery(this).closest('.section').data('course_i'));
+	});
 });
