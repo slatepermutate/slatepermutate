@@ -127,8 +127,7 @@ class page
     $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['jAddress'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/jquery.address-1.3.2.min.js"></script>';
-    $this->headCode['jQuery.cuteTime'] = '<script type="text/javascript" src="http://ohnopub.net/~ohnobinki/CuteTime/js/jquery.cuteTime.js"></script>'
-      . $this->script_wrap('$.fn.cuteTime.settings.time_ranges[0].cuteness = \'in the future\';');
+    $this->headCode['jQuery.cuteTime'] = '<script type="text/javascript" src="http://ohnopub.net/~ohnobinki/CuteTime/js/jquery.cuteTime.js"></script>';
     $this->headCode['qTip'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/jquery.qtip-1.0.min.js"></script>';
     $this->headCode['qTip2'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/2011.03.21/jquery.qtip.min.js"></script><link rel="stylesheet" href="http://js.ohnopub.net/js/2011.03.21/jquery.qtip.min.css" type="text/css" media="screen" />';
     $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
@@ -273,7 +272,8 @@ class page
      */
     $javascript_init = '';
     if (in_array('jQuery.cuteTime', $this->scripts))
-      $javascript_init .= 'jQuery.extend(jQuery.fn.cuteTime.settings, {refresh: 10000, use_html_attribute: false});' . PHP_EOL;
+      $javascript_init .= 'jQuery.extend(jQuery.fn.cuteTime.settings, {refresh: 10000, use_html_attribute: false});' . PHP_EOL
+	. 'jQuery.fn.cuteTime.settings.time_ranges[0].cuteness = \'in the future\';' . PHP_EOL;
 
     echo $this->script_wrap(''
 			    . 'var slate_permutate_school = ' . json_encode($this->school['id']) . ';' . PHP_EOL
