@@ -809,8 +809,18 @@ class Schedule
       echo '<html><body><p>There are no possible schedules. Please <a href="input.php?s='.$this->id.'">try again</a>.</p></body></html>';
     }
 
-    echo '<p id="possiblestats">' . PHP_EOL
-      . '  There were a total of ' . $this->possiblePermutations . ' possible permutations. Only ' . $this->nPermutations . ' permutations had no class conflicts.' . PHP_EOL
+    echo '<p id="possiblestats">' . PHP_EOL;
+    if ($this->possiblePermutations == 1)
+      echo 'There was one possible permutation.';
+    else
+      echo 'There were a total of ' . $this->possiblePermutations . ' possible permutations.';
+    if ($this->possiblePermutations == $this->nPermutations)
+      echo ' No permutations had';
+    elseif (!$this->nPermutations)
+      echo ' All permutations had';
+    else
+      echo ' Only ' . $this->nPermutations . ' permutation' . ($this->nPermutations == 1 ? '' : 's') . ' had no';
+    echo ' scheduling conflicts.' . PHP_EOL
       . '</p>' . PHP_EOL;
     if ($this->created)
       echo ''
