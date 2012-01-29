@@ -27,7 +27,7 @@ $welcomepage->head();
 <h3>Find the schedule that works for you!</h3>
 <p>Plan your next semester with SlatePermutate! SlatePermutate generates every possible schedule with the courses you enter to let you pick the schedule that fits your life.</p>
 
-<p class="righttext" style="padding-right: 1em;"><a class="button blue large" href="input.php"><!--<img class="noborder" src="images/get-started.png" alt="Get Started" />-->Get Started</a></p>
+<p class="righttext" style="padding-right: 1em;"><a class="button blue large" href="input.php">Get Started</a></p>
 
 <?php
 $welcomepage->foot();
