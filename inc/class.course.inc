@@ -75,7 +75,7 @@ class Course implements IteratorAggregate
     $this->title = $title;
     $this->dependencies = array();
   }
-	
+
   /**
    * \brief
    *   Adds an already-instantiated Section to this class.
