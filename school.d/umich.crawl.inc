@@ -19,52 +19,65 @@
  */
 
 /**
- * \brief
- *  Crawls University of Michigan's schedule.
+ * \file
+ *
+ * All of the code for crawling umich.
  *
  * Potential startpoints:
  * - http://lsa.umich.edu/cg/cg_advsearch.aspx (HTML/curl-based)
  * - http://ro.umich.edu/schedule/ (harder HTML for semester guessing, one CSV download for entire semester -- <=4MB)
  *
- * \param $semesters
- *   An array to be filled with semesters.
- * \param $school_crawl_log
- *   The school_crawl_log handle.
- * \return
- *   1 on failure, 0 on success.
+ * A single download, the CSV option, is preferred to having to issue
+ * a series of HTTP requests. Each HTTP request has a lot of latency
+ * and overhead which a one-shot download doesn't.
  */
-function umich_crawl(array &$semesters, $school_crawl_log)
+
+/**
+ * \brief
+ *   Retrieve the list of semesters umich has available for crawling.
+ *
+ * \todo
+ *   Some error handling.
+ *
+ * \param $school
+ *   The school handle for umich.
+ * \param $semesters
+ *   An array to which Semester objects should be appended, one for
+ *   each potentially crawlable semester.
+ * \return
+ *   0 on success, 1 on failure.
+ */
+function umich_crawl_semester_list(array $school, array &$semesters, &$school_crawl_log)
 {
-  $url = 'http://ro.umich.edu/schedule/';
+  $uri = 'http://ro.umich.edu/schedule/';
   $cookies = array();
 
-  /* determine list of semesters: */
   $semesters_dom = new DOMDocument();
-  $semesters_dom->loadHTML(school_crawl_geturi($url, $cookies, $school_crawl_log));
+  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log));
   $semesters_xpath = new DOMXPath($semesters_dom);
 
-  $tables_nodelist = $semesters_dom->getElementsByTagName('table');
-  foreach ($tables_nodelist as $table)
+  foreach ($semesters_dom->getElementsByTagName('table') as $table)
     {
       $table_tr = NULL;
       foreach ($semesters_xpath->query('tr', $table) as $table_tr)
 	break;
       if (empty($table_tr))
 	{
-	  school_crawl_logf($school_crawl_log, 5, "Unable to find first row in table which I suspect to be a table holding all of the semesters I'm interested in.");
+	  school_crawl_logf($school_crawl_log, 5, "Unable to find first row in table which I suspect is a table holding all of the semesters I'm interested in. I will try any other tables in this page and hopefully find one with a row in it...");
 	  continue;
 	}
 
       $semester_columns = array(
-				'name' => school_crawl_table_resolve_column($table_tr, 'Term'),
-				'csv' => school_crawl_table_resolve_column($table_tr, '/[cC][sS][vV]/', 'school_crawl_table_resolve_column_regexcmp'),
-				);
+	'name' => school_crawl_table_resolve_column($table_tr, 'Term'),
+	'csv' => school_crawl_table_resolve_column($table_tr, '/[cC][sS][vV]/', 'school_crawl_table_resolve_column_regexcmp'),
+      );
       foreach ($semester_columns as $semester_column_name => $semester_column)
 	if ($semester_column === FALSE)
 	  {
-	    school_crawl_logf($school_crawl_log, 4, "Unable to resolve column %s onto a column in a semester listing table. Skipping this table.",
+	    school_crawl_logf($school_crawl_log, 4, "Unable to resolve columns %s onto a column in a semester listing table. Skipping this table.",
 			      $semester_column_name);
 	    $semester_columns = NULL;
+	    break;
 	  }
       if (empty($semester_columns))
 	continue;
@@ -73,6 +86,7 @@ function umich_crawl(array &$semesters, $school_crawl_log)
       foreach ($semesters_xpath->query('tr', $table) as $table_tr)
 	if ($first)
 	  {
+	    /* Skip row of <th/> or titles. */
 	    $first = FALSE;
 	    continue;
 	  }
@@ -88,33 +102,24 @@ function umich_crawl(array &$semesters, $school_crawl_log)
 				  $semester_name->textContent);
 		continue;
 	      }
-	    $semester = new Semester($matches[2], $matches[1]);
 
+	    $semester = new Semester($matches[2], $matches[1]);
 	    $a = NULL;
 	    foreach ($semesters_xpath->query('descendant::a', $semester_csv) as $a)
-	      break;
+	      if ($a->hasAttribute('href'))
+		break;
 	    if (empty($a) || !$a->hasAttribute('href'))
 	      {
-		school_crawl_logf($school_crawl_log, 4, "Unable to find <a /> element with an href attribute for a CSV link for the %s semester. Skipping this semester. (textContent of csv column: %s)",
+		school_crawl_logf($school_crawl_log, 4, "Unable to find <a/> element with an href attribute for a CSV link for the %s semester. Skipping this semester. (textContent of CSV column: %s).",
 				  $semester, $semester_csv->textContent);
 		continue;
 	      }
-	    if (!umich_crawl_csv($school_crawl_log, $semester, $a->getAttribute('href')))
-	      {
-		$semesters[] = $semester;
-		/**
-		 * \todo
-		 *   If we try to crawl more than one umich semester,
-		 *   PHP runs out of memory. We need to bump our API
-		 *   and rehash script to support incremental crawling
-		 *   or early data committing if we want umich
-		 *   crawling to work for more than one semester.
-		 */
-		return 0;
-	      }
-	    else
-	      school_crawl_logf($school_crawl_log, 2, "Unable to interpret CSV information for %s. Skipping semester.",
-				$semester);
+	    /*
+	     * Secretively communicate some metadata to
+	     * umich_crawl_semester().
+	     */
+	    $semester->umich_csv_href = $a->getAttribute('href');
+	    $semesters[] = $semester;
 	  }
     }
 
@@ -132,13 +137,13 @@ function umich_crawl(array &$semesters, $school_crawl_log)
  * \param $csv_href
  *   A link to a CSV file which will be downloaded and parsed.
  */
-function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
+function umich_crawl_semester(array $school, Semester $semester, &$school_crawl_log)
 {
   school_crawl_logf($school_crawl_log, 3, "Crawling %s.",
 		    $semester);
 
   $cookies = array();
-  $uri = $csv_href;
+  $uri = $semester->umich_csv_href;
 
   /* parse into lines and then each row needs to be individually parsed */
   $csv = str_getcsv(school_crawl_geturi($uri, $cookies, $school_crawl_log), PHP_EOL);
@@ -174,7 +179,6 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
 			  'Acad Group' => TRUE,
 			  'Codes' => TRUE,
 			  'SU' => TRUE,
-			  'Units' => TRUE,
 			  );
 
   foreach (str_getcsv($csv[0]) as $col_num => $col_name)
@@ -197,6 +201,7 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
   unset($csv[0]);
 
   /* Now actually parse some data :-). */
+  $row_accumulation = array('Instructor' => '');
   foreach ($csv as $row)
     {
       $row = str_getcsv($row);
@@ -211,6 +216,18 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
 	}
       $dept = $matches[1];
 
+      /**
+       * \todo
+       *   umich stores sometimes ranges of credit hours for courses,
+       *   formatted like "1.00-3.00". This is generally done for ARR
+       *   courses, where there is negotiation between the faculty and
+       *   the student on how the course is arranged. slate_permutate
+       *   should have a concept of a range of credit hours, then when
+       *   calculating credit hours for the user it can present the
+       *   total as a range... not that hard, but still a task ;-).
+       */
+      $credit_hours = (float)$row[$fields['Units']];
+
       $days = '';
       foreach (array('M' => 'm', 'T' => 't', 'W' => 'w', 'TH' => 'h', 'F' => 'f', 'S' => 's')
 	       as $field => $day)
@@ -219,10 +236,29 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
 
       if (!preg_match(';^([0-9]+)-([0-9]+)([AP])M$;', $row[$fields['Time']], $matches))
 	{
-	  school_crawl_logf($school_crawl_log, 4, "Unable to parse meeting time: `%s'. Skipping section/meeting (synonym=%s).",
-			    $row[$fields['Time']], $synonym);
+	  /*
+	   * Some courses exist but only have sections which have ARR
+	   * for their meeting times. I think this means sometimes
+	   * that the student is to arrange the course meeting with
+	   * the instructor, other times just that the course is
+	   * planned but not scheduled yet. These courses should still
+	   * show up in autocomplete even if they have no meeting
+	   * times.
+	   */
+
+	  if ($row[$fields['Time']] != 'ARR')
+	    /* Log an unanticipated Time value */
+	    school_crawl_logf($school_crawl_log, 4, "Unable to parse meeting time: `%s'. Skipping section/meeting (synonym=%s).",
+			      $row[$fields['Time']], $synonym);
 	  /* ensure that the class is added nonetheless */
 	  if ($semester->class_get($dept, $course_id) === NULL)
+	    /**
+	     * \todo
+	     *   SP does credit hours by section, what about Courses
+	     *   with no sections because they're these weird limbo
+	     *   `ARR' courses but these limbo courses still have a
+	     *   number of credit hours?
+	     */
 	    $semester->class_add(new Course($dept . '-' . $course_id, $row[$fields['Course Title']]));
 	  continue;
 	}
@@ -231,13 +267,22 @@ function umich_crawl_csv($school_crawl_log, &$semester, $csv_href)
       /* umich defines course_slots by meeting_type. */
       $meeting_type = school_crawl_meeting_type(trim($row[$fields['Component']]));
 
+      /*
+       * Some information is only presented in the first row in a
+       * listing of courses. Perform some accumulation here.
+       */
+      foreach (array('Instructor') as $key)
+	if (strlen($curr_value = trim($row[$fields[$key]])))
+	  $row_accumulation[$key] = $curr_value;
+
       $semester->section_meeting_add($dept, $course_id, trim($row[$fields['Course Title']]),
 				     trim($row[$fields['Section']]), $synonym,
 				     new SectionMeeting($days, $time_start, $time_end,
 							trim($row[$fields['Location']]),
 							$meeting_type,
-							trim($row[$fields['Instructor']])),
-				     $meeting_type);
+							$row_accumulation['Instructor']),
+				     $meeting_type,
+				     $credit_hours);
     }
 }
 
