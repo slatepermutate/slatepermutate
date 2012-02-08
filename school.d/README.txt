@@ -126,9 +126,12 @@ each of these files are listed below:
   crawlable semesters for the school. Then
   <school_id>_crawl_semester_get() is called once for each semester.
 
-** <school_id>_crawl_semester_list(array $school, array &$semesters)
+** <school_id>_crawl_semester_list(array $school, array &$semesters, &$school_crawl_log)
   - $school: The school handle for <school_id>.
-  - $semesters: An array to wh
+  - $semesters: An array to which Semester objects should be appended.
+  - $school_crawl_log: A reference to the school_crawl_log handle used
+    by some school.crawl.inc functions. To log warnings and errors,
+    use school_crawl_logf().
   Returns 0 on success and nonzero on failure.
 
   This function should scrape the school's website and build a list of
@@ -136,9 +139,11 @@ each of these files are listed below:
   Semester object with metadata about that semester and then return an
   array of these Semester objects.
 
-** <school_id>_crawl_semester(array $school, Semester $semester)
+** <school_id>_crawl_semester(array $school, Semester $semester, &$school_crawl_log)
   - $school: The school handle for <school_id>
   - $semester: The semester object to which courses are added.
+  - $school_crawl_log: The school_crawl_log handle required by some
+    school.crawl.inc functions.
   Returns 0 on success and otherwise on failure.
 
   This function is to add courses (or course_slots) to the passed
