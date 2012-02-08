@@ -1,6 +1,6 @@
 <?php /* -*- mode: php; -*- */
 /*
- * Copyright 2011 Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
+ * Copyright 2012 Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
  *
  * This file is a part of slate_permutate.
  *
@@ -216,31 +216,46 @@ function ccbcmd_crawl_semester($school, $semester, &$school_crawl_log)
        * section_id columns since there's no useful data in these
        * rows. We use strlen() < 3 because trim() doesn't take care of
        * &nbsp; :-/
+       *
+       * There are other times that the section_id row is empty and
+       * the time column is set to something. In this case, the
+       * subsequent rows are describing additional SectionMeetings
+       * which should be added to the existing Section.
        */
       $section_id = trim($children->item($section_offsets['section_id'])->textContent);
-      if (strlen($section_id) < 3)
-	continue;
+      if (strlen($section_id) > 2)
+	{
+	  /**
+	   * \todo
+	   *   If a section's section ID ends in `W', like `EFW', that
+	   *   means it's a semi-online course. We should probably
+	   *   distinguish these from normal sections, probably
+	   *   disabling them from showing up by default.
+	   */
+	  $section_id_parts = Section::parse($section_id);
+	  $registration_number = $children->item($section_offsets['registration_number'])->textContent;
+	  $credit_hours = (float)$children->item($section_offsets['credits'])->textContent;
+	  $section = new Section($section_id_parts['section'], array(), $registration_number, $credit_hours);
+	  $semester->section_add($section_id_parts['department'], $section_id_parts['course'], $section,
+				 trim($children->item($section_offsets['title'])->textContent));
+	}
+      if (empty($section))
+	{
+	  school_crawl_logf($school_crawl_log, 4, "Expected a section row beofre having a row with only partial data. Ignoring row.");
+	  continue;
+	}
 
-      $section_id_parts = Section::parse($section_id);
-
-      $registration_number = $children->item($section_offsets['registration_number'])->textContent;
       $instructor = $children->item($section_offsets['instructor'])->textContent;
 
-      $section_meetings = array();
       {
 	$time_range_text = $children->item($section_offsets['times'])->textContent;
 	if (strpos($time_range_text, 'TBA') !== FALSE)
-	  {
-	    /*
-	     * Add the section to the autocomplete list, just without
-	     * any meeting info (i.e., $section_meetings is still
-	     * empty now).
-	     */
-	    $semester->section_add($section_id_parts['department'], $section_id_parts['course'],
-				   new Section($section_id_parts['section'], $section_meetings, $registration_number));
-	    continue;
+	  /*
+	   * There is no way to get meeting info and create
+	   * SectionMeetings.
+	   */
+	  continue;
 
-	  }
 	if (($dash_pos = strpos($time_range_text, '-')) === FALSE)
 	  {
 	    school_crawl_logf($school_crawl_log, 0, "Unable to understand course's time range format, cannot find dash: ``%s''.",
@@ -254,29 +269,33 @@ function ccbcmd_crawl_semester($school, $semester, &$school_crawl_log)
 	/*
 	 * Make sure that _only_ one date range is specified to ensure
 	 * data integrity. I.e., make sure that the college doesn't
-	 * suddenly support multiple meeting times without our
-	 * anticipating that and then cause us to have invalid
-	 * data. ;-). --binki
+	 * suddenly support multiple meeting times in one field
+	 * without our anticipating that and then cause us to have
+	 * invalid data. ;-). The college does support multiple
+	 * section meetings, it does this by having multiple rows per
+	 * section. The extra rows _only_ have the days, time, prof,
+	 * and dates columns. --binki
 	 */
 	if (strpos($time_end_text, '-') !== FALSE)
 	  {
-	    school_crawl_logf($school_crawl_log, 0, "College seems to support multiple meeting times per semester which we don't know how to parse (even though slate_permutate itself can handle this situation): ``%s'' time_end_text: ``%s''.",
+	    school_crawl_logf($school_crawl_log, 4, "Entry seems to have invalid date column data: ``%s'' time_end_text: ``%s''.",
 		    $time_range_text, $time_end_text);
-	    return 1;
+	    continue;
 	  }
 	$time_end = strptime($time_end_text, '%I:%M %p');
 	if ($time_end === FALSE || $time_start === FALSE)
 	  {
-	    school_crawl_logf($school_crawl_log, 0, "Error parsing start or end time: start: ``%s'' end: ``%s''.",
+	    school_crawl_logf($school_crawl_log, 4, "Error parsing start or end time: start: ``%s'' end: ``%s''.",
 		    $time_start_text, $time_end_text);
-	    return 1;
+	    continue;
 	  }
 
 	$days = school_crawl_days_str_format($school_crawl_log, $children->item($section_offsets['days'])->textContent);
 
-	$section_meetings[] = new SectionMeeting($days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
+	$section->meeting_add(new SectionMeeting($days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
 						 $children->item($section_offsets['location'])->textContent,
-						 $instructor);
+						 'lecture',
+						 $instructor));
 
 	/* check if a semester's date range should be increased */
 	$section_dates = $children->item($section_offsets['dates'])->textContent;
@@ -286,9 +305,6 @@ function ccbcmd_crawl_semester($school, $semester, &$school_crawl_log)
 	    $semester->time_end_set_test(gmmktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get()));
 	  }
       }
-
-      $semester->section_add($section_id_parts['department'], $section_id_parts['course'],
-			     new Section($section_id_parts['section'], $section_meetings, $registration_number));
     }
 
   return 0;
