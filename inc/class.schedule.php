@@ -624,11 +624,11 @@ class Schedule
 	echo "    <div id=\"pagers\">\n";
 	/* Previous button */
 	if ($page > 0)
-	  echo '      <div id="pager-previous" class="pager left"><a href="' . htmlentities($this->my_url($page - 1)) . '">&laquo; Previous</a></div>' . "\n";
+	  echo '      <div id="pager-previous" class="pager left"><a href="' . htmlentities($this->my_url($page - 1), ENT_QUOTES) . '" rel="prev prefetch">&laquo; Previous</a></div>' . "\n";
 
 	/* Next button */
 	if ($page + 1 < $npages)
-	  echo '      <div id="pager-next" class="pager right"><a href="' . htmlentities($this->my_url($page + 1)) . '">Next &raquo;</a></div>' . "\n";
+	  echo '      <div id="pager-next" class="pager right"><a href="' . htmlentities($this->my_url($page + 1), ENT_QUOTES) . '" rel="next prefetch">Next &raquo;</a></div>' . "\n";
 	echo "    </div> <!-- id=\"pagers\" -->\n";
 
 
@@ -941,18 +941,26 @@ class Schedule
   {
     global $clean_urls;
 
-    $url = '';
-    if (!$clean_urls)
-      $url .= 'process.php?s=';
-
-    $url .= (int)$id;
+    $query = array();
     if ($clean_urls)
-      $url .= '?';
+      $url = (int)$id;
     else
-      $url .= '&';
+      {
+        $url = 'process.php';
+        $query['s'] = (int)$id;
+      }
 
     if ($page)
-      $url .= 'page=' . (int)$page . '&';
+      $query['page'] = (int)$page;
+
+    if (!empty($query))
+      {
+        $query_processed = array();
+        foreach ($query as $key => $value)
+          $query_processed[] = $key . '=' . rawurlencode($value);
+
+        $url .= '?' . implode('&', $query_processed);
+      }
 
     return $url;
   }
