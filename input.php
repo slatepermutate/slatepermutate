@@ -175,6 +175,22 @@ $my_hc .= '  });
 
 $inputPage->headcode_add('scheduleInput', $inputPage->script_wrap($my_hc), TRUE);
 
+if ($school['id'] != 'default'
+    && empty($_REQUEST['selectschool'])
+    && empty($_REQUEST['selectsemester']))
+  {
+    /*
+     * If we have chosen a school, set the canonical URL so that it
+     * contains the school and semester.
+     */
+    $query = array('school' => $school['id']);
+    if ($sch)
+      $query['s'] = $sch->id_get();
+    if (!empty($semester))
+      $query['semester'] = $semester['id'];
+    $inputPage->canonize('input.php', $query);
+  }
+
 $inputPage->head();
 
 /*

@@ -453,6 +453,18 @@ class Schedule
 
     $outputPage = page::page_create(htmlentities($this->getName()), $headcode,
 				    array('school' => $this->school_get(), 'semester' => $this->semester_get()));
+    if (!empty($this->created))
+      $outputPage->meta('dcterms.created', gmdate(DATE_W3C, $this->created));
+
+      if ($schedule_store !== NULL
+	  && $this->parent_get() !== NULL
+	  && ($parent_schedule = schedule_store_retrieve($schedule_store, $this->parent_get())) !== NULL)
+        {
+          $parent_uri = $parent_schedule->my_url();
+          $outputPage->meta('dcterms.relation', $parent_uri);
+          $outputPage->meta('dcterms.replaces', $parent_uri);
+        }
+
     $outputPage->head();
 
 
@@ -503,10 +515,10 @@ class Schedule
 	. '          <span id="share"><a href="#" class="button">Share</a></span>' . PHP_EOL;
 
 
-      if ($schedule_store !== NULL
-	  && $this->parent_get() !== NULL
-	  && ($parent_schedule = schedule_store_retrieve($schedule_store, $this->parent_get())) !== NULL)
-	echo '          <a class="button" href="' . htmlentities($parent_schedule->my_url()) . '" title="Parent schedule: ' . htmlentities($parent_schedule->getName()) . '">Parent</a>' . PHP_EOL;
+      if (!empty($parent_schedule))
+        {
+          echo '          <a class="button" href="' . htmlentities($parent_uri, ENT_QUOTES) . '" title="Parent schedule: ' . htmlentities($parent_schedule->getName()) . '">Parent</a>' . PHP_EOL;
+        }
 
       echo '          <a class="button" href="input.php">Home</a>' . PHP_EOL
 	. '        </p>'. PHP_EOL

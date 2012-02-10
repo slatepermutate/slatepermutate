@@ -82,6 +82,7 @@ class page
   private $trackingcode = ''; // Tracking code
   private $pagetitle = ''; // Title of page
   private $scripts = array(); // Scripts to include on page
+  private $meta;
 
   /* the current school. See get_school(). */
   private $school;
@@ -139,6 +140,11 @@ class page
 
     $this->pagetitle = $ntitle;
     $this->scripts = $nscripts;
+    $this->meta = array(
+      'msapplication-starturl' => self::uri_resolve(''),
+      'msapplication-task' => 'name=Create Schedule; action-uri=' . self::uri_resolve('input.php') . '; icon-uri=' . self::uri_resolve('images/favicon_96.png'),
+      'msapplication-tooltip' => 'Find the semester schedule which works for you!',
+    );
 
    /* Compliant browsers which care, such as gecko, explicitly request xhtml: */
    if(empty($_SERVER['HTTP_ACCEPT'])  /* then the browser doesn't care :-) */
@@ -238,6 +244,60 @@ class page
 
   /**
    * \brief
+   *   Set a meta element value.
+   * \param $name
+   *   The name of the meta attribute.
+   * \param $value
+   *   The value.
+   */
+  public function meta($name, $value = '')
+  {
+    $this->meta[$name] = $value;
+  }
+
+  /**
+   * \brief
+   *   Set the information necessary to create a canonical URI
+   *   description.
+   *
+   * For declaring a page's canonical URI, we use both <link
+   * rel="canonical"/> and soft redirects.
+   *
+   * \param $uri
+   *   The base URI for the current page.
+   * \param $query
+   *   The querystring to canonicalize on.
+   */
+  public function canonize($uri, array $query = array())
+  {
+    $query_string = '';
+    $uri_full = $uri;
+    if (!empty($query))
+      {
+	ksort($query);
+	$query_members = array();
+	foreach ($query as $key => $value)
+	  $query_members[] = rawurlencode($key) . '=' . rawurlencode($value);
+	$query_string = implode('&', $query_members);
+	$uri_full .= '?' . $query_string;
+      }
+
+    /* Detect if we are at the canonical location or not... */
+    list($base_request_uri) = explode('?', $_SERVER['REQUEST_URI'], 2);
+    $base_request_uri = substr($_SERVER['REQUEST_URI'], strrpos($base_request_uri, '/') + 1);
+    if ($base_request_uri != $uri_full)
+      /* We are not canonical, redirect. */
+      $this->redirect($uri_full);
+
+    /* Mention that this is a canonical URI with <link rel="canonical"/> */
+    $this->headcode_add('link_rel_canonical', '<link rel="canonical" href="'
+			. htmlentities(self::uri_resolve($uri_full), ENT_QUOTES) . '"'
+			. ($this->xhtml ? '/>' : '></link>'),
+			TRUE);
+  }
+
+  /**
+   * \brief
    *   Output the HTML header for a page, including <!DOCTYPE>, <head />, and opening structure
    */
   public function head()
@@ -262,6 +322,12 @@ class page
       . '    <style type="text/css">' . PHP_EOL
       . $this->cdata_wrap(school_page_css($this->school))
       . '    </style>' . PHP_EOL;
+
+    foreach ($this->meta as $key => $value)
+      echo '    <meta name="' . htmlentities($key, ENT_QUOTES)
+      . '" content="' . htmlentities($value, ENT_QUOTES)
+      . '" ' . ($this->xhtml ? '/' : '') .  '>' . PHP_EOL;
+
     // Write out all passed scripts
     foreach ($this->scripts as $i)
       echo '    ' . $this->headCode["$i"] . "\n";
@@ -278,7 +344,7 @@ class page
     echo $this->script_wrap(''
 			    . 'var slate_permutate_school = ' . json_encode($this->school['id']) . ';' . PHP_EOL
 			    . 'var slate_permutate_semester = ' . json_encode($this->semester['id']) . ';' . PHP_EOL
-			    . $javascript_init);
+			    . $javascript_init) . PHP_EOL;
 
     $selectschool_query = '&amp;school=' . $this->school['id'];
     /* kludge */
@@ -541,37 +607,61 @@ class page
   public static function redirect($dest, $http_code = NULL)
   {
     if ($http_code)
+      /**
+       * \todo
+       *   See http://drupal.org/node/208793
+       */
       header('HTTP/1.1 ' . $http_code);
 
-    $uri = '';
+    header('Location: ' . self::uri_resolve($dest));
+    exit();
+  }
 
-    $host = '';
-    if (isset($_SERVER['SERVER_NAME']))
-      $host = $_SERVER['SERVER_NAME'];
-    if (isset($_SERvER['HTTP_HOST']))
-      $host = $_SERVER['HTTP_HOST'];
+  /**
+   * \brief
+   *   Calculate the absolute URI on a best-effort basis.
+   * \param $uri
+   *   The relative URI. An empty string will get the URI to the
+   *   index/default page.
+   * \return
+   *   An absolute URI referring to the specified page.
+   */
+  public static function uri_resolve($uri = '')
+  {
+    static $base_uri = '';
 
-    if (strlen($host))
+    static $host = '';
+    if (empty($host))
       {
-	$proto = 'http';
-	$port = NULL;
-	if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 80)
-	  {
-	    if ($_SERVER['SERVER_PORT'] == 443 || !empty($_SERVER['HTTPS']))
-	      $proto .= 's';
-	    if ($_SERVER['SERVER_PORT'] != 433)
-	      $port = $_SERVER['SERVER_PORT'];
-	  }
-
-	$uri = $proto . '://' . $host;
-	if ($port !== NULL)
-	  $uri .= ':' . $port;
-	$uri .= dirname($_SERVER['REQUEST_URI']) . '/';
+	if (isset($_SERVER['SERVER_NAME']))
+	  $host = $_SERVER['SERVER_NAME'];
+	if (isset($_SERvER['HTTP_HOST']))
+	  $host = $_SERVER['HTTP_HOST'];
       }
 
-    header('Location: ' . $uri . $dest);
+    if (empty($base_uri))
+      if (strlen($host))
+	{
+	  $proto = 'http';
+	  $port = NULL;
+	  if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 80)
+	    {
+	      if ($_SERVER['SERVER_PORT'] == 443 || !empty($_SERVER['HTTPS']))
+		$proto .= 's';
+	      if ($_SERVER['SERVER_PORT'] != 433)
+		$port = $_SERVER['SERVER_PORT'];
+	    }
+	  
+	  $base_uri = $proto . '://' . $host;
+	  if ($port !== NULL)
+	    $base_uri .= ':' . $port;
+	  $base_uri .= dirname($_SERVER['REQUEST_URI']) . '/';
+	}
 
-    exit();
+    if (empty($base_uri) && empty($uri))
+      return './';
+
+    return $base_uri . $uri;
   }
 
   /**

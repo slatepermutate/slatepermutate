@@ -21,6 +21,17 @@
 require_once 'inc/class.page.php'; 
 
 $welcomepage = page::page_create('Welcome');
+
+/*
+ * If we have chosen a school, set the canonical URL so that it
+ * contains the school.
+ */
+$query = array();
+$school = $welcomepage->get_school();
+if ($school['id'] != 'default')
+  $query['school'] = $school['id'];
+$welcomepage->canonize('', $query);
+
 $welcomepage->head();
 ?>
 
