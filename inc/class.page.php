@@ -655,7 +655,8 @@ class page
 	  $base_uri = $proto . '://' . $host;
 	  if ($port !== NULL)
 	    $base_uri .= ':' . $port;
-	  $base_uri .= dirname($_SERVER['REQUEST_URI']) . '/';
+	  list($base_request_uri) = explode('?', $_SERVER['REQUEST_URI'], 2);
+	  $base_uri .= substr($base_request_uri, 0, strrpos($base_request_uri, '/')) . '/';
 	}
 
     if (empty($base_uri) && empty($uri))
