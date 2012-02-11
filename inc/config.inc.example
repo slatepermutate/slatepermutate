@@ -1,4 +1,4 @@
-<?php
+<?php /* -*- mode: php; -*- */
 /*
  * Copyright 2010 Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
  *
@@ -60,6 +60,17 @@
  */
 /* $ga_trackers = array(); */
 /* $ga_trackers = array('UA-XXXXXXXX-X'); */
+
+/**
+ * \brief
+ *   An array of Google AdWords conversion ID and label value pairs.
+ *
+ * Set this so that the key of the array is the google_conversion_id
+ * and the value is the google_conversion_label. The conversion code
+ * is placed on the process.php page (the page that users visit when
+ * viewing their schedules).
+ */
+/* $ga_conversions = array('ddddddddd' => 'XXXXXXXXXXXX-XXXXXX', 'ddddddddd' => 'XXXXXXXXXXXX-XXXXXX'); */
 
 /**
  * \brief

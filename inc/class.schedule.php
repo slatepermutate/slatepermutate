@@ -453,6 +453,7 @@ class Schedule
 
     $outputPage = page::page_create(htmlentities($this->getName()), $headcode,
 				    array('school' => $this->school_get(), 'semester' => $this->semester_get()));
+    $outputPage->conversion();
     if (!empty($this->created))
       $outputPage->meta('dcterms.created', gmdate(DATE_W3C, $this->created));
 

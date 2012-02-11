@@ -43,6 +43,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . dirname(dirname(__FILE__)
 /* defaults */
 $clean_urls = FALSE;
 $ga_trackers = array();
+$ga_conversions = array();
 $feedback_emails = array('ez@ethanzonca.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net');
 $use_captcha = FALSE;
 $admin_enable_purge = FALSE;
@@ -80,6 +81,7 @@ class page
   private $headCode = array();
 
   private $trackingcode = ''; // Tracking code
+  private $ga_conversions_code = ''; // Conversion tracking code
   private $pagetitle = ''; // Title of page
   private $scripts = array(); // Scripts to include on page
   private $meta;
@@ -244,6 +246,62 @@ class page
 
   /**
    * \brief
+   *   Declare that this page is a conversion point.
+   *
+   * Making a page a conversion point informs any ad services or
+   * whatnot that the user made it this far in slate_permutate. If the
+   * user was referred to slate_permutate via an advertisement, this
+   * can be used to see whether a click actually resulted in the user
+   * actually _using_ slate_permutate instead of just navigating away
+   * upon reading the first page.
+   */
+  public function conversion()
+  {
+    global $ga_conversions;
+
+    if (!empty($ga_conversions))
+      {
+	if (!empty($this->ga_conversions_code))
+	  /* Function already called once. */
+	  return;
+
+	$conversion_base_href = 'http' . ($_SERVER['SERVER_PORT'] == 80 ? '' : 's') . '://www.googleadservices/pagead/conversion/';
+	$conversion_hrefs = array();
+	$conversion_referrer = empty($_SERVER['HTTP_REFERER']) ? '' : '&ref=' . rawurlencode(substr($_SERVER['HTTP_REFERER'], 0, 255));
+	$js_Date_getTime = (1000 * time()) . sprintf("%03d", rand(0, 999));
+
+	$i = 1;
+	foreach ($ga_conversions as $conversion_id => $conversion_label)
+	  /*
+	   * For random, supplement time() with three numerals to look
+	   * like milliseconds like JavaScript's Date.getTime()
+	   * function. For some reason, `random' and `fst' (first
+	   * conversion time?) are both set to the current time. I'm
+	   * guessing that random is supposed to be a cachebreaker.
+	   *
+	   * `cv' is the `current version' of the Google conversion.js
+	   * which is 7. This could be scraped from the .js by looking
+	   * for `google_conversion_js_version="7"'.
+	   *
+	   * `fmt=3' must mean that we don't want the user-notification
+	   * to appear, but we already don't show that.  `value=0'
+	   * seems to have no meaning at all, maybe it is supposed to
+	   * be the `priority' of this conversion point.
+	   *
+	   * Google's `hl' and `gl' language values should probably be
+	   * appended.
+	   */
+	  $this->ga_conversions_code .= '<img style="width: 1px; height: 1px; border: none;" src="'
+	  . htmlentities($conversion_base_href . $conversion_id . '/?random=' . $js_Date_getTime . '&cv=7&fst=' . $js_Date_getTime
+			 . '&num=' . $i++ . '&fmt=3&value=0&label=' . $conversion_label . '&bg=ffffff'
+			 . '&guid=ON&disvt=&is_call=' . $conversion_referrer,
+			 ENT_QUOTES)
+	  . '" ' . ($this->xhtml ? '/' : '') . '>';
+      }
+  }
+
+  /**
+   * \brief
    *   Set a meta element value.
    * \param $name
    *   The name of the meta attribute.
@@ -383,6 +441,7 @@ class page
          '        <div id="rightfoot">'. PHP_EOL .
          '          <h5>&copy; 2011 <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a><br /></h5>'. PHP_EOL .
 	 '        </div>'. PHP_EOL .
+      $this->ga_conversions_code . PHP_EOL .
          '      </div> <!-- id="footer" -->'. PHP_EOL .
          '    </div> <!-- id="page" -->'. PHP_EOL;
     echo $this->trackingcode;
