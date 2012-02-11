@@ -291,7 +291,7 @@ class page
 	   * Google's `hl' and `gl' language values should probably be
 	   * appended.
 	   */
-	  $this->ga_conversions_code .= '<img style="width: 1px; height: 1px; border: none;" src="'
+	  $this->ga_conversions_code .= '<img alt="" style="width: 1px; height: 1px; border: none;" src="'
 	  . htmlentities($conversion_base_href . $conversion_id . '/?random=' . $js_Date_getTime . '&cv=7&fst=' . $js_Date_getTime
 			 . '&num=' . $i++ . '&fmt=3&value=0&label=' . $conversion_label . '&bg=ffffff'
 			 . '&guid=ON&disvt=&is_call=' . $conversion_referrer,
