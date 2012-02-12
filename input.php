@@ -187,7 +187,19 @@ if ($school['id'] != 'default'
      */
     $query = array('school' => $school['id']);
     if ($sch)
-      $query['s'] = $sch->id_get();
+      {
+	$query['s'] = $sch->id_get();
+	/*
+	 * When editing a schedule, also canonize on the
+	 * semester. Changes to the selected schedule which are made
+	 * when editing an existing schedule are not saved into the
+	 * SESSION. Thus, for the user to be able to edit a schedule
+	 * and load courses from an alternate semester, we must ensure
+	 * that semester remains in GET.
+	 */
+	if (!empty($semester))
+	  $query['semester'] = $semester['id'];
+      }
     $inputPage->canonize('input.php', $query);
   }
 
