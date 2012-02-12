@@ -421,9 +421,9 @@ class page
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
   	 '            <span id="menu">' . PHP_EOL
-      . '              Profile: <em>' . $this->school['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectschool=1' . $selectschool_query . '">(change)</a>') . PHP_EOL;
+       . '              <em>' . $this->school['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectschool=1' . $selectschool_query . '" title="Choose a different school">(change)</a>') . PHP_EOL;
     if (!empty($this->semester))
-      echo  '             Semester: <em>' . $this->semester['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectsemester=1' . $selectschool_query . '">(change)</a>') . PHP_EOL;
+      echo  '             <em>' . $this->semester['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectsemester=1' . $selectschool_query . '" title="Choose a different semester">(change)</a>') . PHP_EOL;
     echo '            </span>'. PHP_EOL .
          '          </p>'. PHP_EOL .
          '        </div>'. PHP_EOL .
