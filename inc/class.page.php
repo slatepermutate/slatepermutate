@@ -69,7 +69,7 @@ class page
 {
 
   /* Site-wide configuration options */
-  private $base_title = 'SlatePermutate - Find the schedule that works for you!';
+  private $base_title = array('SlatePermutate', 'Find the schedule that works for you!');
   private $doctype = 'html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"';
   private $htmlargs = 'xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"';
 
@@ -183,6 +183,9 @@ class page
     if (empty($options['school']))
       $options['school'] = school_load_guess();
     $this->school = $options['school'];
+    if ($this->school['id'] != 'default')
+      /* If we have a non-generic school, put it into base_title */
+      array_unshift($this->base_title, $this->school['name']);
 
     if (empty($options['semester']))
       $options['semester'] = school_semester_guess($this->school);
@@ -370,7 +373,7 @@ class page
     echo '<!DOCTYPE ' . $this->doctype . '>'. PHP_EOL .
 	  '<html ' . $this->htmlargs . '>'. PHP_EOL .
 	  '  <head>'. PHP_EOL .
-	  '    <title>' . $this->pagetitle . ' - ' . $this->base_title . '</title>'. PHP_EOL .
+	  '    <title>' . $this->pagetitle . ' - ' . $this->base_title[0] . ' - ' . $this->base_title[1] . '</title>'. PHP_EOL .
           '    <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />'.  PHP_EOL .
 	  '    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />'. PHP_EOL .
           '    <!--[if IE]>'. PHP_EOL .

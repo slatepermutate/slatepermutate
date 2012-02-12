@@ -111,7 +111,7 @@ elseif (!empty($_REQUEST['e']))
  * saved_schedule's school/semester.
  */
 $scripts = array('jQuery', 'jQueryUI', 'qTip2', 'schedInput');
-$inputPage = page::page_create('Scheduler', $scripts, $inputPage_options);
+$inputPage = page::page_create('Enter Courses', $scripts, $inputPage_options);
 $school = $inputPage->get_school();
 $semester = $inputPage->semester_get();
 
@@ -181,13 +181,13 @@ if ($school['id'] != 'default'
   {
     /*
      * If we have chosen a school, set the canonical URL so that it
-     * contains the school and semester.
+     * contains the school and, optionall, the specified
+     * schedule. This way, when Google caches the input.php page, the
+     * <title/> it sees will reflect the selected school.
      */
     $query = array('school' => $school['id']);
     if ($sch)
       $query['s'] = $sch->id_get();
-    if (!empty($semester))
-      $query['semester'] = $semester['id'];
     $inputPage->canonize('input.php', $query);
   }
 
