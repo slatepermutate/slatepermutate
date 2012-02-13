@@ -484,7 +484,7 @@ function school_crawl_form(DOMElement $form_node)
   $form = array();
 
   $xpath = new DOMXPath($form_node->ownerDocument);
-  foreach ($xpath->query('input', $form_node) as $input_node)
+  foreach ($xpath->query('.//input', $form_node) as $input_node)
     {
       if ($input_node->hasAttribute('name'))
 	{
@@ -507,14 +507,14 @@ function school_crawl_form(DOMElement $form_node)
 	}
     }
 
-  foreach ($xpath->query('select', $form_node) as $select_node)
+  foreach ($xpath->query('.//select', $form_node) as $select_node)
     {
       if ($select_node->hasAttribute('name'))
 	{
 	  $select_name = $select_node->getAttribute('name');
 	  if (!isset($form[$select_name]))
 	    $form[$select_name] = array();
-	  foreach ($xpath->query('option[selected]', $select_node) as $option_node)
+	  foreach ($xpath->query('.//option[@selected]', $select_node) as $option_node)
 	    if ($option_node->hasAttribute('value'))
 	      $form[$select_name][] = $option_node->getAttribute('value');
 	}
@@ -536,28 +536,32 @@ function school_crawl_form(DOMElement $form_node)
  * \param $selected
  *   Will be set to an array of the currently selected keys if passed.
  * \return
- *   An associative array mapping an <option />'s name attribute onto
- *   either the <option />'s textcontent (if $get_textcontent is TRUE)
- *   or onto the <option /> DOMElement itself.
+ *   An associative array mapping an <option />'s value attribute onto
+ *   an array of different <option />s' textcontent (if
+ *   $get_textcontent is TRUE) or onto the <option />s' DOMElements
+ *   themselves.
  */
 function school_crawl_form_select_array(DOMElement $select, $get_textcontent = TRUE, &$selected = NULL)
 {
   $selected = array();
   $options = array();
+  $name = $select->getAttribute('name');
 
   foreach ($select->childNodes as $child_node)
     if ($child_node->nodeType == XML_ELEMENT_NODE
-	&& !strcasecmp($child_node->tagName, 'options')
-	&& $child_node->hasAttribute('name'))
+	&& !strcasecmp($child_node->tagName, 'option')
+	&& $child_node->hasAttribute('value'))
       {
-	$name = $child_node->getAttribute('name');
+	$value = $child_node->getAttribute('value');
 	if ($child_node->hasAttribute('selected'))
-	  $selected[] = $name;
+	  $selected[] = $value;
 
+	if (empty($options[$value]))
+	  $options[$value] = array();
 	if ($get_textcontent)
-	  $options[$name] = $child_node->textContent;
+	  $options[$value][] = $child_node->textContent;
 	else
-	  $options[$name] = $child_node;
+	  $options[$value][] = $child_node;
       }
 
   return $options;
