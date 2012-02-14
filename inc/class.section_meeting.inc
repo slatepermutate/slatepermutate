@@ -50,7 +50,9 @@ class SectionMeeting
    *   is represented with 'm', Tuesday with 't', Wednesday with 'w',
    *   Thursday with 'h', and Friday with 'f'.
    * \param $time_start
-   *   The time of day when the section meeting starts.
+   *   The time of day when the section meeting starts. Use
+   *   school_crawl_time_format() or ensure that the time is formatted
+   *   in 24-hour, 0-padded, 4-digit form (HHMM).
    * \param $time_end
    *   The time of day when the section meeting ends.
    * \param $location
