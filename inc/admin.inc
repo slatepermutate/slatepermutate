@@ -237,7 +237,9 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
 	error_log('Unable to create needed directory: `' . $cache_auto_dir_name . '\'');
     }
 
-  $school['crawled'] = FALSE;
+  if (empty($school['crawled']))
+    $school['crawled'] = FALSE;
+  $school['crawled_notreally'] = TRUE;
 
   $school_crawl_semesters_list_func = $school['id'] . '_crawl_semester_list';
   if (!function_exists($school_crawl_semesters_list_func))
@@ -327,6 +329,7 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
     }
 
   $school['crawled'] = TRUE;
+  unset($school['crawled_notreally']);
   $school['crawled_semesters'] = $successful_semesters;
 
   return $school_crawl_log;
