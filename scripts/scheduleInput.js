@@ -78,7 +78,7 @@ var slate_permutate_course_free = -1;
  * This will automatically be set to true as soon as a course
  * utilizing multiple slots is added using autocomplete.
  */
-var show_course_slots = false;
+var show_course_slots = [];
 
 /*
  * General Input Functions
@@ -321,7 +321,7 @@ function course_add_slot_row(course_i, slot_id)
 {
     var extra_classes = '';
 
-    if (!show_course_slots)
+    if (!show_course_slots[course_i])
     {
 	var aclass;
 	/*
@@ -331,10 +331,10 @@ function course_add_slot_row(course_i, slot_id)
 	aclass = jQuery('.' + safe_css_class('class' + course_i) + '.section .section-slot-entry');
 	if (aclass.length && aclass.val() != slot_id)
 	{
-	    enable_course_slots();
+	    enable_course_slots(course_i);
 	}
     }
-    if (!show_course_slots)
+    if (!show_course_slots[course_i])
 	extra_classes += ' tr-slot-id-hidden';
 
     jQuery('tr.class' + course_i + ':last').after(
@@ -349,13 +349,18 @@ function course_add_slot_row(course_i, slot_id)
 
 /**
  * \brief
- * Dynamically enable the displification of course slots to the user.
+ *   Dynamically enable the displification of course slots to the
+ *   user.
+ *
+ * \param course_i
+ *   The particular course for which slot displification should be
+ *   enabled.
  */
-function enable_course_slots()
+function enable_course_slots(course_i)
 {
-    show_course_slots = true;
+    show_course_slots[course_i] = true;
 
-    jQuery('.tr-slot-id-hidden').removeClass('tr-slot-id-hidden');
+    jQuery('.' + safe_css_class('class' + course_i) + '.tr-slot-id-hidden').removeClass('tr-slot-id-hidden');
 }
 
 /**
