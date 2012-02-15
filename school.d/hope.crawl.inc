@@ -301,11 +301,12 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
 	}
 
       /*
-       * Guessing the type of section_meeting: `attribute' of NSL seems to
-       * be associated with labs.
+       * Guessing the type of section_meeting: `attribute' of NSL
+       * seems to be associated with labs. Matches `lab', `lab.', `
+       * lab', ` labo'..., etc.
        */
       $type = 'lecture';
-      if ($section_csv[$fields['Attr']] == 'NSL')
+      if (preg_match('/(^|[^a-z])lab($|o|[^a-z])/i', $title))
 	$type = 'lab';
 
       $section_meeting = new SectionMeeting($days, $time_start, $time_end,
@@ -318,7 +319,7 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
 				     $section_id,
 				     $synonym,
 				     $section_meeting,
-				     'default',
+				     $type,
 				     $section_csv[$fields['Cred']]);
     }
   return 0;
