@@ -669,3 +669,166 @@ function school_crawl_table_rownodes(DOMElement $tr_node)
   $xpath = new DOMXPath($tr_node->ownerDocument);
   return $xpath->query('descendant::*[self::th or self::td]', $tr_node);
 }
+
+/**
+ * \brief
+ *   Detect if a point in a buffer is at a newline.
+ *
+ * \internal
+ *   Used by school_crawl_csv_parse().
+ * \param $data
+ *   The buffer
+ * \param $len
+ *   Number of bytes in buffer.
+ * \param $i
+ *   The location within the buffer.
+ * \param $eof
+ *   The end of the buffer is the end of the file.
+ * \return
+ *   The location of the next character after the EOL sequence or
+ *   FALSE if there is no EOL.
+ */
+function _school_crawl_csv_parse_eol($data, $len, $i = 0, $eof = FALSE)
+{
+  if ($len <= $i)
+    return $eof ? $i : FALSE;
+  if ($data[$i] == "\n")
+    return $i + 1;
+  if ($data[$i] == "\r" && $len > $i + 1 && $data[$i + 1] == "\n")
+      return $i + 2;
+  return FALSE;
+}
+
+/**
+ * \brief
+ *   Read a line of CSV and return it as an array.
+ *
+ * \param $data
+ *   CSV data to parse. Parsed data shall be deleted.
+ * \param $options
+ *   An array with any number of the following optional arguments
+ *   which have the documented defaults:
+ *   - delimiter (','): The character which delimits fields.
+ *   - eof (FALSE): Whether there will be no more data coming.
+ *     Normally, if the $data ends without a newline this function
+ *     will assume that it cannot assume that there is an implicit
+ *     newline. Some improper files don't have the extra newline at
+ *     their end and thus this is needed to support them.
+ * \return
+ *   An array with an entry for each line in the CSV file where each
+ *   line's entry is an array of the items in that row. An empty array
+ *   will be returned in the case that there is insufficient data to
+ *   read a line (or insufficient data to tell if the line is
+ *   complete, see $options['eof']).
+ */
+function school_crawl_csv_parse(&$data, array $options = array())
+{
+  $options += array(
+    'delimiter' => ',',
+    'eof' => FALSE,
+  );
+
+  $ret = array();
+  $i = 0;
+  $last_line_i = $i;
+  $strlen_data = strlen($data);
+
+  while ($i < $strlen_data)
+    {
+	$row = array();
+
+	$quote = FALSE;
+	$entry = '';
+	while ($quote
+	       || (_school_crawl_csv_parse_eol($data, $strlen_data, $i, $options['eof']) === FALSE))
+	  {
+	    /*
+	     * There are two ways to read data. One within the
+	     * doublequoted entry and the other outside of that.
+	     */
+	    if ($quote)
+	      switch ($data[$i])
+		{
+		case '"':
+		  /*
+		   * This is either a lone quote or the terminating
+		   * quote. It is a terminating quote if the next
+		   * character is EOL or non-quote.
+		   */
+		  if ($strlen_data > $i + 1 && $data[$i + 1] != '"'
+		      || _school_crawl_csv_parse_eol($data, $strlen_data, $i + 1, $options['eof']) !== FALSE)
+		    {
+		      $quote = FALSE;
+		      /*
+		       * can't fall-through for this case, eat the
+		       * doublequote.
+		       */
+		      break;
+		    }
+		  else
+		    {
+		      /*
+		       * We got `""' inside of a doublequoted string,
+		       * which is CSV's way of escaping a
+		       * doublequote. Thus, eat one of the two
+		       * doublequotes.
+		       */
+		      $i ++;
+		      /*
+		       * or we don't yet have enough data... The outer
+		       * loop also will break on its own in this case...
+		       */
+		      if ($strlen_data <= $i)
+			break;
+		      /* fall-through to append doublequote */
+		    }
+
+		default:
+		  $entry .= $data[$i];
+		}
+	    else /* if ($quote) */
+	      switch ($data[$i])
+		{
+		case '"':
+		  /**
+		   * \todo
+		   *   Decide if we want to parse ``a,b"c",d'' as
+		   *   ["a", "b\"c\"", "d"] or (current) ["a", "bc",
+		   *   "d"].
+		   */
+		  $quote = TRUE;
+		  break;
+
+		case $options['delimiter']:
+		  $row[] = $entry;
+		  $entry = '';
+		  break;
+
+		default:
+		  $entry .= $data[$i];
+		}
+
+	    $i ++;
+	    if ($i >= $strlen_data)
+	      break;
+	  }
+
+	/* Ignore read row because if we encountered end of buffer */
+	if (($next_i = _school_crawl_csv_parse_eol($data, $strlen_data, $i, $options['eof'])) === FALSE)
+	  break;
+
+	$i = $next_i;
+	$last_line_i = $i;
+	$row[] = $entry;
+	$ret[] = $row;
+    }
+
+  if (!empty($last_line_i))
+    {
+      $data = substr($data, $last_line_i);
+      if ($data === FALSE)
+	$data = '';
+    }
+
+  return $ret;
+}
