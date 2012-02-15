@@ -934,4 +934,12 @@ jQuery(document).ready(function() {
 	jQuery('.section-credit-hours-entry').live('change', function() {
 		credit_hours_change(jQuery(this).closest('.section').data('course_i'));
 	});
+
+	/* For the ``Select Semester'' page */
+	jQuery('.hysterical-show-a').click(function() {
+	    jQuery('.hysterical').show();
+	    jQuery('.hysterical-show').hide();
+	});
+	jQuery('.hysterical-show').show();
+	jQuery('.hysterical').hide();
 });

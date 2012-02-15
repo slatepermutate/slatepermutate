@@ -534,6 +534,11 @@ class page
     $linkto = htmlentities($linkto . 'semester=');
 
     $time = time();
+    /**
+     * Hysterical... or historical? Uncle John Brink prefers
+     * ``hysterical''...
+     */
+    $hysterical = FALSE;
 
     echo "    <p>\n";
     echo "      <ul>\n";
@@ -546,6 +551,11 @@ class page
 	    $class_extra = ' highlight';
 	    $text_extra[] = 'selected';
 	  }
+	if ($semester['time_start'] > 36000 && $semester['time_start'] < ($time - 365*24*60*60))
+	  {
+	    $class_extra .= ' hysterical';
+	    $hysterical = TRUE;
+	  }
 
 	if ($semester['time_start'] < $time && $semester['time_end'] > $time)
 	  $text_extra[] = 'current';
@@ -556,6 +566,8 @@ class page
 
 	echo '        <li class="semester' . $class_extra . '"><a href="' . $linkto . $semester['id'] . '">' . htmlentities($semester['name']) . '</a>' . $text_extra . "</li>\n";
       }
+    if ($hysterical)
+	echo '       <li style="display: none;" class="hysterical-show"><a class="hysterical-show-a" href="#">(Show hysterical semesters…)</a></li>' . PHP_EOL;
     echo "      </ul>\n";
     echo "    </p>\n";
   }
