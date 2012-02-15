@@ -198,8 +198,8 @@ class Semester
    *   The course number this section_meeting's section belongs to.
    * \param $title
    *   The course title of the given course the section_meeting or
-   *   NULL.
-   *   belongs to.
+   *   NULL. If the section has already been added, this parameter
+   *   will be ignored.
    * \param $section
    *   The letter or numbers which make up the section's name.
    * \param $synonym
