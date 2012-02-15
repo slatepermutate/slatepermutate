@@ -494,6 +494,36 @@ function test()
   $n += assert_equal($t3, Section::parse($t2), $ideal);
   $n += assert_equal($t3 . '_class', Course::parse($t3), $ideal_c);
 
+  $csv = '1,2,3,4
+1,2 ,3,4
+1,"2,",3,4
+"1
+1",2,3,4
+"""1""",2,3,4
+
+4';
+  $csv_parsed = array(
+    array('1', '2', '3', '4'),
+    array('1', '2 ', '3', '4'),
+    array('1', '2,', '3', '4'),
+    array("1\n1", '2', '3', '4'),
+    array('"1"', '2', '3', '4'),
+    array(''),
+    array('4'),
+  );
+
+  $n += assert_equal('csv', school_crawl_csv_parse($csv, array('eof' => TRUE)), $csv_parsed);
+  $n += assert_equal('csv_buffer', $csv, '');
+
+  $csv_partial = '1,2
+3';
+  /*
+   * Check partial parsing support; give a situation where we
+   * supposedly don't have eof.
+   */
+  $n += assert_equal('csv_partial', school_crawl_csv_parse($csv_partial), array(array('1', '2')));
+  $n += assert_equal('csv_partial_buffer', $csv_partial, '3');
+
   return $n;
 }
 
@@ -519,13 +549,21 @@ function assert_equal($name, $a, $b)
       foreach ($a as $key => $val)
 	if (!$bad && isset($b[$key]))
 	  $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
-	else
-	  $bad = TRUE;
-      foreach ($b as $key => $val)
-	if (!$bad && isset($a[$key]))
-	  $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
-	else
-	  $bad = TRUE;
+        elseif (!$bad)
+	  {
+	    $bad = TRUE;
+	    fprintf(STDERR, "\$b is missing key ``%s'' which \$a has.\n",
+		    $key);
+	  }
+	foreach ($b as $key => $val)
+	  if (!$bad && isset($a[$key]))
+	    $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
+	  elseif (!$bad)
+	    {
+	      $bad = TRUE;
+	      fprintf(STDERR, "\$a is missing key ``%s'' which \$b has.\n",
+		      $key);
+	    }
 
       if ($bad)
 	{
@@ -549,8 +587,8 @@ function assert_equal($name, $a, $b)
     }
   else
     {
-      fprintf(STDERR, "Test ``%s'' failed: `%s' !== `%s', strcmp() == %d\n",
-	      $name, $a, $b, strcmp($a, $b));
+      fprintf(STDERR, "Test ``%s'' failed: `%s' === `%s' => %s, strcmp() == %d\n",
+	      $name, $a, $b, $a === $b ? 'TRUE' : 'FALSE', strcmp($a, $b));
       return TRUE;
     }
   return TRUE;
