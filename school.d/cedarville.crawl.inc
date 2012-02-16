@@ -320,6 +320,35 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 	  $semester->section_add($section_parts['department'], $section_parts['course'],
 				 new Section($section_parts['section'], $meetings,
 					     $synonym, $credit_hours), $title);
+
+	  /*
+	   * Get the full subject's name from the course's page if we
+	   * don't have it already.
+	   */
+	  if (!$semester->department_name_has($section_parts['department']))
+	    {
+	      foreach ($course_table[1]->childNodes as $course_a)
+		if ($course_a instanceof DOMElement
+		&& $course_a->tagName == 'a')
+		  break;
+	      if ($course_a instanceof DOMElement
+		  && $course_a->tagName == 'a'
+		  && strlen($course_href = $course_a->getAttribute('href')))
+		{
+		  $course_uri = school_crawl_url($uri, $course_href);
+		  $course_html = school_crawl_geturi($course_uri, $cookies, $school_crawl_log);
+		  if (!empty($course_html))
+		    {
+		      $course_dom = new DOMDocument();
+		      $course_dom->loadHTML($course_html);
+		      if ($subject_td = $course_dom->getElementById('main_0_subjectLink'))
+			{
+			  $subject_name = preg_replace('/ *\\[[A-Z]*\\]$/', '', $subject_td->nodeValue);
+			  $semester->department_name_set($section_parts['department'], $subject_name);
+			}
+		    }
+		}
+	    }
 	}
     }
 
