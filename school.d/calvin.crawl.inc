@@ -122,6 +122,15 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
   $return_url = dom_input_value($seed_dom, 'RETURN.URL');
 
   /*
+   * First, read all of the friendly subject/department names. They're
+   * not in the output, but they're in the ``Subjects'' dropdown of
+   * the input form. The <select name="LIST.VAR1_1" id="LIST_VAR1_1"/>
+   * is associated with subjects/departments.
+   */
+  foreach (school_crawl_form_select_array($seed_dom->getElementById('LIST_VAR1_1')) as $department_id => $department_name)
+    $semester->department_name_set($department_id, trim(reset($department_name)));
+
+  /*
    * LIST.VAR<X>_<N>: <X> is the column, <N> is the row. There
    * are apparently a max of 5 rows (see the LIST.VAR<X>_MAX
    * below).
@@ -248,7 +257,7 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
 	  if (preg_match(';\(([0-9]+)\)(.*);', $sec_short_title, $matches))
 	    {
 	      $synonym = $matches[1];
-	      $title = $matches[2];
+	      $title = trim($matches[2]);
 	    }
 
 	  school_crawl_logf($school_crawl_log, 10, "");
