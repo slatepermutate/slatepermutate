@@ -79,6 +79,7 @@ class Semester
     $this->year = $year;
 
     $this->departments = array();
+    $this->department_names = array();
   }
 
   /**
@@ -127,6 +128,59 @@ class Semester
   public function departments_get()
   {
     return array_keys($this->departments);
+  }
+
+  /**
+   * \brief
+   *   Set a department's human-friendly name.
+   *
+   * \param $dept
+   *   The department.
+   * \param $name
+   *   The human-friendly name of the department.
+   */
+  public function department_name_set($dept, $name)
+  {
+    $this->department_names[$dept] = $name;
+  }
+
+  /**
+   * \brief
+   *   Determine if a particular department has a human-oriented name.
+   *
+   * \param $dept
+   *   The department to check.
+   * \return
+   *   TRUE if this department has been assigned a human-friendly
+   *   name.
+   */
+  public function department_name_has($dept)
+  {
+    return !empty($this->department_names[$dept]);
+  }
+
+  /**
+   * \brief
+   *   Get a list of departments and long names, if available.
+   *
+   * This function only returns departments for which this Semester
+   * has courses.
+   *
+   * \return
+   *   An array where keys are department identifiers and values are
+   *   human-friendly names (if available). If human-friendly names
+   *   are not available, department identifiers are used instead of
+   *   the human-friendly ones.
+   */
+  public function department_names_get()
+  {
+    $department_names = array();
+    foreach ($this->departments_get() as $dept)
+      if (empty($this->department_names[$dept]))
+        $department_names[$dept] = $dept;
+      else
+        $department_names[$dept] = $this->department_names[$dept];
+    return $department_names;
   }
 
   /**

@@ -298,16 +298,43 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
 	      $departments = $semester->departments_get();
 	      sort($departments);
 
+	      /*
+	       * Create friendly department labels (like `MATH
+	       * (Mathematics)') if the crawler has given us that
+	       * data.
+	       */
+	      $has_department_names = FALSE;
+	      $department_names = array();
+	      foreach ($semester->department_names_get() as $dept => $dept_name)
+		{
+		  $department_names[] = array('value' => $dept, 'label' => $dept . ' (' . $dept_name . ')');
+		  if (!$has_department_names && strcmp($dept, $dept_name))
+		    $has_department_names = TRUE;
+		}
+
 	      $dept_file = fopen($cache_auto_school_semester_dir_name . '-depts', 'wb');
-	      fwrite($dept_file, serialize($departments));
+	      fwrite($dept_file, serialize($has_department_names ? $department_names : $departments));
 	      fclose($dept_file);
 
 	      /* now per-department autocomplete */
 	      foreach ($departments as $department)
 		{
 		  $classes = $semester->department_classes_get($department);
+		  $courses_json = array();
+		  foreach ($classes as $course_id)
+		    {
+		      $course = $semester->class_get($department, $course_id);
+		      $course_json = array(
+			'value' => $course->getName(),
+			'label' => $course->getName(),
+		      );
+		      if (strlen($course_title = $course->title_get()))
+			$course_json['label'] .= ' (' . $course_title . ')';
+		      $courses_json[] = $course_json;
+		    }
+
 		  $classes_file = fopen($cache_auto_school_semester_dir_name . $department . '.sects', 'wb');
-		  fwrite($classes_file, serialize($classes));
+		  fwrite($classes_file, serialize($courses_json));
 		  fclose($classes_file);
 
 		  /* now individual section informations, pre-JSON-ized */

@@ -89,11 +89,20 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
     }
     $departments = unserialize(file_get_contents($dept_file));
     $json_depts = array();
-    foreach ($departments as $key => $department) {
-      if (!strncmp($department, $dept, $dept_strlen)) {
-	$json_depts[] = $department;
+    if (!empty($departments) && is_array($departments[0]))
+      {
+	/* New format with department names/labels */
+	foreach ($departments as $department)
+	  if (!strncmp($department['value'], $dept, $dept_strlen))
+	    $json_depts[] = $department;
       }
-    }
+    else
+      {
+	/* Old format with just department id. */
+	foreach ($departments as $department)
+	  if (!strncmp($department, $dept, $dept_strlen))
+	    $json_depts[] = $department;
+      }
 
     echo json_encode($json_depts);
     exit(0);
@@ -139,11 +148,19 @@ if (file_exists($classes_file))
 
     /* reduce/create resultset */
     $json_classes = array();
-    foreach ($classes as $class)
-      if (!strncmp($class, $class_start, $class_start_strlen))
-	{
-	  $json_classes[] = $dept . '-' . $class;
-	}
+    if (!empty($classes) && is_array($classes[0]))
+      {
+	foreach ($classes as $course)
+	  if (!strncmp($course['value'], $class_start, $class_start_strlen))
+	    $json_classes[] = $course;
+      }
+    else
+      {
+	/* Old format with just course id. */
+	foreach ($classes as $class)
+	  if (!strncmp($class, $class_start, $class_start_strlen))
+	    $json_classes[] = $dept . '-' . $class;
+      }
 
     echo json_encode($json_classes);
     exit(0);
