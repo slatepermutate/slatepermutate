@@ -303,6 +303,7 @@ function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post =
   school_crawl_logf($school_crawl_log, 7, "school_crawl_geturi('%s').", $uri);
 
   $curl = curl_init();
+  curl_setopt($curl, CURLOPT_USERAGENT, SP_PACKAGE_NAME . '/' . SP_PACKAGE_VERSION);
 
   if ($curlsetup_hook !== NULL)
     $curlsetup_hook($curl);
