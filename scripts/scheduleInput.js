@@ -941,10 +941,10 @@ jQuery(document).ready(function() {
 	});
 
 	/* For the ``Select Semester'' page */
-	jQuery('.hysterical-show-a').click(function() {
-	    jQuery('.hysterical').show();
-	    jQuery('.hysterical-show').hide();
+	jQuery('.historical-show-a').click(function() {
+	    jQuery('.historical').show();
+	    jQuery('.historical-show').hide();
 	});
-	jQuery('.hysterical-show').show();
-	jQuery('.hysterical').hide();
+	jQuery('.historical-show').show();
+	jQuery('.historical').hide();
 });

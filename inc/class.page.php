@@ -535,10 +535,9 @@ class page
 
     $time = time();
     /**
-     * Hysterical... or historical? Uncle John Brink prefers
-     * ``hysterical''...
+     * Show the historical data. This doesn't seem useful, but it's here.
      */
-    $hysterical = FALSE;
+    $historical = FALSE;
 
     echo "    <p>\n";
     echo "      <ul>\n";
@@ -553,8 +552,8 @@ class page
 	  }
 	if ($semester['time_start'] > 36000 && $semester['time_start'] < ($time - 365*24*60*60))
 	  {
-	    $class_extra .= ' hysterical';
-	    $hysterical = TRUE;
+	    $class_extra .= ' historical';
+	    $historical = TRUE;
 	  }
 
 	if ($semester['time_start'] < $time && $semester['time_end'] > $time)
@@ -566,8 +565,8 @@ class page
 
 	echo '        <li class="semester' . $class_extra . '"><a href="' . $linkto . $semester['id'] . '">' . htmlentities($semester['name']) . '</a>' . $text_extra . "</li>\n";
       }
-    if ($hysterical)
-	echo '       <li style="display: none;" class="hysterical-show"><a class="hysterical-show-a" href="#">(Show hysterical semesters…)</a></li>' . PHP_EOL;
+    if ($historical)
+	echo '       <li style="display: none;" class="historical-show"><a class="historical-show-a" href="#">(Show historical semesters…)</a></li>' . PHP_EOL;
     echo "      </ul>\n";
     echo "    </p>\n";
   }
