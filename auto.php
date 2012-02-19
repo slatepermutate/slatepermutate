@@ -104,6 +104,25 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
 	    $json_depts[] = $department;
       }
 
+    /*
+     * If what the user has entered already can only be completed to a
+     * particular department, start displaying courses from that
+     * department instead of just returning that one department.
+     */
+    if (count($json_depts) == 1)
+      {
+	$dept = $json_depts[0];
+	if (!empty($dept['value']))
+	  $dept = $dept['value'];
+
+	page::redirect('auto.php' . page::query_string(array('term' => $dept . '-') + $_GET));
+      }
+
+    /*
+     * Multiple or no departments match the user's input. Perhaps
+     * in the future, if there are no matches we can backspace for
+     * the user...
+     */
     echo json_encode($json_depts);
     exit(0);
   }
