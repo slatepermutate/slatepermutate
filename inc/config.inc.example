@@ -42,6 +42,12 @@
 
 /**
  * \brief
+ *   Specify the base URI if Slate Permutate's auto-detection doesn't work.
+ */
+/* $base_uri = 'http://example.com/slate_permutate/'; */
+
+/**
+ * \brief
  *   Custom clean URLs for schedule sharing. $clean_urls must be enabled.
  * 
  * This string should be set to a valid base URL that is rewritten

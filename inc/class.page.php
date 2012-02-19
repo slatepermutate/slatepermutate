@@ -41,6 +41,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . dirname(dirname(__FILE__)
  * sense soon.
  */
 /* defaults */
+$base_uri = '';
 $clean_urls = FALSE;
 $ga_trackers = array();
 $ga_conversions = array();
@@ -697,7 +698,7 @@ class page
    */
   public static function uri_resolve($uri = '')
   {
-    static $base_uri = '';
+    global $base_uri;
 
     static $host = '';
     if (empty($host))
