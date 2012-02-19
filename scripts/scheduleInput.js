@@ -200,7 +200,8 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 	    section_html = section_html + genOptionHtml(etime, prettyTime(etime), etime);
     }
 
-    section_html = section_html + '</select></td>\
+    section_html = section_html + '</select></td>\n\
+<td class="cbrow"><input type="checkbox" title="Sunday" class="daysRequired" name="postData[' + cnum +'][' + snum + '][days][6]" value="1" ' + (days.u ? 'checked="checked"' : '') + ' /></td>\
 <td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][0]" value="1" ' + (days.m ? 'checked="checked"' : '') + ' /></td>\
 <td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][1]" value="1" ' + (days.t ? 'checked="checked"' : '') + ' /></td>\
 <td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][2]" value="1" ' + (days.w ? 'checked="checked"' : '') + ' /></td>\
@@ -244,7 +245,9 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
     section_tr.find('.section-type-entry').val(type);
 	section_tr.find('.section-credit-hours-entry').val(credit_hours);
 
-    /* unhide the saturday columns if it's used by autocomplete data */
+    /* unhide the saturday and sunday columns if they're used by autocomplete data */
+	if (days.u)
+		jQuery('#jsrows col.sunday').removeClass('collapsed');
     if (days.s)
 	jQuery('#jsrows col.saturday').removeClass('collapsed');
 
@@ -254,7 +257,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 }
 function add_section(cnum)
 {
-    var section_i = add_section_n(cnum, '', '', '', '', {m: false, t: false, w: false, h: false, f: false, s: false}, '', '', '', 'default', -1);
+    var section_i = add_section_n(cnum, '', '', '', '', {}, '', '', '', 'default', -1);
     if (cnum == slate_permutate_course_free)
 	course_free_check(cnum);
     return section_i;
@@ -340,7 +343,7 @@ function course_add_slot_row(course_i, slot_id)
     jQuery('tr.class' + course_i + ':last').after(
 	'<tr class="class' + course_i + ' tr-slot-id ' + safe_css_class('slot-' + slot_id) + extra_classes + '">\n' +
 	    '  <td><span /></td>\n' +
-	    '  <td colspan="10"><span class="slot-id-text" /></td>\n' +
+	    '  <td colspan="11"><span class="slot-id-text" /></td>\n' +
 	    '  <td colspan="2"><span /></td>\n' +
 	    '</tr>\n'
     );
@@ -385,7 +388,7 @@ function add_class_n(course_id, title)
 
     sectionsOfClass[classNum] = 0; // Initialize at 0
     course_ajax_requests[classNum] = false;
-    jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="10"><input type="text" name="postData[' + classNum + '][title]" class="inPlace inPlace-enable course-title-entry input-submit-disable" /><span class="course-credit-hours course-credit-hours-' + classNum + '"></span></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
+    jQuery('#jsrows').append('<tr id="tr-course-' + classNum + '" class="class class' + classNum + ' pclass' + classNum + '"><td class="nameTip"><input type="text" id="input-course-' + classNum + '" class="classRequired defText className'+classNum+' className" title="Class Name" name="postData[' + classNum + '][name]" /></td><td colspan="11"><input type="text" name="postData[' + classNum + '][title]" class="inPlace inPlace-enable course-title-entry input-submit-disable" /><span class="course-credit-hours course-credit-hours-' + classNum + '"></span></td><td class="tdInput"><div class="deleteClass"><input type="button" value="Remove" class="gray" /></div></td><td class="none"><button type="button" class="addSection gray">+</button></td></tr>');
 
 		/* store classNum as course_i into the <tr />: */
     var tr_course = jQuery('#tr-course-' + classNum);

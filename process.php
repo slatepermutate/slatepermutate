@@ -31,16 +31,16 @@ function arrayToDays($array, $mode = 'num', $pretty = false, $key = 1) {
 	switch($mode)
 	  {
 		case 'short':
-			$days = array('Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat');
+		  $days = array('Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun');
 			break;
 		case 'long':
-			$days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+		  $days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 			break;
 		case 'num':
-			$days = array('1','2','3','4','5');
+		  $days = array('1','2','3','4','5', '6');
 			break;
 	  case 'alpha':
-	    $days = array('m', 't', 'w', 'h', 'f', 's');
+	    $days = array('m', 't', 'w', 'h', 'f', 's', 'u');
 	    break;
 		default:
 			$outString = 'Invalid mode passed to arrayToDays()!';
@@ -55,13 +55,21 @@ function arrayToDays($array, $mode = 'num', $pretty = false, $key = 1) {
 					$outString .= ', ';
 			}
 		}
+		/*
+		 * Sunday is last in the array format (our input, the
+		 * array indices used on the input.php page) but first
+		 * in good/real formats:
+		 */
+		if (isset($array[$i]) && $array[$i] == $key)
+		    $outString = $days[$i] . ($pretty ? ', ' : '') . $outString;
+
 		if($pretty){
 			$outString = substr($outString,0,strlen($outString) - 2); // Remove last comma and space
 			$outString = substr($outString,0, strrpos( $outString, ' ')) . ' and' . substr($outString, strrpos( $outString, ' '), strlen($outString));
 		}
 	}
 	else {
-		for($i=0; $i < 6; $i++)
+		for($i=0; $i < 7; $i++)
 			if(isset($array[$i]))
 				$outString = $days[$i];
 	}

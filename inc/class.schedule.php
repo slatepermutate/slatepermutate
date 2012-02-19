@@ -538,7 +538,8 @@ class Schedule
 	 * Also, ensure that our $time array is big enough for all of
 	 * these courses.
 	 */
-	$max_day_plusone = 5;
+	$dayloop_max = 5;
+        $have_sunday = FALSE;
 	$have_saturday = FALSE;
 
 	$max_time = (int)max($time);
@@ -550,12 +551,11 @@ class Schedule
 	    for ($si = 0; $si < $course_slot->sections_count(); $si ++)
               foreach ($course_slot->section_get_i($si)->getMeetings() as $meeting)
 		{
-		  /* Saturdayness */
+		  /* Sundayness and Saturdayness */
+                  if ($meeting->getDay(6))
+                    $have_sunday = TRUE;
 		  if ($meeting->getDay(5))
-		    {
-		      $max_day_plusone = 6;
-		      $have_saturday = TRUE;
-		    }
+                    $have_saturday = TRUE;
 
 		  /* very late / very early classes */
 		  while ((int)ltrim($meeting->getEndTime(), '0') > $max_time)
@@ -579,6 +579,9 @@ class Schedule
 	/* ensure that early times are actually first ;-) */
 	if ($sort_time)
 	  sort($time);
+
+        if ($have_saturday)
+          $dayloop_max = 6;
 
         echo '    <div id="regDialog" title="Registration Codes">' . PHP_EOL
 	  . '      <div id="regDialog-content"></div>' . PHP_EOL
@@ -679,8 +682,10 @@ class Schedule
 				
 	    // Header row
 	    echo "          <tr>\n"
-	      . '            <td class="none permuteNum">' . ($i + 1) . "</td>\n"
-	      . "            <td class=\"day\">Monday</td>\n"
+              . '            <td class="none permuteNum">' . ($i + 1) . "</td>\n";
+            if ($have_sunday)
+              echo '            <td class="day">Sunday</td>' . PHP_EOL;
+            echo "            <td class=\"day\">Monday</td>\n"
 	      . "            <td class=\"day\">Tuesday</td>\n"
 	      . "            <td class=\"day\">Wednesday</td>\n"
 	      . "            <td class=\"day\">Thursday</td>\n"
@@ -690,16 +695,23 @@ class Schedule
 	    echo "          </tr>\n";
 
 	    $last_meeting = array();
-	    $rowspan = array(0, 0, 0, 0, 0, 0);
+	    $rowspan = array(0, 0, 0, 0, 0, 0, 0);
 	    for($r = 0; $r < (count($time)-1); $r++)
 	      {
 
 		echo "          <tr>\n"
 		  . "            <td class=\"time\">" . $this->prettyTime($time[$r]) . "</td>\n";
 
-		/* currently, 0-5 = monday-saturday */
-		for($dayLoop = 0; $dayLoop < $max_day_plusone; $dayLoop++)
+		/*
+                 * Currently, 6, 0-5 = sunday, monday-saturday. We use
+                 * the trick that -1 through 5 mod 7 is
+                 * sunday-saturday.
+                 */
+		for($dayLoop = $have_sunday ? -1 : 0; $dayLoop < $dayloop_max; $dayLoop = ($dayLoop + 1) % 7)
 		{
+                  if ($dayLoop < 0)
+                    $dayLoop = 6;
+
 		  /* Makes sure there is not a class already in progress */
 		  if($rowspan[$dayLoop] <= 0)
 		    {

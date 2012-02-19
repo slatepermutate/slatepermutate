@@ -165,14 +165,14 @@ function school_crawl_gmmktime(array $tm, $timezone_offset = 0)
  *   simplicity. One-char representations are supported, however, but
  *   use 'm', 't', 'w', 'h', 'f' to distinguish Thursday and
  *   Tuesday. 'r' may also be used for Thursday.). Case does not
- *   matter. 's' is for Saturday, based on CCBCMD.
+ *   matter. 's' is for Saturday, based on CCBCMD. 'u' is for Sunday.
  * \return
  *   slate_permutate's strange internal days representation.
  */
 function school_crawl_days_format(array $school_crawl_log, $days)
 {
-  static $daymap_1 = array('m' => 'm', 't' => 't', 'w' => 'w', 'h' => 'h', 'r' => 'h', 'f' => 'f', 's' => 's');
-  static $daymap_2 = array('th' => 'h');
+  static $daymap_1 = array('u' => 'u', 'm' => 'm', 't' => 't', 'w' => 'w', 'h' => 'h', 'r' => 'h', 'f' => 'f', 's' => 's');
+  static $daymap_2 = array('su' => 'u', 'th' => 'h');
 
   $my_days = array();
   foreach ($days as $day)

@@ -313,6 +313,7 @@ $inputPage->showSavedScheds($_SESSION);
 	  <col />
 	  <col />
 	  <col />
+	  <col class="sunday<?php if (school_has_auto($inputPage->get_school())) echo ' collapsed';?>" />
 	  <col />
 	  <col />
 	  <col />
@@ -329,12 +330,13 @@ $inputPage->showSavedScheds($_SESSION);
           <td class="center">Prof</td>
           <td class="center">Start Time</td>
           <td class="center">End Time</td>
+	  <td class="center">Su</td>
           <td class="center">M</td>
           <td class="center">Tu</td>
           <td class="center">W</td>
           <td class="center">Th</td>
           <td class="center">F</td>
-	  <td class="center">S</td>
+	  <td class="center">Sa</td>
           <td class="center"></td>
           <td class="center"></td>
         </tr>
@@ -381,7 +383,8 @@ function input_course_js(Course $course, $whitespace = '  ')
 	    . json_encode($section->getSynonym()) . ', '
 	    . json_encode($meeting->getStartTime()) . ', '
 	    . json_encode($meeting->getEndTime()) . ', '
-	    . json_encode(array('m' => $meeting->getDay(0), 't' => $meeting->getDay(1), 'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4),
+	    . json_encode(array('u' => $meeting->getDay(6), 'm' => $meeting->getDay(0), 't' => $meeting->getDay(1),
+				'w' => $meeting->getDay(2), 'h' => $meeting->getDay(3), 'f' => $meeting->getDay(4),
 				's' => $meeting->getDay(5))) . ', '
 	    . json_encode($meeting->instructor_get()) . ', '
 	    . json_encode($meeting->getLocation()) . ', '

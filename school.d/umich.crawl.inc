@@ -165,7 +165,7 @@ function umich_crawl_semester(array $school, Semester $semester, &$school_crawl_
 		  'TH' => FALSE,
 		  'F' => FALSE,
 		  'S' => FALSE,
-		  'SU' => FALSE /* OK, we'll have to add Sunday support someday ;-) */,
+		  'SU' => FALSE,
 		  'Start Date' => FALSE /* yea! */,
 		  'End Date' => FALSE /* "12/13/2011" */,
 		  'Time' => FALSE /* "1230-130PM", "9-1030AM", "1130-1PM" */,
@@ -174,12 +174,11 @@ function umich_crawl_semester(array $school, Semester $semester, &$school_crawl_
 		  'Units' => FALSE /* As in credit hours */,
 		  );
   $ignored_fields = array(
-			  'Term' => TRUE,
-			  'Session' => TRUE,
-			  'Acad Group' => TRUE,
-			  'Codes' => TRUE,
-			  'SU' => TRUE,
-			  );
+    'Term' => TRUE,
+    'Session' => TRUE,
+    'Acad Group' => TRUE,
+    'Codes' => TRUE,
+  );
 
   foreach (str_getcsv($csv[0]) as $col_num => $col_name)
     if (isset($fields[$col_name]))
@@ -229,7 +228,7 @@ function umich_crawl_semester(array $school, Semester $semester, &$school_crawl_
       $credit_hours = (float)$row[$fields['Units']];
 
       $days = '';
-      foreach (array('M' => 'm', 'T' => 't', 'W' => 'w', 'TH' => 'h', 'F' => 'f', 'S' => 's')
+      foreach (array('SU' => 'u', 'M' => 'm', 'T' => 't', 'W' => 'w', 'TH' => 'h', 'F' => 'f', 'S' => 's')
 	       as $field => $day)
 	if (strlen(trim($row[$fields[$field]])))
 	  $days .= $day;

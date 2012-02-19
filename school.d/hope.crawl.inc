@@ -291,6 +291,8 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
 	    }
 	}
 
+      if (trim($section_csv[$fields['U']]))
+	school_crawl_logf($school_crawl_log, 0, "Section %d has sunday.", $synonym);
       $days = school_crawl_days_format($school_crawl_log, array_filter(array_slice($section_csv, $fields['M'], 7), '_hope_crawl_days_filter'));
       list($time_start, $time_end) = explode('-', $section_csv[$fields['Times']]);
       if (strlen($time_start) != 4 || strlen($time_end) != 4)

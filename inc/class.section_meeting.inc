@@ -46,9 +46,10 @@ class SectionMeeting
    *   Construct a SectionMeeting.
    *
    * \param $days
-   *   A string of single-char day upon which a section meets. Monday
-   *   is represented with 'm', Tuesday with 't', Wednesday with 'w',
-   *   Thursday with 'h', and Friday with 'f'.
+   *   A string of single-char day upon which a section meets. Sunday
+   *   is represented with 'u', Monday with 'm', Tuesday with 't',
+   *   Wednesday with 'w', Thursday with 'h', Friday with 'f', and
+   *   Saturday with 's'.
    * \param $time_start
    *   The time of day when the section meeting starts. Use
    *   school_crawl_time_format() or ensure that the time is formatted
@@ -83,11 +84,12 @@ class SectionMeeting
    *
    * \param $days_str
    *   The days of the week in a string format. One char per
-   *   day. Mon-Sat is represented with 'm', 't', 'w', 'h', 'f', 's'.
+   *   day. Sun-Sat is represented with 'u', 'm', 't', 'w', 'h', 'f',
+   *   's'.
    */
   private function days_set($days_str)
   {
-    $this->days = array(0 => FALSE, 1 => FALSE, 2 => FALSE, 3 => FALSE, 4 => FALSE, 5 => FALSE);
+    $this->days = array(0 => FALSE, 1 => FALSE, 2 => FALSE, 3 => FALSE, 4 => FALSE, 5 => FALSE, 6 => FALSE);
 
     $days_str_strlen = strlen($days_str);
     for ($i = 0; $i < $days_str_strlen; $i ++)
@@ -102,9 +104,11 @@ class SectionMeeting
    */
   private static function day_atoi($day_c)
   {
-    static $day_atoi = array('m' => 0, 't' => 1, 'w' => 2, 'h' => 3, 'f' => 4, 's' => 5,
-			     'M' => 0, 'T' => 1, 'W' => 2, 'H' => 3, 'F' => 4, 'S' => 5,
-			      0  => 0,  1  => 1,  2  => 2,  3  => 3,  4  => 4,  5  => 5);
+    static $day_atoi = array(
+      'm' => 0, 't' => 1, 'w' => 2, 'h' => 3, 'f' => 4, 's' => 5, 'u' => 6,
+      'M' => 0, 'T' => 1, 'W' => 2, 'H' => 3, 'F' => 4, 'S' => 5, 'U' => 6,
+      0  => 0,  1  => 1,  2  => 2,  3  => 3,  4  => 4,  5  => 5, 6 => 6,
+    );
 
     return $day_atoi[$day_c];
   }
@@ -218,7 +222,7 @@ class SectionMeeting
      * times. But if they don't both meet on the same day at least
      * once, they don't conflict.
      */
-    for ($day = 0; $day < 6; $day ++)
+    for ($day = 0; $day < 7; $day ++)
       {
 	if ($this->getDay($day) && $that->getDay($day))
 	  return TRUE;
@@ -242,7 +246,7 @@ class SectionMeeting
    */
   public function to_json_array()
   {
-    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f', 5 => 's');
+    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f', 5 => 's', 6 => 'u');
 
     $json_array = array(
 			'time_start' => $this->time_start,
@@ -253,7 +257,7 @@ class SectionMeeting
 			'type' => $this->type,
 			);
 
-    for ($day = 0; $day < 6; $day ++)
+    for ($day = 0; $day < 7; $day ++)
       $json_array['days'][$daymap[$day]] = $this->getDay($day);
 
     return $json_array;
