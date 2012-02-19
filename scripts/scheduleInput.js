@@ -207,7 +207,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 <td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][3]" value="1" ' + (days.h ? 'checked="checked"' : '') + ' /></td>\
 <td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][4]" value="1" ' + (days.f ? 'checked="checked"' : '') + ' /></td>\
 <td class="cbrow"><input type="checkbox" class="daysRequired" name="postData[' + cnum + '][' + snum + '][days][5]" value="1" ' + (days.s ? 'checked="checked"' : '') + ' /></td>' +
-	'<td class="removeCell"><div class="deleteSection"><input type="button" value="x" class="gray" /></div></td><td class="emptyCell">' +
+	'<td class="removeCell"><div><button class="gray section-meeting-delete">x</button></div></td><td class="emptyCell">' +
 	'<input class="section-location-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][location]" />' +
 	'<input class="section-type-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][type]" />' +
 		'<input class="section-credit-hours-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][credit_hours]" />' +
@@ -817,31 +817,17 @@ jQuery(document).ready(function() {
 	    return false;
 	});
 
-	//--------------------------------------------------
-	// Deletes the selected section from the input
-	//--------------------------------------------------
-	jQuery('.deleteSection').live('click', function() {
-	  // Decreases the total number of classes
-		var course_i = jQuery(this).parent().parent().data('course_i');
-
-	  // Find the ID cell of the row we're in
-	  var row = jQuery(this).parent().parent().find(".sectionIdentifier");
-
-	  // The first input is the one containing the section ID
-	  var toMatch = jQuery(row).find("input").val();
-	    
-	  // This gets the second class of the row, "class#"
-	  var classClass = "." + jQuery(row).parent().attr("class").split(" ")[1];
-
-	  // Iterate over each section of this class
-	  jQuery(classClass).each( function() {
-	    // If this section has the same course ID as the item clicked, remove it.
-		  if(jQuery(this).find("input").val() == toMatch) {
-			  jQuery(this).remove();
-			  sectionsOfClass[course_i]--;
-	      }
-	  });
-	  course_free_check(course_i);
+	/**
+	 * \brief
+	 *   Delete the selected section from the input
+	 */
+	jQuery('.section-meeting-delete').live('click', function() {
+		var section_tr = jQuery(this).parents('.section').first();
+		var course_i = section_tr.data('course_i');
+		section_tr.remove();
+		/* section meeting accounting. */
+		sectionsOfClass[course_i]--;
+		course_free_check(course_i);
 	});
 
 	jQuery('.className').live('change', course_free_check).live('keyup', course_free_check);
