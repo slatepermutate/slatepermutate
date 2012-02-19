@@ -336,11 +336,7 @@ class page
     if (!empty($query))
       {
 	ksort($query);
-	$query_members = array();
-	foreach ($query as $key => $value)
-	  $query_members[] = rawurlencode($key) . '=' . rawurlencode($value);
-	$query_string = implode('&', $query_members);
-	$uri_full .= '?' . $query_string;
+	$uri_full .= self::query_string($query);
       }
 
     /* Detect if we are at the canonical location or not... */
@@ -736,6 +732,34 @@ class page
       return './';
 
     return $base_uri . $uri;
+  }
+
+  /**
+   * \brief
+   *   Form a query string from a map.
+   *
+   * \param $query
+   *   The map of keys onto values to form into a querystring.
+   * \param $question
+   *   Include the question mark which delimits the querystring in a
+   *   URI.
+   * \return
+   *   A querystring suitable for appending to a URI. Includes the `?'
+   *   by default.
+   */
+  public static function query_string(array $query, $question = TRUE)
+  {
+    $query_string_parts = array();
+    foreach ($query as $param => $values)
+      {
+	if (!is_array($values))
+	  $values = array($values);
+	foreach ($values as $value)
+	  $query_string_parts[] = rawurlencode($param) . '=' . rawurlencode($value);
+      }
+    if (count($query_string_parts))
+      return ($question ? '?' : '') . implode('&', $query_string_parts);
+    return '';
   }
 
   /**
