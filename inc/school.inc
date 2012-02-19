@@ -128,14 +128,17 @@ function school_load($school_id, $load_all_inc = FALSE)
  *   side-effect. We're doing this so that the user can do
  *   autocomplete for two different school/semester pairs in two
  *   different browser tabs under the same session.
- *
+ * \param $pure_guess
+ *   Ignore $_SESSION and $_REQUEST. Used for informing the browser of
+ *   what we would guess if his session/URI did not predispose us
+ *   toward something else.
  * \return
  *   A school profile or NULL if the school isn't in the session and
  *   can't be guessed.
  */
-function school_load_guess($update_session = TRUE)
+function school_load_guess($update_session = TRUE, $pure_guess = FALSE)
 {
-  if (isset($_REQUEST['school']))
+  if (isset($_REQUEST['school']) && !$pure_guess)
     {
       $school = school_load($_REQUEST['school']);
       if ($school)
@@ -147,7 +150,7 @@ function school_load_guess($update_session = TRUE)
     }
 
   /* assume that we stored a valid school in the $_SESSION */
-  if (isset($_SESSION['school']))
+  if (isset($_SESSION['school']) && !$pure_guess)
     return school_load($_SESSION['school']);
 
   if (isset($_SERVER['REMOTE_HOST']) || isset($_SERVER['REMOTE_ADDR']))
@@ -241,14 +244,28 @@ function school_list_html($highlight = NULL, $linkto = NULL)
   $linkto .= 'school=';
   $linkto = htmlentities($linkto);
 
+  $pure_guess = school_load_guess(FALSE, TRUE);
+
   $html = "<ul>\n";
   foreach ($school_list as $school_id => $school_info)
     {
+      $attributes = array();
       $class_highlight = '';
       if ($school_id == $highlight)
-	$class_highlight = ' highlight';
+	{
+	  $class_highlight = ' highlight';
+	  $attributes[] = 'current';
+	}
+      if ($school_id == $pure_guess['id'])
+	{
+	  $class_highlight .= ' detected';
+	  $attributes[] = 'detected';
+	}
       $html .= '<li class="school' . $class_highlight . '"><a href="' . $linkto . $school_id . '">'
-	. htmlentities($school_info['name']) . "</a></li>\n";
+	. htmlentities($school_info['name']) . '</a>';
+      if (!empty($attributes))
+	$html .= ' [' . implode(', ', $attributes) . ']';
+      $html .= "</li>\n";
     }
   $html .= "</ul>\n";
 
