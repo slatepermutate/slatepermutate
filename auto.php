@@ -144,12 +144,13 @@ if (file_exists($classes_file))
     $class_start = '';
     if (count($term_parts) > 1)
       $class_start = $term_parts['course'];
-    $class_start_strlen = strlen($class_start);
 
     /* reduce/create resultset */
     $json_classes = array();
     if (!empty($classes) && is_array($classes[0]))
       {
+	$class_start = $dept . '-' . $class_start;
+	$class_start_strlen = strlen($class_start);
 	foreach ($classes as $course)
 	  if (!strncmp($course['value'], $class_start, $class_start_strlen))
 	    $json_classes[] = $course;
@@ -157,6 +158,7 @@ if (file_exists($classes_file))
     else
       {
 	/* Old format with just course id. */
+	$class_start_strlen = strlen($class_start);
 	foreach ($classes as $class)
 	  if (!strncmp($class, $class_start, $class_start_strlen))
 	    $json_classes[] = $dept . '-' . $class;
