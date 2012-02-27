@@ -645,13 +645,18 @@ class page
    * Used to make sure that different areas of our code don't call
    * session_start() multiple times and to make it easier to ensure
    * that session_start() is called at least before it's needed.
+   *
+   * \param $cache_limiter
+   *   Specify the sort of session-related cache limitation is used,
+   *   see session_cache_limiter().
    */
-  public static function session_start()
+  public static function session_start($cache_limiter = 'nocache')
   {
     static $session_started = FALSE;
 
     if (!$session_started)
       {
+	session_cache_limiter($cache_limiter);
 	session_name('slate_permutate');
 	session_start();
 	$session_started = TRUE;

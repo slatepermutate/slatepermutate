@@ -35,7 +35,26 @@ require_once('inc/school.inc');
 require_once('inc/class.page.php');
 require_once('inc/class.course.inc');
 
-page::session_start();
+/*
+ * Set the Expires and Cache-Control headers -- only if we're getting
+ * a request which does not rely on the contents of $_SESSION.
+ */
+if (!empty($_GET['school']) && !empty($_GET['semester']))
+  {
+    header('Expires: ' . gmdate(DATE_RFC1123, time() + 600));
+    header('Cache-Control: max-age=600, public');
+    $cache_limiter = 'public';
+  }
+else
+  {
+    /*
+     * Tell the caches that the user's cookies affect the cacheability
+     * since the user did not specify the current semester/school.
+     */
+    header('Vary: Cookie');
+    $cache_limiter = 'private';
+  }
+page::session_start($cache_limiter);
 
 if (isset($_REQUEST['txt'])) {
   header('Content-Type: text/plain; encoding=utf-8');
@@ -88,6 +107,9 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
       clean_empty_exit();
     }
     $departments = unserialize(file_get_contents($dept_file));
+    $departments_mtime = filemtime($dept_file);
+    if ($departments_mtime)
+      header('Last-Modified: ' . gmdate(DATE_RFC1123, $departments_mtime));
     $json_depts = array();
     if (!empty($departments) && is_array($departments[0]))
       {
