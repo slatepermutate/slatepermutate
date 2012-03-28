@@ -586,12 +586,15 @@ function school_crawl_url($orig_url, $url)
    * qualified URL. It falls back to the original URL if it fails to
    * match.
    */
-  foreach (array($url, $orig_url) as $aurl)
+  foreach (array($orig_url, $url) as $aurl)
     if (preg_match(';^(https?)://([^/]+)(/.*)$;', $aurl, $matches))
       {
-	$new_url['schema'] = $matches[1];
-	$new_url['hostname'] = $matches[2];
-	$new_url['path'] = $matches[3];
+	if (!empty($matches[1]))
+	  $new_url['schema'] = $matches[1];
+	if (!empty($matches[2]))
+	  $new_url['hostname'] = $matches[2];
+	if (!empty($matches[3]))
+	  $new_url['path'] = $matches[3];
       }
 
   /* check if we have an absolute relative path */
