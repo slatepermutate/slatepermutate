@@ -23,8 +23,10 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.section_meeting.in
 /**
  * \brief
  *   Represent a Section associated with a Course.
+ *
+ * Iterating over a Section yields section_SectionMeeting objects.
  */
-class Section
+class Section implements IteratorAggregate
 {
 
   private $letter;	// Section letter
@@ -68,6 +70,15 @@ class Section
     $this->meetings = $section_meetings;
     $this->synonym = $synonym;
     $this->credit_hours = (float)$credit_hours;
+  }
+
+  /**
+   * \brief
+   *   Implements the IteratorAggregate interface.
+   */
+  public function getIterator()
+  {
+    return new ArrayIterator($this->meetings);
   }
 
   public function getLetter()

@@ -35,7 +35,9 @@
  */
 class SectionMeeting
 {
+  private $date_start;
   private $time_start;
+  private $date_end;
   private $time_end;
   private $days;
   private $location;
@@ -64,12 +66,21 @@ class SectionMeeting
    *   school's notation.
    * \param $instructor
    *   The instructor for this section meeting.
+   * \param $date_start
+   *   A timestamp marking some time prior to the first occurence of
+   *   the section_meeting.
+   * \param $date_end
+   *   A timestamp marking some time after the end of the last
+   *   occurence of this section_meeting.
    */
-  public function __construct($days, $time_start, $time_end, $location = NULL, $type = 'lecture', $instructor = NULL)
+  public function __construct($days, $time_start, $time_end, $location = NULL, $type = 'lecture', $instructor = NULL, $date_start = NULL, $date_end = NULL)
   {
     $this->days_set($days);
 
+
+    $this->date_start = empty($date_start) ? NULL : (int)$date_start;
     $this->time_start = $time_start;
+    $this->date_end = empty($date_end) ? NULL : (int)$date_end;
     $this->time_end = $time_end;
 
     $this->location = $location;
@@ -197,6 +208,26 @@ class SectionMeeting
 
   /**
    * \brief
+   *   Return the unix timestamp of a time prior to the first section
+   *   meeting or NULL if unknown.
+   */
+  public function date_start_get()
+  {
+    return empty($this->date_start) ? NULL : $this->date_start;
+  }
+
+  /**
+   * \brief
+   *   Return the unix timestamp of a time after the last section
+   *   meeting or NULL if unknown.
+   */
+  public function date_end_get()
+  {
+    return empty($this->date_end) ? NULL : $this->date_end;
+  }
+
+  /**
+   * \brief
    *   Check if this section conflicts with the given section.
    *
    * \param $that
@@ -249,7 +280,9 @@ class SectionMeeting
     static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f', 5 => 's', 6 => 'u');
 
     $json_array = array(
-			'time_start' => $this->time_start,
+      'date_start' => empty($this->date_start) ? NULL : $this->date_start,
+      			'time_start' => $this->time_start,
+      'date_end' => empty($this->date_end) ? NULL : $this->date_end,
 			'time_end' => $this->time_end,
 			'days' => array(),
 			'location' => $this->location,
@@ -274,10 +307,13 @@ class SectionMeeting
    */
   public static function from_json_array(array $json_array)
   {
+    $json_array += array('date_start' => NULL, 'date_end' => NULL);
     $days = '';
     foreach ($json_array['days'] as $day => $meets)
       if ($meets)
 	$days .= $day;
-    return new SectionMeeting($days, $json_array['time_start'], $json_array['time_end'], $json_array['location'], $json_array['type'], $json_array['instructor']);
+    return new SectionMeeting($days, $json_array['time_start'], $json_array['time_end'],
+			      $json_array['location'], $json_array['type'], $json_array['instructor'],
+			      $json_array['date_start'], $json_array['date_end']);
   }
 }

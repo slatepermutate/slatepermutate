@@ -17,9 +17,12 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-    //--------------------------------------------------
-    // General Notes
-    //--------------------------------------------------
+/**
+ * \file
+ *
+ * If you are reading this file, you may be interested in contributing
+ * to slate_permutate. Please see http://ohnopub.net/w/SlatePermutate .
+ */
 
 /**
  * \brief
@@ -127,7 +130,7 @@ function addTips()
  * \brief
  *   Add a section to a class.
  */
-function add_section_n(cnum, name, synonym, stime, etime, days, instructor, location, type, slot, credit_hours)
+function add_section_n(cnum, name, synonym, stime, etime, days, instructor, location, type, slot, credit_hours, date_start, date_end)
 {
     var snum = last_section_i ++;
     var cssclasses = 'section class' + cnum + ' ' + safe_css_class('slot-' + slot);
@@ -212,6 +215,8 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 	'<input class="section-location-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][location]" />' +
 	'<input class="section-type-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][type]" />' +
 		'<input class="section-credit-hours-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][credit_hours]" />' +
+		'<input class="section-date-start-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][date_start]" />' +
+		'<input class="section-date-end-entry" type="hidden" name="postData[' + cnum + '][' + snum + '][date_end]" />' +
 	'</td></tr>';
 
     /*
@@ -244,6 +249,8 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
     section_tr.find('.section-location-entry').val(location);
     section_tr.find('.section-type-entry').val(type);
 	section_tr.find('.section-credit-hours-entry').val(credit_hours);
+	section_tr.find('.section-date-start-entry').val(date_start);
+	section_tr.find('.section-date-end-entry').val(date_end);
 
     /* unhide the saturday and sunday columns if they're used by autocomplete data */
 	if (days.u)
@@ -257,7 +264,7 @@ function add_section_n(cnum, name, synonym, stime, etime, days, instructor, loca
 }
 function add_section(cnum)
 {
-    var section_i = add_section_n(cnum, '', '', '', '', {}, '', '', '', 'default', -1);
+    var section_i = add_section_n(cnum, '', '', '', '', {}, '', '', '', 'default', -1, null, null);
     if (cnum == slate_permutate_course_free)
 	course_free_check(cnum);
     return section_i;
@@ -292,8 +299,15 @@ function add_sections(cnum, data)
 			section.slot = 'default';
 			if (section.credit_hours === undefined)
 				section.credit_hours = -1;
+			if (section.date_start === undefined)
+			{
+				section.date_start = null;
+				section.date_end = null;
+			}
 
-		    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end, section.days, section.instructor, section.location, section.type, section.slot, section.credit_hours);
+		    add_section_n(cnum, section.section, section.synonym, section.time_start, section.time_end,
+						  section.days, section.instructor, section.location, section.type, section.slot,
+						  section.credit_hours, section.date_start, section.date_end);
 		});
 
     /*

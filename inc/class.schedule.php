@@ -189,7 +189,7 @@ class Schedule
    *   NULL on success, a string on error which is a message for the
    *   user and a valid XHTML fragment.
    */
-  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $instructor = NULL, $location = NULL, $type = 'lecture', $slot = 'default', $credit_hours = -1.0)
+  function addSection($course_name, $letter, $time_start, $time_end, $days, $synonym = NULL, $instructor = NULL, $location = NULL, $type = 'lecture', $slot = 'default', $credit_hours = -1.0, $date_start = NULL, $date_end = NULL)
   {
     if (empty($letter) && (empty($time_start) || !strcmp($time_start, 'none')) && (empty($time_end) || !strcmp($time_end, 'none')) && empty($days)
 	&& empty($synonym) && empty($instructor) && empty($location) && (empty($type) || !strcmp($type, 'lecture'))
@@ -209,6 +209,15 @@ class Schedule
         return 'Invalid credit-hour specification of <tt>' . htmlentities($credit_hours) . '</tt> for ' . htmlentities($course_name) . '-' . htmlentities($letter) . '. Please use a floating point number or do not enter anything if the number of credit hours is not known.';
       }
 
+    if (empty($date_start) != empty($date_end)
+        || !empty($date_start) && !is_numeric($date_start)
+        || !empty($date_end) && !is_numeric($date_end))
+      {
+        return 'Invalid date range specification of <tt>' . htmlentities($date_start, ENT_QUOTES)
+          . '</tt> through <tt>' . htmlentities($date_end, ENT_QUOTES)
+          . '</tt>. Was expecting two valid unix timestamps or two empty values.';
+      }
+
     foreach ($this->courses as $course)
       if (!strcmp($course_name, $course->getName()))
 	{
@@ -218,7 +227,7 @@ class Schedule
               $section = new Section($letter, array(), $synonym, $credit_hours);
 	      $course->section_add($section, $slot);
 	    }
-	  $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type, $instructor));
+	  $section->meeting_add(new SectionMeeting($days, $time_start, $time_end, $location, $type, $instructor, $date_start, $date_end));
 
 	  return;
 	}

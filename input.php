@@ -154,7 +154,9 @@ elseif ($errors_fix)
 		. json_encode($section['location']) . ', '
 		. json_encode($section['type']) . ', '
 		. json_encode($section['slot']) . ', '
-		. json_encode(isset($section['credit_hours']) ? $section['credit_hours'] : -1) . ');' . PHP_EOL;
+		. json_encode(isset($section['credit_hours']) ? $section['credit_hours'] : -1) . ', '
+		. json_encode(empty($section['date_start']) ? NULL : $section['date_start']) . ', '
+		. json_encode(empty($section['date_end']) ? NULL : $section['date_end']) . ');' . PHP_EOL;
 	  $my_hc .= PHP_EOL;
 	}
   }

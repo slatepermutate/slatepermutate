@@ -274,32 +274,31 @@ function umich_crawl_semester(array $school, Semester $semester, &$school_crawl_
 	if (strlen($curr_value = trim($row[$fields[$key]])))
 	  $row_accumulation[$key] = $curr_value;
 
-      $semester->section_meeting_add($dept, $course_id, trim($row[$fields['Course Title']]),
-				     trim($row[$fields['Section']]), $synonym,
-				     new SectionMeeting($days, $time_start, $time_end,
-							trim($row[$fields['Location']]),
-							$meeting_type,
-							$row_accumulation['Instructor']),
-				     $meeting_type,
-				     $credit_hours);
-
       /*
-       * If the section so far passed as being a normal section, use
-       * its start and end dates to help determine the semester's
-       * respective start and end dates.
+       * Grab start/stop dates.
        */
+      $date_start = $date_end = NULL;
       $date_start_tm = strptime(trim($row[$fields['Start Date']]), '%m/%d/%Y');
       $date_end_tm = strptime(trim($row[$fields['End Date']]), '%m/%d/%Y');
       if (!empty($date_start_tm) && !empty($date_end_tm))
 	{
 	  $date_start = school_crawl_gmmktime($date_start_tm);
 	  $date_end = school_crawl_gmmktime($date_end_tm);
-	  if ($date_start > 1000000 && $date_end > 1000000)
+	  if ($date_start < 1000000 || $date_end < 1000000)
 	    {
-	      $semester->time_start_set_test($date_start);
-	      $semester->time_end_set_test($date_end);
+	      $date_start = $date_end = NULL;
 	    }
 	}
+
+      $semester->section_meeting_add($dept, $course_id, trim($row[$fields['Course Title']]),
+				     trim($row[$fields['Section']]), $synonym,
+				     new SectionMeeting($days, $time_start, $time_end,
+							trim($row[$fields['Location']]),
+							$meeting_type,
+							$row_accumulation['Instructor'],
+							$date_start, $date_end),
+				     $meeting_type,
+				     $credit_hours);
     }
 }
 
