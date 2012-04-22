@@ -554,6 +554,37 @@ function test()
   $n += assert_equal('csv_partial', school_crawl_csv_parse($csv_partial), array(array('1', '2')));
   $n += assert_equal('csv_partial_buffer', $csv_partial, '3');
 
+  $section_meeting_a = new SectionMeeting('mwf', '1900', '1950', NULL, 'lecture', NULL, 1335063574 /* 2012-04-22 (sat) */, 1348282798 /* bit after 2012-09-21 (fri) */);
+  $n += assert_equal('date_start_get+mon', $section_meeting_a->date_start_get(), 1335207600);
+  $n += assert_equal('date_end_get+fri', $section_meeting_a->date_end_get(), 1348257000);
+
+  $section_meeting_b = new SectionMeeting('mwf', '1900', '1950', NULL, 'lecture', NULL, 1335495574 /* 2012-04-27 (thur) */, 1348109998 /* bit after 2012-09-19 (wed) */);
+  $n += assert_equal('date_start_get+thur', $section_meeting_b->date_start_get(), 1335553200);
+  $n += assert_equal('date_end_get+wed', $section_meeting_b->date_end_get(), 1348084200);
+
+  /* The two section meetings above should overlap */
+  $n += assert_equal('section_meeting_collide', $section_meeting_a->conflictsWith($section_meeting_b), TRUE);
+
+  /*
+   * A third section meeting has the same time of day but starts the
+   * day after secftion_meeting_b:
+   */
+  $section_meeting_c = new SectionMeeting('mwf', '1900', '1950', NULL, 'lecture', NULL, 1348109998 /* bit after 2012-09-19 (wed) */, 1354406400 /* bit after 2012-12-01 (wed) */);
+  $n += assert_equal('section_meeting_collide_a', $section_meeting_a->conflictsWith($section_meeting_c), TRUE);
+  $n += assert_equal('section_meeting_no_collide_b', $section_meeting_b->conflictsWith($section_meeting_c), FALSE);
+
+  /*
+   * If a section meeting doesn't specify an absolute start/end time,
+   * it must always conflict.
+   */
+  $section_meeting_d = new SectionMeeting('mwf', '1900', '1950');
+  $n += assert_equal('section_meeting_collide_d_a', $section_meeting_d->conflictsWith($section_meeting_a), TRUE);
+  $n += assert_equal('section_meeting_collide_a_d', $section_meeting_a->conflictsWith($section_meeting_d), TRUE);
+  $n += assert_equal('section_meeting_collide_d_b', $section_meeting_d->conflictsWith($section_meeting_b), TRUE);
+  $n += assert_equal('section_meeting_collide_b_d', $section_meeting_b->conflictsWith($section_meeting_d), TRUE);
+  $n += assert_equal('section_meeting_collide_d_c', $section_meeting_d->conflictsWith($section_meeting_c), TRUE);
+  $n += assert_equal('section_meeting_collide_c_b', $section_meeting_c->conflictsWith($section_meeting_d), TRUE);
+
   return $n;
 }
 

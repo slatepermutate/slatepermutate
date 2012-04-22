@@ -1,4 +1,4 @@
-<?php /* -*- mode: php; -*- */
+<?php /* -*- mode: php; indent-tabs-mode: nil; -*- */
 /*
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
  *
@@ -42,6 +42,19 @@ class SectionMeeting
   private $days;
   private $location;
   private $instructor;
+
+  /**
+   * \brief
+   *   Cache some calculations. The timestamp of the first meeting's
+   *   absolute start time.
+   */
+  private $_time_first_meeting_start;
+  /**
+   * \brief
+   *   Cache some calculations. The timestamp of the exact last
+   *   meeting's end time.
+   */
+  private $_time_last_meeting_end;
 
   /**
    * \brief
@@ -91,6 +104,16 @@ class SectionMeeting
 
   /**
    * \brief
+   *   Mark certain cached values as needing to be recalculated.
+   */
+  private function _cache_reset()
+  {
+    unset($this->_time_first_meeting_start);
+    unset($this->_time_first_meeting_end);
+  }
+
+  /**
+   * \brief
    *   Take a days of week string and store it into our $days of week array.
    *
    * \param $days_str
@@ -105,6 +128,8 @@ class SectionMeeting
     $days_str_strlen = strlen($days_str);
     for ($i = 0; $i < $days_str_strlen; $i ++)
       $this->days[self::day_atoi($days_str[$i])] = TRUE;
+
+    $this->_cache_reset();
   }
 
   /**
@@ -166,6 +191,27 @@ class SectionMeeting
   }
 
   /**
+   * \brief
+   *   Get a string representing the days of week during which this meeting meets.
+   */
+  public function days_get()
+  {
+    static $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f', 5 => 's', 6 => 'u');
+    static $dayorder_reverse = array(6 => TRUE);
+    $days = '';
+    for ($day = 0; $day < 7; $day ++)
+      if ($this->getDay($day))
+	{
+	  if (empty($dayorder_reverse[$day]))
+	    $days .= $daymap[$day];
+	  else
+	    $days = $daymap[$day] . $days;
+	}
+    return $days;
+  }
+
+
+  /**
    * \return
    *   This SectionMeeting's location or NULL if none is defined.
    */
@@ -208,22 +254,131 @@ class SectionMeeting
 
   /**
    * \brief
-   *   Return the unix timestamp of a time prior to the first section
-   *   meeting or NULL if unknown.
+   *   Return the unix timestamp of the exact time prior of the first
+   *   section meeting or NULL if unknown.
    */
   public function date_start_get()
   {
-    return empty($this->date_start) ? NULL : $this->date_start;
+    static $day_to_real_day = array('u' => 0, 'm' => 1, 't' => 2, 'w' => 3, 'h' => 4, 'f' => 5, 's' => 6);
+
+    if (empty($this->_time_first_meeting_start))
+      {
+        if (empty($this->date_start))
+          return NULL;
+
+        /*
+         * For now, just assume UTC. Otherwise, we'd need a handle to
+         * the school and for each school to specify its timezone. Not
+         * a bad idea, but even if the school has a timezone
+         * associated with it (which it will someday soon...), this is
+         * more efficient.
+         */
+        $hour = substr($this->getStartTime(), 0, 2);
+        $minute = substr($this->getStartTime(), 2, 2);
+
+        /*
+         * This is the dirty part. Find the first instance of this
+         * section_meeting's day of week and convert that to a day of
+         * month for gmmktime() call below. Assumes that a day is at
+         * least 12 hours long (there are 23 and 25 hours days near
+         * daylight saving changes, so there _are_ issues with
+         * assuming 24 hours).
+         */
+
+        /* Search out the first day... */
+        $earliest_day = -1;
+        $earliest_day_time = 0;
+        $days_of_week = $this->days_get();
+        for ($i = 0; $i < strlen($days_of_week); $i ++)
+          {
+            /* Find the first occurence of the currently tested day after $this->date_start */
+            $day_of_week_sought = $day_to_real_day[$days_of_week[$i]];
+            $day_of_week_time = $this->date_start - 12 * 60*60;
+            do
+              {
+                $day_of_week = gmdate('w', $day_of_week_time);
+                $day_of_week_time += 12 * 60*60;
+              }
+            while ($day_of_week != $day_of_week_sought);
+
+            /* Find exact time of this meeting on that day */
+            $day_of_week_time = gmmktime($hour, $minute, 0,
+                                         gmdate('n', $day_of_week_time),
+                                         gmdate('j', $day_of_week_time),
+                                         gmdate('Y', $day_of_week_time));
+
+            if ($earliest_day == -1
+                || $day_of_week_time < $earliest_day_time)
+              {
+                $earliest_day = $i;
+                $earliest_day_time = $day_of_week_time;
+              }
+          }
+
+        $this->_time_first_meeting_start = $earliest_day_time;
+      }
+
+    return $this->_time_first_meeting_start;
   }
 
   /**
    * \brief
-   *   Return the unix timestamp of a time after the last section
-   *   meeting or NULL if unknown.
+   *   Return the unix timestamp of the exact time at which the the
+   *   last section meeting stops or NULL if unknown.
+   *
+   * This is implemented in mirror to start_date_get(). Refer to that
+   * function for rationale and comments.
    */
   public function date_end_get()
   {
-    return empty($this->date_end) ? NULL : $this->date_end;
+    static $day_to_real_day = array('u' => 0, 'm' => 1, 't' => 2, 'w' => 3, 'h' => 4, 'f' => 5, 's' => 6);
+
+    if (empty($this->_time_last_meeting_end))
+      {
+	if (empty($this->date_end))
+	  return NULL;
+
+        /* Assume UTC */
+        $hour = substr($this->getEndTime(), 0, 2);
+        $minute = substr($this->getEndTime(), 2, 2);
+
+        /* Find last meeting time */
+
+        /* Search out the last day of week... */
+        $latest_day = -1;
+        $latest_day_time = 0;
+        $days_of_week = $this->days_get();
+        for ($i = 0; $i < strlen($days_of_week); $i ++)
+          {
+            /* Find last occurence of the currently tested day before $this->date_end */
+            $day_of_week_sought = $day_to_real_day[$days_of_week[$i]];
+            $day_of_week_time = $this->date_end + 12 * 60*60;
+            $day_of_week = '';
+            do
+              {
+                $day_of_week = gmdate('w', $day_of_week_time);
+                $day_of_week_time -= 12 * 60*60;
+              }
+            while ($day_of_week != $day_of_week_sought);
+
+            /* Find exact time this meeting ends on that day */
+            $day_of_week_time = gmmktime($hour, $minute, 0,
+                                         gmdate('n', $day_of_week_time),
+                                         gmdate('j', $day_of_week_time),
+                                         gmdate('Y', $day_of_week_time));
+
+            if ($latest_day == -1
+                || $day_of_week_time > $latest_day_time)
+              {
+                $latest_day = $i;
+                $latest_day_time = $day_of_week_time;
+              }
+          }
+
+        $this->_time_last_meeting_end = $latest_day_time;
+      }
+
+    return $this->_time_last_meeting_end;
   }
 
   /**
@@ -241,9 +396,15 @@ class SectionMeeting
      * The two sections meetings can't conflict if the start/end times
      * don't overlap. Also, use >= or <= here so that one can say ``I
      * have gym from 10 through 11 and then latin from 11 though 12''.
+     *
+     * They also can't conflict if the unix timestamps of the first
+     * and last meetings indicate that the sections are from different
+     * parts of the semester.
      */	
     if ($this->getStartTime() >= $that->getEndTime()
-	|| $this->getEndTime() <= $that->getStartTime())
+	|| $this->getEndTime() <= $that->getStartTime()
+	|| $this->date_start_get() >= ($that_end = $that->date_end_get()) && $that_end !== NULL
+	|| ($this_end = $this->date_end_get()) <= $that->date_start_get() && $this_end !== NULL)
       {
 	return FALSE;
       }
