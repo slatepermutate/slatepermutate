@@ -30,6 +30,7 @@ function calvin_info()
 				  'calvin.edu',
 				  ),
 	       'example_course_id' => 'CS-232',
+	       'registration_url' => 'https://portal.calvin.edu/Pages/WebAdvisor.aspx?title=Express+Registration&PID=ST-WERG',
 	       'student_address' => 'Knight',
 	       );
 }

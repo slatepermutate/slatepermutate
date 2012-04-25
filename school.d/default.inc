@@ -77,7 +77,7 @@ function default_registration_html(Page $page, array $school, array $courses)
   $html = ''
     . '  <p>' . PHP_EOL
     . '    Enter these codes into ' . htmlentities($school['name']) . '\'s online course registration' . PHP_EOL
-    . '    system (<a href="' . htmlentities($link_url) . '" target="_blank">' . htmlentities($link_text) . '</a>)' . PHP_EOL
+    . '    system (<a href="' . htmlentities($link_url, ENT_QUOTES) . '" target="_blank">' . htmlentities($link_text) . '</a>)' . PHP_EOL
     . '    to register for classes:' . PHP_EOL
     . '  </p>' . PHP_EOL
     . '  <ul class="synonym-list">' . PHP_EOL;
