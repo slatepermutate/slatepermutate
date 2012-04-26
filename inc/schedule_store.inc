@@ -62,7 +62,7 @@ function schedule_store_store($schedule_store, $schedule)
 
   _schedule_store_flock_grab($schedule_store, LOCK_EX);
   /* if the file doesn't exist, we'll end up with a value of 1 for our first entry. */
-  $schedule_id = (int)file_get_contents($schedule_store['dir'] . DIRECTORY_SEPARATOR . 'lastid');
+  $schedule_id = (int)@file_get_contents($schedule_store['dir'] . DIRECTORY_SEPARATOR . 'lastid');
   $new_schedule_id = $schedule_id + 1;
   fwrite($new_schedule_id_file, $new_schedule_id);
   fclose($new_schedule_id_file);
@@ -103,7 +103,7 @@ function schedule_store_retrieve($schedule_store, $schedule_id)
   if (!file_exists($schedule_file_name))
     return NULL;
 
-  $schedule_serialized = file_get_contents($schedule_file_name);
+  $schedule_serialized = @file_get_contents($schedule_file_name);
   if ($schedule_serialized === FALSE)
     return NULL;
 
@@ -146,7 +146,7 @@ function schedule_store_delete($schedule_store, $schedule_id)
 function schedule_store_getmaxid($schedule_store)
 {
   _schedule_store_flock_grab($schedule_store, LOCK_SH);
-  $schedule_id = (int)file_get_contents($schedule_store['dir'] . DIRECTORY_SEPARATOR . 'lastid');
+  $schedule_id = (int)@file_get_contents($schedule_store['dir'] . DIRECTORY_SEPARATOR . 'lastid');
   _schedule_store_flock_release($schedule_store);
   return $schedule_id;
 }
