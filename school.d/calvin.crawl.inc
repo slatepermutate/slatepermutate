@@ -43,14 +43,14 @@ function calvin_crawl_semester_list(array $school, array &$semesters, &$school_c
   /**
    * The first link we start at is the one from KV into WebAdvisor.
    *
-   * 1. https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL
+   * 1. https://kvdata.calvin.edu/walive/WebAdvisor?type=P&pid=ST-WESTS12A&LASTTOKEN=NULL
    *    <body onload="javascript:getWindowHTML();">
    *
    *    Calls javascript:getWindowHTML(). This merely adds
    *    TOKENIDX=NULL to the query string, so we can skip this step
    *    and just have TOKENIDX=NULL.
    *
-   * 2. https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL&TOKENIDX=NULL
+   * 2. https://kvdata.calvin.edu/walive/WebAdvisor?type=P&pid=ST-WESTS12A&LASTTOKEN=NULL&TOKENIDX=NULL
    *    <body onload="javascript:setWindowHTML('', '7699844013');">
    *
    *    In the above, the second argument to setWindowHTML() is
@@ -58,7 +58,7 @@ function calvin_crawl_semester_list(array $school, array &$semesters, &$school_c
    */
 
   $cookies = array();
-  $uri = 'https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
+  $uri = 'https://kvdata.calvin.edu/walive/WebAdvisor?type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
   $semesters_html = calvin_crawl_geturi($uri, $cookies, $school_crawl_log);
 
   $semesters_dom = new DOMDocument();
@@ -115,7 +115,7 @@ function calvin_crawl_semester_list(array $school, array &$semesters, &$school_c
 function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl_log)
 {
   $cookies = array();
-  $uri = 'https://kvdata.calvin.edu/walive/WebAdvisor?CONSTITUENCY=WBST&type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
+  $uri = 'https://kvdata.calvin.edu/walive/WebAdvisor?type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
   $html = calvin_crawl_geturi($uri, $cookies, $school_crawl_log);
   $seed_dom = new DOMDocument();
   $seed_dom->loadHTML($html);
@@ -559,9 +559,9 @@ $token = $matches[1];
    * Example, where TOKENIDX does not start out as NULL but where a
    * CLONE=Y command is being sent:
    *
-   * Input: HTTPS://kvdata.calvin.edu/walive/WebAdvisor?TYPE=P&PID=ST-WESTS13C&CLONE=Y&CLONE_PROCESS=Y&SPAUKQ=708501792841963&CONSTITUENCY=WBST&TOKENIDX=1507971558
+   * Input: HTTPS://kvdata.calvin.edu/walive/WebAdvisor?TYPE=P&PID=ST-WESTS13C&CLONE=Y&CLONE_PROCESS=Y&SPAUKQ=708501792841963&TOKENIDX=1507971558
    *
-   * Result: HTTPS://kvdata.calvin.edu/walive/WebAdvisor?TYPE=P&PID=ST-WESTS13C&CLONE_PROCESS=Y&SPAUKQ=708501792841963&CONSTITUENCY=WBST&TOKENIDX=2281086932
+   * Result: HTTPS://kvdata.calvin.edu/walive/WebAdvisor?TYPE=P&PID=ST-WESTS13C&CLONE_PROCESS=Y&SPAUKQ=708501792841963&TOKENIDX=2281086932
    */
   $uri = preg_replace('/([?&])TOKENIDX=[^&]+/', '$1TOKENIDX=' . $token,
 		      preg_replace('/([?&])(CLONE|FORCEIDX)=[^&]+&?/', '$1', $uri));
