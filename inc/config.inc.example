@@ -85,7 +85,7 @@
  * Set this to a PHP array of email addresses to which feedback
  * submissions should be mailed.
  */ 
-/* $feedback_emails = array('ethanzonca@gmail.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net'); */
+/* $feedback_emails = array('ethanzonca@gmail.com', 'ngelderloos7@gmail.com', 'ohnobinki@ohnopublishing.net'); */
 /* $feedback_emails = array('user@example.org'); */
 
 /**
