@@ -280,4 +280,16 @@ class SectionMeeting
 	$days .= $day;
     return new SectionMeeting($days, $json_array['time_start'], $json_array['time_end'], $json_array['location'], $json_array['type'], $json_array['instructor']);
   }
+
+  /**
+   * \brief
+   *   Upgrade this section_meeting to support Sunday and Saturday.
+   */
+  public function __wakeup()
+  {
+    if (empty($this->days[5]))
+      $this->days[5] = FALSE;
+    if (empty($this->days[6]))
+      $this->days[6] = FALSE;
+  }
 }
