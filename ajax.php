@@ -97,7 +97,7 @@ if (isset($_REQUEST['school_registration_html']))
     $html = school_registration_html($page, $school, $courses);
     if (empty($html))
       slate_permutate_json_error('School\'s registration information producer returned no data.');
-    slate_permutate_json_success(array('html' => $html));
+    slate_permutate_json_success(is_array($html) ? $html : array('html' => $html));
   }
 
 slate_permutate_json_error('Unrecognized command.');

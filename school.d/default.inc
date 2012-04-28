@@ -74,6 +74,12 @@ function default_registration_html(Page $page, array $school, array $courses)
       $link_text = $school['name'] . '\'s website';
     }
 
+  $synonyms = array();
+  foreach ($courses as $course)
+    foreach ($course as $course_slot)
+      foreach ($course_slot as $section)
+        $synonyms[] = $section->getSynonym();
+
   $html = ''
     . '  <p>' . PHP_EOL
     . '    Enter these codes into ' . htmlentities($school['name']) . '\'s online course registration' . PHP_EOL
@@ -81,10 +87,19 @@ function default_registration_html(Page $page, array $school, array $courses)
     . '    to register for classes:' . PHP_EOL
     . '  </p>' . PHP_EOL
     . '  <ul class="synonym-list">' . PHP_EOL;
-  foreach ($courses as $course)
-    foreach ($course as $course_slot)
-      foreach ($course_slot as $section)
-        $html .= '    <li>' . htmlentities($section->getSynonym()) . '</li>' . PHP_EOL;
+  foreach ($synonyms as $synonym)
+    $html .= '    <li>' . htmlentities($synonym) . '</li>' . PHP_EOL;
   $html .= '  </ul>' . PHP_EOL;
-  return $html;
+  $ret = array('html' => $html);
+
+  if (!empty($school['webadvisor_url']))
+    {
+      $webadvisor_register_url = 'webadvisor.php?school=' . $school['id'] . '&sections=' . implode(',', $synonyms);
+      $ret['html'] = ''
+	. '  <p><a href="' . htmlentities($webadvisor_register_url, ENT_QUOTES) . '">Automatically register</a></p>' . PHP_EOL
+	. $ret['html'];
+      $ret['location'] = page::uri_resolve($webadvisor_register_url);
+    }
+
+  return $ret;
 }

@@ -124,7 +124,12 @@ jQuery(document).ready( function()
         var tab_course_data_json = jQuery(tab_course_data_json_selector).text();
         var tab_course_data = eval('(' + tab_course_data_json + ')');
 
-	slate_permutate_load(jQuery('#regDialog-content'), {school_registration_html: true, courses: tab_course_data});
+	  slate_permutate_load(jQuery('#regDialog-content'), {school_registration_html: true, courses: tab_course_data},
+			       function(target, data) {
+				   target.html(data.html);
+				   if (data.location)
+				       document.location.href = data.location;
+			       });
 
         jQuery("#regDialog").dialog('open');
 
