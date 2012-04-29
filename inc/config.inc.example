@@ -83,9 +83,13 @@
  *   List of email addresses to send feedback form submissions to.
  *
  * Set this to a PHP array of email addresses to which feedback
- * submissions should be mailed.
+ * submissions should be mailed. Each separate array entry will cause
+ * a new email to be sent, so if you want everybody to recieve the
+ * same email and tobe listed on the To: header together, then place
+ * all of the emails in one array item but formatted as the value of a
+ * To: header with multiple addresses.
  */ 
-/* $feedback_emails = array('ethanzonca@gmail.com', 'ngelderloos7@gmail.com', 'ohnobinki@ohnopublishing.net'); */
+/* $feedback_emails = array('ethanzonca@gmail.com, ngelderloos7@gmail.com, ohnobinki@ohnopublishing.net'); */
 /* $feedback_emails = array('user@example.org'); */
 
 /**
