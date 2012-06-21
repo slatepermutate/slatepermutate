@@ -392,7 +392,9 @@ function input_course_js(Course $course, $whitespace = '  ')
 	    . json_encode($meeting->getLocation()) . ', '
 	    . json_encode($meeting->type_get()) . ', '
 	    . json_encode($course_slot->id_get()) . ', '
-	    . json_encode($section->credit_hours_get()) . ');' . PHP_EOL;
+	    . json_encode($section->credit_hours_get()) .', '
+	    . json_encode($meeting->date_start_get()) . ', '
+	    . json_encode($meeting->date_end_get()) . ');' . PHP_EOL;
 	}
     }
 
