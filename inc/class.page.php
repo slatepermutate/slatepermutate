@@ -376,7 +376,8 @@ class page
           '    <!--[if IE]>'. PHP_EOL .
           '      <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" href="styles/ie.css" />'. PHP_EOL .
           '    <![endif]-->'. PHP_EOL .
-          '    <link rel="icon" href="images/favicon.png" />'. PHP_EOL
+          '    <link rel="icon" href="images/favicon.svg" type="image/svg+xml" sizes="any" />' . PHP_EOL
+      . '    <link rel="apple-touch-icon" href="images/favicon.svg" type="image/svg+xml" sizes="any" />' . PHP_EOL
       . '    <style type="text/css">' . PHP_EOL
       . $this->cdata_wrap(school_page_css($this->school))
       . '    </style>' . PHP_EOL;
