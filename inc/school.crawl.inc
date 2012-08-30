@@ -673,6 +673,34 @@ function school_crawl_table_rownodes(DOMElement $tr_node)
 
 /**
  * \brief
+ *   Resolve an index into a table row, supporting colspan fuzzyish
+ *   indexing.
+ *
+ * \param $tr_node
+ *   The row to index into.
+ * \param $i
+ *   The zero-based index to index as.
+ * \return
+ *   The DOM Node at that index.
+ */
+function school_crawl_table_rownode_index(DOMNodeList $rownodes, $i)
+{
+  foreach ($rownodes as $data_node)
+    {
+      $colspan = 1;
+      if ($data_node->hasAttribute('colspan'))
+	$colspan = $data_node->getAttribute('colspan');
+      /** \todo check validity of colspan */
+
+      $i -= $colspan;
+      if ($i < 0)
+	return $data_node;
+    }
+  return NULL;
+}
+
+/**
+ * \brief
  *   Detect if a point in a buffer is at a newline.
  *
  * \internal
