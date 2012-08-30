@@ -22,7 +22,7 @@ function dordt_info()
 {
   return array(
     'name' => 'Dordt College',
-    'example_course_id' => 'ENGL-101',
+    'example_course_id' => 'ENG-202',
     'registration_url' => 'http://dordt.edu/services_support/registrar/',
     'student_address' => 'Dork',
   );
