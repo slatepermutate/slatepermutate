@@ -335,6 +335,12 @@ class Semester
         $times = filter_outliers($this->time_ends);
         $this->time_end = max($times);
       }
+    elseif (!$this->time_end)
+      {
+        /* Return, but don't store, a guess. */
+        $fourmonths = gmmktime(0, 0, 0, 5, 2012) - gmmktime(0, 0, 0, 1, 2012);
+        return $this->time_start_get() + $fourmonths;
+      }
 
     return $this->time_end;
   }
@@ -395,6 +401,18 @@ class Semester
       {
         $times = filter_outliers($this->time_starts);
         $this->time_end = min($times);
+      }
+    elseif (!$this->time_start)
+      {
+        /* Return, but don't store, a guess. */
+        $season_starts = array(
+          'spring' => 0,
+          'summer' => 5,
+          'fall' => 8,
+          'winter' => 12,
+        );
+        if (!empty($season_starts[$this->season]))
+            return gmmktime(0, 0, 0, $season_starts[$this->season], $this->year);
       }
 
     return $this->time_start;
