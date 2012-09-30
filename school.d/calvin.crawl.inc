@@ -117,6 +117,7 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
   $cookies = array();
   $uri = 'https://kvdata.calvin.edu/walive/WebAdvisor?type=P&pid=ST-WESTS12A&LASTTOKEN=NULL';
   $html = calvin_crawl_geturi($uri, $cookies, $school_crawl_log);
+  $form_uri = $uri;
   $seed_dom = new DOMDocument();
   $seed_dom->loadHTML($html);
   $return_url = dom_input_value($seed_dom, 'RETURN.URL');
@@ -127,8 +128,17 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
    * the input form. The <select name="LIST.VAR1_1" id="LIST_VAR1_1"/>
    * is associated with subjects/departments.
    */
+  $department_var1_list = array();
   foreach (school_crawl_form_select_array($seed_dom->getElementById('LIST_VAR1_1')) as $department_id => $department_name)
-    $semester->department_name_set($department_id, trim(reset($department_name)));
+    {
+      $semester->department_name_set($department_id, trim(reset($department_name)));
+      $department_var1_list[] = $department_id;
+    }
+
+  while (count($department_var1_list))
+    {
+      /* Start back on the form page... */
+      $uri = $form_uri;
 
   /*
    * LIST.VAR<X>_<N>: <X> is the column, <N> is the row. There
@@ -181,6 +191,15 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
 	    $form[$rowname] = '';
 	}
     }
+
+  /*
+   * Fill in some semesters.
+   */
+  foreach (array('1', '2', '3', '4', '5') as $var1_row)
+    if (count($department_var1_list))
+      {
+	$form['LIST.VAR1_' . $var1_row] = array_shift($department_var1_list);
+      }
 
   /*
    * VAR7 and VAR 8 is a constraint of times during which
@@ -418,6 +437,7 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
       $form = array(
 		    'ACTION*Grp:WSS.COURSE.SECTIONS' => 'NEXT',
 		    );
+    }
     }
 
   $has_stat = FALSE;
