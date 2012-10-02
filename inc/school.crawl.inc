@@ -218,11 +218,18 @@ function school_crawl_days_format(array $school_crawl_log, $days)
  */
 function school_crawl_days_str_format(array $school_crawl_log, $days_str)
 {
-  $day_initials = array();
-  for ($i = 0; $i < strlen($days_str); $i ++)
-    $day_initials[] = $days_str[$i];
+  $days_str = preg_replace('/[^[:alnum:]]+/', '', $days_str);
 
-  return school_crawl_days_format($school_crawl_log, $day_initials);
+  /*
+   * str_split() will produce an array with an empty string in it if
+   * the input string is empty. We just want an empty array in that
+   * case, but also if there are no input days we can just shortcut
+   * and return no days.
+   */
+  if (empty($days_str))
+    return '';
+
+  return school_crawl_days_format($school_crawl_log, str_split($days_str));
 }
 
 /**
@@ -604,6 +611,8 @@ function school_crawl_url($orig_url, $url)
       $new_url['path'] = preg_replace(';[^/]+/[^/]+$;', '/', dirname($new_url['path']));
       $url = substr($url, 3);
     }
+  if (strncmp($url, '/', 1) && strpos($url, '://') === FALSE)
+    $new_url['path'] .= $url;
 
   return $new_url['schema'] . '://' . $new_url['hostname'] . $new_url['path'];
 }
