@@ -230,9 +230,6 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
     $form['VAR' . $day] = '';
   */
 
-  $semester_start_min = 0;
-  $semester_end_max = 0;
-
   $skipped_sections = array('incomplete meeting info' => 0, 'invalid meeting info format' => 0);
   /*
    * pages is populated by preg_match() below after the first looping.
