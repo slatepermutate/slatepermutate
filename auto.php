@@ -134,7 +134,7 @@ if (!$getsections && count($term_parts) == 1 && $term_strlen == strlen($dept))
     if (count($json_depts) == 1)
       {
 	$dept = $json_depts[0];
-	if (!empty($dept['value']))
+	if (is_array($dept) && !empty($dept['value']))
 	  $dept = $dept['value'];
 
 	page::redirect('auto.php' . page::query_string(array('term' => $dept . '-') + $_GET));
