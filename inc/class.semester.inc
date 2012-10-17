@@ -268,7 +268,7 @@ class Semester
    *   The number of credit hours of the associated course or a
    *   negative value if unknown.
    */
-  public function section_meeting_add($dept, $course, $title, $section, $synonym, $section_meeting, $course_slot_id = 'default', $credit_hours = -1.0)
+  public function section_meeting_add($dept, $course, $title, $section, $synonym, SectionMeeting $section_meeting, $course_slot_id = 'default', $credit_hours = -1.0)
   {
     $dept = strtoupper($dept);
     $course = strtoupper($course);
