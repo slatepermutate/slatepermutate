@@ -95,6 +95,11 @@ class Semester
     if (!isset($class_parts['course']))
       throw new ErrorException('I was given a class with an invalid name: `' . $class->getName() . '\'');
 
+    foreach ($class as $course_slot)
+      foreach ($course_slot as $section)
+        foreach ($section as $meeting)
+          $this->time_set_section_meeting($meeting);
+
     if (!isset($this->departments[$class_parts['department']]))
       $this->departments[$class_parts['department']] = array();
     $department =& $this->departments[$class_parts['department']];
@@ -221,6 +226,9 @@ class Semester
    */
   public function section_add($dept, $class, Section $section, $title = NULL, $course_slot_id = 'default')
   {
+    foreach ($section as $meeting)
+      $this->time_set_section_meeting($meeting);
+
     $dept = strtoupper($dept);
     $class = strtoupper($class);
 
@@ -270,6 +278,8 @@ class Semester
    */
   public function section_meeting_add($dept, $course, $title, $section, $synonym, SectionMeeting $section_meeting, $course_slot_id = 'default', $credit_hours = -1.0)
   {
+    $this->time_set_section_meeting($section_meeting);
+
     $dept = strtoupper($dept);
     $course = strtoupper($course);
 
@@ -416,6 +426,23 @@ class Semester
       }
 
     return $this->time_start;
+  }
+
+  /**
+   * \brief
+   *   Consider a section_meeting's start and end dates and make
+   *   appropriate time_start_set_test() and time_end_set_test()
+   *   calls.
+   */
+  public function time_set_section_meeting(SectionMeeting $meeting)
+  {
+    $date_start = $meeting->date_start_get();
+    if (!empty($date_start))
+      $this->time_start_set_test($date_start);
+
+    $date_end = $meeting->date_end_get();
+    if (!empty($date_end))
+      $this->time_end_set_test($date_end);
   }
 
   /**

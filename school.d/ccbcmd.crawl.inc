@@ -292,18 +292,18 @@ function ccbcmd_crawl_semester($school, $semester, &$school_crawl_log)
 
 	$days = school_crawl_days_str_format($school_crawl_log, $children->item($section_offsets['days'])->textContent);
 
+	$section_dates = $children->item($section_offsets['dates'])->textContent;
+	$date_start = $date_end = NULL;
+	if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches))
+	  {
+	    $date_start = gmmktime(0, 0, 0, $section_dates_matches[1], $section_dates_matches[2], $semester->year_get());
+	    $date_end = gmmktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get());
+	  }
+
 	$section->meeting_add(new SectionMeeting($days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
 						 $children->item($section_offsets['location'])->textContent,
 						 'lecture',
-						 $instructor));
-
-	/* check if a semester's date range should be increased */
-	$section_dates = $children->item($section_offsets['dates'])->textContent;
-	if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches))
-	  {
-	    $semester->time_start_set_test(gmmktime(0, 0, 0, $section_dates_matches[1], $section_dates_matches[2], $semester->year_get()));
-	    $semester->time_end_set_test(gmmktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get()));
-	  }
+						 $instructor, $date_start, $date_end));
       }
     }
 

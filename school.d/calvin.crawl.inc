@@ -400,27 +400,21 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
 	  foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place', 'meeting_type') as $var)
 	    school_crawl_logf($school_crawl_log, 10, "%s:%s", $var, ${$var});
 
-	  $semester->section_meeting_add($section_id['department'], $section_id['course'], $title, $section_id['section'], $synonym,
-					 new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type, $faculty_name), 'default', $credits);
-
-	  /*
-	   * Try to update semester's longetivity stats to help the
-	   * school_semester_guess() function:
-	   */
 	  $date_start_time = strptime($date_start, '%m/%d/%Y');
 	  $date_end_time = strptime($date_end, '%m/%d/%Y');
-
 	  if ($date_start_time !== FALSE)
-	    {
-	      $date_start_time = school_crawl_gmmktime($date_start_time, -5 * 60*60);
-	      $semester->time_start_pool_add($date_start_time);
-	    }
+	    $date_start_time = school_crawl_gmmktime($date_start_time, -5 * 60*60);
+	  else
+	    $date_start_time = NULL;
 	  if ($date_end_time !== FALSE)
-	    {
-	      $date_end_time = school_crawl_gmmktime($date_end_time, -5 * 60*60);
-	      $semester->time_end_pool_add($date_end_time);
+	    $date_end_time = school_crawl_gmmktime($date_end_time, -5 * 60*60) + 24*60*60;
+	  else
+	    $date_end_time = NULL;
+
+	  $semester->section_meeting_add($section_id['department'], $section_id['course'], $title, $section_id['section'], $synonym,
+					 new SectionMeeting($days, $time_start, $time_end, $meeting_place, $meeting_type, $faculty_name, $date_start_time, $date_end_time), 'default', $credits);
+
 	    }
-	}
 	}
 
       if (!preg_match(';Page ([0-9]+) of ([0-9]+)\</td\>$;m', $html, $pages))

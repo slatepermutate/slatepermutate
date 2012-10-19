@@ -218,10 +218,13 @@ if(!$DEBUG)
 				  /* Skip the section name, which isn't a section */
 					if(is_array($section))
 					  {
-					    if (empty($section['slot']))
-					      $section['slot'] = 'default';
+					    $section += array(
+					      'slot' => 'default',
+					      'date_start' => NULL,
+					      'date_end' => NULL,
+					    );
 
-					    $error_string = $allClasses->addSection($course['name'], $section['letter'], $section['start'], $section['end'], arrayToDays(empty($section['days']) ? array() : $section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type'], $section['slot'], $section['credit_hours']);
+					    $error_string = $allClasses->addSection($course['name'], $section['letter'], $section['start'], $section['end'], arrayToDays(empty($section['days']) ? array() : $section['days'], 'alpha'), $section['synonym'], $section['professor'], $section['location'], $section['type'], $section['slot'], $section['credit_hours'], $section['date_start'], $section['date_end']);
 					    if ($error_string !== NULL)
 					      $errors[] = $error_string;
 					  }

@@ -278,6 +278,7 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
 	  continue;
 	}
 
+      $date_start = $date_end = NULL;
       if (preg_match(',(\\d\\d)/(\\d\\d)-(\\d\\d)/(\\d\\d),', $section_csv[$fields['Date']], $matches))
 	{
 	  list(, $m_start, $d_start, $m_end, $d_end) = $matches;
@@ -286,8 +287,8 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
 	      $y_start = $y_end = $semester->year_get();
 	      if ($m_end < $m_start)
 		$y_end ++;
-	      $semester->time_start_set_test(gmmktime(0, 0, 0, $m_start, $d_start, $y_start));
-	      $semester->time_end_set_test(gmmktime(0, 0, 0, $m_end, $d_end, $y_end));
+	      $date_start = gmmktime(0, 0, 0, $m_start, $d_start, $y_start);
+	      $date_end = gmmktime(0, 0, 0, $m_end, $d_end, $y_end);
 	    }
 	}
 
@@ -314,7 +315,8 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
       $section_meeting = new SectionMeeting($days, $time_start, $time_end,
 					    $location,
 					    $type,
-					    $instructor);
+					    $instructor,
+					    $date_start, $date_end);
       $semester->section_meeting_add($subject_id,
 				     $course_id,
 				     $title,

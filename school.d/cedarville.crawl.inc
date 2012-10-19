@@ -291,15 +291,11 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 	      $type = school_crawl_meeting_type($meeting_matches[1]);
 
 	      /* check for daterange information -- i.e., if the first regex successfully matched: */
+	      $date_start = $date_end = NULL;
 	      if (count($meeting_matches) > 7)
 		{
 		  $date_start = school_crawl_gmmktime(strptime($meeting_matches[6], '%m/%d/%y'), CEDARVILLE_TIMEZONE_OFFSET);
 		  $date_end = school_crawl_gmmktime(strptime($meeting_matches[7], '%m/%d/%y'), CEDARVILLE_TIMEZONE_OFFSET);
-		  if (!empty($date_start) && !empty($date_end))
-		    {
-		      $semester->time_start_set_test($date_start);
-		      $semester->time_end_set_test($date_end);
-		    }
 		}
 
 	      /*
@@ -312,7 +308,8 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 		$instructors[$meeting_i] = $instructors[0];
 
 	      $meetings[] = new SectionMeeting($days, $time_start, $time_end,
-					       $room, $type, $instructors[$meeting_i]);
+					       $room, $type, $instructors[$meeting_i],
+					       $date_start, $date_end);
 
 	      $meeting_i ++;
 	    }

@@ -154,7 +154,9 @@ elseif ($errors_fix)
 		. json_encode($section['location']) . ', '
 		. json_encode($section['type']) . ', '
 		. json_encode($section['slot']) . ', '
-		. json_encode(isset($section['credit_hours']) ? $section['credit_hours'] : -1) . ');' . PHP_EOL;
+		. json_encode(isset($section['credit_hours']) ? $section['credit_hours'] : -1) . ', '
+		. json_encode(empty($section['date_start']) ? NULL : $section['date_start']) . ', '
+		. json_encode(empty($section['date_end']) ? NULL : $section['date_end']) . ');' . PHP_EOL;
 	  $my_hc .= PHP_EOL;
 	}
   }
@@ -390,7 +392,9 @@ function input_course_js(Course $course, $whitespace = '  ')
 	    . json_encode($meeting->getLocation()) . ', '
 	    . json_encode($meeting->type_get()) . ', '
 	    . json_encode($course_slot->id_get()) . ', '
-	    . json_encode($section->credit_hours_get()) . ');' . PHP_EOL;
+	    . json_encode($section->credit_hours_get()) .', '
+	    . json_encode($meeting->date_start_get()) . ', '
+	    . json_encode($meeting->date_end_get()) . ');' . PHP_EOL;
 	}
     }
 
