@@ -766,13 +766,14 @@ class Schedule
 				      else
 					$title .= ' ';
 
-				      $carret = '&#013;' . htmlentities("<br />");
+				      $carret = '&#013;<br />';
 				      echo '            <td rowspan="' . $rowspan[$dayLoop]
 					. '" class="qTipCell ' . $single_multi . ' class' . $j
-					. '" title="' . htmlentities($title, ENT_QUOTES) . $carret
-					. 'Prof: ' . htmlentities($current_meeting->instructor_get(), ENT_QUOTES) . $carret
-					. 'Room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . $carret
-                                        . 'Type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . $carret;
+					. '" title="' . htmlentities(
+                                          htmlentities($title, ENT_QUOTES) . $carret
+                                          . 'Prof: ' . htmlentities($current_meeting->instructor_get(), ENT_QUOTES) . $carret
+                                          . 'Room: ' . htmlentities($current_meeting->getLocation(), ENT_QUOTES) . $carret
+                                          . 'Type: ' . htmlentities($current_meeting->type_get(), ENT_QUOTES) . $carret, ENT_QUOTES);
 
                                       $section_credit_hours = $section->credit_hours_get();
                                       if ($section_credit_hours >= 0)
@@ -780,7 +781,7 @@ class Schedule
                                           $credit_hours[$section->getSynonym()] = $section_credit_hours;
                                           $have_credit_hours = TRUE;
 
-                                          echo 'Credits: ' . htmlentities($section_credit_hours, ENT_QUOTES) . $carret;
+                                          echo htmlentities('Credits: ' . htmlentities($section_credit_hours, ENT_QUOTES) . $carret, ENT_QUOTES);
                                         }
                                       echo '">'
 					. '<span class="course-title block">' . htmlentities($title) . '</span>' . PHP_EOL
