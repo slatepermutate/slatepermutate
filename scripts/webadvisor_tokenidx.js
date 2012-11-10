@@ -21,13 +21,15 @@
  * Assumes that WebAdvisor_scripts.js for WebAdvisor-2.x is loaded,
  * displayFormHTML() or something was called and thus
  * readURLParameters() was called. We attempt to extract TOKENIDX and
- * asynchronously inform slate_permutate about it. We currently assume
- * we're on a login form too.
+ * update the URL GET parameter to contain TOKENIDX so that, after the
+ * user is logged in, the webadvisor.php will know a valid TOKENIDX to
+ * be used to forge a form for the user. We currently assume we're on
+ * a login form too.
  */
 
-var slate_permutate_input_login;
-
 (function() {
+	var slate_permutate_input_login;
+
 		var slate_permutate_onload = function() {
 
 				/*

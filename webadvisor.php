@@ -38,28 +38,13 @@ if (empty($school['webadvisor_url']))
  * \param $school
  *   The school.
  * \param $dest
- *   The URI to visit after the user has logged into WebAdvisor and
- *   the TOKENIDX has been communicated to $tokenidx_callback.
- * \param $tokenidx_callback
- *   A JSONP-compatible callback which must be passed the TOKENIDX
- *   parameter the WebAdvisor is using. Treat as if is terminated with
- *   a `?' -- i.e., just append the querystring without the `?' to
- *   this URI when constructing the callback. To use, for example, in
- *   JavaScript you may create a DOMElement 'script' with attributes
- *   type="text/javascript" and
- *   src="$tokenidx_callback?callback=jsonp_callback&TOKENIDX=<detected
- *   TOKENIDX>". When jsonp_callback gets called, your script knows
- *   that $dest may be returned to. Don't forget to allow the user to
- *   log in first. This is normally done by setting SP_CALLBACK GET
- *   variable to this value inserting the
- *   scripts/webadvisor_tokenidx.js script into the WebAdvisor login
- *   page using cross-site-scripting HTML injection such as through
- *   the ERROR GET parameter.
+ *   The URI to visit after the user has logged into WebAdvisor. A
+ *   TOKENIDX GET parameter shall be appended to this with the
+ *   assumption that this URI has a ‘?’ in it.
  * \return
- *   Just ensure that $tokenidx_callback gets called; do not return
- *   except by redirecting to $dest.
+ *   Does not return, redirects to WebAdvisor.
  */
-function webadvisor_login($page, array $school, $dest, $tokenidx_callback)
+function webadvisor_login($page, array $school, $dest)
 {
   if (strpos($dest, '?') !== FALSE)
     $dest .= '&';
@@ -96,7 +81,6 @@ function webadvisor_login($page, array $school, $dest, $tokenidx_callback)
    */
 
   $login_form_uri = $school['webadvisor_url'] . '?LASTTOKEN=NULL&SS=LGRQ&URL=' . rawurlencode($dest)
-    . '&SP_CALLBACK=' . rawurlencode($tokenidx_callback)
     . '&ERROR=' . rawurlencode('<script type="text/javascript" src="' . htmlentities(page::uri_resolve_sslasset('scripts/webadvisor_tokenidx.js', 'text/javascript'), ENT_QUOTES) . '"></script><span id="sp_err">Slate Permutate loading… (automatic registration may not be working)</span>');
   redir($login_form_uri);
 }
