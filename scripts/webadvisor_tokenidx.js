@@ -56,11 +56,21 @@ var slate_permutate_input_login;
 					sp_err.setAttribute('style', 'color: grey;');
 
 					/* Inform home base of the newly generated TOKENIDX. */
-						var TOKENIDX = getURLParameter(g_tokenIdx);
-						var myscript = document.createElement('script');
-						myscript.setAttribute('type', 'text/javascript');
-						myscript.setAttribute('src', decodeURIComponent(getURLParameter('SP_CALLBACK')) + 'callback=slate_permutate_token_callback&TOKENIDX=' + TOKENIDX);
-						document.getElementsByTagName('head').item(0).appendChild(myscript);
+					var TOKENIDX = getURLParameter(g_tokenIdx);
+					if (getURLParameter('URL').indexOf('TOKENIDX%3d' + TOKENIDX) === -1)
+					{
+						/* %26 = &, setURLParameter doesn’t handle escaping */
+						setURLParameter('URL', getURLParameter('URL') + '%26TOKENIDX%3d' + TOKENIDX);
+						window.location.href = getBaseURI(window.location.href) + '?' + getURLParameters();
+					}
+					else
+					{
+						/* Report to the user that they’ve been fixed up */
+						slate_permutate_input_login.setAttribute('value', 'LOG IN');
+						slate_permutate_input_login.removeAttribute('disabled');
+						sp_err.replaceChild(document.createTextNode('Slate Permutate has acquired WebAdvisor TOKENIDX, ready for login.'), sp_err.firstChild);
+						sp_err.setAttribute('style', 'color: green;');
+					}
 				}
 				else
 				{
@@ -86,16 +96,3 @@ var slate_permutate_input_login;
 				};
 		}
 })();
-
-function slate_permutate_token_callback(result)
-{
-		if (result)
-		{
-				slate_permutate_input_login.setAttribute('value', 'LOG IN');
-				slate_permutate_input_login.removeAttribute('disabled');
-
-			var sp_err = document.getElementById('sp_err');
-			sp_err.replaceChild(document.createTextNode('Slate Permutate has acquired WebAdvisor TOKENIDX, ready for login.'), sp_err.firstChild);
-			sp_err.setAttribute('style', 'color: green;');
-		}
-}

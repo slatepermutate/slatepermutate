@@ -20,30 +20,6 @@
 
 require_once('inc/class.page.php');
 
-/*
- * Handle the scripts/webadvisor_tokenidx.js making a TOKENIDX
- * callback, storing that TOKENIDX in our SESSION for later use.
- */
-if (!empty($_GET['TOKENIDX']))
-  {
-    page::session_start();
-
-    $_SESSION['webadvisor_TOKENIDX'] = $_GET['TOKENIDX'];
-
-    $result = 'received ' . $_GET['TOKENIDX'];
-
-    header('Content-Type: text/javascript; charset=utf-8');
-
-    if ($jsonp = !empty($_GET['callback']))
-      echo $_GET['callback'] . '(';
-    echo json_encode($result);
-    if ($jsonp)
-      echo ");\n";
-    if ($jsonp && !empty($_GET['destination']))
-      echo 'document.location.href = ' . json_encode($_GET['destination']) . ";\n";
-    exit;
-  }
-
 $page = page::page_create('WebAdvisor');
 $school = $page->get_school();
 
@@ -121,7 +97,7 @@ function webadvisor_login($page, array $school, $dest, $tokenidx_callback)
 
   $login_form_uri = $school['webadvisor_url'] . '?LASTTOKEN=NULL&SS=LGRQ&URL=' . rawurlencode($dest)
     . '&SP_CALLBACK=' . rawurlencode($tokenidx_callback)
-    . '&ERROR=' . rawurlencode('<script type="text/javascript" src="' . htmlentities(page::uri_resolve('scripts/webadvisor_tokenidx.js?20121110f'), ENT_QUOTES) . '"></script><span id="sp_err">Slate Permutate loading… (automatic registration may not be working)</span>');
+    . '&ERROR=' . rawurlencode('<script type="text/javascript" src="' . htmlentities(page::uri_resolve_sslasset('scripts/webadvisor_tokenidx.js', 'text/javascript'), ENT_QUOTES) . '"></script><span id="sp_err">Slate Permutate loading… (automatic registration may not be working)</span>');
   redir($login_form_uri);
 }
 
@@ -134,18 +110,7 @@ function redir($dest)
   exit;
 }
 
-/*
- * If the page load was not a redirection from webadvisor, we must
- * clear our local cache of TOKENIDX's value. We need to get a new
- * token because we can't guess what SS= value the ST-WERG form will
- * take unless if we start with a new TOKENIDX which doesn't have any
- * SSes yet. Also, the old token may have (very likely) expired
- * because of the short login timeout.
- */
-if (!isset($_GET['from_webadvisor']))
-  unset($_SESSION['webadvisor_TOKENIDX']);
-
-if (empty($_SESSION['webadvisor_TOKENIDX']))
+if (empty($_GET['TOKENIDX']))
   {
     /*
      * Get a token for the ST-WERG form and have the user perform the
@@ -163,7 +128,7 @@ if (empty($_SESSION['webadvisor_TOKENIDX']))
  * (STudent Web[A]dvisor Express ReGistration) form. When that form is
  * iniailized, assume that it has SS=1 and submit the form. &APP=ST
  */
-$TOKENIDX = $_SESSION['webadvisor_TOKENIDX'];
+$TOKENIDX = $_GET['TOKENIDX'];
 $page->head();
 echo '<form id="sp-webadvisor-form" action="' . htmlentities($school['webadvisor_url'] . '?TOKENIDX=' . $TOKENIDX . '&SS=1', ENT_QUOTES) . '" method="post">' . PHP_EOL;
 echo '<p>';

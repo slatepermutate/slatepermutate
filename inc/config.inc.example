@@ -169,3 +169,19 @@
  */
 /* $input_warning_banner = FALSE; */
 /* $input_warning_banner = '<p>Warning: BIOL-111\'s autocomplete data does not include all sections. Please use <a href="http://csx.calvin.edu/sp/input.php?s=7578">schedule 7578</a> to get a correct BIOL-111 entry.</p>'; */
+
+/**
+ * \brief
+ *   Amazon S3 credentials for best-effort SSL hack.
+ *
+ * Setting S3 credentials will enable slate_permutate to serve certain
+ * content over an HTTPS connection for the (old) WebAdvisor XSS for
+ * automatic registration. You must specify a bucket name which is
+ * either nonexistent (available) or already owned by your S3 account.
+ *
+ * You must have installed the amazon-s3-php-class PHP library to take
+ * advantage of this feature.
+ */
+/* $s3_accesskey = ''; */
+/* $s3_secretkey = ''; */
+/* $s3_bucket = 'myslatepermutate'; */

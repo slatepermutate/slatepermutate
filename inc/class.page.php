@@ -743,6 +743,86 @@ class page
 
   /**
    * \brief
+   *   Resolve an SSL address for a static asset.
+   *
+   * This is pretty much a hack in support of another hack. I need to
+   * provide some assets over SSL; if the local server doesn’t support
+   * that properly (such as by not having a properly signed SSL
+   * certificate), a web-storage backend can be used instead. This can
+   * only be used with static content.
+   *
+   * \param $uri
+   *   The path to a static file which needs to be served over SSL.
+   */
+  public static function uri_resolve_sslasset($uri, $type)
+  {
+    global $s3_bucket, $s3_accesskey, $s3_secretkey;
+
+    $testuri = page::uri_resolve($uri);
+    if (!strncmp($testuri, 'https://', strlen('https://')))
+      /*
+       * The user is already accessing this page as SSL, so serving
+       * another asset over the same channel will not appear any less
+       * trusted to the user.
+       */
+      return $testuri;
+
+    /*
+     * Use an external service if configured.
+     */
+    if (!empty($s3_bucket) && !empty($s3_accesskey) && !empty($s3_secretkey))
+      {
+	/*
+	 * Load S3 cache.
+	 */
+	$dirpath = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR;
+	$s3_cache_path = $dirpath . 'saved_schedules' . DIRECTORY_SEPARATOR . '.s3_cache';
+	$s3_cache = @unserialize(file_get_contents($s3_cache_path));
+	if (empty($s3_cache))
+	  $s3_cache = array();
+
+	$path = $dirpath . $uri;
+	$sha1 = sha1_file($path);
+
+	if (empty($s3_cache[$sha1]))
+	  {
+	    @include 'S3.php';
+	    if (class_exists('S3'))
+	      {
+		$s3 = new S3($s3_accesskey, $s3_secretkey);
+		$bucket = $s3->getBucket($s3_bucket);
+		if ($bucket === FALSE)
+		  $bucket = $s3->putBucket($s3_bucket, S3::ACL_PUBLIC_READ);
+		if ($bucket !== FALSE)
+		  if ($s3->putObject(S3::inputFile($path), $s3_bucket, $sha1, S3::ACL_PUBLIC_READ, array(), array('Content-Type' => $type)))
+		    {
+		      $s3_cache[$sha1]['uri'] = 'https://' . $s3_bucket . '.s3.amazonaws.com/' . $sha1;
+		      file_put_contents($s3_cache_path, serialize($s3_cache), LOCK_EX);
+		    }
+	      }
+	  }
+	if (!empty($s3_cache[$sha1]['uri']))
+	  return $s3_cache[$sha1]['uri'];
+      }
+
+    if (!strncmp($testuri, 'http://', strlen('http://')))
+      {
+	/* Test if we can create a local HTTPS connection… */
+	$curl = curl_init();
+	curl_setopt($curl, CURLOPT_USERAGENT, SP_PACKAGE_NAME . '/' . SP_PACKAGE_VERSION);
+	$testuri2 = 'https' . substr($testuri, strlen('https'));
+	curl_setopt($curl, CURLOPT_URL, $testuri2);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+	$result = curl_exec($curl);
+	curl_close($curl);
+	if (!empty($result) && sha1($result) === $sha1)
+	  return $testuri2;
+      }
+    return $testuri;
+  }
+
+  /**
+   * \brief
    *   Form a query string from a map.
    *
    * \param $query

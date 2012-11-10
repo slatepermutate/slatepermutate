@@ -2,6 +2,7 @@ style: regex
 
 # ignore all saved schedules, but keep track of the .keep file.
 ^saved_schedules/[^.]
+^saved_schedules/\.s3_cache
 # ignore all of cache except for the .keep file
 ^cache/[^.]
 
