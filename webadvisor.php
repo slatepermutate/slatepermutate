@@ -39,6 +39,8 @@ if (!empty($_GET['TOKENIDX']))
     echo json_encode($result);
     if ($jsonp)
       echo ");\n";
+    if ($jsonp && !empty($_GET['destination']))
+      echo 'document.location.href = ' . json_encode($_GET['destination']) . ";\n";
     exit;
   }
 
@@ -111,53 +113,16 @@ function webadvisor_login($page, array $school, $dest, $tokenidx_callback)
    * to keep redirecting to itself infinitely. Similarly, if the
    * browser does not yet have a TOKENIDX-related cookie,
    * SS=LGRQ&URL=<URL> will redirect the user to URL without giving
-   * the user a cookie. Thus, our strategy is:
-   *
-   * 1. Send the user to
-   *    SS=LGRQ&URL=<URL>&SP_CALLBACK=<SP_CALLBACK>&ERROR=<XSS>. In
-   *    this case, the URL will be set to have `from_webadvisor' as a
-   *    GET parameter and ERROR will be set to the appropriate XSS for
-   *    the normal login form. Thus, if the user does not have a
-   *    token, he will be directed here and sent to step #2 to get a
-   *    token. Otherwise, the user will have a jump start (already
-   *    having TOKENIDX cookies) and communicate his token to us while
-   *    logging in.
-   *
-   * 2. If webadvisor.php is called with from_webadvisor, that means
-   *    one of two things. It might mean that webadvisor_tokenidx.js
-   *    was called successfully and we have the webadvisor TOKENIDX
-   *    stored in our session. In that case, the user's browser
-   *    already had a WebAdvisor TOKENIDX before we did #1; also, this
-   *    function won't be called in that case because this function is
-   *    only called if TOKENIDX is unknown. Thus, we don't know the
-   *    TOKENIDX, meaning that we need to request that the WebAdvisor
-   *    installation allocate a TOKENIDX for the user and _then_
-   *    proceed directly to the login page to send us TOKENIDX.
+   * the user a cookie. Thus, our strategy is to specify
+   * LASTTOKEN=NULL: this is the magic which prevents the silly
+   * infinite looping when the user already has cookies and also works
+   * when the user doesn’t have a cookie to start with.
    */
 
-  $login_form_uri = $school['webadvisor_url'] . '?SS=LGRQ&URL=' . rawurlencode($dest)
+  $login_form_uri = $school['webadvisor_url'] . '?LASTTOKEN=NULL&SS=LGRQ&URL=' . rawurlencode($dest)
     . '&SP_CALLBACK=' . rawurlencode($tokenidx_callback)
-    . '&ERROR=' . rawurlencode('<script type="text/javascript" src="' . htmlentities(page::uri_resolve('scripts/webadvisor_tokenidx.js'), ENT_QUOTES) . '"></script>');
-
-  if (isset($_GET['from_webadvisor']))
-    /*
-     * Case 2, infer that browser needs TOKENIDX cookies _and_ that
-     * the following URI won't cause endless looping
-     * (hopefully). Unfortunately, this process is not reentrant.
-     */
-    redir($school['webadvisor_url'] . '?TOKENIDX=&SS=LGRQ&URL=' . rawurlencode($login_form_uri));
-
-  /*
-   * Case 1, assume that the user has a TOKENIDX cookie _but_ make
-   * provisions ($dest has from_webadvisor in it) for needing to
-   * allocate that cookie.
-   */
+    . '&ERROR=' . rawurlencode('<script type="text/javascript" src="' . htmlentities(page::uri_resolve('scripts/webadvisor_tokenidx.js?20121110f'), ENT_QUOTES) . '"></script><span id="sp_err">Slate Permutate loading… (automatic registration may not be working)</span>');
   redir($login_form_uri);
-
-  return array(
-    /* 'preload' => $school['webadvisor_url'] . '?TYPE=P&PID=UT-LGRQ&PROCESS=-XUTAUTH01&URL=', */
-    'uri' => $school['webadvisor_url'] . '?SS=LGRQ&URL=' . rawurlencode($login_form_uri),
-  );
 }
 
 function redir($dest)
@@ -184,8 +149,8 @@ if (empty($_SESSION['webadvisor_TOKENIDX']))
   {
     /*
      * Get a token for the ST-WERG form and have the user perform the
-     * WebAdmin-specific login. This can only be done after the login form
-     * has an SS allocated for it.
+     * WebAdvisor-specific login. This can only be done after the
+     * login form has an SS allocated for it.
      */
     webadvisor_login($page, $school, page::uri_resolve('webadvisor.php') . '?r=' . rand()
 		     . '&sections=' . rawurlencode(empty($_GET['sections']) ? '' : $_GET['sections'])

@@ -1,3 +1,22 @@
+/* -*- tab-width: 4; -*-
+ * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
+ *
+ * This file is part of SlatePermutate.
+ *
+ * SlatePermutate is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SlatePermutate is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /*
  * Assumes that WebAdvisor_scripts.js for WebAdvisor-2.x is loaded,
  * displayFormHTML() or something was called and thus
@@ -29,8 +48,14 @@ var slate_permutate_input_login;
 				/*
 				 * Discover the TOKENIDX if it's available.
 				 */
+				var sp_err = document.getElementById('sp_err');
 				if (containsParameter(g_tokenIdx))
 				{
+					/* Remove the warning about the script not having loaded */
+					sp_err.replaceChild(document.createTextNode("Slate Permutate TOKENIDX-acquiring script loaded…"), sp_err.firstChild);
+					sp_err.setAttribute('style', 'color: grey;');
+
+					/* Inform home base of the newly generated TOKENIDX. */
 						var TOKENIDX = getURLParameter(g_tokenIdx);
 						var myscript = document.createElement('script');
 						myscript.setAttribute('type', 'text/javascript');
@@ -39,7 +64,9 @@ var slate_permutate_input_login;
 				}
 				else
 				{
-						alert('Unable to discover TOKENIDX. You must register manually.');
+					sp_err.replaceChild(document.createTextNode('Slate Permutate unable to acquire TOKENIDX. You must register manually.'), sp_err.firstChild);
+					sp_err.setAttribute('style', 'color: red; background: yellow;');
+						alert('Unable to discover WebAdvisor TOKENIDX. You must register manually.');
 				}
 		}
 
@@ -66,5 +93,9 @@ function slate_permutate_token_callback(result)
 		{
 				slate_permutate_input_login.setAttribute('value', 'LOG IN');
 				slate_permutate_input_login.removeAttribute('disabled');
+
+			var sp_err = document.getElementById('sp_err');
+			sp_err.replaceChild(document.createTextNode('Slate Permutate has acquired WebAdvisor TOKENIDX, ready for login.'), sp_err.firstChild);
+			sp_err.setAttribute('style', 'color: green;');
 		}
 }
