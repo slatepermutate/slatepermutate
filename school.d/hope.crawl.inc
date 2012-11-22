@@ -18,6 +18,9 @@
  * along with slate_permutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+define('SP_HOPE_CRAWL_STATE_PREHEADER', 1);
+define('SP_HOPE_CRAWL_STATE_SECTIONS', 2);
+
 /**
  * \brief
  *   Start a Hope crawling session.
@@ -175,19 +178,6 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
   $sections_form_action = $sections_form->getAttribute('action');
   if (!empty($sections_form_action))
     $uri = school_crawl_url($uri, $sections_form_action);
-  $sections_csv = school_crawl_geturi($uri, $cookies, $school_crawl_log, school_crawl_form($sections_form));
-
-  /*
-   * Oracle likes to put random `"' into the middle of a quoted string
-   * instead of properly escaping it like ``"This is a string with a
-   * "" in it"''. This regex blasts away such doublequotes which are
-   * not adjacent to delimiters (hopefully).
-   */
-  $sections_csv = preg_replace('/([^,\\n\\r])"([^,\\n\\r])/', '$1""$2', $sections_csv);
-  $sections_csv = school_crawl_csv_parse($sections_csv, array('eof' => TRUE));
-  /* Skip the introductory lines, seeking for the field headers */
-  for ($i = 0; $i < count($sections_csv) && count($sections_csv[$i]) < 2; $i ++)
-    ;
 
   $fields = array(
     'Status' => FALSE /*< OPEN, RESTRICTED, IN PROGRESS, or empty */,
@@ -222,26 +212,114 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
     'Date' => FALSE,
     'Weeks' => FALSE /*< The total number of weeks the course meets */,
   );
+  $state = array(
+    'semester' => $semester,
+    'fields' => $fields,
+    'data' => '',
+    'data_unfiltered' => '', /*< Data not yet passed through _hope_crawl_semester_csv_filter() */
+    'expected_columns' => 0, /*< The number of columns expected to be in a section row, calculated when parsing the header row. */
+    'rollover_values' => array(), /*< The values of columns which may be used multiple times, such as for sections with multiple meetings. */
+    'school_crawl_log' => &$school_crawl_log,
+    'state' => SP_HOPE_CRAWL_STATE_PREHEADER,
+  );
+  $sections_csv = school_crawl_geturi($uri, $cookies, $school_crawl_log, school_crawl_form($sections_form),
+				      FALSE, NULL, array(
+					'writefunc' => '_hope_crawl_semester_csv',
+					'writestate' => &$state,
+				      ));
+  /* Deliver the EOF */
+  $state['data'] .= _hope_crawl_semester_csv_filter($state['data_unfiltered']);
+  school_crawl_csv_parse($state['data'], array('eof' => TRUE, 'stream' => array('callback' => '_hope_crawl_semester_csv_row', 'state' => &$state)));
+}
 
-  foreach ($sections_csv[$i] as $column => $name)
-    if (!empty($name))
-      $fields[$name] = $column;
-  $expected_columns = max($fields);
-  foreach ($fields as $name => $location)
-    if ($location === FALSE)
-      {
-	school_crawl_logf($school_crawl_log, 2, "Cannot find column named %s in CSV. The column headings line looks like ``%s''.",
-			  $name, implode(',', $sections_csv[$i]));
-	return 1;
-      }
+/**
+ * \brief
+ *   Filter the CSV so that doublequotes are properly escaped.
+ *
+ * \param $lines
+ *   One or more complete lines of CSV. Partial lines should be
+ *   withheld for later filtering.
+ */
+function _hope_crawl_semester_csv_filter($lines)
+{
+  /*
+   * Oracle likes to put random `"' into the middle of a quoted string
+   * instead of properly escaping it like ``"This is a string with a
+   * "" in it"''. This regex blasts away such doublequotes which are
+   * not adjacent to delimiters (hopefully).
+   */
+  return preg_replace('/([^,\\n\\r])"([^,\\n\\r])/', '$1""$2', $lines);
+}
 
-  /* Label the days of the week and Times column */
-  foreach (array('M', 'T', 'W', 'R', 'F', 'S', 'U', 'Times') as $offset => $name)
-    $fields[$name] = $fields['Meeting Days/Times'] + $offset;
+/**
+ * \brief
+ *   libcurl WRITEFUNC callback for parsing CSV.
+ *
+ * \param $state
+ *   The state.
+ * \param $data
+ *   The data read so far.
+ *
+ * \return
+ *   The number of bytes in $data or a different number to indicate
+ *   error.
+ */
+function _hope_crawl_semester_csv(&$state, $data)
+{
+  $state['data_unfiltered'] .= $data;
+  $last_newline_pos = strrpos($state['data_unfiltered'], "\n");
+  if ($last_newline_pos === FALSE)
+    /* Not enough new data */
+    return strlen($data);
+  $state['data'] .= _hope_crawl_semester_csv_filter(substr($state['data_unfiltered'], 0, $last_newline_pos + 1));
+  $state['data_unfiltered'] = substr($state['data_unfiltered'], $last_newline_pos + 1);
 
-  for ($i ++; $i < count($sections_csv); $i ++)
+  school_crawl_csv_parse($state['data'], array('stream' => array('callback' => '_hope_crawl_semester_csv_row', 'state' => &$state)));
+
+  return strlen($data);
+}
+
+function _hope_crawl_semester_csv_row(&$state, $row)
+{
+  $expected_columns =& $state['expected_columns'];
+  $fields =& $state['fields'];
+  $rollover_values =& $state['rollover_values'];
+  $school_crawl_log =& $state['school_crawl_log'];
+  $semester = $state['semester'];
+
+  switch ($state['state'])
     {
-      $section_csv = $sections_csv[$i];
+    case SP_HOPE_CRAWL_STATE_PREHEADER:
+      if (count($row) < 2)
+	/*
+	 * Skip the introductory lines, seeking for the field headers.
+	 */
+	break;
+
+      /*
+       * Came upon the header line… parse the header and switch to
+       * sections mode.
+       */
+      foreach ($row as $column => $name)
+	if (!empty($name))
+	  $fields[$name] = $column;
+      $expected_columns = max($fields);
+      foreach ($fields as $name => $location)
+	if ($location === FALSE)
+	  {
+	    school_crawl_logf($school_crawl_log, 2, "Cannot find column named %s in CSV. The column headings line looks like ``%s''.",
+			      $name, implode(',', $row));
+	    return 1;
+	  }
+
+      /* Label the days of the week and Times column */
+      foreach (array('M', 'T', 'W', 'R', 'F', 'S', 'U', 'Times') as $offset => $name)
+	$fields[$name] = $fields['Meeting Days/Times'] + $offset;
+
+      $state['state'] = SP_HOPE_CRAWL_STATE_SECTIONS;
+      break;
+    case SP_HOPE_CRAWL_STATE_SECTIONS:
+      $section_csv = $row;
 
       if (count($section_csv) < $expected_columns)
 	{
@@ -265,8 +343,12 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
 	'instructor' => 'Instructor',
 	'location' => 'Location',
       ) as $var => $field)
-	if (strlen(trim($section_csv[$fields[$field]])))
-	  ${$var} = trim($section_csv[$fields[$field]]);
+	{
+	  $rollover_values += array($var => ''); /*< (Inefficient) */
+	  ${$var} =& $rollover_values[$var];
+	  if (strlen(trim($section_csv[$fields[$field]])))
+	    ${$var} = trim($section_csv[$fields[$field]]);
+	}
 
       if ($section_csv[$fields['M']] == 'TBA'
 	  || $section_csv[$fields['Times']] == 'TBA')
@@ -325,6 +407,6 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
 				     $section_meeting,
 				     $type,
 				     $section_csv[$fields['Cred']]);
+      break;
     }
-  return 0;
 }

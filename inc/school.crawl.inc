@@ -298,16 +298,36 @@ function school_crawl_meeting_type($meeting_type = 'lecture')
  * \param $loopspin
  *   An internal variable to prevent us from following perpetual
  *   redirects.
+ * \param $options
+ *   Extra optional arguments with keys as follows:
+ *   - 'writefunc': A curl-compatible write function of the form
+ *       function($state, $data) and returns the number of eaten bytes
+ *       which must be equal to the number of bytes received unless if
+ *       the transfer should be aborted. Settings this and using
+ *       $follow_meta_refresh are mutually exclusive and will cause
+ *       undefined behavior.
+ *   - 'writestate': The value which should be passed to writefunc as
+ *       the $state parameter.
  * \return
  *   The body of the document returned by the server (normally
- *   malformed HTML, especially with Calvin's WebAdvisor
- *   installation).
+ *   malformed HTML, especially with Calvin's WebAdvisor installation)
+ *   or, if 'writestate' and 'writefunc' are set, the value stored in
+ *   'writestate'.
  */
-function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post = NULL, $follow_meta_refresh = FALSE, $curlsetup_hook = NULL, $loopspin = 0)
+function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post = NULL, $follow_meta_refresh = FALSE, $curlsetup_hook = NULL, $options = array(), $loopspin = 0)
 {
-  global $school_crawl_geturi_write_buf, $school_crawl_geturi_headers_buf;
+  global $school_crawl_geturi_writefunc,
+    $school_crawl_geturi_writestate,
+    $school_crawl_geturi_headers_buf;
 
   school_crawl_logf($school_crawl_log, 7, "school_crawl_geturi('%s').", $uri);
+
+  $options += array(
+    'writefunc' => 'school_crawl_geturi_writefunc_cb',
+    'writestate' => '',
+  );
+  $school_crawl_geturi_writefunc = $options['writefunc'];
+  $GLOBALS['school_crawl_geturi_writestate'] = &$options['writestate'];
 
   $curl = curl_init();
   curl_setopt($curl, CURLOPT_USERAGENT, SP_PACKAGE_NAME . '/' . SP_PACKAGE_VERSION);
@@ -315,7 +335,6 @@ function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post =
   if ($curlsetup_hook !== NULL)
     $curlsetup_hook($curl);
 
-  $school_crawl_geturi_write_buf = '';
   $school_crawl_geturi_headers_buf = '';
   curl_setopt($curl, CURLOPT_URL, $uri);
 
@@ -405,7 +424,7 @@ function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post =
   if ($follow_meta_refresh)
     {
       $dom = new DOMDocument();
-      $dom->loadHTML($school_crawl_geturi_write_buf);
+      $dom->loadHTML($options['writestate']);
       foreach ($dom->getElementsByTagName('meta') as $meta_node)
 	if ($meta_node->hasAttribute('http-equiv')
 	    && !strcasecmp('refresh', $meta_node->getAttribute('http-equiv')))
@@ -424,13 +443,13 @@ function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post =
 	  }
     }
 
-  school_crawl_logf($school_crawl_log, 10, "%s", $school_crawl_geturi_write_buf);
+  school_crawl_logf($school_crawl_log, 10, "%s", $options['writestate']);
   if ($location && $loopspin < 6)
     {
       $uri = $location;
-      return school_crawl_geturi($uri, $cookies, $school_crawl_log, $post, $follow_meta_refresh, $curlsetup_hook, $loopspin + 1);
+      return school_crawl_geturi($uri, $cookies, $school_crawl_log, $post, $follow_meta_refresh, $curlsetup_hook, $options, $loopspin + 1);
     }
-  return $school_crawl_geturi_write_buf;
+  return $options['writestate'];
 }
 
 function school_crawl_geturi_header_cb($curl, $header_buf)
@@ -440,11 +459,16 @@ function school_crawl_geturi_header_cb($curl, $header_buf)
   return strlen($header_buf);
 }
 
+function school_crawl_geturi_writefunc_cb(&$writebuf, $data)
+{
+  $writebuf .= $data;
+  return strlen($data);
+}
+
 function school_crawl_geturi_write_cb($curl, $write_buf)
 {
-  global $school_crawl_geturi_write_buf;
-  $school_crawl_geturi_write_buf .= $write_buf;
-  return strlen($write_buf);
+  global $school_crawl_geturi_writefunc, $school_crawl_geturi_writestate;
+  return $school_crawl_geturi_writefunc($school_crawl_geturi_writestate, $write_buf);
 }
 
 /**
@@ -742,7 +766,7 @@ function _school_crawl_csv_parse_eol($data, $len, $i = 0, $eof = FALSE)
 
 /**
  * \brief
- *   Read a line of CSV and return it as an array.
+ *   Read a string of CSV and return it as an array of row arrays.
  *
  * \param $data
  *   CSV data to parse. Parsed data shall be deleted.
@@ -755,12 +779,19 @@ function _school_crawl_csv_parse_eol($data, $len, $i = 0, $eof = FALSE)
  *     will assume that it cannot assume that there is an implicit
  *     newline. Some improper files don't have the extra newline at
  *     their end and thus this is needed to support them.
+ *   - stream (unset): If set to an array containing the keys
+ *     'callback' and 'state', will call the 'callback' which is a
+ *     function($state, $row) with $state set to the value in 'state'
+ *     instead of storing all rows and returning them all.
  * \return
  *   An array with an entry for each line in the CSV file where each
  *   line's entry is an array of the items in that row. An empty array
  *   will be returned in the case that there is insufficient data to
  *   read a line (or insufficient data to tell if the line is
- *   complete, see $options['eof']).
+
+ *   complete, see $options['eof']). If the 'stream' option is set in
+ *   $options, then the return value shall be the number of rows
+ *   parsed.
  */
 function school_crawl_csv_parse(&$data, array $options = array())
 {
@@ -769,10 +800,14 @@ function school_crawl_csv_parse(&$data, array $options = array())
     'eof' => FALSE,
   );
 
-  $ret = array();
   $i = 0;
   $last_line_i = $i;
   $strlen_data = strlen($data);
+  $streammode = !empty($options['stream']);
+  if ($streammode)
+    $ret = 0;
+  else
+    $ret = array();
 
   while ($i < $strlen_data)
     {
@@ -861,7 +896,13 @@ function school_crawl_csv_parse(&$data, array $options = array())
 	$i = $next_i;
 	$last_line_i = $i;
 	$row[] = $entry;
-	$ret[] = $row;
+	if ($streammode)
+	  {
+	    $options['stream']['callback']($options['stream']['state'], $row);
+	    $ret ++;
+	  }
+	else
+	  $ret[] = $row;
     }
 
   if (!empty($last_line_i))
