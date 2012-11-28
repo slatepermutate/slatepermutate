@@ -778,7 +778,17 @@ class Schedule
                                       $section_credit_hours = $section->credit_hours_get();
                                       if ($section_credit_hours >= 0)
                                         {
-                                          $credit_hours[$section->getSynonym()] = $section_credit_hours;
+                                          /*
+                                           * We can only count credit
+                                           * hours once per course,
+                                           * otherwise for school that
+                                           * use course_slots we count
+                                           * credit hours for multiple
+                                           * sections in the same
+                                           * course and get ridiculous
+                                           * numbers. https://www.facebook.com/zimjimmy/posts/231316953666045?comment_id=886608&offset=0&total_comments=11
+                                           */
+                                          $credit_hours[$course->getName()] = $section_credit_hours;
                                           $have_credit_hours = TRUE;
 
                                           echo htmlentities('Credits: ' . htmlentities($section_credit_hours, ENT_QUOTES) . $carret, ENT_QUOTES);
