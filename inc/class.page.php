@@ -732,7 +732,7 @@ class page
 	  if ($port !== NULL)
 	    $base_uri .= ':' . $port;
 	  list($base_request_uri) = explode('?', $_SERVER['REQUEST_URI'], 2);
-	  $base_uri .= substr($base_request_uri, 0, strrpos($base_request_uri, '/')) . '/';
+	  $base_uri .= rtrim(substr($base_request_uri, 0, strrpos($base_request_uri, '/')), '/') . '/';
 	}
 
     if (empty($base_uri) && empty($uri))
@@ -936,10 +936,10 @@ class page
       return $this->add_trailing_slash($short_url_base) . $id;
     }
     elseif ($clean_urls) {
-      return 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['REQUEST_URI']) . '/' . $id;
+      return 'http://' . $_SERVER['HTTP_HOST'] . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . '' . $id;
     }
     else {
-      return 'http://' . $_SERVER['HTTP_HOST']  . dirname($_SERVER['REQUEST_URI']) . '/process.php?s=' . $id;
+      return 'http://' . $_SERVER['HTTP_HOST']  . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . 'process.php?s=' . $id;
     }
   }
 
