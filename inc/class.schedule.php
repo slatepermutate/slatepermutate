@@ -462,6 +462,10 @@ class Schedule
 
     $outputPage = page::page_create(htmlentities($this->getName()), $headcode,
 				    array('school' => $this->school_get(), 'semester' => $this->semester_get()));
+    $outputPage->headcode_add('schedule_share_links', $outputPage->script_wrap(
+      'var share_facebook_template = ' . json_encode('https://facebook.com/sharer.php?t=' . rawurlencode($this->scheduleName) . '&u=' . $outputPage->gen_share_url($this->id_get())) . ";\n"
+      . 'var share_url_template = ' . json_encode($outputPage->gen_share_url($this->id_get())) . ';'),
+                              TRUE);
     $outputPage->conversion();
     if (!empty($this->created))
       $outputPage->meta('dcterms.created', gmdate(DATE_W3C, $this->created));
@@ -495,10 +499,6 @@ class Schedule
       echo '    jQuery.address.change(function(event){';
       echo '      jQuery("#tabs").tabs( "select" , window.location.hash );';
       echo '    });';
-      echo '    jQuery("#tabs").bind("tabsselect", function(event, ui) {';
-      echo '      window.location.hash = ui.tab.hash;';
-      echo '    });';
-
 
       echo '    jQuery("#sharedialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });';
       echo '    jQuery("#share").click( function() {
@@ -516,8 +516,8 @@ class Schedule
 	. '        </script>' . PHP_EOL;
 
       echo '        <div id="sharedialog" title="Share Schedule">' . PHP_EOL
-	. '          <p class="indent"><img alt="[fb]" class="noborder" src="http://facebook.com/favicon.ico" /> <a href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=My%20Schedule">Share on Facebook</a></p>
-		     <p class="indent"><img alt="[sp]" class="noborder" src="images/favicon.svg" style="margin-right: 5px; width: 16px; height: 16px;"/><span class="clicktoclipboard"><a href="#">Share with URL</a><span class="toclipboard hidden"><p>Copy the share URL below:<br /><em class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p></span></span></p>' . PHP_EOL
+	. '          <p class="indent"><img alt="[fb]" class="noborder" src="http://facebook.com/favicon.ico" /> <a id="share-fb-a" href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=' . rawurlencode($this->scheduleName) . '">Share on Facebook</a></p>
+		     <p class="indent"><img alt="[sp]" class="noborder" src="images/favicon.svg" style="margin-right: 5px; width: 16px; height: 16px;"/><span class="clicktoclipboard"><a href="#">Share with URL</a><span class="toclipboard hidden"><p>Copy the share URL below:<br /><em id="share-url-em" class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p></span></span></p>' . PHP_EOL
 	. '        </div>' . PHP_EOL
 	. '        <p>' . PHP_EOL
 	. '          <a href="input.php?s='.$this->id.'" class="button">Edit</a>' . PHP_EOL
