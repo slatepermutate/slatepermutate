@@ -615,7 +615,7 @@ function school_crawl_webadvisor_semester(array $school, Semester $semester, &$s
 	    }
 	}
 
-      if (!preg_match(';Page ([0-9]+) of ([0-9]+)\</td\>$;m', $html, $pages))
+      if (!preg_match(';Page ([0-9]+) of ([0-9]+)\\</td\\>;', $html, $pages))
 	{
 	  school_crawl_logf($school_crawl_log, 0, 'Unable to determine the number of pages in this resultset');
 	  break;
