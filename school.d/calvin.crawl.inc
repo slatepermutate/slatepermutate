@@ -52,22 +52,3 @@ function calvin_crawl_semester(array $school, Semester $semester, &$school_crawl
 {
   return school_crawl_webadvisor_semester($school, $semester, $school_crawl_log);
 }
-
-/**
- * \brief
- *   Add a course to a semester if that semester doesn't yet have this
- *   course.
- *
- * \param $semester
- *   The semester to which the course should be appended.
- * \param $deparmtent
- *   The department of the course to add.
- * \param $course_id
- *   The course_id which, with the department string, forms a
- *   fully-qualified course_id.
- */
-function calvin_crawl_course_add_(Semester $semester, $department, $course_id, $title)
-{
-  if ($semester->class_get($department, $course_id) == NULL)
-    $semester->class_add(new Course($department . '-' . $course_id, $title));
-}
