@@ -473,6 +473,15 @@ function school_crawl_webadvisor_semester(array $school, Semester $semester, &$s
 	      $synonym = $matches[1];
 	      $title = trim($matches[2]);
 	    }
+	  else
+	    {
+	      /*
+	       * Places without synonyms just don’t have the
+	       * parantheses around the synonym. Just get a title…
+	       */
+	      list(, $title) = explode(' ', $sec_short_title, 2);
+	      $title = trim($title);
+	    }
 
 	  school_crawl_logf($school_crawl_log, 10, "");
 	  school_crawl_logf($school_crawl_log, 10, implode('-', $section_id) . ': ' . $sec_short_title);
