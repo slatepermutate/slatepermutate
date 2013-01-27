@@ -146,12 +146,13 @@ function school_cache($schools)
 	  foreach ($school['crawled_semesters'] as $semester)
 	    {
 	      $semesters[$semester->id()] = array(
-						  'id' => $semester->id(),
-						  'time_start' => $semester->time_start_get(),
-						  'time_end' => $semester->time_end_get(),
-						  'weight' => $semester_weights ++,
-						  'name' => $semester->name_get(),
-						  );
+		'id' => $semester->id(),
+		'popular_course_id' => $semester->popular_course_id_get(),
+		'name' => $semester->name_get(),
+		'time_start' => $semester->time_start_get(),
+		'time_end' => $semester->time_end_get(),
+		'weight' => $semester_weights ++,
+	      );
 	    } /* foreach ( => $semester) */
 	  /*
 	   * Store/cache the semester metadata:

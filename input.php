@@ -114,8 +114,10 @@ $scripts = array('jQuery', 'jQueryUI', 'qTip2', 'schedInput');
 $inputPage = page::page_create('Enter Courses', $scripts, $inputPage_options);
 $school = $inputPage->get_school();
 $semester = $inputPage->semester_get();
+if (empty($semesters))
+  $semesters = school_semesters($school);
 
-$my_hc = 'var slate_permutate_example_course_id = ' . json_encode(school_example_course_id($school)) . ';
+$my_hc = 'var slate_permutate_example_course_id = ' . json_encode(empty($semester) || empty($semester['popular_course_id']) ? school_example_course_id($school) : $semester['popular_course_id']) . ';
 
 jQuery(document).ready(
   function()
@@ -270,7 +272,7 @@ $inputPage->showSavedScheds($_SESSION);
   Welcome to SlatePermutate<?php $inputPage->addressStudent(', ', '', FALSE); ?>!
   <?php if (school_has_auto($inputPage->get_school())): ?>
   To get started, enter in a course identifier (e.g., <em>
-  <?php echo school_example_course_id($inputPage->get_school()); ?></em>)
+  <?php echo empty($semester) || empty($semester['popular_course_id']) ? school_example_course_id($inputPage->get_school()) : $semester['popular_course_id']; ?></em>)
   and click the autosuggestion to automatically load available sections
   for each class.
   <?php else: ?>

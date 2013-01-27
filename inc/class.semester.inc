@@ -80,6 +80,11 @@ class Semester
 
     $this->departments = array();
     $this->department_names = array();
+
+    /*
+     * For $this->popular_course_get().
+     */
+    $this->course_num_sections_map = array();
   }
 
   /**
@@ -89,22 +94,26 @@ class Semester
    * \param $class
    *   The class/course to add.
    */
-  public function class_add(Course $class)
+  public function class_add(Course $course)
   {
-    $class_parts = Course::parse($class->getName());
-    if (!isset($class_parts['course']))
-      throw new ErrorException('I was given a class with an invalid name: `' . $class->getName() . '\'');
+    $course_parts = Course::parse($course->getName());
+    if (!isset($course_parts['course']))
+      throw new ErrorException('I was given a class with an invalid name: `' . $course->getName() . '\'');
 
-    foreach ($class as $course_slot)
+    foreach ($course as $course_slot)
       foreach ($course_slot as $section)
+      {
         foreach ($section as $meeting)
           $this->time_set_section_meeting($meeting);
 
-    if (!isset($this->departments[$class_parts['department']]))
-      $this->departments[$class_parts['department']] = array();
-    $department =& $this->departments[$class_parts['department']];
+        $this->_section_count($course, $section);
+      }
 
-    $department[$class_parts['course']] = $class;
+    if (!isset($this->departments[$course_parts['department']]))
+      $this->departments[$course_parts['department']] = array();
+    $department =& $this->departments[$course_parts['department']];
+
+    $department[$course_parts['course']] = $course;
   }
 
   /**
@@ -244,6 +253,8 @@ class Semester
       }
 
     $classobj->section_add($section, $course_slot_id);
+
+    $this->_section_count($classobj, $section);
   }
 
   /**
@@ -295,6 +306,46 @@ class Semester
 
     $section_obj->meeting_add($section_meeting);
     return;
+  }
+
+  /**
+   * \brief
+   *   Account for the addition of a new section to this Semester.
+   *
+   * \param $course
+   *   The course this section is a part of.
+   * \param $section
+   *   The section.
+   */
+  private function _section_count(Course $course, Section $section)
+  {
+    $fully_qualified_course_id = $course->getName();
+    $this->course_num_sections_map += array($fully_qualified_course_id => 0);
+    $this->course_num_sections_map[$fully_qualified_course_id] ++;
+  }
+
+  /**
+   * \brief
+   *   Get the most popular course.
+   *
+   * \return
+   *   The fully-qualified course_id of the most popular course in
+   *   this Semester.
+   */
+  public function popular_course_id_get()
+  {
+    if (count($this->course_num_sections_map))
+      {
+        arsort($this->course_num_sections_map, SORT_NUMERIC);
+        reset($this->course_num_sections_map);
+        $this->_popular_course = key($this->course_num_sections_map);
+      }
+    if (!isset($this->_popular_course))
+      {
+        /* The default popular course */
+        $this->_popular_course = 'ENGL-101';
+      }
+    return $this->_popular_course;
   }
 
   /**
@@ -527,5 +578,14 @@ class Semester
     $this->time_ends = array();
     $this->time_start_get();
     $this->time_starts = array();
+
+    /*
+     * A mapping which keeps track of how many sections any given
+     * course has, with course_id '-' section_id as the key and the
+     * count as the value. Used to calculate the most frequently-used
+     * course_id to use as the example course_id (bug #102).
+     */
+    $this->popular_course_id_get();
+    $this->course_num_sections_map = array();
   }
 }
