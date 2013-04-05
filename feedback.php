@@ -23,9 +23,8 @@ require_once 'inc/class.schedule.php';
 
 $feedbackpage = page::page_create('Feedback');
 $feedbackpage->head();
-$ipi = $_SERVER['REMOTE_ADDR'];
+
 $fromdom = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-$httpagenti = $_SERVER['HTTP_USER_AGENT'];
 
 $referrer = '';
 if (!empty($_SERVER['HTTP_REFERER']))
@@ -51,13 +50,11 @@ $n = "\n";
 
 <form action="feedback-submit.php" method="post">
 <div id="feedback-form-content">
-<input type="hidden" id="ip" name="ip" value="<?php echo $ipi ?>" />
-<input type="hidden" id="fromdom" name="fromdom" value="<?php echo $fromdom ?>" />
-<input type="hidden" id="httpagent" name="httpagent" value="<?php echo $httpagenti ?>" />
+<input type="hidden" id="fromdom" name="fromdom" value="<?php echo htmlentities($fromdom, ENT_QUOTES); ?>" />
 
 <table>
-<tr><td><label for="nameis">Name: </label></td><td><input type="text" id="nameis" name="nameis" size="20" /></td></tr>
-<tr><td><label for="visitormail">Email:</label></td><td><input type="text" id="visitormail" name="visitormail" size="20" /></td></tr>
+<tr><td><label for="nameis">Name: </label></td><td><input type="text" id="nameis" name="nameis" size="20" value="<?php echo empty($_REQUEST['nameis']) ? '' : page::entities($_REQUEST['nameis']);?>" /></td></tr>
+<tr><td><label for="visitormail">Email:</label></td><td><input type="text" id="visitormail" name="visitormail" size="20" value="<?php echo empty($_REQUEST['visitormail']) ? '' : page::entities($_REQUEST['visitormail']);?>" /></td></tr>
 <tr><td><label for="school">School: </label></td><td><input type="text" id="school" name="school" value="<?php echo htmlentities($school['id']); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
   <tr><td><label for="referrer">Relevant Page:</label></td><td><input type="text" id="referrer" name="referrer" value="<?php echo htmlentities($referrer); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
 </table>

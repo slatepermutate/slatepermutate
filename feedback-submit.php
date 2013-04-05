@@ -31,23 +31,30 @@ if ($use_captcha)
 
 $feedbackpage = page::page_create('Feedback');
 $feedbackpage->head();
+
+if (isset($_GET['success']))
+  {
+    echo '<h3>Thanks</h3>' . PHP_EOL
+      . '<p>Thanks for helping make SlatePermutate better. Your feedback is greatly appreciated.</p>' . PHP_EOL
+      . '<p>We will attempt to respond via email if your feedback lends itself to a response.</p>' . PHP_EOL;
+    $feedbackpage->foot();
+    exit();
+  }
+
 $subject = '[SlatePermutate] - Feedback';
-?>
 
-<h3>Thanks!</h3>
-
-<?php
-
-$ip = $_POST['ip'];
-$httpagent = $_POST['httpagent'];
-$fromdom = $_POST['fromdom'];
-$nameis = $_POST['nameis'];
-$visitormail = $_POST['visitormail'];
-$school = $_POST['school'];
+$ip = $_SERVER['REMOTE_ADDR'];
+$httpagent = $_SERVER['HTTP_USER_AGENT'];
+$user_supplied_params = array('fromdom', 'nameis', 'visitormail', 'school', 'feedback', 'rating', 'referrer');
+foreach ($user_supplied_params as $var)
+  {
+    if (isset($_POST[$var]))
+      ${$var} = $_POST[$var];
+    else
+      /* Obviously, the user has not actually  */
+      page::redirect('feedback.php');
+  }
 $school_id = isset($_SESSION['school']) ? $_SESSION['school'] : '';
-$feedback = $_POST['feedback'];
-$rating = $_POST['rating'];
-$referrer = $_POST['referrer'];
 
 $saved_schedules = array();
 if (!empty($_SESSION['saved']))
@@ -56,36 +63,41 @@ if (!empty($_SESSION['saved']))
 $saved_schedules = implode(', ', $saved_schedules);
 
 $reject = FALSE;
+$messages = '';
 
 if (preg_match('/https?:/i', $feedback)) { 
-  echo '<p>Please do not include URLs in your submission! Please click "back" and try again.</p>';
+  $messages .= '<p>Please do not include URLs in your submission!</p>' . PHP_EOL;
   $reject = TRUE;
 }
-if (empty($visitormail) || !preg_match('/^[^@]+@[^@]+\.[^@]+$/', $visitormail)) {
-  echo '<p>Please click "back" and enter valid e-mail address.</p>';
+if (empty($visitormail) || !preg_match('/^[^@]+@[^@]+\.[^@]+$/', $visitormail)
+    || !($visitormail = filter_var($visitormail, FILTER_VALIDATE_EMAIL)))
+  {
+  $messages .= '<p>Please enter a valid e-mail address.</p>' . PHP_EOL;
   $reject = TRUE;
 }
 if(empty($nameis) || empty($feedback) || empty($visitormail)) {
-  echo '<p>Please click "back" and fill in all fields.</p>';
+  $messages .= '<p>You must fill in in all of the fields.</p>' . PHP_EOL;
   $reject = TRUE;
 }
 
 /** Check the captcha */
 if ($use_captcha)
   {
-    if (!$securimage->check($_REQUEST['captcha_code']))
+    if (empty($_REQUEST['captcha_code'])
+	|| !$securimage->check($_REQUEST['captcha_code']))
       {
-	echo '<p>Your captcha response was incorrect or expired. Please try again.</p>';
+	$messages .= '<p>Your captcha response was incorrect or expired.</p>';
 	$reject = TRUE;
       }
   }
 
+$success = FALSE;
 if (!$reject)
   {
     $feedback = stripcslashes($feedback);
 
     $message = gmdate('l, F j, Y, g:i a') ."
-From: $nameis ($visitormail)
+From: $nameis <$visitormai>
 School: $school ($school_id)\n
 Rating: $rating 
 Feedback: $feedback 
@@ -102,7 +114,11 @@ saved_schedules = $saved_schedules
     /* $feedback_emails has its default set in inc/class.page.inc, can be set in config.inc */
     foreach($feedback_emails as $toaddr)
       {
-	mail($toaddr, $subject, $message, $from);
+	$success = mail($toaddr, $subject, $message, $from);
+	if (!$success)
+	  {
+	    $messages .= '<p>This Slate Permutate installation is misconfigured and unable to send email. Please contact the administrator of this website using a more direct means if possible.</p>' . PHP_EOL;
+	  }
       }
 
     if($feedback_disk_log) {
@@ -110,7 +126,16 @@ saved_schedules = $saved_schedules
       fwrite($file, $message . "----------------------------------------\n");
       fclose($file);
     }
-    echo '<p>Thanks for helping make SlatePermutate better. Your feedback is greatly appreciated.</p>';
-    echo '<p>We will attempt to respond via email if your feedback lends itself to a response.</p>';
   }
-    $feedbackpage->foot();
+if ($success)
+  page::redirect('feedback-submit.php?success');
+else
+  echo '<h3>Error</h3>' . PHP_EOL
+    . $messages;
+
+$repost = array();
+foreach ($user_supplied_params as $user_supplied_param)
+  $repost[$user_supplied_param] = $_POST[$user_supplied_param];
+echo $feedbackpage->query_formbutton('feedback.php', $repost, $feedbackpage->entities('try again'), '<p>Consider the error messages, then ', '.</p>');
+
+$feedbackpage->foot();

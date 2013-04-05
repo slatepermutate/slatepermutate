@@ -823,6 +823,25 @@ class page
 
   /**
    * \brief
+   *   Return an array of name=value pairs that are urlencoded.
+   *
+   * Supports query_string() and query_formbutton().
+   */
+  private static function _uriencode_query_array(array $query)
+  {
+    $query_string_parts = array();
+    foreach ($query as $param => $values)
+      {
+	if (!is_array($values))
+	  $values = array($values);
+	foreach ($values as $value)
+	  $query_string_parts[] = rawurlencode($param) . '=' . rawurlencode($value);
+      }
+    return $query_string_parts;
+  }
+
+  /**
+   * \brief
    *   Form a query string from a map.
    *
    * \param $query
@@ -836,17 +855,136 @@ class page
    */
   public static function query_string(array $query, $question = TRUE)
   {
-    $query_string_parts = array();
-    foreach ($query as $param => $values)
+    $query_string_parts = self::_uriencode_query_array($query);
+    if (count($query_string_parts))
+      return ($question ? '?' : '') . implode('&', $query_string_parts);
+    return '';
+  }
+
+  /**
+   * \brief
+   *   Return an HTML form button which submits all keys, as many of
+   *   them with GET as possible.
+   *
+   * Allows one to automatically delegate fatter values to be POSTed
+   * to prevent the querystring from getting too long and making the
+   * URI itself become too long. Always returns a <form/> with a
+   * <button/>. The <form/> may be method="GET", unless there is too
+   * much data in which case it becomes method="POST".
+   *
+   * Currently, this function will mess up the order of parameters. If
+   * order matters, this function will not work for you.
+   *
+   * \sa query_string()
+   *   An alternative to calling query_string() when unbounded amounts
+   *   of data may need to be transmitted.
+   *
+   * \param $uri
+   *   The URI to submit the data to. Will be used as-is.
+   * \param $query
+   *   The map of parameters onto values.
+   * \param $button_html
+   *   A valid XHTML fragment to place inside of the button, such as
+   *   page::entities($text) telling the user what the button does.
+   * \param $button_pre_html
+   *   The HTML which wraps around the <button/>, such as the opening
+   *   of a <p/> within which a <button/> may be placed.
+   * \param $button_post_html
+   *   The close of the HTML wrapping around the <button/>, such as
+   *   the closing of a <p/>.
+   */
+  public function query_formbutton($uri, array $query, $button_html, $button_pre_html, $button_post_html)
+  {
+    /*
+     * Recommended, but low, upper URI limit. Modern browsers can
+     * handle around 2000+ chars, so could be upped to 2000 without
+     * harm probably.
+     */
+    $uri_len_limit=255;
+
+    /*
+     * Calculate urlencoded lengths of param/values so as to greedily
+     * take the smallest params into GET…
+     */
+    $uriencoded_parts = self::_uriencode_query_array($query);
+
+    /*
+     * Join parameters of the same name together…
+     */
+    $flirting_uriencoded_parts = array();
+    foreach ($uriencoded_parts as $uriencoded_part)
+      {
+	list($key) = explode('=', $uriencoded_part);
+	if (empty($flirting_uriencoded_parts[$key]))
+	  $flirting_uriencoded_parts[$key] = $uriencoded_part;
+	else
+	  $flirting_uriencoded_parts[$key] .= '&' . $uriencoded_part;
+      }
+
+    usort($flirting_uriencoded_parts, function($a, $b) {
+	$a_strlen = strlen($a);
+	$b_strlen = strlen($b);
+	/*
+	 * There is no “ursort()”, so reverse the sort so that
+	 * shortest is first.
+	 */
+	return $a_strlen > $b_strlen ? 1 : $a_strlen == $b_strlen ? 0 : -1;
+      });
+
+    $uri_orig = $uri;
+    $query_orig = $query;
+    if (strpos($uri, '?') === FALSE
+	&& !empty($uriencoded_parts))
+      $uri .= '?';
+    $uri_len = strlen($uri);
+
+    $first = TRUE;
+    foreach ($flirting_uriencoded_parts as $last => $flirting_uriencoded_part)
+      {
+	if (($new_uri_len = ($first ? 0 : 1) + $uri_len + strlen($flirting_uriencoded_part)) > $uri_len_limit)
+	  break;
+	if ($first)
+	  $first = FALSE;
+	else
+	  $uri .= '&';
+
+	$uri .= $flirting_uriencoded_part;
+	$uri_len = $new_uri_len;
+
+	/*
+	 * Drop this param from the $query array as we have taken care
+	 * of it and don’t need to have it be in POST.
+	 */
+	list($key) = explode('=', $flirting_uriencoded_part);
+	$key = rawurldecode($key);
+	unset($query[$key]);
+      }
+
+    if (empty($query))
+      {
+	$method = 'get';
+	/*
+	 * When making a <form method="get"/>, the browser will clear
+	 * out the entire querystring portion of the URI. Thus, we
+	 * need to reformat everything as <input/>… We can only have
+	 * some things in action="" as GET params if our form is POST.
+	 */
+	$query = $query_orig;
+	$uri = $uri_orig;
+      }
+    else
+      $method = 'post';
+    $form = '<form method="' . self::entities($method) . '" action="' . self::entities($uri) . '">' . PHP_EOL;
+    foreach ($query as $key => $values)
       {
 	if (!is_array($values))
 	  $values = array($values);
 	foreach ($values as $value)
-	  $query_string_parts[] = rawurlencode($param) . '=' . rawurlencode($value);
+	  $form .= '  <input type="hidden" name="' . self::entities($key) . '" value="' . self::entities($value) . '" ' . $this->element_self_close() . '>' . PHP_EOL;
       }
-    if (count($query_string_parts))
-      return ($question ? '?' : '') . implode('&', $query_string_parts);
-    return '';
+    return ''
+      . $form . '  ' . $button_pre_html . '<button type="submit">' . $button_html . '</button>' . $button_post_html . PHP_EOL
+      . '</form>';
   }
 
   /**
@@ -957,5 +1095,17 @@ class page
     if ($this->xhtml)
       return ' /';
     return '';
+  }
+
+  /**
+   * \brief
+   *   Encode things using htmlentities() with proper precautions.
+   */
+  public static function entities($text)
+  {
+    $opts = ENT_QUOTES;
+    if (defined('ENT_XML1'))
+      $opts |= ENT_XML1;
+    return htmlentities($text, $opts, 'utf-8');
   }
 }
