@@ -436,6 +436,15 @@ function school_crawl_webadvisor_semester(array $school, Semester $semester, &$s
 
       $results_dom = new DOMDocument();
       $results_dom->loadHTML($html);
+      $results_xpath = new DOMXPath($results_dom);
+
+      $results_errorText = $results_xpath->query('//div[@class="errorText"]');
+      if ($results_errorText->length)
+	{
+	  school_crawl_logf($school_crawl_log, 6, "Skipping a page because “%s”.", $results_errorText->item(0)->textContent);
+	  break;
+	}
+
       $results_form = _school_crawl_webadvisor_form($results_dom, $school_crawl_log);
       if (empty($results_form))
 	return 1;
