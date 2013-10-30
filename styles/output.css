@@ -199,6 +199,13 @@ td{
 {
   float: right;
 }
+/*
+ * For link-blurb generators to read, not humans to directly see.
+ */
+.sectionList, #courseList
+{
+  display: none;
+}
 
 table {
   border-radius: 5px;

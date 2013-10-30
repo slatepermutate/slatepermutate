@@ -592,6 +592,23 @@ class Schedule
         if ($have_saturday)
           $dayloop_max = 6;
 
+        /*
+         * Something to describe the whole page to a link-blurb
+         * generator (like Facebook’s link-sharer), so per-course.
+         */
+        echo '    <div id="courseList" class="description" title="Chosen Courses."><p>' . PHP_EOL;
+        foreach ($this->courses as $course_j => $course)
+          {
+            if ($course_j)
+              echo ';' . PHP_EOL;
+            $title = $course->title_get();
+            echo '      ' . page::entities(
+              $course->getName()
+              . (empty($title) ? '' : ': ' . $title));
+          }
+        echo '. There are ' . $this->nPermutations . ' valid permutation' . ($this->nPermutations == 1 ? '' : 's') . ' for these courses.' . PHP_EOL;
+        echo '    </p></div>' . PHP_EOL;
+
         echo '    <div id="regDialog" title="Registration Codes">' . PHP_EOL
 	  . '      <div id="regDialog-content"></div>' . PHP_EOL
 	  . '      <p class="regDialog-disclaimer graytext">' . PHP_EOL
@@ -685,8 +702,37 @@ class Schedule
             $have_credit_hours = FALSE;
 
 	     echo  '      <div class="section" id="tabs-' . ($i+1) . "\">\n";
-  
-	    // Beginning of table
+
+             /*
+              * A description readable by link blurb-generators (like
+              * facebook’s link sharer) per permutation (so
+              * section-specific). This gets picked up by the
+              * blurb-generators because they respect fragments in
+              * URIs.
+              */
+             echo '    <div class="sectionList"><p>' . PHP_EOL;
+             foreach ($this->courses as $course_j => $course)
+               {
+                 foreach ($course as $course_slot)
+                   {
+                     $section = $course_slot->section_get_i($this->storage[$i][$course_j]);
+                     if ($course_j)
+                       echo ';' . PHP_EOL;
+                     $instructors = array();
+                     foreach ($section as $section_meeting)
+                       if ($instructor = $section_meeting->instructor_get())
+                         $instructors[$instructor] = TRUE;
+                     $title = $course->title_get();
+                     echo '      ' . page::entities(
+                       $course->getName() . '-' . $section->getLetter()
+                       . (empty($title) ? '' : ': ' . $title)
+                       . (empty($instructors) ? '' : ' with ' . implode(', ', array_keys($instructors))));
+                   }
+               }
+             echo '.' . PHP_EOL;
+             echo '    </p></div>' . PHP_EOL;
+
+             // Beginning of table
 	    echo "        <table style=\"empty-cells:show;\" border=\"1\" cellspacing=\"0\">\n";
 				
 	    // Header row
