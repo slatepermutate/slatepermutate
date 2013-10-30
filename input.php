@@ -274,7 +274,7 @@ $inputPage->showSavedScheds($_SESSION);
   To get started, enter in a course identifier (e.g., <em>
   <?php echo empty($semester) || empty($semester['popular_course_id']) ? school_example_course_id($inputPage->get_school()) : $semester['popular_course_id']; ?></em>)
   and click the autosuggestion to automatically load available sections
-  for each class.
+  for each class. (Please note that autosuggestion data may occasionally fall out of sync with your registrar’s records).
   <?php else: ?>
   To get started, enter a course number and add some sections to it.
   Then specify each section's letter/number and what times it meets,

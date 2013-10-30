@@ -918,6 +918,7 @@ class Schedule
 	. '<p id="created-time">' . PHP_EOL
 	. '  Created <span class="cute-time">' . gmdate('c', $this->created) . '</span>.' . PHP_EOL
 	. '</p>' . PHP_EOL;
+    echo '<p><em>Please note that a saved schedule may have fallen out of sync with the course schedule as published by your registrar. To ensure that you are using up-to-date information, <a href="input.php">recreate your schedule</a>.</em></p>' . PHP_EOL;
 
     $outputPage->foot();
   }
