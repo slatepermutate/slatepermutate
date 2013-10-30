@@ -651,13 +651,15 @@ class page
    *   Specify the sort of session-related cache limitation is used,
    *   see session_cache_limiter().
    */
-  public static function session_start($cache_limiter = 'nocache')
+  public static function session_start($cache_limiter = 'nocache', $cache_expire = NULL)
   {
     static $session_started = FALSE;
 
     if (!$session_started)
       {
 	session_cache_limiter($cache_limiter);
+	if ($cache_expire !== NULL)
+	  session_cache_expire($cache_expire);
 	session_name('slate_permutate');
 	session_start();
 	$session_started = TRUE;

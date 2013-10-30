@@ -41,8 +41,6 @@ require_once('inc/class.course.inc');
  */
 if (!empty($_GET['school']) && !empty($_GET['semester']))
   {
-    header('Expires: ' . gmdate(DATE_RFC1123, time() + 600));
-    header('Cache-Control: max-age=600, public');
     $cache_limiter = 'public';
   }
 else
@@ -54,7 +52,7 @@ else
     header('Vary: Cookie');
     $cache_limiter = 'private';
   }
-page::session_start($cache_limiter);
+page::session_start($cache_limiter, 10);
 
 if (isset($_REQUEST['txt'])) {
   header('Content-Type: text/plain; encoding=utf-8');
