@@ -606,7 +606,7 @@ class Schedule
               $course->getName()
               . (empty($title) ? '' : ': ' . $title));
           }
-        echo '. There are ' . $this->nPermutations . ' valid permutation' . ($this->nPermutations == 1 ? '' : 's') . ' for these courses.' . PHP_EOL;
+        echo '. There ' . ($this->nPermutations == 1 ? 'is' : 'are') . ' ' . $this->nPermutations . ' valid permutation' . ($this->nPermutations == 1 ? '' : 's') . ' for these courses.' . PHP_EOL;
         echo '    </p></div>' . PHP_EOL;
 
         echo '    <div id="regDialog" title="Registration Codes">' . PHP_EOL
