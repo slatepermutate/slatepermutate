@@ -68,21 +68,11 @@ define('CEDARVILLE_TIMEZONE_OFFSET', 60*60 * -4);
  */
 function cedarville_crawl_semester_list(array $school, array &$semesters, &$school_crawl_log)
 {
-  $uri = CEDARVILLE_BASE_URI;
-  $cookies = array();
-  $html = school_crawl_geturi($uri, $cookies, $school_crawl_log);
-  if (empty($html))
-    {
-      school_crawl_logf($school_crawl_log, 1, "Unable to fetch %s.", CEDARVILLE_BASE_URI);
-      return 1;
-    }
-
-  $semesters_dom = new DOMDocument();
-  $semesters_dom->loadHTML($html);
-
-  $departments_xpath = new DOMXPath($semesters_dom);
   $have_semesters = FALSE;
-  foreach ($departments_xpath->query('//*[@id="contenttext"]//li/a') as $department_a_dom)
+  $departments_xpath_results = _cedarville_semester_findlinks($school_crawl_log);
+  if (empty($departments_xpath_results))
+      return 1;
+  foreach ($departments_xpath_results as $department_a_dom)
     {
       $semester_href = $department_a_dom->getAttribute('href');
       $semester_href_parts = explode('_', $semester_href);
@@ -101,12 +91,6 @@ function cedarville_crawl_semester_list(array $school, array &$semesters, &$scho
       $semesters[] = new Semester($semester_year, $semester_season);
       $have_semesters = TRUE;
     }
-
-  /*
-   * Prime cedarville_semester_uri()'s cache to have one fewer page
-   * load.
-   */
-  cedarville_semester_uri(NULL, $school_crawl_log, $semesters_dom);
 
   return $have_semesters ? 0 : 1;
 }
@@ -338,10 +322,12 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 		    {
 		      $course_dom = new DOMDocument();
 		      $course_dom->loadHTML($course_html);
-		      if ($subject_td = $course_dom->getElementById('main_0_subjectLink'))
+		      $course_dom_xpath = new DOMXPath($course_dom);
+		      foreach ($course_dom_xpath->query('//*[contains(@id, "subjectLink")]') as $subject_td)
 			{
 			  $subject_name = preg_replace('/ *\\[[A-Z]*\\]$/', '', $subject_td->nodeValue);
 			  $semester->department_name_set($section_parts['department'], $subject_name);
+			  break;
 			}
 		    }
 		}
@@ -350,6 +336,36 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
     }
 
   return 0;
+}
+
+/**
+ * \brief
+ *   Load the semesters listing page and load an xpath query on the
+ *   semester links list.
+ *
+ * \param $school_crawl_log
+ *   The obligatory logger reference.
+ * \param $document
+ *   A preloaded DOMDocument of the semester listing page.
+ */
+function _cedarville_semester_findlinks(&$school_crawl_log, DOMDocument $document = NULL)
+{
+  if (empty($document))
+    {
+      $uri = CEDARVILLE_BASE_URI;
+      $cookies = array();
+      $html = school_crawl_geturi($uri, $cookies, $school_crawl_log);
+      if (empty($html))
+	{
+	  school_crawl_logf($school_crawl_log, 1, "Unable to fetch %s.", CEDARVILLE_BASE_URI);
+	  return NULL;
+	}
+
+      $document = new DOMDocument();
+      $document->loadHTML($html);
+    }
+
+  return (new DOMXPath($document))->query('//*[starts-with(@id, "content")]//li/a');
 }
 
 /**
@@ -373,25 +389,20 @@ function cedarville_semester_uri(Semester $semester = NULL, &$school_crawl_log, 
 
   if (empty($semester_to_uri))
     {
-      if (empty($document))
-	{
-	  $uri = CEDARVILLE_BASE_URI;
-	  $cookies = array();
-	  $html = school_crawl_geturi($uri, $cookies, $school_crawl_log);
-	  if (empty($html))
-	    return NULL;
-
-	  $document = new DOMDocument();
-	  $document->loadHTML($html);
-	}
-
-      $departments_xpath = new DOMXPath($document);
-      foreach ($departments_xpath->query('//*[@id="contenttext"]//li/a') as $department_a_dom)
+      $departments_xpath_result = _cedarville_semester_findlinks($school_crawl_log, $document);
+      if (empty($departments_xpath_result))
+	return NULL;
+      foreach ($departments_xpath_result as $department_a_dom)
 	{
 	  $semester_href = $department_a_dom->getAttribute('href');
 
 	  $semester_name = $department_a_dom->textContent;
 
+	  if (strpos($semester_name, ' ') === FALSE)
+	    {
+	      school_crawl_logf($school_crawl_log, 7, "Unparsable semester name: %s", $semester_name);
+	      continue;
+	    }
 	  list($semester_year, $semester_season) = explode(' ', $semester_name);
 	  $semester_season = strtolower($semester_season);
 
@@ -431,7 +442,7 @@ function cedarville_crawl_departments_get($dept_url, array &$departments, $seaso
     }
   $xpath = new DOMXPath($dept_dom);
 
-  $dept_node_list = $xpath->query('/descendant::div[@id="contenttext"]/child::span[position()=1 or position()=2]/child::a');
+  $dept_node_list = $xpath->query('//div[starts-with(@id, "content") or @id = "page-content"]/child::span[position()=1 or position()=2]/child::a');
   foreach ($dept_node_list as $dept_node)
     {
       $href = $dept_node->getAttribute('href');
