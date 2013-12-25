@@ -1,4 +1,4 @@
-==Coding Standards==
+# Coding Standards
 
 * Do not use strptime(). Use DateTime::createFromFormat() instead so
   as to support Windows.
