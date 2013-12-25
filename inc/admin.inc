@@ -468,7 +468,7 @@ function schedule_store_purge_range($schedule_store, $time_min = 0, $time_max = 
   if (!$admin_enable_purge)
     return FALSE;
 
-  for ($schedule_id = 0; $schedule_id < $schedule_id_max; $schedule_id ++)
+  for ($schedule_id = 0; $schedule_id <= $schedule_id_max; $schedule_id ++)
     {
       $filename = $schedule_store['dir'] . DIRECTORY_SEPARATOR . $schedule_id;
       if (!file_exists($filename))
