@@ -724,9 +724,10 @@ class page
 	  $port = NULL;
 	  if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 80)
 	    {
-	      if ($_SERVER['SERVER_PORT'] == 443 || !empty($_SERVER['HTTPS']))
+	      if ($_SERVER['SERVER_PORT'] == 443
+		  || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'))
 		$proto .= 's';
-	      if ($_SERVER['SERVER_PORT'] != 433)
+	      if ($_SERVER['SERVER_PORT'] != 443)
 		$port = $_SERVER['SERVER_PORT'];
 	    }
 	  
