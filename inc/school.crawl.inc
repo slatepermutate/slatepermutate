@@ -387,7 +387,8 @@ function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post =
       curl_setopt($curl, CURLOPT_POSTFIELDS, $posttxt);
     }
 
-  curl_exec($curl);
+  if (!curl_exec($curl))
+    school_crawl_logf($school_crawl_log, 4, "curl_exec() error for uri=%s: %s", $uri, curl_error($curl));
   curl_close($curl);
 
   $location = NULL;
