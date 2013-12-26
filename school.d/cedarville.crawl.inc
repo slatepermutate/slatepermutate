@@ -268,8 +268,8 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 	      $meetings_str = substr($meetings_str, strlen($meeting_matches[0]));
 
 	      $days = school_crawl_days_str_format($school_crawl_log, $meeting_matches[3]);
-	      $time_start = school_crawl_time_format(strptime($meeting_matches[4] . 'M', '%I:%M%p'));
-	      $time_end = school_crawl_time_format(strptime($meeting_matches[5] . 'M', '%I:%M%p'));
+	      $time_start = school_crawl_time_format(DateTime::createFromFormat('h:ia', $meeting_matches[4] . 'M', new DateTimeZone('UTC')));
+	      $time_end = school_crawl_time_format(DateTime::createFromFormat('h:ia', $meeting_matches[5] . 'M', new DateTimeZone('UTC')));
 	      $room = $meeting_matches[2];
 
 	      $type = school_crawl_meeting_type($meeting_matches[1]);
@@ -278,8 +278,8 @@ function cedarville_crawl_semester(array $school, Semester $semester, &$school_c
 	      $date_start = $date_end = NULL;
 	      if (count($meeting_matches) > 7)
 		{
-		  $date_start = school_crawl_gmmktime(strptime($meeting_matches[6], '%m/%d/%y'), CEDARVILLE_TIMEZONE_OFFSET);
-		  $date_end = school_crawl_gmmktime(strptime($meeting_matches[7], '%m/%d/%y'), CEDARVILLE_TIMEZONE_OFFSET);
+		  $date_start = DateTime::createFromFormat('m/d/y', $meeting_matches[6], new DateTimeZone('UTC'))->getTimeStamp() + CEDARVILLE_TIMEZONE_OFFSET;
+		  $date_end = DateTime::createFromFormat('m/d/y', $meeting_matches[7], new DateTimeZone('UTC'))->getTimeStamp() + CEDARVILLE_TIMEZONE_OFFSET;
 		}
 
 	      /*

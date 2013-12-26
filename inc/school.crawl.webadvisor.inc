@@ -609,21 +609,21 @@ function school_crawl_webadvisor_semester(array $school, Semester $semester, &$s
 	  $meeting_type = school_crawl_meeting_type($meeting_info_matches[3]);
 
 	  $days = school_crawl_days_format($school_crawl_log, explode(', ', $meeting_info_matches[5]));
-	  $time_start = school_crawl_time_format(strptime($meeting_info_matches[6], '%I:%M%p'));
-	  $time_end = school_crawl_time_format(strptime($meeting_info_matches[7], '%I:%M%p'));
+	  $time_start = school_crawl_time_format(DateTime::createFromFormat('g:ia', $meeting_info_matches[6], new DateTimeZone('UTC')));
+	  $time_end = school_crawl_time_format(DateTime::createFromFormat('g:ia', $meeting_info_matches[7], new DateTimeZone('UTC')));
 	  $meeting_place = $meeting_info_matches[8];
 
 	  foreach (array('date_start', 'date_end', 'meeting_type', 'days', 'time_start', 'time_end', 'meeting_place', 'meeting_type') as $var)
 	    school_crawl_logf($school_crawl_log, 10, "%s:%s", $var, ${$var});
 
-	  $date_start_time = strptime($date_start, '%m/%d/%Y');
-	  $date_end_time = strptime($date_end, '%m/%d/%Y');
+	  $date_start_time = DateTime::createFromFormat('m/d/Y', $date_start, new DateTimeZone('UTC'));
+	  $date_end_time = DateTime::createFromFormat('m/d/Y', $date_end, new DateTimeZone('UTC'));
 	  if ($date_start_time !== FALSE)
-	    $date_start_time = school_crawl_gmmktime($date_start_time, -5 * 60*60);
+	    $date_start_time = $date_start_time->getTimeStamp();
 	  else
 	    $date_start_time = NULL;
 	  if ($date_end_time !== FALSE)
-	    $date_end_time = school_crawl_gmmktime($date_end_time, -5 * 60*60) + 24*60*60;
+	    $date_end_time = $date_end_time->getTimeStamp();
 	  else
 	    $date_end_time = NULL;
 

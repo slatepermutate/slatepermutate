@@ -264,7 +264,7 @@ function ccbcmd_crawl_semester($school, $semester, &$school_crawl_log)
 	  }
 
 	$time_start_text = substr($time_range_text, 0, $dash_pos);
-	$time_start = strptime($time_start_text, '%I:%M %p');
+	$time_start = DateTime::createFromFormat('h:i a', $time_start_text, new DateTimeZone('UTC'));
 	$time_end_text = substr($time_range_text, $dash_pos + 1);
 	/*
 	 * Make sure that _only_ one date range is specified to ensure
@@ -282,7 +282,7 @@ function ccbcmd_crawl_semester($school, $semester, &$school_crawl_log)
 		    $time_range_text, $time_end_text);
 	    continue;
 	  }
-	$time_end = strptime($time_end_text, '%I:%M %p');
+	$time_end = DateTime::createFromFormat('h:i a', $time_end_text, new DateTimeZone('UTC'));
 	if ($time_end === FALSE || $time_start === FALSE)
 	  {
 	    school_crawl_logf($school_crawl_log, 4, "Error parsing start or end time: start: ``%s'' end: ``%s''.",

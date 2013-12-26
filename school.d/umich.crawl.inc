@@ -278,12 +278,12 @@ function umich_crawl_semester(array $school, Semester $semester, &$school_crawl_
        * Grab start/stop dates.
        */
       $date_start = $date_end = NULL;
-      $date_start_tm = strptime(trim($row[$fields['Start Date']]), '%m/%d/%Y');
-      $date_end_tm = strptime(trim($row[$fields['End Date']]), '%m/%d/%Y');
+      $date_start_tm = DateTime::createFromFormat('m/d/Y', trim($row[$fields['Start Date']]), new DateTimeZone('UTC'));
+      $date_end_tm = DateTime::createFromFormat('m/d/Y', trim($row[$fields['End Date']]), new DateTimeZone('UTC'));
       if (!empty($date_start_tm) && !empty($date_end_tm))
 	{
-	  $date_start = school_crawl_gmmktime($date_start_tm);
-	  $date_end = school_crawl_gmmktime($date_end_tm);
+	  $date_start = $date_start_tm->getTimeStamp();
+	  $date_end = $date_end_tm->getTimeStamp();
 	  if ($date_start < 1000000 || $date_end < 1000000)
 	    {
 	      $date_start = $date_end = NULL;

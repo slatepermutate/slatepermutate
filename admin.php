@@ -82,10 +82,7 @@ $adminpage = page::page_create('Administration', $scripts);
       {
 	$purge_date = NULL;
 	if(isset($_GET['purgetodate']))
-	  {
-	    $t = strptime($_REQUEST['purgetodate'], '%Y-%m-%d');
-	    $purge_date = mktime($t['tm_hour'], $t['tm_min'], $t['tm_sec'], $t['tm_mon'], $t['tm_mday'], $t['tm_year'] + 1900);
-	  }
+	  $purge_date = DateTime::createFromFormat('Y-m-d', $_GET['purgetodate'])->getTimeStamp();
 
 	$schedule_store = schedule_store_init();
 	if (!$schedule_store)

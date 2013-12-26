@@ -185,8 +185,8 @@ function dordt_crawl_semester(array $school, Semester $semester, &$school_crawl_
 				    $timestuff);
 		  continue;
 		}
-	      $time_start = school_crawl_time_format(strptime($matches[1], '%l:%M %p'));
-	      $time_end = school_crawl_time_format(strptime($matches[2], '%l:%M %p'));
+	      $time_start = school_crawl_time_format(DateTime::createFromFormat('h:i a', $matches[1], new DateTimeZone('UTC')));
+	      $time_end = school_crawl_time_format(DateTime::createFromFormat('h:i a', $matches[2], new DateTimeZone('UTC')));
 	      $days = school_crawl_days_format($school_crawl_log, explode('/', $matches[3]));
 
 	      school_crawl_logf($school_crawl_log, 1, "Adding %s", $dept . '-' . $course . '-' . $section);

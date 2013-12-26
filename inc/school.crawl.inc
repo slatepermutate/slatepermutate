@@ -111,39 +111,15 @@ function school_crawl_log_fetch(array $school_crawl_log, $html = FALSE)
 
 /**
  * \brief
- *   Parse a simple time string into slate_permutate's time
- *   representation.
+ *   Render a DateTime into slate_permutate's time representation.
  *
  * \param $time
- *   An array compatible with the return value of strptime(). The only
- *   fields we use are 'tm_hour', which is from 0 through 23, and
- *   'tm_min', which may be from 0 through 50.
+ *   A DateTime object. We only respect the hour of day and minute of
+ *   the hour fields.
  */
 function school_crawl_time_format($time)
 {
-  return sprintf('%02d%02d', $time['tm_hour'], $time['tm_min']);
-}
-
-/**
- * \brief
- *   Equivalent of gmmktime() except that it accepts strptime()'s
- *   output format as an input.
- *
- * \param $tm
- *   An array formatted as the output of strptime().
- * \param $timezone_offset
- *   Optional offset of the school's timezone in seconds from
- *   UTC. This offset gets _added_ to the resulting timestamp. So, for
- *   example, Eastern Daylight Time would use a value of 60*60 * -4
- *   since it is -0400 during Daylight time.
- * \return
- *   A unix timestamp.
- */
-function school_crawl_gmmktime(array $tm, $timezone_offset = 0)
-{
-  return gmmktime($tm['tm_hour'], $tm['tm_min'], $tm['tm_sec'],
-		$tm['tm_mon'] + 1, $tm['tm_mday'], $tm['tm_year'] + 1900)
-    + $timezone_offset;
+  return $time->format('Hi');
 }
 
 /**
