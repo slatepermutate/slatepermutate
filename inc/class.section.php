@@ -188,7 +188,7 @@ class Section implements IteratorAggregate
     $ret = array();
 
     $section_spec = trim($section_spec);
-    if (!preg_match(';([a-zA-Z]+)[^0-9]*;', $section_spec, $dept_matches))
+    if (!preg_match(';([a-zA-Z]+)[^0-9a-zA-Z]*;', $section_spec, $dept_matches))
       return $ret;
 
     /*
