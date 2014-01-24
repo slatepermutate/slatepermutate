@@ -258,7 +258,19 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
   if ($verbosity > 0)
     school_crawl_logf($school_crawl_log, 2, "Calling %s()...", $school_crawl_semesters_list_func);
 
-  $ret = $school_crawl_semesters_list_func($school, $semesters, $school_crawl_log);
+  $ret = 1;
+  try
+    {
+      $ret = $school_crawl_semesters_list_func($school, $semesters, $school_crawl_log);
+    }
+  catch (Exception $ex)
+    {
+      school_crawl_logf(
+	$school_crawl_log, 2, "Calling %s() resulted in exception: %s\n%s",
+	$school_crawl_semesters_list_func,
+	$ex->getMessage(),
+	$ex->getTraceAsString());
+    }
   if ($ret)
     {
       school_crawl_logf($school_crawl_log, 1, "Crawling %s failed: %s() returned nonzero",
@@ -279,7 +291,20 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
   foreach ($semesters as $semester)
     {
       school_crawl_logf($school_crawl_log, 2, "Calling %s(%s)...", $school_crawl_semester_func, $semester);
-      $ret = $school_crawl_semester_func($school, $semester, $school_crawl_log);
+      $ret = 1;
+      try
+	{
+	  $ret = $school_crawl_semester_func($school, $semester, $school_crawl_log);
+	}
+      catch (Exception $ex)
+	{
+	  school_crawl_logf(
+	    $school_crawl_log, 2, "Calling %s() for semester %s resulted in exception: %s\n%s",
+	    $school_crawl_semester_func,
+	    $semester,
+	    $ex->getMessage(),
+	    $ex->getTraceAsString());
+	}
       if ($ret)
 	{
 	  school_crawl_logf($school_crawl_log, 1, "Failed to crawl semester %s. Skipping semester.", $semester);
