@@ -706,9 +706,10 @@ function school_crawl_webadvisor_course_add(Semester $semester, $department, $co
 function _school_crawl_webadvisor_form($dom, array &$school_crawl_log)
 {
   $xpath = new DOMXPath($dom);
-  foreach ($xpath->query('.//form[@name="datatelform"]') as $dom_form)
+  foreach ($xpath->query('//form[@name="datatelform"]') as $dom_form)
     return school_crawl_form($dom_form);
   school_crawl_logf($school_crawl_log, 2, "Unable to find form[@name=\"datatelform\"].");
+  school_crawl_logf($school_crawl_log, 10, "Unable to find form[@name=\"datatelform\"] in document which was parsed as: %s", $dom->saveXML());
   return NULL;
 }
 
