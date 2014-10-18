@@ -1,6 +1,6 @@
 <?php /* -*- mode: php; -*- */
 /*
- * Copyright 2012 Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
+ * Copyright 2014 Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
  *
  * This file is a part of slate_permutate.
  *
@@ -24,6 +24,6 @@ function cornerstone_info()
     'example_course_id' => 'ENGL 101',
     'name' => 'Cornerstone University',
     'student_address' => 'Eagle',
-    'webadvisor_url' => 'https://solomon.cornerstone.edu/COLLIVE/WebAdvisor',
+    'webadvisor_url' => 'https://webadvisor.cornerstone.edu/WAPROD/WebAdvisor',
   );
 }
