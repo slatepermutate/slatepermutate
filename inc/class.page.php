@@ -51,6 +51,8 @@ $admin_enable_purge = FALSE;
 $qtips_always = FALSE;
 $input_warning_banner = FALSE;
 $feedback_disk_log = FALSE;
+$ratelimit_maxschedules = 16;
+$ratelimit_destination = 'http://comeget.ohnopub.net/pul.jpg';
 
 $config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
 if (file_exists($config_inc)) {

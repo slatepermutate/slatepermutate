@@ -185,3 +185,16 @@
 /* $s3_accesskey = ''; */
 /* $s3_secretkey = ''; */
 /* $s3_bucket = 'myslatepermutate'; */
+
+/**
+ * \brief
+ *   Set to a numeric value to specify the maximum allowed schedules
+ *   per minute.
+ */
+/* $ratelimit_maxschedules = 16; */
+
+/**
+ * \brief
+ *   Destination to redirect ratelimited users to.
+ */
+/* $ratelimit_destination = 'http://comeget.ohnopub.net/pul.jpg'; */

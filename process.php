@@ -112,6 +112,32 @@ $DEBUG = FALSE;
 if (isset($_GET['debug']))
   $DEBUG = $_GET['debug'];
 
+if ($ratelimit_maxschedules)
+  {
+    /*
+     * Enforce a rate limit. We mostly just want to prevent people from
+     * spammily making lots of schedules. Our particular attacker uses a
+     * browser for their scriptkiddie trolling, so they have session
+     * support and we’ll just use that.
+     */
+    if (empty($_SESSION['ratelimit_firsttime'])
+        || $_SESSION['ratelimit_firsttime'] < time() - 60)
+      {
+        $_SESSION['ratelimit_count'] = 0;
+        $_SESSION['ratelimit_firsttime'] = time();
+      }
+
+    if ($_SESSION['ratelimit_count'] > $ratelimit_maxschedules)
+      {
+        if (!preg_match(',^(http:|https:),', $ratelimit_destination))
+          $ratelimit_destination = page::uri_resolve($ratelimit_destination);
+
+        header('Location: ' . $ratelimit_destination);
+        exit();
+      }
+    $_SESSION['ratelimit_count']++;
+  }
+
 $schedule_store = schedule_store_init();
 
 if(!$DEBUG)
