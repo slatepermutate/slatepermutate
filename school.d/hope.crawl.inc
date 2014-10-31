@@ -161,7 +161,7 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
    */
   $semester_form += array('sel_subj' => array());
   foreach (school_crawl_form_select_array($dom_select_subject, FALSE) as $subject_name => $junk)
-    if (!in_array($subject_name, $semester_form['sel_sub']))
+    if (!in_array($subject_name, $semester_form['sel_subj']))
       $semester_form['sel_subj'][] = $subject_name;
 
   if (!empty($semester_form_action))
