@@ -133,9 +133,9 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
   $semester_form_action = $semester_form_node->getAttribute('action');
   $semester_form['term'] = $dom_select_term->getAttribute('value');
 
-  foreach ($xpath->query('.//select[@name="sel_subj"]') as $dom_select_term)
+  foreach ($xpath->query('.//select[@name="sel_subj"]') as $dom_select_subject)
     break;
-  if (empty($dom_select_term))
+  if (empty($dom_select_subject))
     {
       school_crawl_logf($school_crawl_log, 4, "Unable to find Subject-selecting form input");
       return 1;
@@ -144,10 +144,25 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
   /*
    * Manually select all of the different sorts of subject materials
    * since selecting no subjects doesn't result in listing them all.
+   *
+   * Note when setting sel_subj: it may already contain a “dummy”
+   * entry in it. Now, if you submit this form and get the HTML
+   * results, you will see that the HTML result table works perfectly
+   * fine without the initial “dummy” entry in it. HOWEVER, below when
+   * submitting the CSV <form/>, the Oracle form handler for CSV
+   * generation *ignores* the first value of sel_subj. Also, the CSV
+   * <form/> on the HTML results page exactly mirrors whatever
+   * sel_subj we set here. Therefore, we mustn’t munge the “dummy”
+   * value from sel_subj. Thus… we just act as consumers and only
+   * append missing subjects to it. Originally, we mistakenly omitted
+   * the dummy value and ended up thus excluding the ACCT/Accounting
+   * subject entirely. Thanks to Cody Stuive (cody dot stuive at hope
+   * edu) for noticing!.
    */
-  $semester_form['sel_subj'] = array();
-  foreach (school_crawl_form_select_array($dom_select_term, FALSE) as $subject_name => $junk)
-    $semester_form['sel_subj'][] = $subject_name;
+  $semester_form += array('sel_subj' => array());
+  foreach (school_crawl_form_select_array($dom_select_subject, FALSE) as $subject_name => $junk)
+    if (!in_array($subject_name, $semester_form['sel_sub']))
+      $semester_form['sel_subj'][] = $subject_name;
 
   if (!empty($semester_form_action))
     $uri = school_crawl_url($uri, $semester_form_action);
