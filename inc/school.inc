@@ -464,7 +464,8 @@ function school_default_courses($school)
  */
 function school_example_course_id(array $school)
 {
-  return $school['example_course_id'];
+  $example_id = @$school['example_course_id'];
+  return $example_id;
 }
 
 /**

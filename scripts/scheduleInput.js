@@ -109,7 +109,10 @@ function addTips()
  /* slate_permutate_example_course_id is set globally in input.php. */
  jQuery('td:first', td).qtip(
    {
-      content: 'Start typing your class ID (such as ' + slate_permutate_example_course_id + ') and click a suggestion to add sections',
+       content: ''
+		   + 'Start typing your class ID'
+		   + (slate_permutate_example_course_id ? ' (such as ' + slate_permutate_example_course_id + ')' : '')
+		   + ' and click a suggestion to add sections.',
       style: {
         tip: true,
         classes: "ui-tooltip-dark ui-tooltip-shadow ui-tooltip-rounded"
