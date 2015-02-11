@@ -52,7 +52,7 @@ $qtips_always = FALSE;
 $input_warning_banner = FALSE;
 $feedback_disk_log = FALSE;
 $ratelimit_maxschedules = 16;
-$ratelimit_destination = 'http://comeget.ohnopub.net/' . (rand(0, 1) ? 'pul.jpg' : '7vw.gif');
+$ratelimit_destination = 'http://comeget.ohnopub.net/' . (rand(0, 1) ? 'pul.jpg' : 'jdl.gif');
 
 $config_inc = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.inc';
 if (file_exists($config_inc)) {

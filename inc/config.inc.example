@@ -197,4 +197,4 @@
  * \brief
  *   Destination to redirect ratelimited users to.
  */
-/* $ratelimit_destination = 'http://comeget.ohnopub.net/' . (rand(0, 1) ? 'pul.jpg' : '7vw.gif'); */
+/* $ratelimit_destination = 'http://comeget.ohnopub.net/' . (rand(0, 1) ? 'pul.jpg' : 'jdl.gif'); */
