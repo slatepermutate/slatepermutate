@@ -20,11 +20,13 @@
 
 function ccbcmd_info()
 {
-  return array('name' => 'Community College of Baltimore County',
+  return array(
+    'name' => 'Community College of Baltimore County',
 	       'url' => 'http://ccbcmd.edu/',
 	       'domains' => array(
 				  'ccbcmd.edu',
 				  ),
+    'oracle_uri' => 'https://simon.ccbcmd.edu/pls/PROD/bwckschd.p_disp_dyn_sched',
 	       'student_address' => 'student',
 	       'example_course_id' => 'ENGL 101',
 	       );
