@@ -526,6 +526,19 @@ function school_crawl_form(DOMElement $form_node)
 	  foreach ($xpath->query('.//option[@selected]', $select_node) as $option_node)
 	    if ($option_node->hasAttribute('value'))
 	      $form[$select_name][] = $option_node->getAttribute('value');
+	  /*
+	   * If the <select/> is not multiple and selected="selected"
+	   * doesn’t exist anywhere, the browser would automatically
+	   * choose the first <option/>.
+	   */
+	  if (!$select_node->hasAttribute('multiple')
+	      && empty($form[$select_name]))
+	    foreach ($xpath->query('.//option', $select_node) as $option_node)
+	      {
+		if ($option_node->hasAttribute('value'))
+		  $form[$select_name][] = $option_node->getAttribute('value');
+		break;
+	      }
 	}
     }
 
