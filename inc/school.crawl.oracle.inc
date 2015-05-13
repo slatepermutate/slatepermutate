@@ -34,12 +34,19 @@ require_once $incdir . 'class.section_meeting.inc';
 
 define('_SCHOOL_CRAWL_ORACLE_START_FORM', 'bwckschd.p_disp_dyn_sched');
 
-function _school_crawl_oracle_common_prep(array &$school, array &$options)
+function _school_crawl_oracle_common_prep(
+  array &$school,
+  array &$options,
+  &$curlsetup_hook,
+  &$data_resolver)
 {
   $school += array('oracle_uri' => $school['url'] . 'PROD/' . _SCHOOL_CRAWL_ORACLE_START_FORM);
   $options += array(
     'curlsetup_hook' => '_school_crawl_oracle_curlhook_ssl3',
+    'data_resolver' => new SchoolCrawlOracleDataResolver,
   );
+  $curlsetup_hook = $options['curlsetup_hook'];
+  $data_resolver = $options['data_resolver'];
 }
 
 function _school_crawl_oracle_curlhook_ssl3(&$curl)
@@ -70,17 +77,23 @@ function _school_crawl_oracle_curlhook_ssl3(&$curl)
  *   The school_crawl_log handle.
  * \param $options
  *   An array with optional arguments 'curlsetup_hook', a function
- *   called on curl handles before use.
+ *   called on curl handles before use.  May also include key
+ *   data_resolver which should be an instance of
+ *   SchoolCrawlOracleDataResolver.
  */
 function school_crawl_oracle_semester_list(array $school, array &$semesters, &$school_crawl_log, array $options = array())
 {
-  _school_crawl_oracle_common_prep($school, $options);
+  _school_crawl_oracle_common_prep(
+    $school,
+    $options,
+    $curlsetup_hook,
+    $data_resolver);
 
   $cookies = array();
 
   $uri = $school['oracle_uri'];
   $semesters_dom = new DOMDocument();
-  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, $options['curlsetup_hook']));
+  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, $curlsetup_hook));
   $semesters_select_node = $semesters_dom->getElementById('term_input_id');
   if ($semesters_select_node === NULL)
     {
@@ -102,6 +115,7 @@ function school_crawl_oracle_semester_list(array $school, array &$semesters, &$s
 	continue;
 
       list($semester_season, $semester_year) = explode(' ', $semester_text);
+      $semester_year = trim($semester_year);
 
       /* the college has two separate summer sessions, so distinguish between them */
       if (preg_match(';session ([0-9]+);i', $semester_text, $matches))
@@ -115,12 +129,16 @@ function school_crawl_oracle_semester_list(array $school, array &$semesters, &$s
 
 function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_log, array $options = array())
 {
-  _school_crawl_oracle_common_prep($school, $options);
+  _school_crawl_oracle_common_prep(
+    $school,
+    $options,
+    $curlsetup_hook,
+    $data_resolver);
 
   $cookies = array();
   $uri = $school['oracle_uri'];
   $semesters_dom = new DOMDocument();
-  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, $options['curlsetup_hook']));
+  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, $curlsetup_hook));
   $semesters_select_node = $semesters_dom->getElementById('term_input_id');
   if (empty($semesters_select_node))
     {
@@ -148,6 +166,9 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 
       school_crawl_logf($school_crawl_log, 5, "Parsing semester_text=%s", $semester_text);
       list($semester_season, $semester_year) = explode(' ', $semester_text);
+      $semester_year = trim($semester_year);
+
+      /* the college has two separate summer sessions, so distinguish between them */
       if (preg_match(';session ([0-9]+);i', $semester_text, $matches))
 	$semester_season .= '_' . $matches[1];
       $semester_season = strtolower($semester_season);
@@ -169,7 +190,7 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 
   $subjects_dom = new DOMDocument();
   $uri = school_crawl_url($uri, $semesters_form->getAttribute('action'));
-  $subjects_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $semesters_post, TRUE, $options['curlsetup_hook']));
+  $subjects_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $semesters_post, TRUE, $curlsetup_hook));
 
   $subjects_form_nodelist = $subjects_dom->getElementsByTagName('form');
   if (!$subjects_form_nodelist->length)
@@ -189,14 +210,19 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	$subjects_post[$subjects_select_name][] = $subjects_option_node->getAttribute('value');
 	$subjects_select_found_all = TRUE;
       }
-  /* Support there being no “all”—instead, just actually select everything ^^ */
+  /*
+   * Support there being no “all”—instead, just actually select
+   * everything ^^. Though, truly, I think the oracle server can
+   * handle smaller chunks better than the ridiculousness of trying to
+   * return everything at once.
+   */
   if (!$subjects_select_found_all)
     foreach ($subjects_select_node->childNodes as $subjects_option_node)
       $subjects_post[$subjects_select_name][] = $subjects_option_node->getAttribute('value');
 
   $courses_dom = new DOMDocument();
   $uri = school_crawl_url($uri, $subjects_form_node->getAttribute('action'));
-  $courses_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $subjects_post, TRUE, $options['curlsetup_hook']));
+  $courses_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $subjects_post, TRUE, $curlsetup_hook));
 
   $courses_xpath = new DOMXPath($courses_dom);
 
@@ -209,47 +235,47 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
     }
   $tr_header_node = $tr_header_nodelist->item(0);
 
-  $section_offsets = array(
-			   'registration_number' => school_crawl_table_resolve_column($tr_header_node, 'CRN'),
-			   'section_id' => school_crawl_table_resolve_column($tr_header_node, 'subj/crse/sec'),
-			   /* there's a boolean column which says whether or not the course has any prerequisites/corequisites.... */
-			   'credits' => school_crawl_table_resolve_column($tr_header_node, 'credhrs'),
-			   /* there's a column for the number of contact hours, vs. credit hours */
-			   'dates' => school_crawl_table_resolve_column($tr_header_node, 'sessiondates'),
-			   );
-  foreach (array('title', 'days', 'times', 'instructor', 'location') as $column_key)
-    $section_offsets[$column_key] = school_crawl_table_resolve_column($tr_header_node, $column_key);
-  /* there's also a column for ``session dates'' */
+  $section_getters = array();
+  foreach (
+    array(
+      'registration_number',
+      'section_id',
+      'credits',
+      'dates',
+      'title',
+      'days',
+      'times',
+      'instructor',
+      'location',
+    ) as $column_key)
+    $section_getters[$column_key] = $data_resolver->resolve($column_key, $tr_header_node);
 
-  /* error check and calculate the number of children that a node must have to be  */
-  $max_offset = 0;
-  foreach ($section_offsets as $name => $value)
+  /* error check */
+  foreach ($section_getters as $name => $section_getter)
     {
-      if ($value === FALSE)
+      if (empty($section_getter))
 	{
-	  school_crawl_logf($school_crawl_log, 0, "Unable to find column offset for `%s'.",
-		  $name);
+	  school_crawl_logf(
+	    $school_crawl_log, 0, "Unable to find column offset for “%s”.",
+	    $name);
 	  return 1;
 	}
       else
-	school_crawl_logf($school_crawl_log, 9, "%s -> %s", $name, $value);
-
-      $max_offset = max($max_offset, $value);
+	school_crawl_logf($school_crawl_log, 9, "%s → %s", $name, $section_getter);
     }
-      
+
   foreach ($courses_xpath->query('//table[@class="datadisplaytable"]//tr') as $tr_node)
     {
+      school_crawl_logf($school_crawl_log, 9, "Found a table.");
       $children = school_crawl_table_rownodes($tr_node);
-      if ($children->length < $max_offset)
+
+      $suitable = TRUE;
+      foreach ($section_getters as $section_getter)
+	$suitable = $suitable && $section_getter->valid($tr_node, $children);
+      if (!$suitable)
 	/*
-	 * Skip this row because it doesn't have all of the columns we
-	 * want and thus it can't be a row containing information
-	 * about a section.
-	 */
-	continue;
-      if (!strcmp($children->item($section_offsets['section_id'])->tagName, 'th'))
-	/*
-	 * We've hit one of the <tr/>s filled with <th/>s. Skip this one.
+	 * Skip this row because it isn’t suitable for reading data
+	 * from.
 	 */
 	continue;
 
@@ -265,9 +291,10 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
        * subsequent rows are describing additional SectionMeetings
        * which should be added to the existing Section.
        */
-      $section_id = trim($children->item($section_offsets['section_id'])->textContent);
+      $section_id = trim($section_getters['section_id']->get($tr_node, $children)->textContent);
       if (strlen($section_id) > 2)
 	{
+	  school_crawl_logf($school_crawl_log, 8, "Handling section %s.", $section_id);
 	  /**
 	   * \todo
 	   *   If a section's section ID ends in `W', like `EFW', that
@@ -276,11 +303,11 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	   *   disabling them from showing up by default.
 	   */
 	  $section_id_parts = Section::parse($section_id);
-	  $registration_number = $children->item($section_offsets['registration_number'])->textContent;
-	  $credit_hours = (float)$children->item($section_offsets['credits'])->textContent;
+	  $registration_number = $section_getters['registration_number']->get($tr_node, $children)->textContent;
+	  $credit_hours = (float)$section_getters['credits']->get($tr_node, $children)->textContent;
 	  $section = new Section($section_id_parts['section'], array(), $registration_number, $credit_hours);
 	  $semester->section_add($section_id_parts['department'], $section_id_parts['course'], $section,
-				 trim($children->item($section_offsets['title'])->textContent));
+				 trim($section_getters['title']->get($tr_node, $children)->textContent));
 	}
       if (empty($section))
 	{
@@ -288,10 +315,10 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	  continue;
 	}
 
-      $instructor = $children->item($section_offsets['instructor'])->textContent;
+      $instructor = $section_getters['instructor']->get($tr_node, $children)->textContent;
 
       {
-	$time_range_text = $children->item($section_offsets['times'])->textContent;
+	$time_range_text = $section_getters['times']->get($tr_node, $children)->textContent;
 	if (strpos($time_range_text, 'TBA') !== FALSE)
 	  /*
 	   * There is no way to get meeting info and create
@@ -333,9 +360,9 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	    continue;
 	  }
 
-	$days = school_crawl_days_str_format($school_crawl_log, $children->item($section_offsets['days'])->textContent);
+	$days = school_crawl_days_str_format($school_crawl_log, $section_getters['days']->get($tr_node, $children)->textContent);
 
-	$section_dates = $children->item($section_offsets['dates'])->textContent;
+	$section_dates = $section_getters['dates']->get($tr_node, $children)->textContent;
 	$date_start = $date_end = NULL;
 	if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches))
 	  {
@@ -343,12 +370,90 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	    $date_end = gmmktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get());
 	  }
 
-	$section->meeting_add(new SectionMeeting($days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
-						 $children->item($section_offsets['location'])->textContent,
-						 'lecture',
-						 $instructor, $date_start, $date_end));
+	$section->meeting_add(
+	  new SectionMeeting(
+	    $days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
+	    $section_getters['location']->get($tr_node, $children)->textContent,
+	    'lecture',
+	    $instructor,
+	    $date_start,
+	    $date_end));
       }
     }
 
   return 0;
+}
+
+class SchoolCrawlOracleDataColumnGetter
+{
+  public function __construct($column_i)
+  {
+    $this->column_i = $column_i;
+  }
+
+  function access(DOMNodeList $children)
+  {
+    return $children->item($this->column_i);
+  }
+
+  public function get(DOMNode $tr_node, DOMNodeList $children)
+  {
+    return $this->access($children);
+  }
+
+  /**
+   * \brief
+   *   Check whether or not this column getter can be used on a
+   *   particular row.
+   */
+  public function valid(DOMNode $tr_node, DOMNodeList $children)
+  {
+    return true
+      /*
+       * Any row that doesn’t have enough columns is considered
+       * unsuitable.
+       */
+      && $this->column_i < $children->length
+      /*
+       * Any row where our data column turns out to be a header isn’t
+       * good.
+       */
+      && strcmp($this->access($children)->tagName, 'th')
+      ;
+  }
+
+  public function __toString()
+  {
+    return 'c[' . $this->column_i . ']';
+  }
+}
+
+class SchoolCrawlOracleDataResolver
+{
+  /*
+   * This default mapping is for ccbcmd. But as more oracle schools
+   * are added, can move what seems uncommon out to ccbcmd itself.
+   */
+  private $key_mapping = array(
+    'registration_number' => 'CRN',
+    'section_id' => 'subj/crse/sec',
+    'credits' => 'credhrs',
+    'dates' => 'sessiondates',
+  );
+
+  /**
+   * \returns
+   *   A SchoolCrawlOracleDataGetter that can be used to get that
+   *   piece of data.
+   */
+  public function resolve($key, $tr_header_node)
+  {
+    $this->key_mapping += array(
+      $key => $key,
+    );
+
+    $column_i = school_crawl_table_resolve_column($tr_header_node, $this->key_mapping[$key]);
+    if ($column_i !== FALSE)
+      return new SchoolCrawlOracleDataColumnGetter($column_i);
+  }
 }
