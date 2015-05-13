@@ -19,3 +19,6 @@ style: regex
 # Doxygen-generated stuff
 ^slate_permutate.tagfile
 ^html/
+
+# geturi() development feature: geturi() facade.
+^geturi_facade/

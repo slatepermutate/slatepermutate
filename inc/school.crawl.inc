@@ -312,7 +312,33 @@ function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post =
     $curlsetup_hook($curl);
 
   $school_crawl_geturi_headers_buf = '';
-  curl_setopt($curl, CURLOPT_URL, $uri);
+  $mapped_uri = $uri;
+
+  /*
+   * Enable the developer to create the directory geturi_facade and
+   * place files that would be fetched over the Internet there to
+   * speed up development. This is useful in cases where the school
+   * websites are slow to respond. It turns out that a lot of these
+   * websites just have server side code that runs for a long time and
+   * then suddenly dumps data on us—it’s not a matter of the main
+   * dev’s home bandwidth. But this could also help in other
+   * situations and, for example, even enable passionate developers to
+   * work without Internet if they can anticipate the need.
+   */
+  $facade_dir = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'geturi_facade';
+  if (is_dir($facade_dir))
+    {
+      $mapped_uri_parts = explode('/', $mapped_uri);
+      $facade_path = $facade_dir . DIRECTORY_SEPARATOR . end($mapped_uri_parts);
+      school_crawl_logf($school_crawl_log, 2, "Checking for facade entry %s", $facade_path);
+      if (is_file($facade_path))
+	{
+	  school_crawl_logf($school_crawl_log, 0, "Substituting %s for %s due to development and testing facade feature.", $facade_path, $mapped_uri);
+	  $mapped_uri = 'file://' . str_replace('\\', '/', $facade_path);
+	}
+    }
+
+  curl_setopt($curl, CURLOPT_URL, $mapped_uri);
 
   $cookies_str = '';
   foreach ($cookies as $key => $val)
