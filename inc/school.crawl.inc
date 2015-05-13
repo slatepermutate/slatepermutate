@@ -648,10 +648,8 @@ function school_crawl_url($orig_url, $url)
  * \param $column_name
  *   The name of the column to search for.
  * \param $strcmp
-
  *   The function to use with a strcmp($text_content, $column_name) interface when judging
  *   whether or not a <th />'s textContent matches $column_name.
-
  * \param $trim
  *   The function to apply to the <th />'s textContent before
  *   subjecting it to the $strcmp test.
