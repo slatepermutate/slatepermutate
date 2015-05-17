@@ -35,6 +35,7 @@ require_once $incdir . 'class.section_meeting.inc';
 define('_SCHOOL_CRAWL_ORACLE_START_FORM', 'bwckschd.p_disp_dyn_sched');
 
 function _school_crawl_oracle_common_prep(
+  array &$school_crawl_log,
   array &$school,
   array &$options,
   &$curlsetup_hook,
@@ -43,7 +44,7 @@ function _school_crawl_oracle_common_prep(
   $school += array('oracle_uri' => $school['url'] . 'PROD/' . _SCHOOL_CRAWL_ORACLE_START_FORM);
   $options += array(
     'curlsetup_hook' => '_school_crawl_oracle_curlhook_ssl3',
-    'data_resolver' => new SchoolCrawlOracleDataResolver,
+    'data_resolver' => new SchoolCrawlOracleDataResolver($school_crawl_log),
   );
   $curlsetup_hook = $options['curlsetup_hook'];
   $data_resolver = $options['data_resolver'];
@@ -84,6 +85,7 @@ function _school_crawl_oracle_curlhook_ssl3(&$curl)
 function school_crawl_oracle_semester_list(array $school, array &$semesters, &$school_crawl_log, array $options = array())
 {
   _school_crawl_oracle_common_prep(
+    $school_crawl_log,
     $school,
     $options,
     $curlsetup_hook,
@@ -130,6 +132,7 @@ function school_crawl_oracle_semester_list(array $school, array &$semesters, &$s
 function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_log, array $options = array())
 {
   _school_crawl_oracle_common_prep(
+    $school_crawl_log,
     $school,
     $options,
     $curlsetup_hook,
@@ -226,14 +229,14 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 
   $courses_xpath = new DOMXPath($courses_dom);
 
-  /* The second row of the table has all of the headers in it */
-  $tr_header_nodelist = $courses_xpath->query('//table[@class="datadisplaytable"]//tr[position()=2]');
-  if (!$tr_header_nodelist->length)
+  /* Find the first subtable with at least a section listing in it. */
+  foreach ($courses_xpath->query('//table[@class="datadisplaytable"]/tr[th[@class="ddheader"]]') as $tr_header_node)
+    break;
+  if (empty($tr_header_node))
     {
       school_crawl_logf($school_crawl_log, 0, "Unable to find the row of the course/section data table which gives us the mappings of column names onto columns.");
       return 1;
     }
-  $tr_header_node = $tr_header_nodelist->item(0);
 
   $section_getters = array();
   foreach (
@@ -264,14 +267,21 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	school_crawl_logf($school_crawl_log, 9, "%s → %s", $name, $section_getter);
     }
 
-  foreach ($courses_xpath->query('//table[@class="datadisplaytable"]//tr') as $tr_node)
+  $row_i = -1;
+  foreach ($courses_xpath->query('//table[@class="datadisplaytable" and tr/th[@class="ddheader"]]/tr[not(th[@class="ddheader"])]') as $tr_node)
     {
-      school_crawl_logf($school_crawl_log, 9, "Found a table.");
+      $row_i++;
+      school_crawl_logf($school_crawl_log, 9, "Found a row.");
       $children = school_crawl_table_rownodes($tr_node);
 
       $suitable = TRUE;
-      foreach ($section_getters as $section_getter)
-	$suitable = $suitable && $section_getter->valid($tr_node, $children);
+      foreach ($section_getters as $key => $section_getter)
+	if (!$section_getter->valid($tr_node, $children))
+	  {
+	    school_crawl_logf($school_crawl_log, 0, "Row %d unsuitable for key %s", $row_i, $key);
+	    $suitable = FALSE;
+            return 1;
+	  }
       if (!$suitable)
 	/*
 	 * Skip this row because it isn’t suitable for reading data
@@ -291,7 +301,7 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
        * subsequent rows are describing additional SectionMeetings
        * which should be added to the existing Section.
        */
-      $section_id = trim($section_getters['section_id']->get($tr_node, $children)->textContent);
+      $section_id = trim($section_getters['section_id']->get($tr_node, $children));
       if (strlen($section_id) > 2)
 	{
 	  school_crawl_logf($school_crawl_log, 8, "Handling section %s.", $section_id);
@@ -301,24 +311,25 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	   *   means it's a semi-online course. We should probably
 	   *   distinguish these from normal sections, probably
 	   *   disabling them from showing up by default.
+	   *   —ccbcmd specific probably!
 	   */
 	  $section_id_parts = Section::parse($section_id);
-	  $registration_number = $section_getters['registration_number']->get($tr_node, $children)->textContent;
-	  $credit_hours = (float)$section_getters['credits']->get($tr_node, $children)->textContent;
+	  $registration_number = $section_getters['registration_number']->get($tr_node, $children);
+	  $credit_hours = (float)$section_getters['credits']->get($tr_node, $children);
 	  $section = new Section($section_id_parts['section'], array(), $registration_number, $credit_hours);
 	  $semester->section_add($section_id_parts['department'], $section_id_parts['course'], $section,
-				 trim($section_getters['title']->get($tr_node, $children)->textContent));
+				 trim($section_getters['title']->get($tr_node, $children)));
 	}
       if (empty($section))
 	{
-	  school_crawl_logf($school_crawl_log, 4, "Expected a section row beofre having a row with only partial data. Ignoring row.");
+	  school_crawl_logf($school_crawl_log, 4, "Expected a section row before having a row with only partial data. Ignoring row.");
 	  continue;
 	}
 
-      $instructor = $section_getters['instructor']->get($tr_node, $children)->textContent;
+      $instructor = $section_getters['instructor']->get($tr_node, $children);
 
       {
-	$time_range_text = $section_getters['times']->get($tr_node, $children)->textContent;
+	$time_range_text = $section_getters['times']->get($tr_node, $children);
 	if (strpos($time_range_text, 'TBA') !== FALSE)
 	  /*
 	   * There is no way to get meeting info and create
@@ -333,9 +344,9 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	    return 1;
 	  }
 
-	$time_start_text = substr($time_range_text, 0, $dash_pos);
+	$time_start_text = trim(substr($time_range_text, 0, $dash_pos));
 	$time_start = DateTime::createFromFormat('h:i a', $time_start_text, new DateTimeZone('UTC'));
-	$time_end_text = substr($time_range_text, $dash_pos + 1);
+	$time_end_text = trim(substr($time_range_text, $dash_pos + 1));
 	/*
 	 * Make sure that _only_ one date range is specified to ensure
 	 * data integrity. I.e., make sure that the college doesn't
@@ -360,9 +371,9 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	    continue;
 	  }
 
-	$days = school_crawl_days_str_format($school_crawl_log, $section_getters['days']->get($tr_node, $children)->textContent);
+	$days = school_crawl_days_str_format($school_crawl_log, $section_getters['days']->get($tr_node, $children));
 
-	$section_dates = $section_getters['dates']->get($tr_node, $children)->textContent;
+	$section_dates = $section_getters['dates']->get($tr_node, $children);
 	$date_start = $date_end = NULL;
 	if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches))
 	  {
@@ -373,7 +384,7 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 	$section->meeting_add(
 	  new SectionMeeting(
 	    $days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
-	    $section_getters['location']->get($tr_node, $children)->textContent,
+	    $section_getters['location']->get($tr_node, $children),
 	    'lecture',
 	    $instructor,
 	    $date_start,
@@ -386,19 +397,22 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 
 class SchoolCrawlOracleDataColumnGetter
 {
-  public function __construct($column_i)
+  protected $school_crawl_log;
+
+  public function __construct(array &$school_crawl_log, $column_i)
   {
+    $this->school_crawl_log = &$school_crawl_log;
     $this->column_i = $column_i;
   }
 
   function access(DOMNodeList $children)
   {
-    return $children->item($this->column_i);
+    return school_crawl_table_rownode_index($children, $this->column_i);
   }
 
   public function get(DOMNode $tr_node, DOMNodeList $children)
   {
-    return $this->access($children);
+    return $this->access($children)->textContent;
   }
 
   /**
@@ -408,17 +422,17 @@ class SchoolCrawlOracleDataColumnGetter
    */
   public function valid(DOMNode $tr_node, DOMNodeList $children)
   {
-    return true
+    $value = $this->access($children);
+    return TRUE
       /*
-       * Any row that doesn’t have enough columns is considered
-       * unsuitable.
+       * Does the index even point to something?
        */
-      && $this->column_i < $children->length
+      && !empty($value)
       /*
        * Any row where our data column turns out to be a header isn’t
        * good.
        */
-      && strcmp($this->access($children)->tagName, 'th')
+      && strcmp($value->tagName, 'th')
       ;
   }
 
@@ -430,30 +444,38 @@ class SchoolCrawlOracleDataColumnGetter
 
 class SchoolCrawlOracleDataResolver
 {
+  protected $school_crawl_log;
+
   /*
    * This default mapping is for ccbcmd. But as more oracle schools
    * are added, can move what seems uncommon out to ccbcmd itself.
    */
-  private $key_mapping = array(
+  protected $key_mapping = array(
     'registration_number' => 'CRN',
     'section_id' => 'subj/crse/sec',
     'credits' => 'credhrs',
     'dates' => 'sessiondates',
   );
 
+  public function __construct(array &$school_crawl_log)
+  {
+    $this->school_crawl_log = &$school_crawl_log;
+  }
+
   /**
    * \returns
    *   A SchoolCrawlOracleDataGetter that can be used to get that
    *   piece of data.
    */
-  public function resolve($key, $tr_header_node)
+  public function resolve($key, DOMElement $tr_header_node)
   {
     $this->key_mapping += array(
       $key => $key,
     );
 
     $column_i = school_crawl_table_resolve_column($tr_header_node, $this->key_mapping[$key]);
+    error_log('thing req=' . $key . '→' . $this->key_mapping[$key] . '=' . $column_i);
     if ($column_i !== FALSE)
-      return new SchoolCrawlOracleDataColumnGetter($column_i);
+      return new SchoolCrawlOracleDataColumnGetter($this->school_crawl_log, $column_i);
   }
 }
