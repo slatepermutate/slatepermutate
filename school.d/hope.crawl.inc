@@ -45,6 +45,15 @@ function _hope_crawl_start(array $school, &$uri, array &$cookies, &$dom, &$xpath
   return 0;
 }
 
+function _hope_crawl_parse_term($term_text)
+{
+  if (preg_match(',(.*) (.*),', strtolower(trim($term_text)), $dom_select_terms_matches))
+    {
+      list(, $season, $year) = $dom_select_terms_matches;
+      return array($year, str_replace(' ', '_', $season));
+    }
+}
+
 /**
  * \brief
  *   Crawl the list of available semesters from Hope.
@@ -82,8 +91,13 @@ function hope_crawl_semester_list(array $school, array &$semesters, &$school_cra
     }
   foreach ($dom_select_terms as $dom_select_term)
     {
-      list($season, $year) = explode(' ', strtolower(trim($dom_select_term->textContent)));
-      $semesters[] = new Semester($year, $season);
+      /* Support formats like “Spring 2013” and “May Term 2014”. */
+      $term_text = $dom_select_term->textContent;
+      list($year, $season) = _hope_crawl_parse_term($term_text);
+      if ($year)
+	  $semesters[] = new Semester($year, $season);
+      else
+	school_crawl_logf($school_crawl_log, 2, 'Unparsable semester name: “%s”.', $term_text);
     }
 
   return 0;
@@ -114,7 +128,7 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
 
   foreach ($dom_select_terms as $dom_select_term)
     {
-      list($season, $year) = explode(' ', strtolower(trim($dom_select_term->textContent)));
+      list($year, $season) = _hope_crawl_parse_term($dom_select_term->textContent);
       if (!strcmp($year, $semester->year_get())
 	  && !strcmp($season, $semester->season_get())
 	  && $dom_select_term->hasAttribute('value'))
