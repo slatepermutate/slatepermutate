@@ -533,8 +533,8 @@ class Schedule
       echo '          <a class="button" href="input.php">Home</a>' . PHP_EOL
 	. '        </p>'. PHP_EOL
 	. '        <p class="centeredtext">Having problems? <a href="feedback.php">Let us know</a>.</p>' . PHP_EOL
-	. '        <p class="centeredtext graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>' . PHP_EOL;
-    }		
+        ;
+    }
 
     echo "\n";
 
@@ -630,12 +630,12 @@ class Schedule
 	echo '<div id="tabs">' . "\n" .
                '<div id="show-box" class="show-buttons">
                   <form action="#"><p class="nospace">
-                    <label><strong>Display:</strong></label>
-                    <input id="show-course-title" name="show-course-title" type="checkbox" /><label for="show-course-title">Course Title</label>
-                    <input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label>
-                    <input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label>
-                    <input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label>
-                    <input id="show-credit-hours" name="show-credit-hours" type="checkbox" /><label for="show-credit-hours">Credits</label>
+                    <strong>Display:</strong>
+                    <span><input id="show-course-title" name="show-course-title" type="checkbox" /><label for="show-course-title">Course Title</label></span>
+                    <span><input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label></span>
+                    <span><input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label></span>
+                    <span><input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label></span>
+                    <span><input id="show-credit-hours" name="show-credit-hours" type="checkbox" /><label for="show-credit-hours">Credits</label></span>
                     <span id="regCodes"><label><a href="#"><strong>Register for Classes</strong></a></label></span></p>
                   </form>
                 </div> <!-- id="show-box" -->'
@@ -919,6 +919,7 @@ class Schedule
 	. '  Created <span class="cute-time">' . gmdate('c', $this->created) . '</span>.' . PHP_EOL
 	. '</p>' . PHP_EOL;
     echo '<p><em>Please note that a saved schedule may have fallen out of sync with the course schedule as published by your registrar. To ensure that you are using up-to-date information, <a href="input.php">recreate your schedule</a>.</em></p>' . PHP_EOL;
+    echo '<p class="graytext"><em>Keyboard Shortcut: Left and right arrow keys switch between schedules</em></p>' . PHP_EOL;
 
     $outputPage->foot();
   }

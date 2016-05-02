@@ -17,8 +17,20 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#logo-heading {
+    max-width: 100%;
+}
+#logo-heading img {
+    max-width: 100%;
+}
+
+html {
+    width: 100%;
+}
+
 body {
-  background: #fff;
+    background: #fff;
+    max-width: 100%;
 }
 
 
@@ -27,24 +39,11 @@ body {
 #page {
   font: normal 14px sans-serif;
   background: #ffffff;
-  width: 80%;
-  padding: .5em;
   margin:auto;
-  margin-top: 2em;
 
-  min-width: 900px;
   max-width: 1100px;
 }
 #content {
-
-  -moz-box-shadow: 0 0 .7em #999;
-  -webkit-box-shadow: 0 0 .7em #999;
-  box-shadow: 0 0 .7em #999; 
-
-  -webkit-border-radius: .2em;
-  -moz-border-radius: .2em;
-  border-radius: .2em;
-
   background: #fff;
   padding: 1em;
 }
@@ -157,7 +156,8 @@ a:hover {
 /* Input Formatting */
 
 #container {
-  margin-left: 2em;
+    margin-left: 2em;
+    max-width: 100%;
 }
 .defaultText { 
   width: 300px;

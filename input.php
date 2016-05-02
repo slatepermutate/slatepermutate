@@ -306,9 +306,7 @@ $inputPage->showSavedScheds($_SESSION);
   <?php endif; ?>
 </p>
 
-<table id="container">
-  <tr>
-    <td>
+<div id="container">
       <table id="jsrows">
 	<!-- Allow CSS to apply to entire rows at a time. -->
 	<colgroup>
@@ -345,9 +343,7 @@ $inputPage->showSavedScheds($_SESSION);
           <td class="center"></td>
         </tr>
       </table>
-    </td>
-  </tr>
-</table>
+</div>
 
 <div class="credit-hours-total">
   <p>Credit Hours: <span class="credit-hours-total-value">0</span></p>
@@ -363,7 +359,7 @@ $inputPage->showSavedScheds($_SESSION);
 
 /* Show/hide Advanced Options: <p><span id="showadvanced" style="margin-left: 1em;"><a href="#">Advanced</a></span></p> */ 
 ?>
-<div id="showInstructions" style="width: 100%; text-align: center;"><a href="#">Detailed Instructions...</a></div>
+<div id="showInstructions" style="width: 100%; text-align: center;"><a href="#">Detailed Instructions…</a></div>
 
 <?php
 $inputPage->showSchoolInstructions();

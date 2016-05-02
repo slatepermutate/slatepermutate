@@ -17,6 +17,10 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#tabs {
+    border: none;
+}
+
 /* Output Table Styling */
 .top,
 .multi
@@ -158,8 +162,6 @@ td{
         color: rgba(200,200,200,1);
 }
 #tabs {
-  min-width: 400px;
-  max-width: 750px;
   margin: auto;
 }
 #tabs li /* , .ui-corner-all, .ui-corner-top */ { background: none!important; }
@@ -175,6 +177,9 @@ td{
   border-radius: 3px;
   -moz-border-radus: 3px;
 
+}
+.show-buttons form span {
+    display: inline-block;
 }
 .show-buttons label {
   padding-right: .5em;
@@ -217,6 +222,10 @@ table {
 .section
 {
     page-break-before: always;
+}
+/* override jqueryui stuff */
+.section.ui-tabs-panel {
+    padding: 0;
 }
 .section:first-child
 {

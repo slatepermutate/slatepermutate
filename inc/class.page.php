@@ -146,6 +146,7 @@ class page
     $this->pagetitle = $ntitle;
     $this->scripts = $nscripts;
     $this->meta = array(
+      'viewport' => 'initial-scale=1',
       'msapplication-starturl' => self::uri_resolve(''),
       'msapplication-task' => 'name=Create Schedule; action-uri=' . self::uri_resolve('input.php') . '; icon-uri=' . self::uri_resolve('images/favicon_96.png'),
       'msapplication-tooltip' => 'Find the semester schedule which works for you!',
@@ -417,7 +418,7 @@ class page
          '    <div id="page">'. PHP_EOL .
          '      <div id="header">'. PHP_EOL .
 	 '        <div id="title">'. PHP_EOL .
-         '          <h1><a href="index.php"><img src="images/slatepermutate-alpha.png" alt="SlatePermutate" class="noborder" /></a><br /></h1>'. PHP_EOL .
+         '          <h1 id="logo-heading"><a href="index.php"><img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" /></a></h1>'. PHP_EOL .
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
   	 '            <span id="menu">' . PHP_EOL
