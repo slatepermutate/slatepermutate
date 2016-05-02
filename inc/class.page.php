@@ -123,6 +123,7 @@ class page
     /* Begin tracking generation time */
     $this->pageGenTime = round(microtime(),4);
 
+    global $cache_buster;
     global $ga_trackers;
 
     require_once('school.inc');
@@ -131,7 +132,7 @@ class page
 
     $cb = '?_=' . htmlentities(rawurlencode(empty($cache_buster) ? '' : $cache_buster), ENT_QUOTES);
     $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>';
-    $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css" type="text/css" media="screen" charset="utf-8" />';
+    $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
     $this->headCode['jAddress'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/jquery.address-1.3.2.min.js"></script>';
     $this->headCode['jQuery.cuteTime'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/ohnobinki/2011.04.19/jquery.cuteTime.min.js"></script>';
@@ -364,6 +365,8 @@ class page
    */
   public function head()
   {
+    global $cache_buster;
+
     if ($this->xhtml) {
        header('Content-Type: application/xhtml+xml; charset=utf-8');
       echo '<?xml version="1.0" encoding="utf-8"?>' . PHP_EOL;
@@ -371,14 +374,15 @@ class page
     else
       header('Content-Type: text/html; charset=utf-8');
 
+    $cb = htmlentities('?_=' . rawurlencode(empty($cache_buster) ? '' : $cache_buster), ENT_QUOTES);
     echo '<!DOCTYPE ' . $this->doctype . '>'. PHP_EOL .
 	  '<html ' . $this->htmlargs . '>'. PHP_EOL .
 	  '  <head>'. PHP_EOL .
 	  '    <title>' . $this->pagetitle . ' - ' . $this->base_title[0] . ' - ' . $this->base_title[1] . '</title>'. PHP_EOL .
-          '    <link rel="stylesheet" href="styles/general.css" type="text/css" media="screen" charset="utf-8" />'.  PHP_EOL .
-	  '    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css" />'. PHP_EOL .
+          '    <link rel="stylesheet" href="styles/general.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />'.  PHP_EOL .
+	  '    <link rel="stylesheet" type="text/css" media="print" href="styles/print.css' . $cb . '" />'. PHP_EOL .
           '    <!--[if IE]>'. PHP_EOL .
-          '      <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" href="styles/ie.css" />'. PHP_EOL .
+          '      <link rel="stylesheet" type="text/css" media="screen" charset="utf-8" href="styles/ie.css' . $cb . '" />'. PHP_EOL .
           '    <![endif]-->'. PHP_EOL .
           '    <link rel="icon" href="images/favicon.svg" type="image/svg+xml" sizes="any" />' . PHP_EOL
       . '    <link rel="apple-touch-icon" href="images/favicon.svg" type="image/svg+xml" sizes="any" />' . PHP_EOL
