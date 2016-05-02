@@ -129,6 +129,7 @@ class page
 
     /* Scripts and styles available for inclusion */
 
+    $cb = '?_=' . htmlentities(rawurlencode(empty($cache_buster) ? '' : $cache_buster), ENT_QUOTES);
     $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>';
     $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
@@ -136,12 +137,12 @@ class page
     $this->headCode['jQuery.cuteTime'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/ohnobinki/2011.04.19/jquery.cuteTime.min.js"></script>';
     $this->headCode['qTip'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/jquery.qtip-1.0.min.js"></script>';
     $this->headCode['qTip2'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/2011.03.21/jquery.qtip.min.js"></script><link rel="stylesheet" href="http://js.ohnopub.net/js/2011.03.21/jquery.qtip.min.css" type="text/css" media="screen" />';
-    $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js"></script>';
-    $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css" type="text/css" media="screen" charset="utf-8" />';
-    $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css" type="text/css" media="screen" charset="utf-8" />'; 
-    $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css" type="text/css" media="screen" charset="utf-8" />'; 
-    $this->headCode['uiTabsKeyboard'] = '<script type="text/javascript" src="scripts/uiTabsKeyboard.js?v=20121128h"></script>';
-    $this->headCode['displayTables'] = '<script type="text/javascript" src="scripts/displayTables.js"></script>';
+    $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js' . $cb . '"></script>';
+    $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />';
+    $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />'; 
+    $this->headCode['gliderHeadcode'] = '<link rel="stylesheet" href="styles/glider.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />'; 
+    $this->headCode['uiTabsKeyboard'] = '<script type="text/javascript" src="scripts/uiTabsKeyboard.js' . $cb . '&amp;v=20121128h"></script>';
+    $this->headCode['displayTables'] = '<script type="text/javascript" src="scripts/displayTables.js' . $cb . '"></script>';
 
     $this->pagetitle = $ntitle;
     $this->scripts = $nscripts;
