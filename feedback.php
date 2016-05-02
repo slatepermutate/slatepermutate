@@ -53,22 +53,24 @@ $n = "\n";
 <input type="hidden" id="fromdom" name="fromdom" value="<?php echo htmlentities($fromdom, ENT_QUOTES); ?>" />
 
 <table>
-<tr><td><label for="nameis">Name: </label></td><td><input type="text" id="nameis" name="nameis" size="20" value="<?php echo empty($_REQUEST['nameis']) ? '' : page::entities($_REQUEST['nameis']);?>" /></td></tr>
-<tr><td><label for="visitormail">Email:</label></td><td><input type="text" id="visitormail" name="visitormail" size="20" value="<?php echo empty($_REQUEST['visitormail']) ? '' : page::entities($_REQUEST['visitormail']);?>" /></td></tr>
+<tr><td><label for="nameis">Name: </label></td><td><input type="text" id="nameis" name="nameis" size="20" required="required" value="<?php echo empty($_REQUEST['nameis']) ? '' : page::entities($_REQUEST['nameis']);?>" /></td></tr>
+<tr><td><label for="visitormail">Email:</label></td><td><input type="email" id="visitormail" name="visitormail" size="20" required="required" value="<?php echo empty($_REQUEST['visitormail']) ? '' : page::entities($_REQUEST['visitormail']);?>" /></td></tr>
 <tr><td><label for="school">School: </label></td><td><input type="text" id="school" name="school" value="<?php echo htmlentities($school['id']); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
   <tr><td><label for="referrer">Relevant Page:</label></td><td><input type="text" id="referrer" name="referrer" value="<?php echo htmlentities($referrer); ?>" size="20" /> <span class="graytext">(if relevant to your feedback)</span></td></tr>
 </table>
 <br/>
 <div id="ratings">
   <div id="ratings-label">Overall Rating:</div>
-  <input checked="checked" id="rating-great" name="rating" type="radio" value="Great" /><label for="rating-great">Great</label>
-  <input id="rating-usable" name="rating" type="radio" value="Usable" /><label for="rating-usable">Usable</label>
-  <input id="rating-buggy" name="rating" type="radio" value="Buggy/Hard to Use" /><label for="rating-buggy">Buggy/Hard to Use</label>
-  <input id="rating-unknown" name="rating" type="radio" value="Don't know" /><label for="rating-unknown">Don't Know <!-- ' --></label>
+    <div class="radio-spans">
+  <span><input checked="checked" id="rating-great" name="rating" type="radio" value="Great" /><label for="rating-great">Great</label></span>
+  <span><input id="rating-usable" name="rating" type="radio" value="Usable" /><label for="rating-usable">Usable</label></span>
+  <span><input id="rating-buggy" name="rating" type="radio" value="Buggy/Hard to Use" /><label for="rating-buggy">Buggy/Hard to Use</label></span>
+  <span><input id="rating-unknown" name="rating" type="radio" value="Don't know" /><label for="rating-unknown">Don't Know <!-- ' --></label></span>
+  </div>
 </div>
 <h3>General Comments</h3>
 <p>
-  <textarea name="feedback" rows="6" cols="40"><?php echo htmlentities($feedback_text); ?></textarea>
+  <textarea name="feedback" required="required" rows="6" cols="40"><?php echo htmlentities($feedback_text); ?></textarea>
 </p>
 
 <?php
@@ -84,7 +86,7 @@ $n = "\n";
     }
 ?>
 
-<input class="gray" type="submit" value="Send Feedback" />
+<button class="gray">Send Feedback</button>
 
 <?php if (!empty($saved_schedules)): ?>
 <p class="graytext" style="margin-top: 20pt;">

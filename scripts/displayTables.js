@@ -112,7 +112,13 @@ jQuery(document).ready( function()
       jQuery('#show-box input').change(show_box_change);
       jQuery('#show-box input').change();
 
-      jQuery("#regDialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });   
+      /*jQuery(document).on('click', '.dialog-close', function () {*/jQuery('.dialog-close').click(function () {
+	  jQuery(this).closest('.dialog-shown').removeClass('dialog-shown');
+      });
+      jQuery('#tabs').bind('tabsselect', function () {
+	  jQuery('#regDialog.dialog-shown .dialog-close').click();
+      });
+
       jQuery('#regCodes').click( function() {
         jQuery('#regDialog-content').html('<p>Loading registration information...</p>');
 
@@ -122,14 +128,14 @@ jQuery(document).ready( function()
         var tab_course_data_json_selector = '#tabs-' + tab_fragment_i + ' .course-data';
 	
         var tab_course_data_json = jQuery(tab_course_data_json_selector).text();
-        var tab_course_data = eval('(' + tab_course_data_json + ')');
+          var tab_course_data = jQuery.parseJSON(tab_course_data_json);
 
 	  slate_permutate_load(jQuery('#regDialog-content'), {school_registration_html: true, courses: tab_course_data},
 			       function(target, data) {
 				   target.html(data.html);
 			       });
 
-        jQuery("#regDialog").dialog('open');
+          jQuery("#regDialog").addClass('dialog-shown');
 
 	
 	

@@ -92,7 +92,8 @@ function default_registration_html(Page $page, array $school, array $courses)
   $html .= '  </ul>' . PHP_EOL;
   $ret = array('html' => $html);
 
-  if (!empty($school['webadvisor_url']))
+  if (!empty($school['webadvisor_url'])
+      && FALSE /* WebAdvisor fixed its XSS vulnerability which we used to support automatic registration. */)
     {
       $webadvisor_register_url = 'webadvisor.php?school=' . $school['id'] . '&sections=' . implode(',', $synonyms);
       $ret['html'] = ''

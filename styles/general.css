@@ -125,7 +125,7 @@ a:hover {
 #container .class td {
   background: #70a97c; 
 }
-#container .class input
+.radio-spans span
 {
     display: inline-block;
 }
@@ -429,4 +429,9 @@ a:hover {
 #content.credit-hours-shown .credit-hours-total
 {
     display: block;
+}
+
+/* my custom reflexive-compatible dialog stuff */
+.dialog:not(.dialog-shown) {
+    display: none;
 }

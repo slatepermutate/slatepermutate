@@ -609,7 +609,20 @@ class Schedule
         echo '. There ' . ($this->nPermutations == 1 ? 'is' : 'are') . ' ' . $this->nPermutations . ' valid permutation' . ($this->nPermutations == 1 ? '' : 's') . ' for these courses.' . PHP_EOL;
         echo '    </p></div>' . PHP_EOL;
 
-        echo '    <div id="regDialog" title="Registration Codes">' . PHP_EOL
+	echo '<div id="tabs">' . "\n" .
+               '<div id="show-box" class="show-buttons">
+                  <form action="#"><p class="nospace radio-spans">
+                    <strong>Display:</strong>
+                    <span><input id="show-course-title" name="show-course-title" type="checkbox" /><label for="show-course-title">Course Title</label></span>
+                    <span><input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label></span>
+                    <span><input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label></span>
+                    <span><input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label></span>
+                    <span><input id="show-credit-hours" name="show-credit-hours" type="checkbox" /><label for="show-credit-hours">Credits</label></span>
+                    <span id="regCodes"><label><a href="#"><strong>Register for Classes</strong></a></label></span></p>
+                  </form>
+                </div> <!-- id="show-box" -->';
+
+        echo '    <div id="regDialog" class="clear dialog" title="Registration Codes">' . PHP_EOL
 	  . '      <div id="regDialog-content"></div>' . PHP_EOL
 	  . '      <p class="regDialog-disclaimer graytext">' . PHP_EOL
 	  . '        <em>' . PHP_EOL
@@ -626,20 +639,9 @@ class Schedule
 	  . '          the information you enter correctly.' . PHP_EOL
 	  . '        </em>' . PHP_EOL
 	  . '      </p>' . PHP_EOL
+          . '      <div><button class="dialog-close">Done</button></div>' . PHP_EOL
 	  . '    </div>' . PHP_EOL;
-	echo '<div id="tabs">' . "\n" .
-               '<div id="show-box" class="show-buttons">
-                  <form action="#"><p class="nospace">
-                    <strong>Display:</strong>
-                    <span><input id="show-course-title" name="show-course-title" type="checkbox" /><label for="show-course-title">Course Title</label></span>
-                    <span><input id="show-prof" name="show-prof" type="checkbox" checked="checked" /><label for="show-prof">Professor</label></span>
-                    <span><input id="show-location" name="show-location" type="checkbox" /><label for="show-location">Room</label></span>
-                    <span><input id="show-synonym" name="show-synonym" type="checkbox" /><label for="show-synonym">Synonym</label></span>
-                    <span><input id="show-credit-hours" name="show-credit-hours" type="checkbox" /><label for="show-credit-hours">Credits</label></span>
-                    <span id="regCodes"><label><a href="#"><strong>Register for Classes</strong></a></label></span></p>
-                  </form>
-                </div> <!-- id="show-box" -->'
-	     . '<div id="the-tabs"><ul>' . "\n";
+        echo '<div id="the-tabs"><ul>' . "\n";
 
 	$suppressed_permutations = array();
 	if (!empty($_REQUEST['print']))
