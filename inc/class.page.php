@@ -418,12 +418,13 @@ class page
     if (!empty($_REQUEST['s']))
       $selectschool_query .= '&amp;s=' . (int)$_REQUEST['s'];
 
-    echo '  </head>' . PHP_EOL .
+    echo
+      '  </head>' . PHP_EOL .
 	 '  <body>'. PHP_EOL .
          '    <div id="page">'. PHP_EOL .
          '      <div id="header">'. PHP_EOL .
 	 '        <div id="title">'. PHP_EOL .
-         '          <h1 id="logo-heading"><a href="index.cgi"><img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" /></a></h1>'. PHP_EOL .
+      '          <h1 id="logo-heading"><a href="' . htmlentities($this->uri_resolve(), ENT_QUOTES) . '"><img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" /></a></h1>'. PHP_EOL .
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
   	 '            <span id="menu">' . PHP_EOL
