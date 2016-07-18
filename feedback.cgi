@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php 
 /*
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
@@ -48,7 +49,7 @@ $n = "\n";
 
 ?>
 
-<form action="feedback-submit.php" method="post">
+<form action="feedback-submit.cgi" method="post">
 <div id="feedback-form-content">
 <input type="hidden" id="fromdom" name="fromdom" value="<?php echo htmlentities($fromdom, ENT_QUOTES); ?>" />
 
@@ -79,7 +80,7 @@ $n = "\n";
       echo '' . $n
       . '  <h3>Captcha</h3>' . $n
       . '<p>' . $n
-      . '  <img id="captcha_img" src="captcha_img.php" alt="captcha image" /><br />' . $n
+      . '  <img id="captcha_img" src="captcha_img.cgi" alt="captcha image" /><br />' . $n
       . '  <label for="captcha_code">Enter the obfuscated text from the above image:</label><br />' . $n
       . '  <input id="captcha_code" name="captcha_code" type="text" />' . $n
       . '</p>' . $n;

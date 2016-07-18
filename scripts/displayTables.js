@@ -89,7 +89,7 @@ function slate_permutate_load(target, data, handler, error_handler)
 	    }
 
     jQuery.ajax({
-                url: 'ajax.php',
+                url: 'ajax.cgi',
 		data: data,
 		success: function(data, status_text, xhr)
 		{

@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php 
 /*
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
@@ -77,7 +78,7 @@ elseif (!empty($_REQUEST['e']))
   {
     /*
      * Read an errorful schedule out of $_POST, this $_POST is created
-     * by process.php when the originally sinful user produces bad
+     * by process.cgi when the originally sinful user produces bad
      * data.
      */
     $errors_fix = TRUE;
@@ -186,7 +187,7 @@ if ($school['id'] != 'default'
     /*
      * If we have chosen a school, set the canonical URL so that it
      * contains the school and, optionall, the specified
-     * schedule. This way, when Google caches the input.php page, the
+     * schedule. This way, when Google caches the input.cgi page, the
      * <title/> it sees will reflect the selected school.
      */
     $query = array('school' => $school['id']);
@@ -204,7 +205,7 @@ if ($school['id'] != 'default'
 	if (!empty($semester))
 	  $query['semester'] = $semester['id'];
       }
-    $inputPage->canonize('input.php', $query);
+    $inputPage->canonize('input.cgi', $query);
   }
 
 $inputPage->head();
@@ -219,7 +220,7 @@ if (!empty($_REQUEST['school']) && !empty($_SESSION['school']) && !strcmp($_REQU
 if (!empty($_REQUEST['selectschool'])
     || empty($school) || $school['id'] == 'default' && empty($_SESSION['school_chosen']))
   {
-    $next_page = 'input.php?';
+    $next_page = 'input.cgi?';
     if (isset($_GET['s']))
       $next_page .= 's=' . (int)$_GET['s'] . '&';
     if (isset($_GET['semester']))
@@ -245,10 +246,10 @@ if (!empty($_REQUEST['selectsemester']))
 <p>
   Choose the semester for which you wish you make a schedule from the
   list below. If any semester is missing, please <a
-  href="feedback.php?feedback=My+school+is+missing+the+&lt;semester+name&gt;+semester.">let us know</a>.
+  href="feedback.cgi?feedback=My+school+is+missing+the+&lt;semester+name&gt;+semester.">let us know</a>.
 </p>
 <?php
-  $next_page = 'input.php?';
+  $next_page = 'input.cgi?';
   if (isset($_GET['s']))
     $next_page .= 's=' . (int)$_GET['s'] . '&';
   if (!empty($_GET['school']))
@@ -283,7 +284,7 @@ $inputPage->showSavedScheds($_SESSION);
   <?php endif; ?>
 </p>
 
-<form method="post" action="process.php" id="scheduleForm">
+<form method="post" action="process.cgi" id="scheduleForm">
 <p class="nospace" style="border-left: 5px solid #999; padding-left: 5px!important; padding-top: 5px!important;"><label>Schedule Name</label><br />
 <input
     id="scheduleName"

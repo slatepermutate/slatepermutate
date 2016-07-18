@@ -22,7 +22,7 @@
  * displayFormHTML() or something was called and thus
  * readURLParameters() was called. We attempt to extract TOKENIDX and
  * update the URL GET parameter to contain TOKENIDX so that, after the
- * user is logged in, the webadvisor.php will know a valid TOKENIDX to
+ * user is logged in, the webadvisor.cgi will know a valid TOKENIDX to
  * be used to forge a form for the user. We currently assume we're on
  * a login form too.
  */

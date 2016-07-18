@@ -72,5 +72,3 @@ public function __construct($userVals, $width=600, $height=300) {
 }
 
 }
-
-?>

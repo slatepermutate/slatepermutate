@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php /* -*- mode: php; -*- */
 /*
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
@@ -52,7 +53,7 @@ foreach ($user_supplied_params as $var)
       ${$var} = $_POST[$var];
     else
       /* Obviously, the user has not actually  */
-      page::redirect('feedback.php');
+      page::redirect('feedback.cgi');
   }
 $school_id = isset($_SESSION['school']) ? $_SESSION['school'] : '';
 
@@ -128,7 +129,7 @@ saved_schedules = $saved_schedules
     }
   }
 if ($success)
-  page::redirect('feedback-submit.php?success');
+  page::redirect('feedback-submit.cgi?success');
 else
   echo '<h3>Error</h3>' . PHP_EOL
     . $messages;
@@ -136,6 +137,6 @@ else
 $repost = array();
 foreach ($user_supplied_params as $user_supplied_param)
   $repost[$user_supplied_param] = $_POST[$user_supplied_param];
-echo $feedbackpage->query_formbutton('feedback.php', $repost, $feedbackpage->entities('try again'), '<p>Consider the error messages, then ', '.</p>');
+echo $feedbackpage->query_formbutton('feedback.cgi', $repost, $feedbackpage->entities('try again'), '<p>Consider the error messages, then ', '.</p>');
 
 $feedbackpage->foot();

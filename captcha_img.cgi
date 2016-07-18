@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php /* -*- mode: php; -*- */
 /*
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
@@ -18,27 +19,14 @@
  * along with SlatePermutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once 'inc/class.page.php'; 
+require_once('inc/class.page.php');
 
-$welcomepage = page::page_create('Welcome');
+if (!$use_captcha)
+  page::show_404('Captchas are disabled.');
 
-/*
- * If we have chosen a school, set the canonical URL so that it
- * contains the school.
- */
-$query = array();
-$school = $welcomepage->get_school();
-if ($school['id'] != 'default')
-  $query['school'] = $school['id'];
-$welcomepage->canonize('', $query);
+/* Make sure that securimage works without our own sessions */
+page::session_start();
 
-$welcomepage->head();
-?>
-
-<h3>Find the schedule that works for you!</h3>
-<p>Plan your next semester with SlatePermutate! SlatePermutate generates every possible schedule with the courses you enter to let you pick the schedule that fits your life.</p>
-
-<p class="righttext" style="padding-right: 1em;"><a class="button blue large" href="input.php">Get Started</a></p>
-
-<?php
-$welcomepage->foot();
+require_once 'securimage/securimage.php';
+$securimage = new Securimage();
+echo $securimage->show();

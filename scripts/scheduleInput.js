@@ -106,7 +106,7 @@ function addTips()
   var tr = jQuery('tr');
   var td = tr.eq(tr.length-1);
 
- /* slate_permutate_example_course_id is set globally in input.php. */
+ /* slate_permutate_example_course_id is set globally in input.cgi. */
  jQuery('td:first', td).qtip(
    {
        content: ''
@@ -416,7 +416,7 @@ function add_class_n(course_id, title)
 
 		var class_elem = jQuery('.className' + classNum);
 
-		class_elem.autocomplete({ source: 'auto.php?school=' + slate_permutate_school + '&semester=' + slate_permutate_semester });
+		class_elem.autocomplete({ source: 'auto.cgi?school=' + slate_permutate_school + '&semester=' + slate_permutate_semester });
 		class_elem.bind('autocompleteselect', {class_num: classNum, class_elem: class_elem},
 			function(event, ui)
 			    {
@@ -502,7 +502,7 @@ function course_autocomplete(course_i, term)
 
     jQuery.ajax(
 	{
-	    url: 'auto.php',
+	    url: 'auto.cgi',
 	    complete: function()
 	    {
 		/*

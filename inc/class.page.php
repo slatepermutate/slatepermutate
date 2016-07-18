@@ -150,7 +150,7 @@ class page
     $this->meta = array(
       'viewport' => 'initial-scale=1',
       'msapplication-starturl' => self::uri_resolve(''),
-      'msapplication-task' => 'name=Create Schedule; action-uri=' . self::uri_resolve('input.php') . '; icon-uri=' . self::uri_resolve('images/favicon_96.png'),
+      'msapplication-task' => 'name=Create Schedule; action-uri=' . self::uri_resolve('input.cgi') . '; icon-uri=' . self::uri_resolve('images/favicon_96.png'),
       'msapplication-tooltip' => 'Find the semester schedule which works for you!',
     );
 
@@ -423,13 +423,13 @@ class page
          '    <div id="page">'. PHP_EOL .
          '      <div id="header">'. PHP_EOL .
 	 '        <div id="title">'. PHP_EOL .
-         '          <h1 id="logo-heading"><a href="index.php"><img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" /></a></h1>'. PHP_EOL .
+         '          <h1 id="logo-heading"><a href="index.cgi"><img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" /></a></h1>'. PHP_EOL .
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
   	 '            <span id="menu">' . PHP_EOL
-       . '              <em>' . $this->school['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectschool=1' . $selectschool_query . '" title="Choose a different school">(change)</a>') . PHP_EOL;
+       . '              <em>' . $this->school['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.cgi?selectschool=1' . $selectschool_query . '" title="Choose a different school">(change)</a>') . PHP_EOL;
     if (!empty($this->semester))
-      echo  '             <em>' . $this->semester['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.php?selectsemester=1' . $selectschool_query . '" title="Choose a different semester">(change)</a>') . PHP_EOL;
+      echo  '             <em>' . $this->semester['name'] . '</em>' . ($this->school_semester_constant ? '' : ' <a href="input.cgi?selectsemester=1' . $selectschool_query . '" title="Choose a different semester">(change)</a>') . PHP_EOL;
     echo '            </span>'. PHP_EOL .
          '          </p>'. PHP_EOL .
          '        </div>'. PHP_EOL .
@@ -445,7 +445,7 @@ class page
     echo '      </div> <!-- id="content" -->'. PHP_EOL;
     echo '      <div id="footer">'. PHP_EOL .
   	 '        <div id="leftfoot">'. PHP_EOL .
-	 '          <a href="feedback.php">Contact Us</a>'. PHP_EOL .
+	 '          <a href="feedback.cgi">Contact Us</a>'. PHP_EOL .
          '        </div>'. PHP_EOL .
          '        <div id="rightfoot">'. PHP_EOL .
          '          <h5>© 2012 <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a><br /></h5>'. PHP_EOL .
@@ -471,7 +471,7 @@ class page
     if (isset($session['saved']) && count($session['saved']) > 0) {
       echo '<div id="savedBox" class="note saved">' . PHP_EOL;
 
-      $process_php_s = 'process.php?s=';
+      $process_php_s = 'process.cgi?s=';
       if ($clean_urls) {
         $process_php_s = '';
       }
@@ -491,8 +491,8 @@ class page
 	  $output =  '<p class="' . $hidden . '">'  . PHP_EOL
 	    . '  <a href="' . $process_php_s . $key . '" title="View schedule #' . $key . '">#' . $key . "</a>:" 
 	    . htmlentities($name)
-	    . ' <a href="input.php?s=' . $key . '">edit</a>'
-	    . ' <a href="process.php?del=' . $key . '">delete</a>'
+	    . ' <a href="input.cgi?s=' . $key . '">edit</a>'
+	    . ' <a href="process.cgi?del=' . $key . '">delete</a>'
 	    . ' <br /><br />' . PHP_EOL
 	    . '</p>' . PHP_EOL . $output;
 
@@ -527,7 +527,7 @@ class page
    *   The link to which a &semester= or ?semester= query string
    *   should be appended.
    */
-  public function showSemesters($linkto = 'input.php')
+  public function showSemesters($linkto = 'input.cgi')
   {
     if (strpos($linkto, '?'))
       $linkto .= '&';
@@ -685,7 +685,7 @@ class page
    *
    * \param $dest
    *   A URL relative to the slate_permutate root. For example,
-   *   'input.php' or '44' (for clean urls, for example).
+   *   'input.cgi' or '44' (for clean urls, for example).
    * \param $http_code
    *   The redirection code to use, if any. For example, this can be
    *   used to implement ``permanent'' redirects if necessary.
@@ -1088,7 +1088,7 @@ class page
       return 'http://' . $_SERVER['HTTP_HOST'] . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . '' . $id;
     }
     else {
-      return 'http://' . $_SERVER['HTTP_HOST']  . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . 'process.php?s=' . $id;
+      return 'http://' . $_SERVER['HTTP_HOST']  . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . 'process.cgi?s=' . $id;
     }
   }
 

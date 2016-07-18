@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php /* -*- mode: php; -*- */
 
   include_once 'inc/class.graph.php';
@@ -40,4 +41,3 @@ echo "<pre>";
   print_r($gphArr);  */
   // Graph array
   $myGraph = new barGraph($gphArr, 900, 100);
-?>

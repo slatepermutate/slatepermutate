@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php /* -*- mode: php; -*- */
 /*
  * Copyright 2012 Nathan Phillip Brink
@@ -101,10 +102,10 @@ if (empty($_GET['TOKENIDX']))
      * WebAdvisor-specific login. This can only be done after the
      * login form has an SS allocated for it.
      */
-    webadvisor_login($page, $school, page::uri_resolve('webadvisor.php') . '?r=' . rand()
+    webadvisor_login($page, $school, page::uri_resolve('webadvisor.cgi') . '?r=' . rand()
 		     . '&sections=' . rawurlencode(empty($_GET['sections']) ? '' : $_GET['sections'])
 		     . '&school=' . rawurlencode($school['id']),
-		     page::uri_resolve('webadvisor.php?'));
+		     page::uri_resolve('webadvisor.cgi?'));
   }
 
 /*

@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php /* -*- mode: php; -*- */
 /*
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
@@ -48,7 +49,7 @@ $projectpage->head();
 <p>This program was created by <a href="http://www.calvin.edu" rel="external">Calvin College</a> and <a href="http://cedarville.edu/" rel="external">Cedarville University</a> students. SlatePermutate is written in PHP, with a valid XHTML frontend.</p>
 
 <h3>Contact</h3>
-<p>You may contact the developers via the <a href="feedback.php">feedback form</a> (preferred), or you can email individual developers as listed in the <a href="http://protofusion.org/hg/SlatePermutate">repository</a>.</p>
+<p>You may contact the developers via the <a href="feedback.cgi">feedback form</a> (preferred), or you can email individual developers as listed in the <a href="http://hg.ohnopub.net/hg/slate_permutate">repository</a>.</p>
 
 <?php
 $projectpage->foot();

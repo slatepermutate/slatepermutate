@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php /* -*- mode: php; -*- */
 /*
  * Copyright 2010 Nathan Gelderloos, Ethan Zonca, Nathan Phillip Brink
@@ -143,12 +144,12 @@ $adminpage = page::page_create('Administration', $scripts);
 
   $res = checkAction();
   if($res != '') {
-    echo '<p><em>' . $res . '</em> <a href="admin.php">(x)</a></p>';
+    echo '<p><em>' . $res . '</em> <a href="admin.cgi">(x)</a></p>';
   }
 ?>
 
 <h3>Stats</h3>
-<img src="statsGraph.php" />
+<img src="statsGraph.cgi" />
 
 <h3>Update</h3>
 <p>You are currently running version <?php echo SP_PACKAGE_VERSION; ?>. The latest available release is VERSION.</p>
@@ -159,15 +160,15 @@ $adminpage = page::page_create('Administration', $scripts);
         echo "<p>Last rehash ocurred on $lastRehash.</p>";
       }
       else {
-        echo "<p>This installation has not been rehashed. Please <a href=\"admin.php?rehash\">rehash now</a> to download school scheduling metadata.</p>";
+        echo "<p>This installation has not been rehashed. Please <a href=\"admin.cgi?rehash\">rehash now</a> to download school scheduling metadata.</p>";
       }
 ?>
 <ul>
   <li>
-    <a href="admin.php?rehash">Rehash All Institutions</a>
+    <a href="admin.cgi?rehash">Rehash All Institutions</a>
   </li>
   <li>
-    <form action="admin.php">Rehash schedules for <?php schoolsDropList(); ?>
+    <form action="admin.cgi">Rehash schedules for <?php schoolsDropList(); ?>
       <input type="hidden" name="rehash" value="1" />
       <input type="submit" value="Go &raquo;" />
     </form>
@@ -177,9 +178,9 @@ $adminpage = page::page_create('Administration', $scripts);
 <h3>Purge</h3>
     <p>The highest saved_schedule id is <a href="<?php $max_saved = getMaxSaved(); echo htmlentities(Schedule::url($max_saved)); ?>"><?php echo $max_saved;?></a>.</p>
 <ul>
-  <li><a href="admin.php?purge">Purge Entire Cache</a></li>
+  <li><a href="admin.cgi?purge">Purge Entire Cache</a></li>
   <li>
-    <form action="admin.php">Purge cache up to 
+    <form action="admin.cgi">Purge cache up to 
       <input type="text" name="purgetodate" size="8" id="datepicker"/>
       <input type="submit" value="Go &raquo;" />
       <input type="hidden" name="purge" value="1" /> <!-- simplify our server-side code -->

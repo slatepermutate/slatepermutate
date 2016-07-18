@@ -12,5 +12,11 @@ RewriteEngine on
 # For http://ohnopub.net/~ohnobinki/slate_permutate:
 # RewriteBase /~ohnobinki/slate_permutate
 
+# Use .cgi instead of .php now.
+RewriteRule ^([a-zA-Z0-9]*)\.php$ $1.cgi [R,L]
+
 RewriteCond %{QUERY_STRING} ^(.*)?$
-RewriteRule ^([0-9]+)$ process.php?s=$1&%1 [L]
+RewriteRule ^([0-9]+)$ process.cgi?s=$1&%1 [L]
+
+# Some servers don’t include this:
+#DirectoryIndex index.cgi

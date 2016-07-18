@@ -1,3 +1,4 @@
+#!/usr/bin/env php-cgi
 <?php /* -*- mode: php; -*- */
 /*
  * Copyright 2011 Nathan Phillip Brink <ohnobinki@ohnopublishing.net>
