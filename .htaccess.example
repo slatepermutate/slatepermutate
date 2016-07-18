@@ -13,7 +13,7 @@ RewriteEngine on
 # RewriteBase /~ohnobinki/slate_permutate
 
 # Use .cgi instead of .php now.
-RewriteRule ^([a-zA-Z0-9]*)\.php$ $1.cgi [R,L]
+RewriteRule ^([a-zA-Z0-9-_]*)\.php$ $1.cgi [R,L]
 
 RewriteCond %{QUERY_STRING} ^(.*)?$
 RewriteRule ^([0-9]+)$ process.cgi?s=$1&%1 [L]
