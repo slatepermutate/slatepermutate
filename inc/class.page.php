@@ -131,13 +131,13 @@ class page
     /* Scripts and styles available for inclusion */
 
     $cb = '?_=' . htmlentities(rawurlencode(empty($cache_buster) ? '' : $cache_buster), ENT_QUOTES);
-    $this->headCode['jQuery'] = '<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>';
-    $this->headCode['jQueryUI'] = '<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />';
-    $this->headCode['jValidate'] = '<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
-    $this->headCode['jAddress'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/jquery.address-1.3.2.min.js"></script>';
-    $this->headCode['jQuery.cuteTime'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/ohnobinki/2011.04.19/jquery.cuteTime.min.js"></script>';
-    $this->headCode['qTip'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/jquery.qtip-1.0.min.js"></script>';
-    $this->headCode['qTip2'] = '<script type="text/javascript" src="http://js.ohnopub.net/js/2011.03.21/jquery.qtip.min.js"></script><link rel="stylesheet" href="http://js.ohnopub.net/js/2011.03.21/jquery.qtip.min.css" type="text/css" media="screen" />';
+    $this->headCode['jQuery'] = '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>';
+    $this->headCode['jQueryUI'] = '<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script><link rel="stylesheet" href="styles/jqueryui.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />';
+    $this->headCode['jValidate'] = '<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>';
+    $this->headCode['jAddress'] = '<script type="text/javascript" src="//js.ohnopub.net/js/jquery.address-1.3.2.min.js"></script>';
+    $this->headCode['jQuery.cuteTime'] = '<script type="text/javascript" src="//js.ohnopub.net/js/ohnobinki/2011.04.19/jquery.cuteTime.min.js"></script>';
+    $this->headCode['qTip'] = '<script type="text/javascript" src="//js.ohnopub.net/js/jquery.qtip-1.0.min.js"></script>';
+    $this->headCode['qTip2'] = '<script type="text/javascript" src="//js.ohnopub.net/js/2011.03.21/jquery.qtip.min.js"></script><link rel="stylesheet" href="//js.ohnopub.net/js/2011.03.21/jquery.qtip.min.css" type="text/css" media="screen" />';
     $this->headCode['schedInput'] = '<script type="text/javascript" src="scripts/scheduleInput.js' . $cb . '"></script>';
     $this->headCode['outputPrintStyle'] = '<link rel="stylesheet" href="styles/print.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />';
     $this->headCode['outputStyle'] = '<link rel="stylesheet" href="styles/output.css' . $cb . '" type="text/css" media="screen" charset="utf-8" />'; 
@@ -1086,10 +1086,10 @@ class page
       return $this->add_trailing_slash($short_url_base) . $id;
     }
     elseif ($clean_urls) {
-      return 'http://' . $_SERVER['HTTP_HOST'] . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . '' . $id;
+      return 'http' . ($_SERVER['SERVER_PORT'] == 80 ? '' : 's') . '://' . $_SERVER['HTTP_HOST'] . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . '' . $id;
     }
     else {
-      return 'http://' . $_SERVER['HTTP_HOST']  . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . 'process.cgi?s=' . $id;
+      return 'http' . ($_SERVER['SERVER_PORT'] == 80 ? '' : 's') . '://' . $_SERVER['HTTP_HOST']  . $this->add_trailing_slash(dirname($_SERVER['REQUEST_URI'])) . 'process.cgi?s=' . $id;
     }
   }
 

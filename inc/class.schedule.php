@@ -516,7 +516,7 @@ class Schedule
 	. '        </script>' . PHP_EOL;
 
       echo '        <div id="sharedialog" title="Share Schedule">' . PHP_EOL
-	. '          <p class="indent"><img alt="[fb]" class="noborder" src="http://facebook.com/favicon.ico" /> <a id="share-fb-a" href="http://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=' . rawurlencode($this->scheduleName) . '">Share on Facebook</a></p>
+	. '          <p class="indent"><img alt="[fb]" class="noborder" src="https://facebook.com/favicon.ico" /> <a id="share-fb-a" href="https://www.facebook.com/sharer.php?u=' . urlencode(htmlentities($outputPage->gen_share_url($this->id_get()))) .'&amp;t=' . rawurlencode($this->scheduleName) . '">Share on Facebook</a></p>
 		     <p class="indent"><img alt="[sp]" class="noborder" src="images/favicon.svg" style="margin-right: 5px; width: 16px; height: 16px;"/><span class="clicktoclipboard"><a href="#">Share with URL</a><span class="toclipboard hidden"><p>Copy the share URL below:<br /><em id="share-url-em" class="centeredtext smallurl">' . htmlentities($outputPage->gen_share_url($this->id_get())) . '</em></p></span></span></p>' . PHP_EOL
 	. '        </div>' . PHP_EOL
 	. '        <p>' . PHP_EOL
