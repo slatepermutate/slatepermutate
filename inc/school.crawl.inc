@@ -307,6 +307,11 @@ function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post =
 
   $curl = curl_init();
   curl_setopt($curl, CURLOPT_USERAGENT, SP_PACKAGE_NAME . '/' . SP_PACKAGE_VERSION);
+  /*
+   * Ensure we detect dead TCP connections instead of having a cron
+   * job sit stuck for months on end.
+   */
+  curl_setopt($curl, CURLOPT_TCP_KEEPALIVE, TRUE);
 
   if ($curlsetup_hook !== NULL)
     $curlsetup_hook($curl);
