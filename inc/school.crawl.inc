@@ -454,6 +454,13 @@ function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post =
   school_crawl_logf($school_crawl_log, 10, "%s", $options['writestate']);
   if ($location && $loopspin < 6)
     {
+      /*
+       * Apparently WebAdvisor likes to put carriage returns in URIs
+       * sometimes. This makes cURL mad, so filter out. :-/
+       */
+      $location = preg_replace(',[\r\n],', '', $location);
+      var_dump($location);
+
       $uri = $location;
       return school_crawl_geturi($uri, $cookies, $school_crawl_log, $post, $follow_meta_refresh, $curlsetup_hook, $options, $loopspin + 1);
     }
