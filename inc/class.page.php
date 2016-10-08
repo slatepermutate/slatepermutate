@@ -449,7 +449,7 @@ class page
 	 '          <a href="feedback.cgi">Contact Us</a>'. PHP_EOL .
          '        </div>'. PHP_EOL .
          '        <div id="rightfoot">'. PHP_EOL .
-         '          <h5>© 2012 <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a><br /></h5>'. PHP_EOL .
+         '          <h5>© <a href="http://protofusion.org/~nathang/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="http://ohnopub.net">Nathan Phillip Brink</a><br /></h5>'. PHP_EOL .
 	 '        </div>'. PHP_EOL .
       $this->ga_conversions_code . PHP_EOL .
          '      </div> <!-- id="footer" -->'. PHP_EOL .
