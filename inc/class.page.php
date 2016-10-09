@@ -446,10 +446,11 @@ class page
     echo '      </div> <!-- id="content" -->'. PHP_EOL;
     echo '      <div id="footer">'. PHP_EOL .
   	 '        <div id="leftfoot">'. PHP_EOL .
-	 '          <a href="feedback.cgi">Contact Us</a>'. PHP_EOL .
+	 '          <div><a href="feedback.cgi">Contact Us</a></div>'. PHP_EOL .
+         '          <div><a href="about.cgi">About</a></div>' . PHP_EOL .
          '        </div>'. PHP_EOL .
          '        <div id="rightfoot">'. PHP_EOL .
-         '          <h5>© <a href="https://www.facebook.com/ngelderloos/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="https://twitter.com/ohnobinki">Nathan Phillip Brink</a><br /></h5>'. PHP_EOL .
+         '          <div><em>© <a href="https://www.facebook.com/ngelderloos/">Nathan Gelderloos</a><br /><a href="http://ethanzonca.com">Ethan Zonca</a><br /><a href="https://twitter.com/ohnobinki">Nathan Phillip Brink</a></em></div>'. PHP_EOL .
 	 '        </div>'. PHP_EOL .
       $this->ga_conversions_code . PHP_EOL .
          '      </div> <!-- id="footer" -->'. PHP_EOL .

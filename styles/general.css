@@ -70,10 +70,19 @@ body {
   text-align: right;
   padding-left:1em;
   padding-right: 1em;
+  display: flex;
+  flex-direction: row;
 }
 #leftfoot {
+    text-align: left;
   margin-top: 0;
   float:left;
+  display: flex;
+  flex-grow: 2;
+}
+#leftfoot > * {
+    margin: 0 0 2em 0;
+    flex-grow: 1;
 }
 #title p {
   margin-top: -1.5em;
