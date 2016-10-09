@@ -33,18 +33,18 @@ See AUTHORS
 
    * stable: not yet available.
 
-2. copy inc/config.inc.example to inc/config.inc. Read and adjust
+2. copy `inc/config.inc.example` to `inc/config.inc`. Read and adjust
    settings as necessary.
 
-3. copy .htaccess.example to .htaccess if you're interested in
+3. copy `.htaccess.example` to `.htaccess` if you're interested in
    “clean urls” (corresponding to the $clean_urls option in
-   config.inc).
+   config.inc). You must set `RewriteBase` in many circumstances.
 
-4. run admin/rehash.php to populate the cache/ directory with
+4. run `admin/rehash.php` to populate the `cache/` directory with
    information such as the list and rDNS information for schools in
-   school.d.
+   `school.d`.
 
-5. ensure that the webserver has write-access to the saved_schedules/
+5. ensure that the webserver has write-access to the `saved_schedules/`
    folder because schedule storage is filesystem-based.
 
 ## License
