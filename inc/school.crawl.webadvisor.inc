@@ -432,11 +432,6 @@ function school_crawl_webadvisor_semester(array $school, Semester $semester, &$s
   $pages = array(1 => 0, 2 => 1);
   while ($pages[1] < $pages[2])
     {
-      // Calvin bans you from accessing resources.calvin.edu if you
-      // send 16 POST requests within a minute. To avoid that, just
-      // sleep(4) here to send at most floor(60/4)=15 requests a
-      // minute.
-      sleep(4);
       $html = school_crawl_webadvisor_noscript_filter(school_crawl_geturi($uri, $cookies, $school_crawl_log, $form, FALSE, $options['curlsetup_hook']));
 
       $results_dom = new DOMDocument();
