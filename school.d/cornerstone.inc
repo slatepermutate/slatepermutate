@@ -24,6 +24,9 @@ function cornerstone_info()
     'example_course_id' => 'ENGL 101',
     'name' => 'Cornerstone University',
     'student_address' => 'Eagle',
-    'webadvisor_url' => 'https://webadvisor.cornerstone.edu/WAPROD/WebAdvisor',
+    // Redirects to HTTPS but on a port other than 443, so in the name
+    // of security hardcoding that port for now. But maybe we are the
+    // reason they changed ports?
+    'webadvisor_url' => 'https://webadvisor.cornerstone.edu:8443/WAPROD/WebAdvisor',
   );
 }
