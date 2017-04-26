@@ -495,10 +495,13 @@ class Schedule
     else {
       echo '        <script type="text/javascript">';
       echo '  jQuery(document).ready( function() {';
-      echo '    jQuery("#tabs").tabs();';
-      echo '    jQuery.address.change(function(event){';
-      echo '      jQuery("#tabs").tabs( "select" , window.location.hash );';
-      echo '    });';
+      echo '    jQuery("#tabs").tabs();' . PHP_EOL;
+      echo '    // handle jQuery.address being unavailable due to js.ohnopub.net being rejected by Chrome' . PHP_EOL;
+      echo '    if (jQuery.address) {' . PHP_EOL;
+      echo '      jQuery.address.change(function(event){' . PHP_EOL;
+      echo '        jQuery("#tabs").tabs( "select" , window.location.hash );' . PHP_EOL;
+      echo '      });' . PHP_EOL;
+      echo '    }' . PHP_EOL;
 
       echo '    jQuery("#sharedialog").dialog({ modal: true, width: 550, resizable: false, draggable: false, autoOpen: false });';
       echo '    jQuery("#share").click( function() {
