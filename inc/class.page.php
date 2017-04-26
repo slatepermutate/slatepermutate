@@ -405,8 +405,13 @@ class page
      */
     $javascript_init = '';
     if (in_array('jQuery.cuteTime', $this->scripts))
-      $javascript_init .= 'jQuery.extend(jQuery.fn.cuteTime.settings, {refresh: 10000, use_html_attribute: false});' . PHP_EOL
-	. 'jQuery.fn.cuteTime.settings.time_ranges[0].cuteness = \'in the future\';' . PHP_EOL;
+      $javascript_init .= ''
+	. '// Support cuteTime failing to load (while js.ohnopub.net is fixed to be accepted by Chrome)' . PHP_EOL
+	. 'if (jQuery.fn.cuteTime) {' . PHP_EOL
+	. '  jQuery.extend(jQuery.fn.cuteTime.settings, {refresh: 10000, use_html_attribute: false});' . PHP_EOL
+	. '  jQuery.fn.cuteTime.settings.time_ranges[0].cuteness = \'in the future\';' . PHP_EOL
+	. '}' . PHP_EOL
+	;
 
     echo $this->script_wrap(''
 			    . 'var slate_permutate_school = ' . json_encode($this->school['id']) . ';' . PHP_EOL

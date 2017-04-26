@@ -510,8 +510,11 @@ class Schedule
 	        jQuery(\'#cancelItems\').click( function() {
 		  jQuery(\'#selectItemsInput\').hide();
 	        });'
-	. '    ' . PHP_EOL
-	. '    jQuery(\'.cute-time\').cuteTime();' . PHP_EOL
+        . '    // Support cuteTime not being available (since Chrome is rejecting js.ohnopub.net until that is fixed)' . PHP_EOL
+	. '    var cuteTimeObj = jQuery(\'.cute-time\');' . PHP_EOL
+        . '    if (cuteTimeObj.cuteTime) {' . PHP_EOL
+	. '      jQuery(\'.cute-time\').cuteTime();' . PHP_EOL
+        . '    }' . PHP_EOL
 	. '  });' . PHP_EOL
 	. '        </script>' . PHP_EOL;
 

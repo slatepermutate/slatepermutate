@@ -142,7 +142,11 @@ jQuery(document).ready( function()
 	return false;
       });
 
-      jQuery('.qTipCell').qtip(
+    var qTipCell = jQuery('.qTipCell');
+    // Fail gracefully if qTip fails to load (pending js.ohnopub.net
+    // being fixed).
+    if (qTipCell.qtip) {
+      qTipCell.qtip(
        {
           style: {
             tip: true,
@@ -155,7 +159,8 @@ jQuery(document).ready( function()
             my: 'bottom left',
             at: 'top center',
           }
-      });  
+       });
+    }
 
       jQuery(".clicktoclipboard").click( function() {
         jQuery('.toclipboard', this).toggle();
