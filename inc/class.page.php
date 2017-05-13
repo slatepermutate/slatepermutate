@@ -451,7 +451,7 @@ class page
     echo '      </div> <!-- id="content" -->'. PHP_EOL;
     echo '      <div id="footer">'. PHP_EOL .
   	 '        <div id="leftfoot">'. PHP_EOL .
-	 '          <div><a href="feedback.cgi">Contact Us</a></div>'. PHP_EOL .
+	 '          <div><a href="feedback.cgi">Help / Contact Us</a></div>'. PHP_EOL .
          '          <div><a href="about.cgi">About</a></div>' . PHP_EOL .
          '        </div>'. PHP_EOL .
          '        <div id="rightfoot">'. PHP_EOL .
