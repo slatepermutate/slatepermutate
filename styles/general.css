@@ -480,3 +480,12 @@ a:hover {
     height: 1.25em;
     display: inline-block;
 }
+
+.stackexchange-webapps-link::before {
+    /* Cause the ::before to exist at all */
+    content: '';
+    background: url('https://cdn.sstatic.net/Sites/webapps/img/favicon.ico?v=89e16c6b7bd4') center center / contain no-repeat;
+    width: 1.5em;
+    height: 1.25em;
+    display: inline-block;
+}
