@@ -169,14 +169,18 @@ class page
 	 . $this->trackingcode
 	 . '  <script type="text/javascript">' . "\n"
 	 . '  ' . ($this->xhtml ? '<![CDATA[' : '') . "\n"
-	 . "     var mytrackers = new Array();";
+         // Snippet from https://developers.google.com/analytics/devguides/collection/upgrade/reference/gajs-analyticsjs
+	 . "     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');\n";
 
-       $i = 0;
-       foreach ($ga_trackers as $ga_tracker)
+       foreach ($ga_trackers as $ga_tracker_key => $ga_tracker)
 	 {
+     $trackerName = "t$ga_tracker_key";
 	   $this->trackingcode .= "\n"
-	     . '      mytrackers[' . $i . '] = _gat._getTracker(\'' . $ga_tracker . "');\n"
-	     . '      mytrackers[' . $i . "]._trackPageview();\n";
+	     . '      ga(\'create\', ' . json_encode($ga_tracker) . ", 'auto', " . json_encode($trackerName) . ");\n"
+	     . "      ga(" . json_encode("$trackerName.send") . ", 'pageview');\n";
 	 }
 
        $this->trackingcode .= '  ' . ($this->xhtml ? ']]>'       : '') . "\n"
