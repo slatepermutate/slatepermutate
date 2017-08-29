@@ -165,9 +165,8 @@ class page
        if ($_SERVER['SERVER_PORT'] != 80)
 	 $ga_www = 'https://ssl.';
 
-       $this->trackingcode = '<script type="text/javascript" src="' . $ga_www . 'google-analytics.com/ga.js" />' . "\n"
-	 . $this->trackingcode
-	 . '  <script type="text/javascript">' . "\n"
+       $this->trackingcode .=
+	  '  <script type="text/javascript">' . "\n"
 	 . '  ' . ($this->xhtml ? '<![CDATA[' : '') . "\n"
          // Snippet from https://developers.google.com/analytics/devguides/collection/upgrade/reference/gajs-analyticsjs
 	 . "     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
