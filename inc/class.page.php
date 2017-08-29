@@ -128,6 +128,29 @@ class page
 
     require_once('school.inc');
 
+    $desired_lang = empty($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? '' : $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+    $desired_lang = preg_split('/[;,]/', $desired_lang . ',en');
+    foreach ($desired_lang as $l) {
+      $l = substr($l, 0, 2);
+      switch ($l) {
+      case 'en':
+      case 'ja':
+        break;
+      default:
+        $l = '';
+        break;
+      }
+      if (!empty($l)) {
+        $desired_lang = $l;
+        break;
+      }
+    }
+
+    $this->desired_lang = $desired_lang;
+    $this->slate_t = $desired_lang == 'ja' ? 'スレート' : 'Slate';
+    $this->permutate_t = $desired_lang == 'ja' ? 'パーミュテート' : 'Permutate';
+    $this->base_title[0] = $this->slate_t . $this->permutate_t;
+
     /* Scripts and styles available for inclusion */
 
     $cb = '?_=' . htmlentities(rawurlencode(empty($cache_buster) ? '' : $cache_buster), ENT_QUOTES);
@@ -426,13 +449,15 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     if (!empty($_REQUEST['s']))
       $selectschool_query .= '&amp;s=' . (int)$_REQUEST['s'];
 
+    $logo_html = $this->desired_lang == 'ja' ? '<span style="font-size: 1.5em;"><span style="color: #777777">' . $this->slate_t . '</span><span style="color: #000000">' . $this->permutate_t . '</span></span>' : '<img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" />';
+
     echo
       '  </head>' . PHP_EOL .
 	 '  <body>'. PHP_EOL .
          '    <div id="page">'. PHP_EOL .
          '      <div id="header">'. PHP_EOL .
 	 '        <div id="title">'. PHP_EOL .
-      '          <h1 id="logo-heading"><a href="' . htmlentities($this->uri_resolve(), ENT_QUOTES) . '"><img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" /></a></h1>'. PHP_EOL .
+      '          <h1 id="logo-heading"><a style="text-decoration: none;" href="' . htmlentities($this->uri_resolve(), ENT_QUOTES) . '">' . $logo_html . '</a></h1>'. PHP_EOL .
          '          <p>'. PHP_EOL .
          '            <span id="subtitle">'.$this->pagetitle.'</span>'. PHP_EOL .
   	 '            <span id="menu">' . PHP_EOL
@@ -710,6 +735,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       header('HTTP/1.1 ' . $http_code);
 
     header('Location: ' . self::uri_resolve($dest));
+    header('Vary: Accept-Language');
     exit();
   }
 
