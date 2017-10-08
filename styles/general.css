@@ -132,7 +132,7 @@ a:hover {
   padding: .17em;
 }
 #container .class td {
-  background: #70a97c; 
+  background: #d0ffdc; 
 }
 .radio-spans span
 {
@@ -371,8 +371,8 @@ a:hover {
     }
 .button.red { background-color: #e50000; }
 .button.purple { background-color: #9400bf; }
-.button.green { background-color: #58aa00; }
-.button.olive { background-color: #309C47 }
+.button.green { background-color: #d0ffdc; }
+.button.olive { background-color: /*#309C47;*/ #40af60; }
 .button.orange { background-color: #ff9c00; }
 .button.blue { background-color: #2c6da0; }
 .button.black { background-color: #333; }
