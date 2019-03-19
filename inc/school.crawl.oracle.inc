@@ -40,16 +40,23 @@ function _school_crawl_oracle_common_prep(
   array &$options,
   &$curlsetup_hook,
   &$data_resolver,
+  &$department_chunk_size,
   &$html_parser)
 {
   $school += array('oracle_uri' => $school['url'] . 'PROD/' . _SCHOOL_CRAWL_ORACLE_START_FORM);
   $options += array(
     'curlsetup_hook' => '_school_crawl_oracle_curlhook_ssl3',
     'data_resolver' => new SchoolCrawlOracleDataResolver($school_crawl_log),
+    // Required (infinite unsupported, instead just specify a really
+    // big number). Specify the chunk size. Without specifying a chunk
+    // size, the returned HTML will be more than 12 megabytes and then
+    // when we try to parse it we will overflow the available RAMs.
+    'department_chunk_size' => 16,
     'html_parser' => new SchoolCrawlOracleHtmlParser($school_crawl_log),
   );
   $curlsetup_hook = $options['curlsetup_hook'];
   $data_resolver = $options['data_resolver'];
+  $department_chunk_size = $options['department_chunk_size'];
   $html_parser = $options['html_parser'];
 }
 
@@ -91,6 +98,7 @@ function school_crawl_oracle_semester_list(array $school, array &$semesters, &$s
     $options,
     $curlsetup_hook,
     $data_resolver,
+    $department_chunk_size,
     $html_parser);
 
   $cookies = array();
@@ -138,6 +146,7 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
     $options,
     $curlsetup_hook,
     $data_resolver,
+    $department_chunk_size,
     $html_parser);
 
   $cookies = array();
@@ -202,91 +211,88 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
       return 1;
     }
   $subjects_form_node = $subjects_form_nodelist->item(0);
-  $subjects_post = school_crawl_form($subjects_form_node);
-
   $subjects_select_node = $subjects_dom->getElementById('subj_id');
   $subjects_select_name = $subjects_select_node->getAttribute('name');
-  $subjects_select_found_all = FALSE;
-  foreach ($subjects_select_node->childNodes as $subjects_option_node)
-    if (!strcasecmp('all', trim($subjects_option_node->textContent)))
+  $subjects_select_values = array_filter(array_map(function ($subjects_option_node) {
+        // Some schools have a special “ALL” entry. Ignore it.
+        if (!strcasecmp('all', trim($subjects_option_node->textContent))) {
+          return FALSE;
+        }
+        return $subjects_option_node->getAttribute('value');
+      }, iterator_to_array($subjects_select_node->childNodes)), function ($value) {
+      return $value !== FALSE;
+    });
+  // Handle a chunk at a time instead of all at once.
+  $subjects_select_values_chunks = array_chunk($subjects_select_values, $department_chunk_size);
+  foreach ($subjects_select_values_chunks as $subjects_select_values_chunk) {
+    school_crawl_logf($school_crawl_log, 6, "Crawling semester %s chunk %s", $semester, implode(',', $subjects_select_values_chunk));
+
+    $subjects_post = school_crawl_form($subjects_form_node);
+    $subjects_post[$subjects_select_name] = $subjects_select_values_chunk;
+
+    $uri = school_crawl_url($uri, $subjects_form_node->getAttribute('action'));
+    $courses_dom = $html_parser->parse(school_crawl_geturi($uri, $cookies, $school_crawl_log, $subjects_post, TRUE, $curlsetup_hook));
+
+    $courses_xpath = new DOMXPath($courses_dom);
+
+    /* Find the first subtable with at least a section listing in it. */
+    foreach ($courses_xpath->query('//table[@class="datadisplaytable"]/tr[th[@class="ddheader"]]') as $tr_header_node) {
+      break;
+    }
+    if (empty($tr_header_node))
       {
-	$subjects_post[$subjects_select_name][] = $subjects_option_node->getAttribute('value');
-	$subjects_select_found_all = TRUE;
+        school_crawl_logf($school_crawl_log, 0, "Unable to find the row of the course/section data table which gives us the mappings of column names onto columns.");
+        return 1;
       }
-  /*
-   * Support there being no “all”—instead, just actually select
-   * everything ^^. Though, truly, I think the oracle server can
-   * handle smaller chunks better than the ridiculousness of trying to
-   * return everything at once.
-   */
-  if (!$subjects_select_found_all)
-    foreach ($subjects_select_node->childNodes as $subjects_option_node)
-      $subjects_post[$subjects_select_name][] = $subjects_option_node->getAttribute('value');
 
-  $uri = school_crawl_url($uri, $subjects_form_node->getAttribute('action'));
-  $courses_dom = $html_parser->parse(school_crawl_geturi($uri, $cookies, $school_crawl_log, $subjects_post, TRUE, $curlsetup_hook));
+    $section_getters = array();
+    foreach (
+      array(
+        'registration_number',
+        'section_id',
+        'credits',
+        'dates',
+        'title',
+        'days',
+        'times',
+        'instructor',
+        'location',
+      ) as $column_key)
+      $section_getters[$column_key] = $data_resolver->resolve($column_key, $tr_header_node);
 
-  $courses_xpath = new DOMXPath($courses_dom);
-
-  /* Find the first subtable with at least a section listing in it. */
-  foreach ($courses_xpath->query('//table[@class="datadisplaytable"]/tr[th[@class="ddheader"]]') as $tr_header_node)
-    break;
-  if (empty($tr_header_node))
-    {
-      school_crawl_logf($school_crawl_log, 0, "Unable to find the row of the course/section data table which gives us the mappings of column names onto columns.");
-      return 1;
+    /* error check */
+    foreach ($section_getters as $name => $section_getter) {
+      if (empty($section_getter)) {
+        school_crawl_logf(
+          $school_crawl_log, 0, "Unable to find column offset for “%s”.",
+          $name);
+        return 1;
+      } else {
+          school_crawl_logf($school_crawl_log, 9, "%s → %s", $name, $section_getter);
+      }
     }
 
-  $section_getters = array();
-  foreach (
-    array(
-      'registration_number',
-      'section_id',
-      'credits',
-      'dates',
-      'title',
-      'days',
-      'times',
-      'instructor',
-      'location',
-    ) as $column_key)
-    $section_getters[$column_key] = $data_resolver->resolve($column_key, $tr_header_node);
-
-  /* error check */
-  foreach ($section_getters as $name => $section_getter)
-    {
-      if (empty($section_getter))
-	{
-	  school_crawl_logf(
-	    $school_crawl_log, 0, "Unable to find column offset for “%s”.",
-	    $name);
-	  return 1;
-	}
-      else
-	school_crawl_logf($school_crawl_log, 9, "%s → %s", $name, $section_getter);
-    }
-
-  $row_i = -1;
-  foreach ($courses_xpath->query('//table[@class="datadisplaytable" and tr/th[@class="ddheader"]]/tr[not(th[@class="ddheader"])]') as $tr_node)
-    {
+    $row_i = -1;
+    foreach ($courses_xpath->query('//table[@class="datadisplaytable" and tr/th[@class="ddheader"]]/tr[not(th[@class="ddheader"])]') as $tr_node) {
       $row_i++;
       school_crawl_logf($school_crawl_log, 9, "Found a row.");
       $children = school_crawl_table_rownodes($tr_node);
 
       $suitable = TRUE;
-      foreach ($section_getters as $key => $section_getter)
-	if (!$section_getter->valid($tr_node, $children))
-	  {
-	    school_crawl_logf($school_crawl_log, 0, "Row %d unsuitable for key %s", $row_i, $key);
-	    $suitable = FALSE;
-            return 1;
-	  }
-      if (!$suitable)
-	/*
-	 * Skip this row because it isn’t suitable for reading data
-	 * from.
-	 */
-	continue;
+      foreach ($section_getters as $key => $section_getter) {
+        if (!$section_getter->valid($tr_node, $children)) {
+          school_crawl_logf($school_crawl_log, 0, "Row %d unsuitable for key %s", $row_i, $key);
+          $suitable = FALSE;
+          return 1;
+        }
+      }
+      if (!$suitable) {
+        /*
+         * Skip this row because it isn’t suitable for reading data
+         * from.
+         */
+        continue;
+      }
 
       /*
        * There are some rows with the time set to TBA and with empty
@@ -301,95 +307,90 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
        * which should be added to the existing Section.
        */
       $section_id = trim($section_getters['section_id']->get($tr_node, $children));
-      if (strlen($section_id) > 2)
-	{
-	  school_crawl_logf($school_crawl_log, 8, "Handling section %s.", $section_id);
-	  /**
-	   * \todo
-	   *   If a section's section ID ends in `W', like `EFW', that
-	   *   means it's a semi-online course. We should probably
-	   *   distinguish these from normal sections, probably
-	   *   disabling them from showing up by default.
-	   *   —ccbcmd specific probably!
-	   */
-	  $section_id_parts = Section::parse($section_id);
-	  $registration_number = $section_getters['registration_number']->get($tr_node, $children);
-	  $credit_hours = (float)$section_getters['credits']->get($tr_node, $children);
-	  $section = new Section($section_id_parts['section'], array(), $registration_number, $credit_hours);
-	  $semester->section_add($section_id_parts['department'], $section_id_parts['course'], $section,
-				 trim($section_getters['title']->get($tr_node, $children)));
-	}
-      if (empty($section))
-	{
-	  school_crawl_logf($school_crawl_log, 4, "Expected a section row before having a row with only partial data. Ignoring row.");
-	  continue;
-	}
+      if (strlen($section_id) > 2) {
+        school_crawl_logf($school_crawl_log, 8, "Handling section %s.", $section_id);
+        /**
+         * \todo
+         *   If a section's section ID ends in `W', like `EFW', that
+         *   means it's a semi-online course. We should probably
+         *   distinguish these from normal sections, probably
+         *   disabling them from showing up by default.
+         *   —ccbcmd specific probably!
+         */
+        $section_id_parts = Section::parse($section_id);
+        $registration_number = $section_getters['registration_number']->get($tr_node, $children);
+        $credit_hours = (float)$section_getters['credits']->get($tr_node, $children);
+        $section = new Section($section_id_parts['section'], array(), $registration_number, $credit_hours);
+        $semester->section_add($section_id_parts['department'], $section_id_parts['course'], $section,
+          trim($section_getters['title']->get($tr_node, $children)));
+      }
+      if (empty($section)) {
+        school_crawl_logf($school_crawl_log, 4, "Expected a section row before having a row with only partial data. Ignoring row.");
+        continue;
+      }
 
       $instructor = $section_getters['instructor']->get($tr_node, $children);
 
       {
-	$time_range_text = $section_getters['times']->get($tr_node, $children);
-	if (strpos($time_range_text, 'TBA') !== FALSE)
-	  /*
-	   * There is no way to get meeting info and create
-	   * SectionMeetings.
-	   */
-	  continue;
+        $time_range_text = $section_getters['times']->get($tr_node, $children);
+        if (strpos($time_range_text, 'TBA') !== FALSE)
+          /*
+           * There is no way to get meeting info and create
+           * SectionMeetings.
+           */
+          continue;
 
-	if (($dash_pos = strpos($time_range_text, '-')) === FALSE)
-	  {
-	    school_crawl_logf($school_crawl_log, 0, "Unable to understand course's time range format, cannot find dash: ``%s''.",
-		    $time_range_text);
-	    return 1;
-	  }
+        if (($dash_pos = strpos($time_range_text, '-')) === FALSE) {
+          school_crawl_logf($school_crawl_log, 0, "Unable to understand course's time range format, cannot find dash: ``%s''.",
+            $time_range_text);
+          return 1;
+        }
 
-	$time_start_text = trim(substr($time_range_text, 0, $dash_pos));
-	$time_start = DateTime::createFromFormat('h:i a', $time_start_text, new DateTimeZone('UTC'));
-	$time_end_text = trim(substr($time_range_text, $dash_pos + 1));
-	/*
-	 * Make sure that _only_ one date range is specified to ensure
-	 * data integrity. I.e., make sure that the college doesn't
-	 * suddenly support multiple meeting times in one field
-	 * without our anticipating that and then cause us to have
-	 * invalid data. ;-). The college does support multiple
-	 * section meetings, it does this by having multiple rows per
-	 * section. The extra rows _only_ have the days, time, prof,
-	 * and dates columns. --binki
-	 */
-	if (strpos($time_end_text, '-') !== FALSE)
-	  {
-	    school_crawl_logf($school_crawl_log, 4, "Entry seems to have invalid date column data: ``%s'' time_end_text: ``%s''.",
-		    $time_range_text, $time_end_text);
-	    continue;
-	  }
-	$time_end = DateTime::createFromFormat('h:i a', $time_end_text, new DateTimeZone('UTC'));
-	if ($time_end === FALSE || $time_start === FALSE)
-	  {
-	    school_crawl_logf($school_crawl_log, 4, "Error parsing start or end time: start: ``%s'' end: ``%s''.",
-		    $time_start_text, $time_end_text);
-	    continue;
-	  }
+        $time_start_text = trim(substr($time_range_text, 0, $dash_pos));
+        $time_start = DateTime::createFromFormat('h:i a', $time_start_text, new DateTimeZone('UTC'));
+        $time_end_text = trim(substr($time_range_text, $dash_pos + 1));
+        /*
+         * Make sure that _only_ one date range is specified to ensure
+         * data integrity. I.e., make sure that the college doesn't
+         * suddenly support multiple meeting times in one field
+         * without our anticipating that and then cause us to have
+         * invalid data. ;-). The college does support multiple
+         * section meetings, it does this by having multiple rows per
+         * section. The extra rows _only_ have the days, time, prof,
+         * and dates columns. --binki
+         */
+        if (strpos($time_end_text, '-') !== FALSE) {
+          school_crawl_logf($school_crawl_log, 4, "Entry seems to have invalid date column data: ``%s'' time_end_text: ``%s''.",
+            $time_range_text, $time_end_text);
+          continue;
+        }
+        $time_end = DateTime::createFromFormat('h:i a', $time_end_text, new DateTimeZone('UTC'));
+        if ($time_end === FALSE || $time_start === FALSE) {
+          school_crawl_logf($school_crawl_log, 4, "Error parsing start or end time: start: ``%s'' end: ``%s''.",
+            $time_start_text, $time_end_text);
+          continue;
+        }
 
-	$days = school_crawl_days_str_format($school_crawl_log, $section_getters['days']->get($tr_node, $children));
+        $days = school_crawl_days_str_format($school_crawl_log, $section_getters['days']->get($tr_node, $children));
 
-	$section_dates = $section_getters['dates']->get($tr_node, $children);
-	$date_start = $date_end = NULL;
-	if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches))
-	  {
-	    $date_start = gmmktime(0, 0, 0, $section_dates_matches[1], $section_dates_matches[2], $semester->year_get());
-	    $date_end = gmmktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get());
-	  }
+        $section_dates = $section_getters['dates']->get($tr_node, $children);
+        $date_start = $date_end = NULL;
+        if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches)) {
+          $date_start = gmmktime(0, 0, 0, $section_dates_matches[1], $section_dates_matches[2], $semester->year_get());
+          $date_end = gmmktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get());
+        }
 
-	$section->meeting_add(
-	  new SectionMeeting(
-	    $days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
-	    $section_getters['location']->get($tr_node, $children),
-	    'lecture',
-	    $instructor,
-	    $date_start,
-	    $date_end));
+        $section->meeting_add(
+          new SectionMeeting(
+            $days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
+            $section_getters['location']->get($tr_node, $children),
+            'lecture',
+            $instructor,
+            $date_start,
+            $date_end));
       }
     }
+  }
 
   return 0;
 }
