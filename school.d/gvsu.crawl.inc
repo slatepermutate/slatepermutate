@@ -94,10 +94,11 @@ class GvsuSchoolCrawlOracleDataHeadingGetter
     if (!preg_match('/^(.*) - ([[:digit:]]+) - ([^ ]+ [^ ]+) - ([^ ]+)$/', $text, $matches))
       throw new Exception('Unable to match course title - course_fqid - section_id with “' . $text . '”');
 
+    $section_id = $matches[3] . ' ' . $matches[4];
     $things = array(
       'title' => $matches[1],
       'registration_number' => $matches[2],
-      'section_id' => $matches[3] . ' ' . $matches[4],
+      'section_id' => $section_id,
     );
 
     /*
@@ -159,46 +160,51 @@ EOF;
      * class="fieldlabeltext"/>.
      */
     $tr_node = $tr_node->nextSibling;
-    foreach ($tr_node->childNodes as $td_node)
-      if ($td_node->nodeName === 'td')
-	break;
-    if ($td_node->nodeName !== 'td')
+    foreach ($tr_node->childNodes as $td_node) {
+      if ($td_node->nodeName === 'td') {
+        break;
+      }
+    }
+    if ($td_node->nodeName !== 'td') {
       /* Unable to find something, things and stuff. */
       throw new Exception('Unable to find the td in the one place for loading credits and whatnot.');
+    }
 
-    foreach (
-      array(
-	'credits' => 5,
-	'campus' => 2,
-      ) as $key => $offset)
-      {
-	/* seek to first <span class="fieldlabeltext"/> */
-	$node = NULL;
-	foreach ($td_node->childNodes as $potential_node)
-	  if ($potential_node->nodeName === 'span' && $potential_node->hasAttribute('class') && $potential_node->getAttribute('class') === 'fieldlabeltext')
-	    $node = $potential_node;
-	if (!$node)
-	  throw new Exception('Unable to find last <span class="fieldlabeltext"/>.');
-
-	for (
-	  $i = 0;
-	  $node && $i < $offset;
-	)
-	  {  
-	    /* If the current node was a 'br', then we’ve reached the next offset */
-	    if ($node->nodeName === 'br')
-	      $i++;
-	    $node = $node->nextSibling;
-	  }
-	if (!$node)
-	  throw new Exception('Unable to find <br/> offset ' . $offset . ' for ' . $key);
-	$things[$key] = trim($node->textContent);
+    /* seek to first <span class="fieldlabeltext"/> */
+    $node = NULL;
+    foreach ($td_node->childNodes as $potential_node) {
+      if ($potential_node->nodeName === 'span' && $potential_node->hasAttribute('class') && $potential_node->getAttribute('class') === 'fieldlabeltext') {
+        $node = $potential_node;
       }
+    }
+    if (!$node) {
+      throw new Exception('Unable to find last <span class="fieldlabeltext"/>.');
+    }
+    $freeform_attributes = array();
+    while ($node) {
+      // If the current node was a 'br', then we’ve reached the next
+      // offset.
+      while ($node && $node->nodeName !== 'br') {
+        $node = $node->nextSibling;
+      }
+      // Advance beyond the 'br'.
+      $node = $node->nextSibling;
+      if ($node) {
+        $freeform_attributes[] = trim($node->textContent);
+      }
+    }
+    $things['campus'] = $freeform_attributes[1];
 
-    /* 3.000 Credits → 3.000 */
-    if (!preg_match('/^([[:digit:].]*) Credits/', $things['credits'], $matches))
-      throw new Exception('Unable to parse “' . $things['credits'] . '” like “1.234 Credits”');
-    $things['credits'] = $matches[1];
+    // Scan for something that looks like credits and use it as credits or throw.
+    foreach ($freeform_attributes as $freeform_attribute) {
+      if (preg_match('/^([[:digit:].]*) Credits/', $freeform_attribute, $matches)) {
+        $things['credits'] = $matches[1];
+        break;
+      }
+    }
+    if (empty($things['credits'])) {
+      throw new Exception('Unable to find Credits for section “' . $section_id . '” among these freeform attributes: ' . implode(';', $freeform_attributes));
+    }
 
     return $this->cached = $things;
   }
