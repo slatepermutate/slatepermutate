@@ -39,19 +39,21 @@ function _school_crawl_oracle_common_prep(
   array &$school,
   array &$options,
   &$curlsetup_hook,
-  &$data_resolver)
+  &$data_resolver,
+  &$html_parser)
 {
   $school += array('oracle_uri' => $school['url'] . 'PROD/' . _SCHOOL_CRAWL_ORACLE_START_FORM);
   $options += array(
     'curlsetup_hook' => '_school_crawl_oracle_curlhook_ssl3',
     'data_resolver' => new SchoolCrawlOracleDataResolver($school_crawl_log),
+    'html_parser' => new SchoolCrawlOracleHtmlParser($school_crawl_log),
   );
   $curlsetup_hook = $options['curlsetup_hook'];
   $data_resolver = $options['data_resolver'];
+  $html_parser = $options['html_parser'];
 }
 
-function _school_crawl_oracle_curlhook_ssl3(&$curl)
-{
+function _school_crawl_oracle_curlhook_ssl3(&$curl) {
   /*
    * OK, so this must be set to SSLv2 or SSLv3 because of how the
    * server's SSL junk is messed up. When curl is built against
@@ -82,20 +84,19 @@ function _school_crawl_oracle_curlhook_ssl3(&$curl)
  *   data_resolver which should be an instance of
  *   SchoolCrawlOracleDataResolver.
  */
-function school_crawl_oracle_semester_list(array $school, array &$semesters, &$school_crawl_log, array $options = array())
-{
+function school_crawl_oracle_semester_list(array $school, array &$semesters, &$school_crawl_log, array $options = array()) {
   _school_crawl_oracle_common_prep(
     $school_crawl_log,
     $school,
     $options,
     $curlsetup_hook,
-    $data_resolver);
+    $data_resolver,
+    $html_parser);
 
   $cookies = array();
 
   $uri = $school['oracle_uri'];
-  $semesters_dom = new DOMDocument();
-  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, $curlsetup_hook));
+  $semesters_dom = $html_parser->parse(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, $curlsetup_hook));
   $semesters_select_node = $semesters_dom->getElementById('term_input_id');
   if ($semesters_select_node === NULL)
     {
@@ -136,12 +137,12 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
     $school,
     $options,
     $curlsetup_hook,
-    $data_resolver);
+    $data_resolver,
+    $html_parser);
 
   $cookies = array();
   $uri = $school['oracle_uri'];
-  $semesters_dom = new DOMDocument();
-  $semesters_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, $curlsetup_hook));
+  $semesters_dom = $html_parser->parse(school_crawl_geturi($uri, $cookies, $school_crawl_log, NULL, TRUE, $curlsetup_hook));
   $semesters_select_node = $semesters_dom->getElementById('term_input_id');
   if (empty($semesters_select_node))
     {
@@ -191,9 +192,8 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 
   $semesters_post[$semesters_select_node->getAttribute('name')] = $semester_value;
 
-  $subjects_dom = new DOMDocument();
   $uri = school_crawl_url($uri, $semesters_form->getAttribute('action'));
-  $subjects_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $semesters_post, TRUE, $curlsetup_hook));
+  $subjects_dom = $html_parser->parse(school_crawl_geturi($uri, $cookies, $school_crawl_log, $semesters_post, TRUE, $curlsetup_hook));
 
   $subjects_form_nodelist = $subjects_dom->getElementsByTagName('form');
   if (!$subjects_form_nodelist->length)
@@ -223,9 +223,8 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
     foreach ($subjects_select_node->childNodes as $subjects_option_node)
       $subjects_post[$subjects_select_name][] = $subjects_option_node->getAttribute('value');
 
-  $courses_dom = new DOMDocument();
   $uri = school_crawl_url($uri, $subjects_form_node->getAttribute('action'));
-  $courses_dom->loadHTML(school_crawl_geturi($uri, $cookies, $school_crawl_log, $subjects_post, TRUE, $curlsetup_hook));
+  $courses_dom = $html_parser->parse(school_crawl_geturi($uri, $cookies, $school_crawl_log, $subjects_post, TRUE, $curlsetup_hook));
 
   $courses_xpath = new DOMXPath($courses_dom);
 
@@ -442,8 +441,7 @@ class SchoolCrawlOracleDataColumnGetter
   }
 }
 
-class SchoolCrawlOracleDataResolver
-{
+class SchoolCrawlOracleDataResolver {
   protected $school_crawl_log;
 
   /*
@@ -477,5 +475,19 @@ class SchoolCrawlOracleDataResolver
     error_log('thing req=' . $key . '→' . $this->key_mapping[$key] . '=' . $column_i);
     if ($column_i !== FALSE)
       return new SchoolCrawlOracleDataColumnGetter($this->school_crawl_log, $column_i);
+  }
+}
+
+class SchoolCrawlOracleHtmlParser {
+  protected $school_crawl_log;
+
+  public function __construct(array &$school_crawl_log) {
+    $this->school_crawl_log = &$school_crawl_log;
+  }
+
+  public function parse($html) {
+    $dom = new DOMDocument();
+    $dom->loadHTML($html);
+    return $dom;
   }
 }

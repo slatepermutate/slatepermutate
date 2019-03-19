@@ -290,8 +290,7 @@ function school_crawl_meeting_type($meeting_type = 'lecture')
  *   or, if 'writestate' and 'writefunc' are set, the value stored in
  *   'writestate'.
  */
-function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post = NULL, $follow_meta_refresh = FALSE, $curlsetup_hook = NULL, $options = array(), $loopspin = 0)
-{
+function school_crawl_geturi(&$uri, &$cookies, array &$school_crawl_log, $post = NULL, $follow_meta_refresh = FALSE, $curlsetup_hook = NULL, $options = array(), $loopspin = 0) {
   global $school_crawl_geturi_writefunc,
     $school_crawl_geturi_writestate,
     $school_crawl_geturi_headers_buf;

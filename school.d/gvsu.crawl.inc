@@ -27,11 +27,11 @@
 
 require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'school.crawl.oracle.inc';
 
-function _gvsu_crawl_options(array &$school_crawl_log)
-{
+function _gvsu_crawl_options(array &$school_crawl_log) {
   return array(
     'curlsetup_hook' => NULL,
     'data_resolver' => new GvsuSchoolCrawlOracleDataResolver($school_crawl_log),
+    'html_parser' => new GvsuSchoolCrawlOracleHtmlParser($school_crawl_log),
   );
 }
 
@@ -257,5 +257,30 @@ extends SchoolCrawlOracleDataResolver
       return new GvsuSchoolCrawlOracleDataHeadingGetter($this->school_crawl_log, $key);
 
     return parent::resolve($key, $tr_header_node);
+  }
+}
+
+class GvsuSchoolCrawlOracleHtmlParser extends SchoolCrawlOracleHtmlParser {
+  public function __construct(array &$school_crawl_log) {
+    parent::__construct($school_crawl_log);
+  }
+
+  public function parse($html) {
+    // It was reported on 2019-03-19 that the import was not
+    // working. This was due to the id="term_input_id" not being read
+    // into the DOM correctly because of invalid HTML. The invalid
+    // example is as follows:
+    //
+    //     <select name="p_term" size="1"  BYPASS_ESC=>"Y" ID="term_input_id">
+    //
+    // Notice the premature “>”.
+    //
+    // To repair, we do a replacement. It is somewhat specific to try
+    // to avoid accidentally munging other data. But, due to the
+    // nature of the issue, it’s kind of impossible to guarantee
+    // correctness (because we are trying to fix invalid/bad syntax).
+    $html = preg_replace('/BYPASS_ESC=>/', 'BYPASS_ESC=', $html);
+
+    return parent::parse($html);
   }
 }
