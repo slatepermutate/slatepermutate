@@ -375,9 +375,29 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 
         $section_dates = $section_getters['dates']->get($tr_node, $children);
         $date_start = $date_end = NULL;
+        // Format used by ccbcmd is “01/28-05/19” (mm/dd-mm/dd).
         if (preg_match(';^([0-9]+)/([0-9]+)-([0-9]+)/([0-9]+)$;', $section_dates, $section_dates_matches)) {
           $date_start = gmmktime(0, 0, 0, $section_dates_matches[1], $section_dates_matches[2], $semester->year_get());
           $date_end = gmmktime(0, 0, 0, $section_dates_matches[3], $section_dates_matches[4], $semester->year_get());
+        }
+        // Format used by gvsu is “Jan 06, 2020 - Apr 25, 2020”. So
+        // need a proper date parser -_-.
+        if (preg_match(';([a-zA-Z]{3} [0-9]+, [0-9]{4,}) *- *([a-zA-Z]{3} [0-9]+, [0-9]{4,});', $section_dates, $section_dates_matches)) {
+          // See if it actually parses as a date.
+          $dates = array_filter(array_map(function ($date_string) {
+                $parsed_date = date_parse_from_format('M d, Y', $date_string);
+                if ($parsed_date['warning_count']) {
+                  // Was likely an invalid date. Ignore.
+                  return FALSE;
+                }
+                return gmmktime(0, 0, 0, $parsed_date['month'], $parsed_date['day'], $parsed_date['year']);
+              }, array($section_dates_matches[1], $section_dates_matches[2])), function ($value) {
+              return $value !== FALSE;
+            });
+          if (count($dates) === 2) {
+            $date_start = $dates[0];
+            $date_end = $dates[1];
+          }
         }
 
         $section->meeting_add(
