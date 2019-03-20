@@ -222,6 +222,11 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
       }, iterator_to_array($subjects_select_node->childNodes)), function ($value) {
       return $value !== FALSE;
     });
+
+  // Add sections to the semester all at the end to enable proper
+  // calculation of semester start/end dates.
+  $section_infos = [];
+
   // Handle a chunk at a time instead of all at once.
   $subjects_select_values_chunks = array_chunk($subjects_select_values, $department_chunk_size);
   foreach ($subjects_select_values_chunks as $subjects_select_values_chunk) {
@@ -321,8 +326,12 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
         $registration_number = $section_getters['registration_number']->get($tr_node, $children);
         $credit_hours = (float)$section_getters['credits']->get($tr_node, $children);
         $section = new Section($section_id_parts['section'], array(), $registration_number, $credit_hours);
-        $semester->section_add($section_id_parts['department'], $section_id_parts['course'], $section,
-          trim($section_getters['title']->get($tr_node, $children)));
+        $section_infos[] = array(
+          'department' => $section_id_parts['department'],
+          'course' => $section_id_parts['course'],
+          'section' => $section,
+          'title' => trim($section_getters['title']->get($tr_node, $children)),
+        );
       }
       if (empty($section)) {
         school_crawl_logf($school_crawl_log, 4, "Expected a section row before having a row with only partial data. Ignoring row.");
@@ -402,7 +411,9 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
 
         $section->meeting_add(
           new SectionMeeting(
-            $days, school_crawl_time_format($time_start), school_crawl_time_format($time_end),
+            $days,
+            school_crawl_time_format($time_start),
+            school_crawl_time_format($time_end),
             $section_getters['location']->get($tr_node, $children),
             'lecture',
             $instructor,
@@ -410,6 +421,14 @@ function school_crawl_oracle_crawl_semester($school, $semester, &$school_crawl_l
             $date_end));
       }
     }
+  }
+
+  // Add all the sections at the end. The semester will incrementally
+  // calculate the semester’s start and end dates during this
+  // time. It wouldn’t notice if we added the section before adding
+  // the section meetings.
+  foreach ($section_infos as $section_info) {
+    $semester->section_add($section_info['department'], $section_info['course'], $section_info['section'], $section_info['title']);
   }
 
   return 0;
