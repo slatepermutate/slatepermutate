@@ -458,23 +458,21 @@ class Semester
 
   public function time_start_get()
   {
-    if (count($this->time_starts))
-      {
-        $times = filter_outliers($this->time_starts);
-        $this->time_end = min($times);
+    if (count($this->time_starts)) {
+      $times = filter_outliers($this->time_starts);
+      $this->time_end = min($times);
+    } elseif (!$this->time_start) {
+      /* Return, but don't store, a guess. */
+      $season_starts = array(
+        'spring' => 0,
+        'summer' => 5,
+        'fall' => 8,
+        'winter' => 12,
+      );
+      if (!empty($season_starts[$this->season])) {
+        return gmmktime(0, 0, 0, $season_starts[$this->season], 1, $this->year);
       }
-    elseif (!$this->time_start)
-      {
-        /* Return, but don't store, a guess. */
-        $season_starts = array(
-          'spring' => 0,
-          'summer' => 5,
-          'fall' => 8,
-          'winter' => 12,
-        );
-        if (!empty($season_starts[$this->season]))
-            return gmmktime(0, 0, 0, $season_starts[$this->season], $this->year);
-      }
+    }
 
     return $this->time_start;
   }
