@@ -209,12 +209,12 @@ EOF;
     return $this->cached = $things;
   }
 
-  public function get(DOMNode $tr_node, DOMNodeList $children)
-  {
+  public function get(DOMNode $tr_node, DOMNodeList $children) {
     error_log('req=' . $this->piece);
     $pieces = $this->access($tr_node, $children);
-    if (empty($pieces))
+    if (empty($pieces)) {
       return;
+    }
     error_log('GETTO!');
     return $pieces[$this->piece];
   }
