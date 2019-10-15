@@ -25,7 +25,7 @@ $projectpage->head();
 ?>
 
 <p>
-  This website was created by <a href="https://www.calvin.edu" rel="external">Calvin College</a> and <a href="https://cedarville.edu/" rel="external">Cedarville University</a> students.
+This website was created by <a href="https://calvin.edu" rel="external">Calvin College (now known as Calvin University)</a> and <a href="https://cedarville.edu/" rel="external">Cedarville University</a> students.
   They are now all alumni, but still have connections to college students and gladly maintain SlatePermutate.
 </p>
 

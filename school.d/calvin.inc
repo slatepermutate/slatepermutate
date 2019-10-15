@@ -20,8 +20,8 @@
 
 function calvin_info()
 {
-  return array('name' => 'Calvin College',
-	       'url' => 'http://calvin.edu/',
+  return array('name' => 'Calvin University',
+	       'url' => 'https://calvin.edu/',
 	       /*
 		* rDNS postfixes which indicate a student is
 		* connecting from that college campus
@@ -41,7 +41,7 @@ function calvin_instructions_html()
   return <<<EOF
 <h2>Instructions</h2>
 <!--<p>
-  SlatePermutate can be a useful tool for scheduling your next semester at <a href="http://calvin.edu/">Calvin College</a>.
+  SlatePermutate can be a useful tool for scheduling your next semester at <a href="https://calvin.edu/">Calvin University</a>.
 </p>-->
 <h3>
 	Using the Auto-Complete function

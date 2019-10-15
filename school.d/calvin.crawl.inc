@@ -22,7 +22,7 @@ require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'inc' . DIRECTOR
 
 /**
  * \brief
- *   Retrieve a list of crawlable semesters from Calvin College.
+ *   Retrieve a list of crawlable semesters from Calvin University.
  *
  * \param $school
  *   The calvin school handle.
@@ -39,7 +39,7 @@ function calvin_crawl_semester_list(array $school, array &$semesters, &$school_c
 
 /**
  * \brief
- *   Crawl the courses for a semester from Calvin College.
+ *   Crawl the courses for a semester from Calvin University.
  *
  * \param $school
  *   The calvin school handle.
