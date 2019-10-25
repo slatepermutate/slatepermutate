@@ -48,7 +48,7 @@ function calvin_instructions_html()
   <li>Click/tap on a the Class ID box in an empty row.</li>
 	<li>Type the subject and course number (e.g. MATH 101, CS 104) in the Class ID box.</li>
   <li>Press enter to choose the first option or select one of the options to load data for that course.</li>
-  <li>To reload the data, first remove the cource using the “Remove” button and then re-enter the subject and course numberAuto-Complete will not overwrite a populated entry.</li>
+  <li>To reload the data, first remove the cource using the “Remove” button and then re-enter the subject and course number. Auto-Complete will not overwrite a populated entry.</li>
  </ol>
 <h3>Registering</h3>
 <ol>
