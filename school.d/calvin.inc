@@ -43,19 +43,21 @@ function calvin_instructions_html()
 <!--<p>
   SlatePermutate can be a useful tool for scheduling your next semester at <a href="https://calvin.edu/">Calvin University</a>.
 </p>-->
-<h3>
-	Using the Auto-Complete function
-</h3>
-<p>
-	Note: For best results, use <strong>Firefox</strong>, <strong>Google Chrome</strong>, or <strong>Safari</strong>.
-</p>
+<h3>Using Auto-Complete</h3>
 <ol>
-  <li>Determine the classes you wish to take next semester.</li>
-	<li>Enter in the class numbers (e.g. MATH 101, CS 104) in the Class ID box.</li>
-	<li>Select a valid class number from the drop down menu.</li>
-	<li>Click anywhere outside of the box to automatically fill in the available section data for that class.</li>
-	<li>Repeat this process for each class.</li>
-	<li>Click &ldquo;Find a Schedule&rdquo; to view all possible schedules for next semester.</li>
+  <li>Click/tap on a the Class ID box in an empty row.</li>
+	<li>Type the subject and course number (e.g. MATH 101, CS 104) in the Class ID box.</li>
+  <li>Press enter to choose the first option or select one of the options to load data for that course.</li>
+  <li>To reload the data, first remove the cource using the “Remove” button and then re-enter the subject and course numberAuto-Complete will not overwrite a populated entry.</li>
+ </ol>
+<h3>Registering</h3>
+<ol>
+  <li>Schedule an appointment with your advisor during Advising Break.</li>
+  <li>Your advisor will help you select courses to advance your education and mark you as “advised” in Calvin’s registration system.</li>
+  <li>Use Slate Permutate (this website) to check out different schedules and sections for the courses you plan to take.</li>
+  <li>Look up your <a href="https://calvin.edu/offices-services/center-for-student-success/registration/registration-times/">Registration Time</a>.</li>
+  <li>Prior to your registration time, you may pre-search for your desired sections in Calvin’s registration system. The system may let you create and modify a saved list of sections.</li>
+  <li>After your registration time, you may <a href="https://www.viki.com/videos/1100604v-cheese-in-the-trap-episode-1?vst=1250" target="_blank">submit your registration</a>.</li>
 </ol>
 <!--<ol>
   <li>Get in touch with your advisor during advising/reading recess.</li>
