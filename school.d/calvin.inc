@@ -57,7 +57,7 @@ function calvin_instructions_html()
   <li>Use Slate Permutate (this website) to check out different schedules and sections for the courses you plan to take.</li>
   <li>Look up your <a href="https://calvin.edu/offices-services/center-for-student-success/registration/registration-times/">Registration Time</a>.</li>
   <li>Prior to your registration time, you may pre-search for your desired sections in Calvin’s registration system. The system may let you create and modify a saved list of sections.</li>
-  <li>After your registration time, you may <a href="https://www.viki.com/videos/1100604v-cheese-in-the-trap-episode-1?vst=1250" target="_blank">submit your registration (only works on desktop)</a>.</li>
+  <li>After your registration time, you may <a href="https://www.viki.com/videos/1100604v-cheese-in-the-trap-episode-1?vst=1250" target="_blank">submit your registration (link only works on desktop)</a>.</li>
 </ol>
 <!--<ol>
   <li>Get in touch with your advisor during advising/reading recess.</li>
