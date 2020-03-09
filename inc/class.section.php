@@ -26,17 +26,29 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.section_meeting.in
  *
  * Iterating over a Section yields section_SectionMeeting objects.
  */
-class Section implements IteratorAggregate
-{
-
-  private $letter;	// Section letter
-  private $prof;	// Professor, preserved for Section::__wakeup()
+class Section implements IteratorAggregate {
+  /**
+   * \brief
+   *   Section letter.
+   */
+  private $letter;
+  /**
+   * \brief
+   *   Professor, preserved for Section::__wakeup()
+   */
+  private $prof;
 
   /* meeting times, array of SectionMeeting */
   private $meetings;
 
   /* the section synonym which uniquely identifies this section/course combination */
   private $synonym;
+  /**
+   * \brief
+   *   Optional section-specific title for schools which have a single
+   *   course number and multiple sections with different topics.
+   */
+  private $title;
   /**
    * \brief
    *   The number of credit hours this course has.
@@ -63,9 +75,13 @@ class Section implements IteratorAggregate
    *   is for that number.
    * \param $credit_hours
    *   The number of credit hours this course is worth.
+   * \param $title
+   *   A title specific to the section. Some schools may have a single
+   *   course with multiple subjects being different titles, like
+   *   Calvin University’s DCM Interim courses. This isn’t displayed
+   *   or consumed anywhere yet.
    */
-  function __construct ($letter, array $section_meetings = array(), $synonym = NULL, $credit_hours = -1.0)
-  {
+  function __construct ($letter, array $section_meetings = array(), $synonym = NULL, $credit_hours = -1.0, $title = NULL) {
     $this->letter = $letter;
     $this->meetings = $section_meetings;
     $this->synonym = $synonym;
@@ -76,13 +92,11 @@ class Section implements IteratorAggregate
    * \brief
    *   Implements the IteratorAggregate interface.
    */
-  public function getIterator()
-  {
+  public function getIterator() {
     return new ArrayIterator($this->meetings);
   }
 
-  public function getLetter()
-  {
+  public function getLetter() {
     return $this->letter;
   }
 
@@ -91,9 +105,19 @@ class Section implements IteratorAggregate
    *   This section's synonym -- a unique numeric identifier for this
    *   course. NULL if undefined.
    */
-  public function getSynonym()
-  {
+  public function getSynonym() {
     return $this->synonym;
+  }
+
+  /**
+   * \brief
+   *  Return the optional section title. Will be NULL if not
+   *  provided. May be used to distinguish between sections which
+   *  share a course number but cover different topics such as various
+   *  Interim courses at Calvin University.
+   */
+  public function getTitle() {
+    return $this->title;
   }
 
   /**
@@ -103,8 +127,7 @@ class Section implements IteratorAggregate
    * \return
    *   An array of SectionMeeting objects.
    */
-  public function getMeetings()
-  {
+  public function getMeetings() {
     return $this->meetings;
   }
 
@@ -115,8 +138,7 @@ class Section implements IteratorAggregate
    *   The number of credit hours this course has, or a negative
    *   number if not specified.
    */
-  public function credit_hours_get()
-  {
+  public function credit_hours_get() {
     return $this->credit_hours;
   }
 
@@ -129,12 +151,14 @@ class Section implements IteratorAggregate
    * \return
    *   TRUE if there is a conflict, FALSE otherwise.
    */
-  public function conflictsWith(Section $that)
-  {
-    foreach ($this->meetings as $this_meeting)
-      foreach ($that->meetings as $that_meeting)
-      if ($this_meeting->conflictsWith($that_meeting))
-	return TRUE;
+  public function conflictsWith(Section $that) {
+    foreach ($this->meetings as $this_meeting) {
+      foreach ($that->meetings as $that_meeting) {
+        if ($this_meeting->conflictsWith($that_meeting)) {
+          return TRUE;
+        }
+      }
+    }
 
     return FALSE;
   }
@@ -146,8 +170,7 @@ class Section implements IteratorAggregate
    * Useful for process.php when it's calling
    * Schedule::addSectionMeeting() multiple times.
    */
-  public function meeting_add(SectionMeeting $meeting)
-  {
+  public function meeting_add(SectionMeeting $meeting) {
     $this->meetings[] = $meeting;
   }
   
@@ -183,8 +206,7 @@ class Section implements IteratorAggregate
    *   three elements depending on the validity and precision of the
    *   $section_spec.
    */
-  public static function parse($section_spec)
-  {
+  public static function parse($section_spec) {
     $ret = array();
 
     $section_spec = trim($section_spec);
@@ -225,21 +247,20 @@ class Section implements IteratorAggregate
    *   An array of arrays that should be merged with the return value
    *   of other Section::to_json_arrays() calls.
    */
-  public function to_json_arrays()
-  {
+  public function to_json_arrays() {
     $json_arrays = array();
 
-    foreach ($this->meetings as $meeting)
-      {
-	$json_array = array(
-			    'credit_hours' => $this->credit_hours_get(),
-			    'section' => $this->letter,
-			    'synonym' => $this->synonym,
-			    );
+    foreach ($this->meetings as $meeting) {
+      $json_array = array(
+        'credit_hours' => $this->credit_hours_get(),
+        'section' => $this->letter,
+        'synonym' => $this->synonym,
+        'title' => $this->title,
+      );
 
-	$json_array += $meeting->to_json_array();
-	$json_arrays[] = $json_array;
-      }
+      $json_array += $meeting->to_json_array();
+      $json_arrays[] = $json_array;
+    }
 
     return $json_arrays;
   }
@@ -263,20 +284,19 @@ class Section implements IteratorAggregate
    * \return
    *   A Section object.
    */
-  public static function from_json_arrays(array $json_arrays)
-  {
+  public static function from_json_arrays(array $json_arrays) {
     $section_meetings = array();
     $letter = '';
     $synonym = NULL;
-    foreach ($json_arrays as $meeting)
-      {
-	$letter = $meeting['section'];
-	$synonym = $meeting['synonym'];
-	if (!isset($json['credit_hours']) || $json['credit_hours'] < 0)
-	  $json['credit_hours'] = -1.0;
-	$credit_hours = $json['credit_hours'];
-	$section_meetings[] = SectionMeeting::from_json_array($meeting);
+    foreach ($json_arrays as $meeting) {
+      $letter = $meeting['section'];
+      $synonym = $meeting['synonym'];
+      if (!isset($json['credit_hours']) || $json['credit_hours'] < 0) {
+        $json['credit_hours'] = -1.0;
       }
+      $credit_hours = $json['credit_hours'];
+      $section_meetings[] = SectionMeeting::from_json_array($meeting);
+    }
     $section = new Section($letter, $section_meetings, $synonym, $credit_hours);
 
     return $section;
@@ -292,37 +312,35 @@ class Section implements IteratorAggregate
    *   A magic function which tries to upgrade old serialized sections
    *   to the new format.
    */
-  public function __wakeup()
-  {
+  public function __wakeup() {
     /* upgrade to SectionMeeting stuffage */
-    if (!empty($this->start))
-      {
-	$days = '';
-	$daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f');
-	foreach ($this->bdays as $day => $have_day)
-	  if ($have_day)
-	    $days .= $daymap[$day];
-
-	/* the old format had a ->prof but initialied it to ``unknown prof'' */
-	$this->prof = '';
-
-	$this->meetings = array();
-	$this->meeting_add(new SectionMeeting($days, $this->start, $this->tend, '', 'lecture', $this->prof));
-
-	/*
-	 * if we're reserialized in the future, make sure we don't do this same upgrade procedure again ;-).
-	 */
-	unset($this->start);
-      }
-    elseif (!empty($this->prof))
-      {
-	/* Move the instructor (old $this->prof) property to our SectionMeeting children */
-	foreach ($this->meetings as $meeting)
-	  $meeting->instructor_set($this->prof);
-	unset($this->prof);
+    if (!empty($this->start)) {
+      $days = '';
+      $daymap = array(0 => 'm', 1 => 't', 2 => 'w', 3 => 'h', 4 => 'f');
+      foreach ($this->bdays as $day => $have_day) {
+        if ($have_day) {
+          $days .= $daymap[$day];
+        }
       }
 
-    if (!isset($this->credit_hours))
+      // the old format had a ->prof but initialied it to “unknown prof”
+      $this->prof = '';
+
+      $this->meetings = array();
+      $this->meeting_add(new SectionMeeting($days, $this->start, $this->tend, '', 'lecture', $this->prof));
+
+      // if we’re reserialized in the future, make sure we don’t do this same upgrade procedure again ;-).
+      unset($this->start);
+    } elseif (!empty($this->prof)) {
+      // Move the instructor (old $this->prof) property to our SectionMeeting children
+      foreach ($this->meetings as $meeting) {
+        $meeting->instructor_set($this->prof);
+      }
+      unset($this->prof);
+    }
+
+    if (!isset($this->credit_hours)) {
       $this->credit_hours = -1.0;
+    }
   }
 }
