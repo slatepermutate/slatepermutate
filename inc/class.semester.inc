@@ -233,24 +233,21 @@ class Semester
    *   figuring this out. Course slots are a sort of
    *   inverse/complement to section_meetings.
    */
-  public function section_add($dept, $class, Section $section, $title = NULL, $course_slot_id = 'default')
-  {
-    foreach ($section as $meeting)
+  public function section_add($dept, $class, Section $section, $title = NULL, $course_slot_id = 'default') {
+    foreach ($section as $meeting) {
       $this->time_set_section_meeting($meeting);
+    }
 
     $dept = strtoupper($dept);
     $class = strtoupper($class);
 
     if (!isset($this->departments[$dept])
-	|| !isset($this->departments[$dept][$class]))
-      {
-	$classobj = new Course($dept . '-' . $class, $title);
-	$this->class_add($classobj);
-      }
-    else
-      {
-	$classobj = $this->departments[$dept][$class];
-      }
+        || !isset($this->departments[$dept][$class])) {
+      $classobj = new Course($dept . '-' . $class, $title);
+      $this->class_add($classobj);
+    } else {
+      $classobj = $this->departments[$dept][$class];
+    }
 
     $classobj->section_add($section, $course_slot_id);
 
@@ -287,22 +284,22 @@ class Semester
    *   The number of credit hours of the associated course or a
    *   negative value if unknown.
    */
-  public function section_meeting_add($dept, $course, $title, $section, $synonym, SectionMeeting $section_meeting, $course_slot_id = 'default', $credit_hours = -1.0)
+  public function section_meeting_add($dept, $course, $title, $section, $synonym, SectionMeeting $section_meeting, $course_slot_id = 'default', $credit_hours = -1.0, $sectionTitle = NULL)
   {
     $this->time_set_section_meeting($section_meeting);
 
     $dept = strtoupper($dept);
     $course = strtoupper($course);
 
-    if (empty($this->departments[$dept][$course]))
+    if (empty($this->departments[$dept][$course])) {
       $course_obj = NULL;
-    else
-      {
-	$course_obj = $this->departments[$dept][$course];
-	$section_obj = $course_obj->section_get($section);
-      }
-    if (empty($course_obj) || empty($section_obj))
-      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym, $credit_hours), $title, $course_slot_id);
+    } else {
+      $course_obj = $this->departments[$dept][$course];
+      $section_obj = $course_obj->section_get($section);
+    }
+    if (empty($course_obj) || empty($section_obj)) {
+      return $this->section_add($dept, $course, new Section($section, array($section_meeting), $synonym, $credit_hours, $sectionTitle), $title, $course_slot_id, $sectionTitle);
+    }
 
     $section_obj->meeting_add($section_meeting);
     return;
