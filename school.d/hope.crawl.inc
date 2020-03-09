@@ -18,9 +18,6 @@
  * along with slate_permutate.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('SP_HOPE_CRAWL_STATE_PREHEADER', 1);
-define('SP_HOPE_CRAWL_STATE_SECTIONS', 2);
-
 /**
  * \brief
  *   Start a Hope crawling session.
@@ -28,7 +25,7 @@ define('SP_HOPE_CRAWL_STATE_SECTIONS', 2);
 function _hope_crawl_start(array $school, &$uri, array &$cookies, &$dom, &$xpath, &$school_crawl_log)
 {
   $cookies = array();
-  $uri = 'http://plus.hope.edu/PROD/hxskschd.P_hopeSchedule';
+  $uri = 'https://schedule.hope.edu/';
   $dom = new DOMDocument();
 
   $html = school_crawl_geturi($uri, $cookies, $school_crawl_log);
@@ -83,28 +80,25 @@ function hope_crawl_semester_list(array $school, array &$semesters, &$school_cra
     return $ret;
 
   if (($dom_select_terms = $xpath->query('.//select[@name="term"]/option[string-length(@value) > 0]')) === FALSE
-      || !$dom_select_terms->length)
-    {
-      school_crawl_logf($school_crawl_log, 2, "Unable to find the <select name=\"term\"/> for %s.",
-			$school['id']);
-      return 1;
+      || !$dom_select_terms->length) {
+    school_crawl_logf($school_crawl_log, 2, "Unable to find the <select name=\"term\"/> for %s.", $school['id']);
+    return 1;
+  }
+  foreach ($dom_select_terms as $dom_select_term) {
+    /* Support formats like “Spring 2013” and “May Term 2014”. */
+    $term_text = $dom_select_term->textContent;
+    list($year, $season) = _hope_crawl_parse_term($term_text);
+    if ($year) {
+      $semesters[] = new Semester($year, $season);
+    } else {
+      school_crawl_logf($school_crawl_log, 2, 'Unparsable semester name: “%s”.', $term_text);
     }
-  foreach ($dom_select_terms as $dom_select_term)
-    {
-      /* Support formats like “Spring 2013” and “May Term 2014”. */
-      $term_text = $dom_select_term->textContent;
-      list($year, $season) = _hope_crawl_parse_term($term_text);
-      if ($year)
-	  $semesters[] = new Semester($year, $season);
-      else
-	school_crawl_logf($school_crawl_log, 2, 'Unparsable semester name: “%s”.', $term_text);
-    }
+  }
 
   return 0;
 }
 
-function _hope_crawl_days_filter($day)
-{
+function _hope_crawl_days_filter($day) {
   return !empty($day) && strlen(trim($day));
 }
 
@@ -115,327 +109,368 @@ function hope_crawl_semester(array $school, Semester $semester, &$school_crawl_l
   $dom = NULL;
   $xpath = NULL;
 
-  if ($ret = _hope_crawl_start($school, $uri, $cookies, $dom, $xpath, $school_crawl_log))
+  if ($ret = _hope_crawl_start($school, $uri, $cookies, $dom, $xpath, $school_crawl_log)) {
     return $ret;
+  }
 
   if (($dom_select_terms = $xpath->query('.//select[@name="term"]/option[string-length(@value) > 0]')) === FALSE
-      || !$dom_select_terms->length)
-    {
-      school_crawl_logf($school_crawl_log, 2, "Unable to find the <select name=\"term\"/> for %s.",
-			$school['id']);
+      || !$dom_select_terms->length) {
+    school_crawl_logf($school_crawl_log, 2, "Unable to find the <select name=\"term\"/> for %s.", $school['id']);
+    return 1;
+  }
+
+  foreach ($dom_select_terms as $dom_select_term) {
+    list($year, $season) = _hope_crawl_parse_term($dom_select_term->textContent);
+    if (!strcmp($year, $semester->year_get())
+        && !strcmp($season, $semester->season_get()) 
+        && $dom_select_term->hasAttribute('value')) {
+      break;
+    }
+    unset($dom_select_term);
+  }
+  if (empty($dom_select_term)) {
+    school_crawl_logf($school_crawl_log, 4, "Unable to find the form input value associated with the %s semester.", $semester);
+    return 1;
+  }
+
+  $semester_form = array();
+  $term = $dom_select_term->getAttribute('value');
+  $semester_form['term'] = $term;
+  $uri = school_crawl_url($uri, 'data.php');
+  $sections_json = school_crawl_geturi($uri, $cookies, $school_crawl_log, $semester_form);
+
+  // Responds with JSON.
+  if (empty($sections_json)) {
+    school_crawl_logf($school_crawl_log, 2, "Nothing returned for listing term %s.", $term);
+  }
+  $sections = json_decode($sections_json, TRUE);
+  if ($sections === NULL) {
+    school_crawl_logf($school_crawl_log, 2, "Unable to parse JSON: %s.", json_last_error_msg());
+    return 1;
+  }
+  school_crawl_logf($school_crawl_log, 7, "Type of JSON: %s.", gettype($sections));
+  if (is_array($sections)) {
+    school_crawl_logf($school_crawl_log, 7, "Keys in root: %s", implode(', ', array_keys($sections)));
+  }
+  foreach (['term', 'data'] as $key) {
+    if (!array_key_exists($key, $sections)) {
+      school_crawl_logf($school_crawl_log, 1, "JSON missing key: %s", $key);
       return 1;
     }
-
-  foreach ($dom_select_terms as $dom_select_term)
-    {
-      list($year, $season) = _hope_crawl_parse_term($dom_select_term->textContent);
-      if (!strcmp($year, $semester->year_get())
-	  && !strcmp($season, $semester->season_get())
-	  && $dom_select_term->hasAttribute('value'))
-	break;
-      unset($dom_select_term);
+    $value = $sections[$key];
+    school_crawl_logf($school_crawl_log, 7, "Type of JSON.%s: %s.", $key, gettype($value));
+    if (is_array($value)) {
+      school_crawl_logf($school_crawl_log, 7, "First 10 keys in JSON.%s: %s", $key, implode(', ', array_slice(array_keys($value), 0, 10)));
     }
-  if (empty($dom_select_term))
-    {
-      school_crawl_logf($school_crawl_log, 4, "Unable to find the form input value associated with the %s semester.",
-			$semester);
-      return 1;
-    }
-
-  $semester_form_node = school_crawl_element_ancestor($dom_select_term, 'form');
-  $semester_form = school_crawl_form($semester_form_node);
-  $semester_form_action = $semester_form_node->getAttribute('action');
-  $semester_form['term'] = $dom_select_term->getAttribute('value');
-
-  foreach ($xpath->query('.//select[@name="sel_subj"]') as $dom_select_subject)
+  }
+  $data = $sections['data'];
+  if (!is_array($data)) {
+    school_crawl_logf($school_crawl_log, 1, "Expected array in JSON.data. Got %s.", gettype($data));
+    return 1;
+  }
+  foreach ($data as $row) {
+    school_crawl_logf($school_crawl_log, 7, "Keys JSON.data[0]: %s", implode(', ', array_keys($row)));
+    school_crawl_logf($school_crawl_log, 8, "First row: %s", json_encode($row));
     break;
-  if (empty($dom_select_subject))
-    {
-      school_crawl_logf($school_crawl_log, 4, "Unable to find Subject-selecting form input");
-      return 1;
-    }
+  }
 
-  /*
-   * Manually select all of the different sorts of subject materials
-   * since selecting no subjects doesn't result in listing them all.
-   *
-   * Note when setting sel_subj: it may already contain a “dummy”
-   * entry in it. Now, if you submit this form and get the HTML
-   * results, you will see that the HTML result table works perfectly
-   * fine without the initial “dummy” entry in it. HOWEVER, below when
-   * submitting the CSV <form/>, the Oracle form handler for CSV
-   * generation *ignores* the first value of sel_subj. Also, the CSV
-   * <form/> on the HTML results page exactly mirrors whatever
-   * sel_subj we set here. Therefore, we mustn’t munge the “dummy”
-   * value from sel_subj. Thus… we just act as consumers and only
-   * append missing subjects to it. Originally, we mistakenly omitted
-   * the dummy value and ended up thus excluding the ACCT/Accounting
-   * subject entirely. Thanks to Cody Stuive (cody dot stuive at hope
-   * edu) for noticing!.
-   */
-  $semester_form += array('sel_subj' => array());
-  foreach (school_crawl_form_select_array($dom_select_subject, FALSE) as $subject_name => $junk)
-    if (!in_array($subject_name, $semester_form['sel_subj']))
-      $semester_form['sel_subj'][] = $subject_name;
-
-  if (!empty($semester_form_action))
-    $uri = school_crawl_url($uri, $semester_form_action);
-  $sections_html = school_crawl_geturi($uri, $cookies, $school_crawl_log, $semester_form);
-
-  /*
-   * Get an HTML-based results page. We only get this page because it
-   * has a <form /> which we can submit to get CSV.
-   */
-  $sections_dom = new DOMDocument();
-  if (empty($sections_html)
-      || !$sections_dom->loadHTML($sections_html))
-    {
-      school_crawl_logf($school_crawl_log, 2, "Unable to load section listings page.");
-      return 1;
-    }
-  $sections_xpath = new DOMXPath($sections_dom);
-
-  /* Look for the "Export to Excel" submit button */
-  $sections_form = $sections_xpath->query('.//form[.//input[@type = "submit" and contains(@value, "xport")]]')->item(0);
-  if (empty($sections_form))
-    {
-      school_crawl_logf($school_crawl_log, 2, "Unable to find CSV link for schedule.");
-      return 1;
-    }
-
-  /* Get the CSV */
-  $sections_form_action = $sections_form->getAttribute('action');
-  if (!empty($sections_form_action))
-    $uri = school_crawl_url($uri, $sections_form_action);
-
-  $fields = array(
-    'Status' => FALSE /*< OPEN, RESTRICTED, IN PROGRESS, or empty */,
-    'Title' => FALSE /*< course name */,
-    'Subject' => FALSE /*< subject id */,
-    'Course Number' => FALSE,
-    'Section Number' => FALSE,
-    'CRN' => FALSE /*< section synonym */,
-    'Cred' => FALSE /*< Number of credits, can be a range which would be formatted like "  1-4" */,
-    /*
-     * ex. "FA1", "FA2", "CH2" (online course?), "CD4", "SRS"
-     * (seniors). If a course has multiple attributes, it will have
-     * multiple lines following it with the attributes but no other
-     * fields filled?
-     */
-    'Attr' => FALSE,
-    /*
-     * The first of 8 columns being Day + times. "M" (or "TBA"), "T",
-     * "W", "R", "F", <saturday>?, <sunday>?, "1600-1800" or "TBA".
-     */
-    'Meeting Days/Times' => FALSE,
-    'Location' => FALSE /*< The room or TBA */,
-    'Capacity' => FALSE /*< Probably the maximum number of students */,
-    'Actual' => FALSE /*< Possibly the current number of students? */,
-    'Remainder' => FALSE  /*< Number of spots to be filled... */,
-    'Instructor' => FALSE /*< The prof/instructor */,
-    /*
-     * The start/end dates in form of 07/02-07/27. This would be
-     * particularly important for supporting half-semester
-     * courses. Bug #122.
-     */
-    'Date' => FALSE,
-    'Weeks' => FALSE /*< The total number of weeks the course meets */,
-  );
   $state = array(
     'semester' => $semester,
-    'fields' => $fields,
-    'data' => '',
-    'data_unfiltered' => '', /*< Data not yet passed through _hope_crawl_semester_csv_filter() */
-    'expected_columns' => 0, /*< The number of columns expected to be in a section row, calculated when parsing the header row. */
-    'rollover_values' => array(), /*< The values of columns which may be used multiple times, such as for sections with multiple meetings. */
+    'found_multiple_meettimes_example' => FALSE,
     'school_crawl_log' => &$school_crawl_log,
-    'state' => SP_HOPE_CRAWL_STATE_PREHEADER,
+    'timeZone' => new DateTimeZone('America/Detroit'),
   );
-  $sections_csv = school_crawl_geturi($uri, $cookies, $school_crawl_log, school_crawl_form($sections_form),
-				      FALSE, NULL, array(
-					'writefunc' => '_hope_crawl_semester_csv',
-					'writestate' => &$state,
-				      ));
-  /* Deliver the EOF */
-  $state['data'] .= _hope_crawl_semester_csv_filter($state['data_unfiltered']);
-  school_crawl_csv_parse($state['data'], array('eof' => TRUE, 'stream' => array('callback' => '_hope_crawl_semester_csv_row', 'state' => &$state)));
+  foreach ($data as $row) {
+    _hope_crawl_semester_json_row($state, $row);
+  }
 }
 
-/**
- * \brief
- *   Filter the CSV so that doublequotes are properly escaped.
- *
- * \param $lines
- *   One or more complete lines of CSV. Partial lines should be
- *   withheld for later filtering.
- */
-function _hope_crawl_semester_csv_filter($lines)
-{
-  /*
-   * Oracle likes to put random `"' into the middle of a quoted string
-   * instead of properly escaping it like ``"This is a string with a
-   * "" in it"''. This regex blasts away such doublequotes which are
-   * not adjacent to delimiters (hopefully).
-   */
-  return preg_replace('/([^,\\n\\r])"([^,\\n\\r])/', '$1""$2', $lines);
-}
+function _hope_crawl_semester_json_row(&$state, $row) {
+  // Examples of rows:
+  //
+  // Simple, SCBCRSE_TITLE is the only title provided, so should fall back to that.
+  // {"SSBSECT_TERM_CODE":"202101","CRSE_STATUS":"O","SSRSYLN_LONG_COURSE_TITLE":null,"SSBSECT_CRSE_TITLE":null,"SCBCRSE_TITLE":"Basic Drawing","SSBSECT_SUBJ_CODE":"ART","STVSUBJ_DESC":"Art and Art History","SSBSECT_CRSE_NUMB":"114","SSBSECT_SEQ_NUMB":"02","SSBSECT_CRN":"11001","SSBSECT_CREDIT_HRS":null,"SCBCRSE_CREDIT_HR_HIGH":null,"SCBCRSE_CREDIT_HR_IND":null,"SCBCRSE_CREDIT_HR_LOW":"2","ATTR_CODES":"FA2","MEETTIMES":[{"sunday":"","monday":"","tuesday":"T","wednesday":"","thursday":"R","friday":"","saturday":"","starttime":"0800","endtime":"1050","building":"DPRART","room":"131","startdate":"01\/11","enddate":"05\/07"}],"MEETDAYS":"TR","SIRASGN_PIDM":"30955","FACULTY_NAME":"Staff, TBA","SSBSECT_ENRL":"0","SSBSECT_MAX_ENRL":"17","SSBSECT_SCHD_CODE":"U","SEATS_AVAIL":"17","SSBSECT_WAIT_COUNT":"0","SSBSECT_PTRM_CODE":"1","SSBSECT_CAMP_CODE":"M","STVCAMP_DESC":"Main Campus","SSBSECT_PTRM_END_DATE":"07-MAY-21","SSBSECT_PTRM_START_DATE":"11-JAN-21","SSBSECT_PTRM_WEEKS":"16","COMMENT":null}
+  //
+  // {"SSBSECT_TERM_CODE":"202008","CRSE_STATUS":"O","SSRSYLN_LONG_COURSE_TITLE":"CH1, Hist\/Lit\/Phil: Real Life and the Good Life from Classical Times to Christian","SSBSECT_CRSE_TITLE":null,"SCBCRSE_TITLE":"Cultural Heritage I","SSBSECT_SUBJ_CODE":"IDS","STVSUBJ_DESC":"Interdisciplinary","SSBSECT_CRSE_NUMB":"171","SSBSECT_SEQ_NUMB":"06","SSBSECT_CRN":"81088","SSBSECT_CREDIT_HRS":null,"SCBCRSE_CREDIT_HR_HIGH":null,"SCBCRSE_CREDIT_HR_IND":null,"SCBCRSE_CREDIT_HR_LOW":"4","ATTR_CODES":"CH1,GLI","MEETTIMES":[{"sunday":"","monday":"M","tuesday":"","wednesday":"W","thursday":"","friday":"","saturday":"","starttime":"1400","endtime":"1520","building":"LUBBRS","room":"121","startdate":"09\/01","enddate":"12\/18"}],"MEETDAYS":"MW","SIRASGN_PIDM":"1880","FACULTY_NAME":"LaPorte, Joseph F.","SSBSECT_ENRL":"0","SSBSECT_MAX_ENRL":"22","SSBSECT_SCHD_CODE":"L","SEATS_AVAIL":"22","SSBSECT_WAIT_COUNT":"0","SSBSECT_PTRM_CODE":"1","SSBSECT_CAMP_CODE":"M","STVCAMP_DESC":"Main Campus","SSBSECT_PTRM_END_DATE":"18-DEC-20","SSBSECT_PTRM_START_DATE":"01-SEP-20","SSBSECT_PTRM_WEEKS":"16","COMMENT":"Topic: Real Life and the Good Life from Classical Times to Christian. Engl 113 highly recommended prior to this course."}
+  //
+  // Multiple meeting times:
+  //
+  // {"SSBSECT_TERM_CODE":"202101","CRSE_STATUS":"R","SSRSYLN_LONG_COURSE_TITLE":null,"SSBSECT_CRSE_TITLE":null,"SCBCRSE_TITLE":"Wind Ensemble","SSBSECT_SUBJ_CODE":"MUS","STVSUBJ_DESC":"Music","SSBSECT_CRSE_NUMB":"130","SSBSECT_SEQ_NUMB":"01","SSBSECT_CRN":"11015","SSBSECT_CREDIT_HRS":"1","SCBCRSE_CREDIT_HR_HIGH":"1","SCBCRSE_CREDIT_HR_IND":"OR","SCBCRSE_CREDIT_HR_LOW":"0","ATTR_CODES":"FA2","MEETTIMES":[{"sunday":"","monday":"","tuesday":"","wednesday":"","thursday":"","friday":"F","saturday":"","starttime":"1300","endtime":"1430","building":"JHMILR","room":"130","startdate":"01\/11","enddate":"05\/07"},{"sunday":"","monday":"M","tuesday":"","wednesday":"W","thursday":"","friday":"","saturday":"","starttime":"1700","endtime":"1820","building":"JHMILR","room":"130","startdate":"01\/11","enddate":"05\/07"}],"MEETDAYS":"MWF","SIRASGN_PIDM":"36858","FACULTY_NAME":"Southard, Robert G.","SSBSECT_ENRL":"0","SSBSECT_MAX_ENRL":"30","SSBSECT_SCHD_CODE":"E","SEATS_AVAIL":"30","SSBSECT_WAIT_COUNT":"0","SSBSECT_PTRM_CODE":"1","SSBSECT_CAMP_CODE":"M","STVCAMP_DESC":"Main Campus","SSBSECT_PTRM_END_DATE":"07-MAY-21","SSBSECT_PTRM_START_DATE":"11-JAN-21","SSBSECT_PTRM_WEEKS":"16","COMMENT":"Written permission of department chair required. Please contact Dr. Southard for more information - southard@hope.edu."}
+  //
+  // Attempt to dissect the field names:
+  //
+  // SSBSECT_TERM_CODE: The term’s name. Also available in the
+  //   response as the key term. Sent in the request as post form data
+  //   value with name term. The presence of this value in the data
+  //   makes it possible for data from multiple terms to be stored
+  //   together in the same file, but that either isn’t a thing or,
+  //   if Hope does return that, we wouldn’t want it because that
+  //   would increase the chance of hitting the memory limits.
+  //
+  // CRSE_STATUS: The statuses are defined in the HTML as X=Cancelled,
+  //   C=Closed, R=Permission(… required?), P=Completed, I=In
+  //   progress, O=Open, W=Waitlisted.
+  //
+  // SSRSYLN_LONG_COURSE_TITLE: The most specific/long version of the
+  //    title. Might be section-specific in the case of a super
+  //    generic course title(?). Unsure about meaning of SSRYLN.
+  //
+  // SSBSECT_CRSE_TITLE: The second most specific/long version of the
+  //    title. Based on the name, seems to be a section-specific
+  //    title. If present, we should set the section title.
+  //
+  // SCBCRSE_TITLE: The course title. Most short/generalized.
+  //
+  // SSBSECT_SUBJ_CODE: Subject code (e.g., MUS for music).
+  //
+  // STVSUBJ_DESC: A human-readable description of the subject code
+  //   (e.g., “Music” for MUS).
+  //
+  // SSBSECT_CRSE_NUMB: The course number.
+  //
+  // SSBSECT_SEQ_NUMB: The section.
+  //
+  // SSBSECT_CRN: The unique registration code(?), synonym.
+  //
+  // SSBSECT_CREDIT_HRS: Number of credit hours. Might vary per
+  //   section in course.
+  //
+  // SCBCRSE_CREDIT_HR_HIGH: The maximum number of credit hours one
+  //   might have when signing up for a particular section from this
+  //   course. Is NULL if there is only one option for credit hous for
+  //   the course. Slate Permutate already calculates this from
+  //   knowing SSBSECT_CREDIT_HRS.
+  //
+  // SCBCRSE_CREDIT_HR_IND: The credit hours indicator? Weird. If TO,
+  //   the number of credit hours for the course is considered a range
+  //   from SCBCRSE_CREDIT_HR_LOW through SCBCRSE_CREDIT_HR_HIGH. If
+  //   OR, the number of credit hours for the course is considered to
+  //   be either the _LOW or the _HIGH. If NULL, _LOW is used and
+  //   _HIGH is null (indicating only one choice for credit hours for
+  //   the course). Probably just a human thing so that a course with
+  //   2 different options for credit hours is shown as “X or Y”
+  //   whereas a course with more than 2 different options for credit
+  //   hours is just shown as a range.
+  //
+  //   Slate Permutate does not care about this. It can infer all of
+  //   this information from analyzing SSBSECT_CREDIT_HRS stored in
+  //   its Sections.
+  //
+  // SCBCRSE_CREDIT_HR_LOW: The minimum number of credit hours for the
+  //   course or, if there is only one choice for an amount of credit
+  //   hours for a course, NULL.
+  //
+  // ATTR_CODES: Some list of attributes. See the JavaScript for more
+  //   information.
+  //
+  // MEETTIMES: An array of meeting time objects:
+  //
+  //   sunday, monday=M, tuesday=T, wednesday=W, thursday=R, friday=F,
+  //     saturday: key will be set nonempty (to a particular day
+  //     character, noted if known) if the meeting occurs on that day.
+  //
+  //   starttime: Empty string if the section has its times yet to be
+  //     announced. Otherwise, 4 digits of the start time in 24-hour
+  //     0-padded HHMM.
+  //
+  //   endtime: same format as starttime and rules regarding TBA, the
+  //     end time.
+  //
+  //   building: The building (e.g., SCICTR)
+  //
+  //   room: The room number (e.g., 1228)
+  //
+  //   startdate: non-year date format 2-digit-zero-padded-month '/'
+  //     2-digit-zero-padded-day-of-month. (e.g., “12/18”) Interpret
+  //     as first matching greater than or equal to
+  //     SSBSECT_PTRM_START_DATE which includes a year.
+  //
+  //   enddate: same format as startdate. Interpret as first matching
+  //     less or equal to SSBSECT_PTRM_END_DATE.
+  //
+  // MEETDAYS: The string “TBA” if the times are yet to be
+  //   announced. Might be “TBA/ONLINE”. Otherwise, a string of
+  //   MTWRF (unknown values for Sunday and Saturday) matching the
+  //   values used within MEETTIMES[n][dayOfWeekName]. A section-level
+  //   summary. Slate Permutate just uses meetings directly, so
+  //   useless.
+  //
+  // SIRASGN_PIDM: A numeric value such as 56640 or 421. Unreferenced
+  //   by JavaScript.
+  //
+  // FACULTY_NAME: faculty name, like “Lunn, John E.”.
+  //
+  // SSBSECT_ENRL: Labeled “Act:” in the web interface. Sounds like
+  //   the count of enrolled students.
+  //
+  // SSBSECT_MAX_ENRL: Labeled “Cap:” in the web interface. Likely
+  //   the maximum number of students who may sign up for the section.
+  //
+  // SSBSECT_SCHD_CODE: Unknown. Unused in JavaScript.
+  //
+  // SEATS_AVAIL: Labeled “Rem:” (Remaining) in web interface. Means
+  //   number of students who may still sign up.
+  //
+  // SSBSECT_WAIT_COUNT: Labeled “Wait:” in web interface. Probably
+  //   count of people who are waitlisted.
+  //
+  // SSBSECT_PTRM_CODE: Part of term. 1 means full term, 2 means first
+  //   half of term, 3 means second half of term.
+  //
+  // SSBSECT_CAMP_CODE: Campus. M=Main Campus, D=Domestic Off Campus,
+  //   S=Study Abroad/Off Campus.
+  //
+  // STVCAMP_DESC: The human-readable descxription of the code given
+  //   by SSBSECT_CAMP_CODE.
+  //
+  // SSBSECT_PTRM_END_DATE: e.g., 21-OCT-20. End of the part of the
+  //   term that the section is in.
+  //
+  // SSBSECT_PTRM_START_DATE: Same format as
+  //   SSBSECT_PTRM_END_DATE. Start of the part of the term that the
+  //   section is in.
+  //
+  // SSBSECT_PTRM_WEEKS: Number of weeks in the part of the term that
+  //   the section is in.
+  //
+  // COMMENT: Human-readable comments.
 
-/**
- * \brief
- *   libcurl WRITEFUNC callback for parsing CSV.
- *
- * \param $state
- *   The state.
- * \param $data
- *   The data read so far.
- *
- * \return
- *   The number of bytes in $data or a different number to indicate
- *   error.
- */
-function _hope_crawl_semester_csv(&$state, $data)
-{
-  $state['data_unfiltered'] .= $data;
-  $last_newline_pos = strrpos($state['data_unfiltered'], "\n");
-  if ($last_newline_pos === FALSE)
-    /* Not enough new data */
-    return strlen($data);
-  $state['data'] .= _hope_crawl_semester_csv_filter(substr($state['data_unfiltered'], 0, $last_newline_pos + 1));
-  $state['data_unfiltered'] = substr($state['data_unfiltered'], $last_newline_pos + 1);
-
-  school_crawl_csv_parse($state['data'], array('stream' => array('callback' => '_hope_crawl_semester_csv_row', 'state' => &$state)));
-
-  return strlen($data);
-}
-
-function _hope_crawl_semester_csv_row(&$state, $row)
-{
-  $expected_columns =& $state['expected_columns'];
-  $fields =& $state['fields'];
-  $rollover_values =& $state['rollover_values'];
   $school_crawl_log =& $state['school_crawl_log'];
+  $found_multiple_meettimes_example =& $state['found_multiple_meettimes_example'];
   $semester = $state['semester'];
+  $timeZone = $state['timeZone'];
 
-  switch ($state['state'])
-    {
-    case SP_HOPE_CRAWL_STATE_PREHEADER:
-      if (count($row) < 2)
-	/*
-	 * Skip the introductory lines, seeking for the field headers.
-	 */
-	break;
-
-      /*
-       * Came upon the header line… parse the header and switch to
-       * sections mode.
-       */
-      foreach ($row as $column => $name)
-	if (!empty($name))
-	  $fields[$name] = $column;
-      $expected_columns = max($fields);
-      foreach ($fields as $name => $location)
-	if ($location === FALSE)
-	  {
-	    school_crawl_logf($school_crawl_log, 2, "Cannot find column named %s in CSV. The column headings line looks like ``%s''.",
-			      $name, implode(',', $row));
-	    return 1;
-	  }
-
-      /* Label the days of the week and Times column */
-      foreach (array('M', 'T', 'W', 'R', 'F', 'S', 'U', 'Times') as $offset => $name)
-	$fields[$name] = $fields['Meeting Days/Times'] + $offset;
-
-      $state['state'] = SP_HOPE_CRAWL_STATE_SECTIONS;
-      break;
-    case SP_HOPE_CRAWL_STATE_SECTIONS:
-      $section_csv = $row;
-
-      if (count($section_csv) < $expected_columns)
-	{
-	  school_crawl_logf($school_crawl_log, 8, "Skipping row which has fewer entries than expected (%d): %s",
-			    $expected_columns, implode(', ', $section_csv));
-	  continue;
-	}
-
-      /*
-       * If a section has multiple meetings, each extra meeting is
-       * placed on a row following the first section's entry. However,
-       * the course/synonym/section/subject are all blank on that
-       * line. Therefore, we must propagate these values.
-       */
-      foreach (array(
-	'subject_id' => 'Subject',
-	'course_id' => 'Course Number',
-	'title' => 'Title',
-	'section_id' => 'Section Number',
-	'synonym' => 'CRN',
-	'instructor' => 'Instructor',
-	'location' => 'Location',
-      ) as $var => $field)
-	{
-	  $rollover_values += array($var => ''); /*< (Inefficient) */
-	  ${$var} =& $rollover_values[$var];
-	  if (strlen(trim($section_csv[$fields[$field]])))
-	    ${$var} = trim($section_csv[$fields[$field]]);
-	}
-
-      if ($section_csv[$fields['M']] == 'TBA'
-	  || $section_csv[$fields['Times']] == 'TBA')
-	{
-	  $semester->class_add(new Course($subject_id . '-' . $course_id,
-					  $section_csv[$fields['Title']]));
-	  school_crawl_logf($school_crawl_log, 8, "Course %s-%s-%s has a section meeting with a TBA time, adding dummy course.",
-			    $subject_id, $course_id, $section_id);
-	  continue;
-	}
-
-      $date_start = $date_end = NULL;
-      if (preg_match(',(\\d\\d)/(\\d\\d)-(\\d\\d)/(\\d\\d),', $section_csv[$fields['Date']], $matches))
-	{
-	  list(, $m_start, $d_start, $m_end, $d_end) = $matches;
-	  if ($m_start && $d_start && $m_end && $d_end)
-	    {
-	      $y_start = $y_end = $semester->year_get();
-	      if ($m_end < $m_start)
-		$y_end ++;
-	      $date_start = gmmktime(0, 0, 0, $m_start, $d_start, $y_start);
-	      $date_end = gmmktime(0, 0, 0, $m_end, $d_end, $y_end);
-	    }
-	}
-
-      if (trim($section_csv[$fields['U']]))
-	school_crawl_logf($school_crawl_log, 0, "Section %d has sunday.", $synonym);
-      $days = school_crawl_days_format($school_crawl_log, array_filter(array_slice($section_csv, $fields['M'], 7), '_hope_crawl_days_filter'));
-      list($time_start, $time_end) = explode('-', $section_csv[$fields['Times']]);
-      if (strlen($time_start) != 4 || strlen($time_end) != 4)
-	{
-	  school_crawl_logf($school_crawl_log, 4, "Section meeting (synonym=%s) has invalidly-formatted start time (%s) or end time (%s). Skipping.",
-			    $synonym, $time_start, $time_end);
-	  continue;
-	}
-
-      /*
-       * Guessing the type of section_meeting: `attribute' of NSL
-       * seems to be associated with labs. Matches `lab', `lab.', `
-       * lab', ` labo'..., etc.
-       */
-      $type = 'lecture';
-      if (preg_match('/(^|[^a-z])lab($|o|[^a-z])/i', $title))
-	$type = 'lab';
-
-      $section_meeting = new SectionMeeting($days, $time_start, $time_end,
-					    $location,
-					    $type,
-					    $instructor,
-					    $date_start, $date_end);
-      $semester->section_meeting_add($subject_id,
-				     $course_id,
-				     $title,
-				     $section_id,
-				     $synonym,
-				     $section_meeting,
-				     $type,
-				     $section_csv[$fields['Cred']]);
-      break;
+  // Multiple fields might provide title-like information. The
+  // first-encountered title is set as the section title and the last
+  // encountered title is set as the course title. This supports
+  // “Cultural Heritage I” course with sections that are various
+  // different topics.
+  //
+  // Precedence is defined by the JavaScripts at
+  // https://schedule.hope.edu/ which just displays the most specified
+  // title.
+  $sectionTitle = NULL;
+  $title = NULL;
+  foreach (array(
+    'SSRSYLN_LONG_COURSE_TITLE',
+    'SSBSECT_CRSE_TITLE',
+    'SCBCRSE_TITLE',
+  ) as $titleKey) {
+    $value = trim($row[$titleKey]);
+    if (!empty($value)) {
+      if (empty($sectionTitle)) {
+        $sectionTitle = $value;
+      }
+      $title = $value;
     }
+  }
+  // If the same, omit the section title.
+  if ($sectionTitle === $title) {
+    $sectionTitle = NULL;
+  }
+
+  $subject_id = $row['SSBSECT_SUBJ_CODE'];
+  $course_id = $row['SSBSECT_CRSE_NUMB'];
+  $section_id = $row['SSBSECT_SEQ_NUMB'];
+
+  if ($row['MEETDAYS'] === 'TBA' || $row['MEETDAYS'] === 'TBA/ONLINE') {
+	  $semester->class_add(new Course($subject_id . '-' . $course_id, $title));
+	  school_crawl_logf($school_crawl_log, 8, "Course %s-%s-%s has a section meeting with a TBA time, adding dummy course.", $subject_id, $course_id, $section_id);
+    return;
+	}
+
+  $meetTimes = $row['MEETTIMES'];
+  if (count($meetTimes) > 1 && !$found_multiple_meettimes_example) {
+    $found_multiple_meettimes_example = TRUE;
+    school_crawl_logf($school_crawl_log, 7, "Example of row with multiple meeting times: %s", json_encode($row));
+  }
+
+  $semesterPartOfTermStartDate = DateTime::createFromFormat('!d-M-y', $row['SSBSECT_PTRM_START_DATE'], $timeZone);
+  $semesterPartOfTermEndDate = DateTime::createFromFormat('!d-M-y', $row['SSBSECT_PTRM_END_DATE'], $timeZone)->add(new DateInterval('P1D'));
+
+  $synonym = $row['SSBSECT_CRN'];
+  $instructor = $row['FACULTY_NAME'];
+
+  foreach ($meetTimes as $meetTime) {
+  $days = school_crawl_days_format($school_crawl_log, array_keys(array_filter(array_intersect_key($meetTime, array(
+    'sunday' => TRUE,
+    'monday' => TRUE,
+    'tuesday' => TRUE,
+    'wednesday' => TRUE,
+    'thursday' => TRUE,
+    'friday' => TRUE,
+    'saturday' => TRUE,
+  )), '_hope_crawl_days_filter')));
+  $time_start = $meetTime['starttime'];
+  $time_end = $meetTime['endtime'];
+  $location = $meetTime['building'] . ' ' . $meetTime['room'];
+  if (strlen($time_start) != 4 || strlen($time_end) != 4) {
+	  school_crawl_logf($school_crawl_log, 4, "Section meeting (synonym=%s) has invalidly-formatted start time (%s) or end time (%s). Skipping.", $synonym, $time_start, $time_end);
+	  continue;
+	}
+
+  $rawMeetTimeStartDate = $meetTime['startdate'];
+  $rawMeetTimeEndDate = $meetTime['enddate'];
+  $meetTimeDateRegex = ',^0*([0-9]+)/0*([0-9]+)$,';
+  if (!preg_match($meetTimeDateRegex, $rawMeetTimeStartDate, $startDateMatches)
+      || !preg_match($meetTimeDateRegex, $rawMeetTimeEndDate, $endDateMatches)) {
+    school_crawl_logf($school_crawl_log, 4, "Section meeting (synonym=%s) has invalidly-formatted start date (%s) or end date (%s). Skipping.", $synonym, $rawMeetTimeStartDate, $rawMeetTimeEndDate);
+    continue;
+  }
+
+  $startDate = new DateTime('now', $timeZone);
+  $startDate->setTime(0, 0);
+  $startDate->setDate($semesterPartOfTermStartDate->format('Y'), $startDateMatches[1], $startDateMatches[2]);
+  // Since we only get the month and day of month for this, we might
+  // be in the wrong year. Increment until we are equal to or greater
+  // than the semester’s start date which does have a year.
+  while ($startDate < $semesterPartOfTermStartDate) {
+    $startDate->add(new DateInterval('P1Y'));
+  }
+
+  $endDate = new DateTime('now', $timeZone);
+  $endDate->setTime(0, 0);
+  $endDate->setDate($semesterPartOfTermEndDate->format('Y'), $endDateMatches[1], $endDateMatches[2]);
+  $endDate->add(new DateInterval('P1D'));
+  // Since we only get the month and day of month for this, we might
+  // be in the wrong year. Decrement until we are equal to or less
+  // than the semester’s end date which does have a year.
+  while ($endDate > $semesterPartOfTermEndDate) {
+    $endDate->sub(new DateInterval('P1Y'));
+  }
+  // Try to avoid creating garbage data…
+  while ($endDate < $startDate) {
+    school_crawl_logf($school_crawl_log, 2, "Calculated end date of %s is prior to calculated start date of %s for meeting of synonym=%s", $endDate->format('r'), $startDate->format('r'), $synonym);
+    $endDate = $startDate;
+    $endDate->add(new DateInterval('P1W'));
+  }
+
+  // Guessing the type of section_meeting: “attribute” of NSL
+  // seems to be associated with labs. Matches `lab', `lab.', `
+  // lab', ` labo'..., etc.
+  $type = 'lecture';
+  if (preg_match('/(^|[^a-z])lab($|o|[^a-z])/i', $title)) {
+    $type = 'lab';
+  }
+
+  $section_meeting = new SectionMeeting(
+    $days,
+    $time_start,
+    $time_end,
+    $location,
+    $type,
+    $instructor,
+    $startDate->getTimestamp(),
+    $endDate->getTimestamp());
+  $semester->section_meeting_add(
+    $subject_id,
+    $course_id,
+    $title,
+    $section_id,
+    $synonym,
+    $section_meeting,
+    $type,
+    $row['SSBSECT_CREDIT_HRS'],
+    $sectionTitle);
+  }
 }
