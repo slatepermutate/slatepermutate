@@ -41,7 +41,7 @@ function school_list()
   if ($schoold_dir === FALSE)
     {
       fprintf(STDERR, "Unable to open school.d directory. Was using path: `%s'\n",
-	      $schoold_dir_Name);
+          $schoold_dir_Name);
       return NULL;
     }
 
@@ -49,7 +49,7 @@ function school_list()
   while ($filename = readdir($schoold_dir))
     {
       if (!preg_match('/^([a-z0-9]+)\.inc$/', $filename, $matches))
-	continue;
+    continue;
 
       $school_id_list[] = $matches[1];
     }
@@ -90,30 +90,30 @@ function school_cache($schools)
   foreach ($schools as $school)
     {
       $list_cache[$school['id']] = array(
-					 'name' => $school['name'],
-					 'url' => $school['url'],
-					 'crawled' => !empty($school['crawled']),
-					 );
+                     'name' => $school['name'],
+                     'url' => $school['url'],
+                     'crawled' => !empty($school['crawled']),
+                     );
       foreach ($school['domains'] as $school_domain)
-	{
-	  $domain_cache_ptr =& $domain_cache;
+    {
+      $domain_cache_ptr =& $domain_cache;
 
-	  $domain_parts = array_reverse(explode('.', $school_domain));
-	  while (count($domain_parts) > 1)
-	    {
-	      $domain_part = array_shift($domain_parts);
-	      if (!isset($domain_cache_ptr[$domain_part])
-		  || !is_array($domain_cache_ptr[$domain_part]))
-		$domain_cache_ptr[$domain_part] = array();
-	      $domain_cache_ptr =& $domain_cache_ptr[$domain_part];
-	    }
-	  /*
-	   * get the last part which is unambiguously identifies this
-	   * school combined with the previous parts
-	   */
-	  $domain_part = array_shift($domain_parts);
-	  $domain_cache_ptr[$domain_part] = $school['id'];
-	}
+      $domain_parts = array_reverse(explode('.', $school_domain));
+      while (count($domain_parts) > 1)
+        {
+          $domain_part = array_shift($domain_parts);
+          if (!isset($domain_cache_ptr[$domain_part])
+          || !is_array($domain_cache_ptr[$domain_part]))
+        $domain_cache_ptr[$domain_part] = array();
+          $domain_cache_ptr =& $domain_cache_ptr[$domain_part];
+        }
+      /*
+       * get the last part which is unambiguously identifies this
+       * school combined with the previous parts
+       */
+      $domain_part = array_shift($domain_parts);
+      $domain_cache_ptr[$domain_part] = $school['id'];
+    }
 
 
       /*
@@ -125,42 +125,42 @@ function school_cache($schools)
        * want to run all crawlers ;-).
        */
       if (!empty($school['crawled']) && !isset($school['crawled_notreally']))
-	{
-	  $cache_auto_school_dir_name = $cache_auto_dir_name . $school['id'] . DIRECTORY_SEPARATOR;
-	  if (!is_dir($cache_auto_school_dir_name))
-	    {
-	      if (!mkdir($cache_auto_school_dir_name, 0755, TRUE))
-		error_log('Unable to create needed directory: `' . $cache_auto_dir_name . '\'');
-	    }
+    {
+      $cache_auto_school_dir_name = $cache_auto_dir_name . $school['id'] . DIRECTORY_SEPARATOR;
+      if (!is_dir($cache_auto_school_dir_name))
+        {
+          if (!mkdir($cache_auto_school_dir_name, 0755, TRUE))
+        error_log('Unable to create needed directory: `' . $cache_auto_dir_name . '\'');
+        }
 
-	  $semesters = array();
-	  $semester_weights = 0;
-	  /*
-	   * Try to presort the semesters into the proper order based
-	   * on time_start/time_end. We want the older semesters to be
-	   * nearer to the end of the list. This way, the crawler
-	   * doesn't have to decide how to sort the semesters itself:
-	   */
-	  usort($semesters, 'school_cache_semesters_sort');
+      $semesters = array();
+      $semester_weights = 0;
+      /*
+       * Try to presort the semesters into the proper order based
+       * on time_start/time_end. We want the older semesters to be
+       * nearer to the end of the list. This way, the crawler
+       * doesn't have to decide how to sort the semesters itself:
+       */
+      usort($semesters, 'school_cache_semesters_sort');
 
-	  foreach ($school['crawled_semesters'] as $semester)
-	    {
-	      $semesters[$semester->id()] = array(
-		'id' => $semester->id(),
-		'popular_course_id' => $semester->popular_course_id_get(),
-		'name' => $semester->name_get(),
-		'time_start' => $semester->time_start_get(),
-		'time_end' => $semester->time_end_get(),
-		'weight' => $semester_weights ++,
-	      );
-	    } /* foreach ( => $semester) */
-	  /*
-	   * Store/cache the semester metadata:
-	   */
-	  $semesters_file = fopen($cache_auto_school_dir_name . '-semesters', 'wb');
-	  fwrite($semesters_file, serialize($semesters));
-	  fclose($semesters_file);
-	}
+      foreach ($school['crawled_semesters'] as $semester)
+        {
+          $semesters[$semester->id()] = array(
+        'id' => $semester->id(),
+        'popular_course_id' => $semester->popular_course_id_get(),
+        'name' => $semester->name_get(),
+        'time_start' => $semester->time_start_get(),
+        'time_end' => $semester->time_end_get(),
+        'weight' => $semester_weights ++,
+          );
+        } /* foreach ( => $semester) */
+      /*
+       * Store/cache the semester metadata:
+       */
+      $semesters_file = fopen($cache_auto_school_dir_name . '-semesters', 'wb');
+      fwrite($semesters_file, serialize($semesters));
+      fclose($semesters_file);
+    }
     }
   uasort($list_cache, 'school_cmp');
 
@@ -171,7 +171,7 @@ function school_cache($schools)
   if ($cache_file === FALSE)
     {
       fprintf(STDERR, "Unable to open `%s' for writing\n",
-	      $cache_file_name);
+          $cache_file_name);
       return 1;
     }
   fwrite($cache_file, serialize($cache));
@@ -235,7 +235,7 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
   if (!is_dir($cache_auto_school_dir_name))
     {
       if (!mkdir($cache_auto_school_dir_name, 0755, TRUE))
-	error_log('Unable to create needed directory: `' . $cache_auto_dir_name . '\'');
+    error_log('Unable to create needed directory: `' . $cache_auto_dir_name . '\'');
     }
 
   if (empty($school['crawled']))
@@ -266,15 +266,15 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
   catch (Exception $ex)
     {
       school_crawl_logf(
-	$school_crawl_log, 2, "Calling %s() resulted in exception: %s\n%s",
-	$school_crawl_semesters_list_func,
-	$ex->getMessage(),
-	$ex->getTraceAsString());
+    $school_crawl_log, 2, "Calling %s() resulted in exception: %s\n%s",
+    $school_crawl_semesters_list_func,
+    $ex->getMessage(),
+    $ex->getTraceAsString());
     }
   if ($ret)
     {
       school_crawl_logf($school_crawl_log, 1, "Crawling %s failed: %s() returned nonzero",
-			$school['id'], $school_crawl_semesters_list_func);
+            $school['id'], $school_crawl_semesters_list_func);
       school_crawl_logf($school_crawl_log, 6, "");
       return;
     }
@@ -284,7 +284,7 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
   if (!function_exists($school_crawl_semester_func))
     {
       school_crawl_logf($school_crawl_log, 3, "%s() is defined but %s() isn't.",
-			$school_crawl_semesters_list_func, $school_crawl_semester_func);
+            $school_crawl_semesters_list_func, $school_crawl_semester_func);
       return;
     }
 
@@ -293,86 +293,86 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1)
       school_crawl_logf($school_crawl_log, 2, "Calling %s(%s)...", $school_crawl_semester_func, $semester);
       $ret = 1;
       try
-	{
-	  $ret = $school_crawl_semester_func($school, $semester, $school_crawl_log);
-	}
+    {
+      $ret = $school_crawl_semester_func($school, $semester, $school_crawl_log);
+    }
       catch (Exception $ex)
-	{
-	  school_crawl_logf(
-	    $school_crawl_log, 2, "Calling %s() for semester %s resulted in exception: %s\n%s",
-	    $school_crawl_semester_func,
-	    $semester,
-	    $ex->getMessage(),
-	    $ex->getTraceAsString());
-	}
+    {
+      school_crawl_logf(
+        $school_crawl_log, 2, "Calling %s() for semester %s resulted in exception: %s\n%s",
+        $school_crawl_semester_func,
+        $semester,
+        $ex->getMessage(),
+        $ex->getTraceAsString());
+    }
       if ($ret)
-	{
-	  school_crawl_logf($school_crawl_log, 1, "Failed to crawl semester %s. Skipping semester.", $semester);
-	  continue;
-	}
+    {
+      school_crawl_logf($school_crawl_log, 1, "Failed to crawl semester %s. Skipping semester.", $semester);
+      continue;
+    }
 
       /*
        * Write out this semester's cache now that we're here.
        */
       $cache_auto_school_semester_dir_name = $cache_auto_school_dir_name . $semester->id() . DIRECTORY_SEPARATOR;
-	      if (!is_dir($cache_auto_school_semester_dir_name))
-		{
-		  if (!mkdir($cache_auto_school_semester_dir_name, 0755, TRUE))
-		    error_log('Unable to create needed directory: `' . $cache_auto_school_semester_dir_name . '\'');
-		}
+          if (!is_dir($cache_auto_school_semester_dir_name))
+        {
+          if (!mkdir($cache_auto_school_semester_dir_name, 0755, TRUE))
+            error_log('Unable to create needed directory: `' . $cache_auto_school_semester_dir_name . '\'');
+        }
 
-	      $departments = $semester->departments_get();
-	      sort($departments);
+          $departments = $semester->departments_get();
+          sort($departments);
 
-	      /*
-	       * Create friendly department labels (like `MATH
-	       * (Mathematics)') if the crawler has given us that
-	       * data.
-	       */
-	      $has_department_names = FALSE;
-	      $department_names = array();
-	      foreach ($semester->department_names_get() as $dept => $dept_name)
-		{
-		  $department_names[] = array('value' => $dept, 'label' => $dept . ' (' . $dept_name . ')');
-		  if (!$has_department_names && strcmp($dept, $dept_name))
-		    $has_department_names = TRUE;
-		}
+          /*
+           * Create friendly department labels (like `MATH
+           * (Mathematics)') if the crawler has given us that
+           * data.
+           */
+          $has_department_names = FALSE;
+          $department_names = array();
+          foreach ($semester->department_names_get() as $dept => $dept_name)
+        {
+          $department_names[] = array('value' => $dept, 'label' => $dept . ' (' . $dept_name . ')');
+          if (!$has_department_names && strcmp($dept, $dept_name))
+            $has_department_names = TRUE;
+        }
 
-	      $dept_file = fopen($cache_auto_school_semester_dir_name . '-depts', 'wb');
-	      fwrite($dept_file, serialize($has_department_names ? $department_names : $departments));
-	      fclose($dept_file);
+          $dept_file = fopen($cache_auto_school_semester_dir_name . '-depts', 'wb');
+          fwrite($dept_file, serialize($has_department_names ? $department_names : $departments));
+          fclose($dept_file);
 
-	      /* now per-department autocomplete */
-	      foreach ($departments as $department)
-		{
-		  $classes = $semester->department_classes_get($department);
-		  $courses_json = array();
-		  foreach ($classes as $course_id)
-		    {
-		      $course = $semester->class_get($department, $course_id);
-		      $course_json = array(
-			'value' => $course->getName(),
-			'label' => $course->getName(),
-		      );
-		      if (strlen($course_title = $course->title_get()))
-			$course_json['label'] .= ' (' . $course_title . ')';
-		      $courses_json[] = $course_json;
-		    }
+          /* now per-department autocomplete */
+          foreach ($departments as $department)
+        {
+          $classes = $semester->department_classes_get($department);
+          $courses_json = array();
+          foreach ($classes as $course_id)
+            {
+              $course = $semester->class_get($department, $course_id);
+              $course_json = array(
+            'value' => $course->getName(),
+            'label' => $course->getName(),
+              );
+              if (strlen($course_title = $course->title_get()))
+            $course_json['label'] .= ' (' . $course_title . ')';
+              $courses_json[] = $course_json;
+            }
 
-		  $classes_file = fopen($cache_auto_school_semester_dir_name . $department . '.sects', 'wb');
-		  fwrite($classes_file, serialize($courses_json));
-		  fclose($classes_file);
+          $classes_file = fopen($cache_auto_school_semester_dir_name . $department . '.sects', 'wb');
+          fwrite($classes_file, serialize($courses_json));
+          fclose($classes_file);
 
-		  /* now individual section informations, pre-JSON-ized */
-		  foreach ($classes as $class)
-		    {
-		      if (!is_dir($cache_auto_school_semester_dir_name . $department))
-			mkdir($cache_auto_school_semester_dir_name . $department);
-		      $class_file = fopen($cache_auto_school_semester_dir_name . $department . DIRECTORY_SEPARATOR . $class, 'wb');
-		      fwrite($class_file, json_encode($semester->class_get($department, $class)->to_json_array()));
-		      fclose($class_file);
-		    }
-		}
+          /* now individual section informations, pre-JSON-ized */
+          foreach ($classes as $class)
+            {
+              if (!is_dir($cache_auto_school_semester_dir_name . $department))
+            mkdir($cache_auto_school_semester_dir_name . $department);
+              $class_file = fopen($cache_auto_school_semester_dir_name . $department . DIRECTORY_SEPARATOR . $class, 'wb');
+              fwrite($class_file, json_encode($semester->class_get($department, $class)->to_json_array()));
+              fclose($class_file);
+            }
+        }
 
       /* Purge the data written to disk from memory */
       $semester->purge();
@@ -412,11 +412,11 @@ function school_cache_recreate($crawl_only = NULL, Page $page = NULL, $verbosity
   if ($crawl_only !== NULL)
     foreach ($crawl_only as $crawl_only_school_id)
       if (!in_array($crawl_only_school_id, $school_id_list))
-	{
-	  fprintf(STDERR, "error: Invalid school_id specified for crawling: %s\n",
-		  $crawl_only_school_id);
-	  return 1;
-	}
+    {
+      fprintf(STDERR, "error: Invalid school_id specified for crawling: %s\n",
+          $crawl_only_school_id);
+      return 1;
+    }
 
   /* hide libxml errors from the console: */
   libxml_use_internal_errors(TRUE);
@@ -427,32 +427,32 @@ function school_cache_recreate($crawl_only = NULL, Page $page = NULL, $verbosity
     {
       $school = school_load($school_id, TRUE);
       if (!$school)
-	{
-	  fprintf(STDERR, "Error loading school with school_id=%s\n",
-		  $school_id);
-	  return 1;
-	}
+    {
+      fprintf(STDERR, "Error loading school with school_id=%s\n",
+          $school_id);
+      return 1;
+    }
 
       if ($crawl_only === NULL || in_array($school['id'], $crawl_only))
-	{
-	  $school_crawl_log = school_crawl($school, $page, $verbosity);
-	}
+    {
+      $school_crawl_log = school_crawl($school, $page, $verbosity);
+    }
       else
-	{
-	  /*
-	   * try to allow incremental crawling by not wiping out old
-	   * data and preserving the cached $school['crawled'].
-	   */
-	  if ($old_school_cache && isset($old_school_cache['list'][$school['id']]))
-	    {
-	      $old_school = $old_school_cache['list'][$school['id']];
-	      $school['crawled'] = FALSE;
-	      if (isset($old_school['crawled']))
-		$school['crawled'] = $old_school['crawled'];
-	      if ($school['crawled'])
-		$school['crawled_notreally'] = TRUE;
-	    }
-	}
+    {
+      /*
+       * try to allow incremental crawling by not wiping out old
+       * data and preserving the cached $school['crawled'].
+       */
+      if ($old_school_cache && isset($old_school_cache['list'][$school['id']]))
+        {
+          $old_school = $old_school_cache['list'][$school['id']];
+          $school['crawled'] = FALSE;
+          if (isset($old_school['crawled']))
+        $school['crawled'] = $old_school['crawled'];
+          if ($school['crawled'])
+        $school['crawled_notreally'] = TRUE;
+        }
+    }
 
       $schools[] = $school;
     }
@@ -497,15 +497,15 @@ function schedule_store_purge_range($schedule_store, $time_min = 0, $time_max = 
     {
       $filename = $schedule_store['dir'] . DIRECTORY_SEPARATOR . $schedule_id;
       if (!file_exists($filename))
-	continue;
+    continue;
 
       $statbuf = stat($filename);
       if ($statbuf['ctime'] >= $time_min
-	  && ($time_max === NULL || $statbuf['ctime'] <= $time_max))
-	{
-	  unlink($filename);
-	  $num_deleted ++;
-	}
+      && ($time_max === NULL || $statbuf['ctime'] <= $time_max))
+    {
+      unlink($filename);
+      $num_deleted ++;
+    }
     }
 
   return $num_deleted;
@@ -521,8 +521,8 @@ function schedule_store_purge_range($schedule_store, $time_min = 0, $time_max = 
 function test()
 {
   $ideal = array('department' => 'CS',
-		 'course' => '262',
-		 'section' => 'A');
+         'course' => '262',
+         'section' => 'A');
   $ideal_c = $ideal;
   unset($ideal_c['section']);
   $n = 0;
@@ -627,55 +627,55 @@ function assert_equal($name, $a, $b)
     {
       $bad = FALSE;
       if (!is_array($b))
-	{
-	  fprintf(STDERR, "Test ``%s'' failed: \$a is an array while \$b isn't.\n",
-		  $name);
-	  return TRUE;
-	}
+    {
+      fprintf(STDERR, "Test ``%s'' failed: \$a is an array while \$b isn't.\n",
+          $name);
+      return TRUE;
+    }
 
       foreach ($a as $key => $val)
-	if (!$bad && isset($b[$key]))
-	  $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
+    if (!$bad && isset($b[$key]))
+      $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
         elseif (!$bad)
-	  {
-	    $bad = TRUE;
-	    fprintf(STDERR, "\$b is missing key ``%s'' which \$a has.\n",
-		    $key);
-	  }
-	foreach ($b as $key => $val)
-	  if (!$bad && isset($a[$key]))
-	    $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
-	  elseif (!$bad)
-	    {
-	      $bad = TRUE;
-	      fprintf(STDERR, "\$a is missing key ``%s'' which \$b has.\n",
-		      $key);
-	    }
+      {
+        $bad = TRUE;
+        fprintf(STDERR, "\$b is missing key ``%s'' which \$a has.\n",
+            $key);
+      }
+    foreach ($b as $key => $val)
+      if (!$bad && isset($a[$key]))
+        $bad = assert_equal($name . '[' . $key . ']', $a[$key], $b[$key]);
+      elseif (!$bad)
+        {
+          $bad = TRUE;
+          fprintf(STDERR, "\$a is missing key ``%s'' which \$b has.\n",
+              $key);
+        }
 
       if ($bad)
-	{
-	  fprintf(STDERR, "Test ``%s'' failed, see previous error message\n",
-		  $name);
-	  return TRUE;
-	}
+    {
+      fprintf(STDERR, "Test ``%s'' failed, see previous error message\n",
+          $name);
+      return TRUE;
+    }
 
       return FALSE;
     }
   elseif (is_array($b))
     {
       fprintf(STDERR, "Test ``%s'' failed: \$b is an array; \$a isn't.\n",
-	      $name);
+          $name);
       return TRUE;
     }
   elseif ($a === $b
-	  && !strcmp($a, $b))
+      && !strcmp($a, $b))
     {
       return FALSE;
     }
   else
     {
       fprintf(STDERR, "Test ``%s'' failed: `%s' === `%s' => %s, strcmp() == %d\n",
-	      $name, $a, $b, $a === $b ? 'TRUE' : 'FALSE', strcmp($a, $b));
+          $name, $a, $b, $a === $b ? 'TRUE' : 'FALSE', strcmp($a, $b));
       return TRUE;
     }
   return TRUE;
