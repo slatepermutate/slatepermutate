@@ -219,7 +219,7 @@ function school_cache_semesters_sort (Semester $sem_a, Semester $sem_b) {
  *   A school_crawl_log handle, upopn which school_crawl_log_fetch()
  *   may be used.
  */
-function school_crawl(array &$school, Page $page = NULL, $verbosity = 1) {
+function school_crawl(array &$school, Page $page = NULL, $verbosity = 1, $onlySemesters = NULL) {
   $cache_dir_name = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..'
                   . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
   $cache_auto_dir_name = $cache_dir_name . 'auto' . DIRECTORY_SEPARATOR;
@@ -283,6 +283,12 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1) {
   }
 
   foreach ($semesters as $semester) {
+    if ($onlySemesters !== NULL) {
+      if (!in_array($semester->id(), $onlySemesters)) {
+        continue;
+      }
+    }
+
     school_crawl_logf($school_crawl_log, 2, "Calling %s(%s)...", $school_crawl_semester_func, $semester);
     $ret = 1;
     try {
@@ -388,7 +394,7 @@ function school_crawl(array &$school, Page $page = NULL, $verbosity = 1) {
  * \param $verbosity
  *   An integer indicating how loud to be.
  */
-function school_cache_recreate($crawl_only = NULL, Page $page = NULL, $verbosity = 5) {
+function school_cache_recreate($crawl_only = NULL, Page $page = NULL, $verbosity = 5, $crawl_only_semesters = NULL) {
   $school_id_list = school_list();
   if (!$school_id_list) {
     fprintf(STDERR, "error: Unable to load schools.\n");
@@ -423,7 +429,7 @@ function school_cache_recreate($crawl_only = NULL, Page $page = NULL, $verbosity
     }
 
     if ($crawl_only === NULL || in_array($school['id'], $crawl_only)) {
-      $school_crawl_log = school_crawl($school, $page, $verbosity);
+      $school_crawl_log = school_crawl($school, $page, $verbosity, $crawl_only_semesters);
     } else {
       /*
        * try to allow incremental crawling by not wiping out old

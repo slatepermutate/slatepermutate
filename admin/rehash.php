@@ -34,31 +34,36 @@ require_once($inc_base . 'admin.inc');
 
 return main($argc, $argv);
 
-function main($argc, $argv)
-{
+function main($argc, $argv) {
   $n = test();
   if ($n)
     {
       fprintf(STDERR, "%d tests failed; exiting\n",
-	      $n);
+          $n);
       return 1;
     }
 
-  $opts = getopt('hV:', array('no-crawl', 'crawl-only:', 'help', 'verbosity:'));
+  $opts = getopt('hV:', array('no-crawl', 'crawl-only:', 'crawl-only-semesters:', 'help', 'verbosity:'));
 
-  if (isset($opts['help']) || isset($opts['h']))
-    {
-      usage($argv[0]);
-      return 0;
-    }
+  if (isset($opts['help']) || isset($opts['h'])) {
+    usage($argv[0]);
+    return 0;
+  }
 
   $crawl = TRUE;
-  if (isset($opts['no-crawl']))
+  if (isset($opts['no-crawl'])) {
     $crawl = FALSE;
+  }
 
   $crawl_only = NULL;
-  if (isset($opts['crawl-only']))
+  if (isset($opts['crawl-only'])) {
     $crawl_only = explode(',', $opts['crawl-only']);
+  }
+
+  $crawl_only_semesters = NULL;
+  if (isset($opts['crawl-only-semesters'])) {
+    $crawl_only_semesters = explode(',', $opts['crawl-only-semesters']);
+  }
 
   $verbosity = 5;
   if (isset($opts['verbosity']))
@@ -73,19 +78,15 @@ function main($argc, $argv)
       return 1;
     }
 
-  if ($crawl)
-    {
-      $ret = school_cache_recreate($crawl_only, NULL, $verbosity);
-      if ($ret)
-	{
-	  fprintf(STDERR, "error: Unable to successfully crawl schools.\n");
-	  return 1;
-	}
-      else
-	{
-	  fprintf(STDERR, "Crawling successful.\n");
-	}
+  if ($crawl) {
+    $ret = school_cache_recreate($crawl_only, NULL, $verbosity, $crawl_only_semesters);
+    if ($ret) {
+      fprintf(STDERR, "error: Unable to successfully crawl schools.\n");
+      return 1;
+    } else  {
+      fprintf(STDERR, "Crawling successful.\n");
     }
+  }
 
   return 0;
 }
@@ -97,17 +98,22 @@ function main($argc, $argv)
  */
 function usage($progname)
 {
-  fprintf(STDERR, "Usage: %s [--no-crawl] [--crawl-only=<school_id1>,<school_id2>,...] [--help] [-h]\n"
-	  . "\n"
-	  . " -h, --help   Show this usage information and exit.\n"
-	  . "\n"
-	  . " --no-crawl   Disable crawling during this rehash but preserve\n"
-	  . "              previous cached crawl data.\n"
-	  . " --crawl-only Takes a comma-separated list of school_ids whose\n"
-	  . "              registration systems should be crawled for autofill\n"
-	  . "              data. Cached data from schools not listed is preserved\n"
-	  . " -v, --verbosity Set the verbosity level. Valid range is from 0\n"
-	  . "              through 10.\n",
-	  $progname);
+  fprintf(
+    STDERR,
+    "Usage: %s [--no-crawl] [--crawl-only=<school_id1>,<school_id2>,...] [--carwl-only-semesters=<semester_id1>,<semester_id2>,...] [--help] [-h]\n"
+    . "\n"
+    . " -h, --help   Show this usage information and exit.\n"
+    . "\n"
+    . " --no-crawl   Disable crawling during this rehash but preserve\n"
+    . "              previous cached crawl data.\n"
+    . " --crawl-only Takes a comma-separated list of school_ids whose\n"
+    . "              registration systems should be crawled for autofill\n"
+    . "              data. Cached data from schools not listed is preserved\n"
+    . " --crawl-only-semester Limit the crawled smeesters to ones having\n"
+    . "              an id from this comma-separated list. Example ID is\n"
+    ."               “2020_fall”.\n"
+    . " -v, --verbosity Set the verbosity level. Valid range is from 0\n"
+    . "              through 10.\n",
+    $progname);
 }
 
