@@ -35,36 +35,31 @@ function _gvsu_crawl_options(array &$school_crawl_log) {
   );
 }
 
-function gvsu_crawl_semester_list(array $school, array &$semesters, &$school_crawl_log)
-{
+function gvsu_crawl_semester_list(array $school, array &$semesters, &$school_crawl_log) {
   $options = _gvsu_crawl_options($school_crawl_log);
   return school_crawl_oracle_semester_list($school, $semesters, $school_crawl_log, $options);
 }
 
-function gvsu_crawl_semester($school, $semester, &$school_crawl_log)
-{
+function gvsu_crawl_semester($school, $semester, &$school_crawl_log) {
   $options = _gvsu_crawl_options($school_crawl_log);
   return school_crawl_oracle_crawl_semester($school, $semester, $school_crawl_log, $options);
 }
 
-class GvsuSchoolCrawlOracleDataHeadingGetter
-{
+class GvsuSchoolCrawlOracleDataHeadingGetter {
   private $cached;
   private $cached_tr_node;
   private $piece;
   private $school_crawl_log;
 
-  public function __construct(array &$school_crawl_log, $piece)
-  {
-    
+  public function __construct(array &$school_crawl_log, $piece) {
     $this->piece = $piece;
     $this->school_crawl_log = &$school_crawl_log;
   }
 
-  function access(DOMNode $tr_node, DOMNodeList $children)
-  {
-    if ($this->cached_tr_node === $tr_node)
+  function access(DOMNode $tr_node, DOMNodeList $children) {
+    if ($this->cached_tr_node === $tr_node) {
       return $this->cached;
+    }
 
     $this->cached = NULL;
     $this->cached_tr_node = $tr_node;
@@ -75,24 +70,28 @@ class GvsuSchoolCrawlOracleDataHeadingGetter
      * parent, then seek until we find the closest <tr/> containing
      * that, find its previous sibling, and then get textContent.
      */
-    do
+    do {
       $tr_node = $tr_node->parentNode;
-    while ($tr_node && $tr_node->nodeName !== 'tr');
+    } while ($tr_node && $tr_node->nodeName !== 'tr');
     if (!$tr_node)
       /* Apparently this happens sometimes. */
       return $this->cached;
 
     $tr_node = $tr_node->previousSibling;
-    if (!$tr_node)
+    if (!$tr_node) {
       return $this->cached;
+    }
 
     $text = trim($tr_node->textContent);
     /*
      * Example (no newline in original): “Principles of Financial
      * Accounting - 10003 - ACC 212 - 03”
+     *
+     * But sometimes it is (with newline represented as “\n”): “Linear Algebra III\nLinear Algebra III\nLinear Algebra III\nLinear Algebra III\nLinear Algebra III - 28645 - MTH 406 - 01”
      */
-    if (!preg_match('/^(.*) - ([[:digit:]]+) - ([^ ]+ [^ ]+) - ([^ ]+)$/', $text, $matches))
+    if (!preg_match('/(?:^|\n|)(.*) - ([[:digit:]]+) - ([^ ]+ [^ ]+) - ([^ ]+)$/', $text, $matches)) {
       throw new Exception('Unable to match course title - course_fqid - section_id with “' . $text . '”');
+    }
 
     $section_id = $matches[3] . ' ' . $matches[4];
     $things = array(
@@ -210,17 +209,14 @@ EOF;
   }
 
   public function get(DOMNode $tr_node, DOMNodeList $children) {
-    error_log('req=' . $this->piece);
     $pieces = $this->access($tr_node, $children);
     if (empty($pieces)) {
       return;
     }
-    error_log('GETTO!');
     return $pieces[$this->piece];
   }
 
-  public function valid(DOMNode $tr_node, DOMNodeList $children)
-  {
+  public function valid(DOMNode $tr_node, DOMNodeList $children) {
     $pieces = $this->access($tr_node, $children);
     return !empty($pieces[$this->piece]);
   }
@@ -234,9 +230,7 @@ EOF;
  * \todo
  *   support resolving and getting credits.
  */
-class GvsuSchoolCrawlOracleDataResolver
-extends SchoolCrawlOracleDataResolver
-{
+class GvsuSchoolCrawlOracleDataResolver extends SchoolCrawlOracleDataResolver {
   private $has_heading_getter = array(
     'title' => TRUE,
     'registration_number' => TRUE,
@@ -245,8 +239,7 @@ extends SchoolCrawlOracleDataResolver
     'campus' => TRUE,
   );
 
-  public function __construct(array &$school_crawl_log)
-  {
+  public function __construct(array &$school_crawl_log) {
     parent::__construct($school_crawl_log);
 
     $this->key_mapping = array(
@@ -257,10 +250,10 @@ extends SchoolCrawlOracleDataResolver
     ) + $this->key_mapping;
   }
 
-  public function resolve($key, DOMElement $tr_header_node)
-  {
-    if (!empty($this->has_heading_getter[$key]))
+  public function resolve($key, DOMElement $tr_header_node) {
+    if (!empty($this->has_heading_getter[$key])) {
       return new GvsuSchoolCrawlOracleDataHeadingGetter($this->school_crawl_log, $key);
+    }
 
     return parent::resolve($key, $tr_header_node);
   }
