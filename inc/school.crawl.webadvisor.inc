@@ -283,6 +283,20 @@ function _school_crawl_webadvisor_semester_toterms(array $school, Semester $seme
 }
 
 /**
+ * Check if the meeting_info string contains a “to be announced”
+ * message.
+ */
+function _school_crawl_webadvisor_meeting_info_contains_to_be_announced($secMeetingsInfo) {
+  $toBeAnnouncedStrings = [
+    'Times to be Announced',
+    'Days to be Announced',
+  ];
+  return array_reduce($toBeAnnouncedStrings, function ($carry, $toBeAnnouncedString) use ($secMeetingsInfo) {
+      return $carry || strpos($secMeetingsInfo, $toBeAnnouncedString) !== FALSE;
+    }, FALSE);
+}
+
+/**
  * \brief
  *   Crawl the courses for a semester from a WebAdvisor instance.
  *
@@ -540,17 +554,6 @@ function school_crawl_webadvisor_semester(array $school, Semester $semester, &$s
 	   * the list of days of week the section meets, the start
 	   * time, the end time, and then the meeting location.
 	   */
-	  if (strpos($sec_meetings_info, 'Times to be Announced') !== FALSE
-	      || strpos($sec_meetings_info, 'Days to be Announced') !== FALSE)
-	    {
-	      school_crawl_logf($school_crawl_log, 8, 'Skipping class because of incomplete meeting time information: '
-				. implode('-', $section_id) . ' has meeting info of `'
-				. $sec_meetings_info . '\'');
-	      $skipped_sections['incomplete meeting info'] ++;
-	      /* Still add to have less confusing autocomplete */
-	      school_crawl_webadvisor_course_add($semester, $section_id['department'], $section_id['course'], $title);
-	      continue;
-	    }
 
 	  /*
 	   * Check whether or not we have to pursue details on the
@@ -559,29 +562,43 @@ function school_crawl_webadvisor_semester(array $school, Semester $semester, &$s
 	   * the same from the main listing page.
 	   */
 	  if (preg_match('; \\(more\\)...$;', $sec_meetings_info)
-	      && preg_match(';^javascript:window\\.open\\(\'(.*?[^\\\\])\',;', $short_title_onclick, $short_title_onclick_matches))
-	    {
-	      $more_details_url = $short_title_onclick_matches[1];
-	      $more_details_uri = strstr($uri, '?', TRUE) . $more_details_url;
+	      && preg_match(';^javascript:window\\.open\\(\'(.*?[^\\\\])\',;', $short_title_onclick, $short_title_onclick_matches)
+        // But don’t bother if we already know our meeting time is TBA.
+        && !_school_crawl_webadvisor_meeting_info_contains_to_be_announced($sec_meetings_info)) {
+      $more_details_url = $short_title_onclick_matches[1];
+      $more_details_uri = strstr($uri, '?', TRUE) . $more_details_url;
 
-	      school_crawl_logf($school_crawl_log, 8, 'Fetching extra course information page for %s-%s-%s from %s.',
-				$section_id['department'], $section_id['course'], $section_id['section'],
-				$more_details_uri);
-	      $more_details_html = school_crawl_webadvisor_geturi($more_details_uri, $cookies, $school_crawl_log, $options);
-	      $more_details_dom = new DOMDocument();
-	      $more_details_dom->loadHTML($more_details_html);
+      school_crawl_logf($school_crawl_log, 8, 'Fetching extra course information page for %s-%s-%s from %s.', $section_id['department'], $section_id['course'], $section_id['section'], $more_details_uri);
+      $more_details_html = school_crawl_webadvisor_geturi($more_details_uri, $cookies, $school_crawl_log, $options);
+      $more_details_dom = new DOMDocument();
+      $more_details_dom->loadHTML($more_details_html);
 
-	      /* Hopefully 'LIST_VAR12_1' is pretty constant... */
-	      foreach ($more_details_dom->getElementById('LIST_VAR12_1')->childNodes as $more_details_child)
-		{
-		  if ($more_details_child->nodeType != XML_TEXT_NODE)
-		    continue;
-		  $sec_meetings_info = $more_details_child->wholeText;
-		  break;
-		}
-	      school_crawl_logf($school_crawl_log, 9, "Result of fetching additional meeting information on next line(s):\n%s",
-			       $sec_meetings_info);
-	    }
+      /* Hopefully 'LIST_VAR12_1' is pretty constant... */
+      foreach ($more_details_dom->getElementById('LIST_VAR12_1')->childNodes as $more_details_child) {
+        if ($more_details_child->nodeType != XML_TEXT_NODE) {
+          continue;
+        }
+        $sec_meetings_info = $more_details_child->wholeText;
+        break;
+      }
+      school_crawl_logf($school_crawl_log, 9, "Result of fetching additional meeting information on next line(s):\n%s", $sec_meetings_info);
+    }
+
+    // We have to check this after possibly loading the details page
+    // because sometimes one of the section meetings loaded from the
+    // etails page has TBA.
+    if (_school_crawl_webadvisor_meeting_info_contains_to_be_announced($sec_meetings_info)) {
+      school_crawl_logf(
+        $school_crawl_log,
+        8,
+        'Skipping class because of incomplete meeting time information: '
+        . implode('-', $section_id) . ' has meeting info of `'
+        . $sec_meetings_info . '\'');
+      $skipped_sections['incomplete meeting info'] ++;
+      /* Still add to have less confusing autocomplete */
+      school_crawl_webadvisor_course_add($semester, $section_id['department'], $section_id['course'], $title);
+      continue;
+    }
 
 	  /*
 	   * If we have a course with multiple section_meetings, then
