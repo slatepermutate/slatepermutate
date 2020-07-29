@@ -149,8 +149,9 @@ class page
 
     $this->desired_lang = $desired_lang;
     $this->slate_t = $desired_lang == 'ko' ? '스레이트' : ($desired_lang == 'ja' ? 'スレート' : 'Slate');
+    $this->title_font_size_multiplier = $desired_lang == 'ko' ? '1.2' : ($desired_lang == 'ja' ? '1.5' : '1.5');
     $this->title_uses_svg = $this->slate_t == 'Slate';
-    $this->permutate_t = $desired_lang == 'ko' ? '프미으테이트' : ($desired_lang == 'ja' ? 'パーミュテート' : 'Permutate');
+    $this->permutate_t = $desired_lang == 'ko' ? '프미우테이트' : ($desired_lang == 'ja' ? 'パーミュテート' : 'Permutate');
     $this->base_title[0] = $this->slate_t . $this->permutate_t;
 
     /* Scripts and styles available for inclusion */
@@ -451,11 +452,11 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     if (!empty($_REQUEST['s']))
       $selectschool_query .= '&amp;s=' . (int)$_REQUEST['s'];
 
-    $logo_html = !$this->title_uses_svg ? '<span style="font-size: 1.5em;"><span style="color: #777777">' . $this->slate_t . '</span><span style="color: #000000">' . $this->permutate_t . '</span></span>' : '<img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" />';
+    $logo_html = !$this->title_uses_svg ? '<span style="font-size: ' . $this->title_font_size_multiplier . 'em;"><span style="color: #777777">' . $this->slate_t . '</span><span style="color: #000000">' . $this->permutate_t . '</span></span>' : '<img src="images/slatepermutate-alpha.svg" alt="SlatePermutate" class="noborder" />';
 
     echo
       '  </head>' . PHP_EOL .
-	 '  <body>'. PHP_EOL .
+	 '  <body class="desired-lang-' . $this->desired_lang . '">'. PHP_EOL .
          '    <div id="page">'. PHP_EOL .
          '      <div id="header">'. PHP_EOL .
 	 '        <div id="title">'. PHP_EOL .
