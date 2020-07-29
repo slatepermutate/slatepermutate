@@ -135,6 +135,7 @@ class page
       switch ($l) {
       case 'en':
       case 'ja':
+      case 'ko':
         break;
       default:
         $l = '';
@@ -147,8 +148,8 @@ class page
     }
 
     $this->desired_lang = $desired_lang;
-    $this->slate_t = $desired_lang == 'ja' ? 'スレート' : 'Slate';
-    $this->permutate_t = $desired_lang == 'ja' ? 'パーミュテート' : 'Permutate';
+    $this->slate_t = $desired_lang == 'ko' ? '스레이트' : $desired_lang == 'ja' ? 'スレート' : 'Slate';
+    $this->permutate_t = $desired_lang == 'ko' ? '프미으테이트' : $desired_lang == 'ja' ? 'パーミュテート' : 'Permutate';
     $this->base_title[0] = $this->slate_t . $this->permutate_t;
 
     /* Scripts and styles available for inclusion */
