@@ -93,7 +93,12 @@ if ($use_captcha)
   }
 
 $success = FALSE;
-if (!$reject)
+// Ignore the feedback if it claims to be from @slatepermutate.org like some recent spam.
+if (preg_match('/@slatepermutate\\.org/', $visitormail)) {
+  // Just ignore but pretend we didn’t.
+  $success = TRUE;
+}
+if (!$success && !$reject)
   {
     $feedback = stripcslashes($feedback);
 
