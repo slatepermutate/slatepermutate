@@ -475,7 +475,7 @@ a:hover {
 .messenger-link::before {
     /* Cause the ::before to exist at all */
     content: '';
-    background: url('https://static.xx.fbcdn.net/rsrc.php/v3/y6/r/FY3ZevCxUjj.png') center center / contain no-repeat;
+    background: url('https://static.xx.fbcdn.net/rsrc.php/ym/r/YQbyhl59TWY.ico') center center / contain no-repeat;
     width: 1.5em;
     height: 1.25em;
     display: inline-block;
