@@ -32,7 +32,7 @@ This website was created by <a href="https://calvin.edu" rel="external">Calvin C
 <h3>Contact</h3>
 <p>
   Please contact the developers/maintainers using the <a href="feedback.cgi">Feedback</a> for general questions and to report problems.
-  If you are interested in development, please visit the <a href="https://bitbucket.org/slatepermutate/slatepermutate">project page on Bitbucket</a>.
+  If you are interested in development, please visit the <a href="https://github.com/slatepermutate/slatepermutate">project page on GitHub</a>.
 </p>
 
 <h3>Stack</h3>
@@ -42,7 +42,7 @@ This website was created by <a href="https://calvin.edu" rel="external">Calvin C
   SlatePermutate is written in PHP, with a valid XHTML frontend.
   It is currently deployed using CGI-style FastCGI (thus the PHP interpreter is launched via a shebang and mod_fcgid instead of mod_php—that is why you see <code>.cgi</code> instead of <code>.php</code> in the URIs these days).
   However, there is interest in moving to something like JavaScript or Haxe (mostly for the static typing) and enabling more of the functionality to be implemented in the client.
-  Feel free to dig into the source yourself <a href="https://bitbucket.org/slatepermutate/slatepermutate">at Bitbucket</a>!
+  Feel free to dig into the source yourself <a href="https://github.com/slatepermutate/slatepermutate">at GitHub</a>!
 </p>
 
 <?php
