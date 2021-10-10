@@ -151,7 +151,7 @@ class page
     $this->slate_t = $desired_lang == 'ko' ? '스레이트' : ($desired_lang == 'ja' ? 'スレート' : 'Slate');
     $this->title_font_size_multiplier = $desired_lang == 'ko' ? '1.2' : ($desired_lang == 'ja' ? '1.5' : '1.5');
     $this->title_uses_svg = $this->slate_t == 'Slate';
-    $this->permutate_t = $desired_lang == 'ko' ? '프미우테이트' : ($desired_lang == 'ja' ? 'パーミュテート' : 'Permutate');
+    $this->permutate_t = $desired_lang == 'ko' ? '퍼뮤테이트' : ($desired_lang == 'ja' ? 'パーミュテート' : 'Permutate');
     $this->base_title[0] = $this->slate_t . $this->permutate_t;
 
     /* Scripts and styles available for inclusion */
