@@ -1,0 +1,10 @@
+*.swp
+*~
+*\#*
+
+cache/
+inc/config.inc
+saved_schedules/
+
+# For now manually done, .htaccess.example is checked in
+.htaccess
