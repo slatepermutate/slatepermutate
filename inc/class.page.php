@@ -121,7 +121,7 @@ class page
   protected function __construct($ntitle, $nscripts = array(), $immediate = TRUE, array $options = array())
   {
     /* Begin tracking generation time */
-    $this->pageGenTime = round(microtime(),4);
+    $this->pageGenTime = round(microtime(TRUE),4);
 
     global $cache_buster;
     global $ga_trackers;
@@ -494,7 +494,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     echo $this->trackingcode;
     echo '  </body>'. PHP_EOL .
          '</html>' . PHP_EOL;
-    $this->pageGenTime = round(microtime() - $this->pageGenTime,4);
+    $this->pageGenTime = round(microtime(TRUE) - $this->pageGenTime,4);
     echo '<!-- Page generated in ' . $this->pageGenTime . ' seconds -->' . PHP_EOL;
 
   }
