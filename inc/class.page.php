@@ -978,7 +978,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 	 * There is no “ursort()”, so reverse the sort so that
 	 * shortest is first.
 	 */
-	return $a_strlen > $b_strlen ? 1 : $a_strlen == $b_strlen ? 0 : -1;
+	return $a_strlen > $b_strlen ? 1 : ($a_strlen == $b_strlen ? 0 : -1);
       });
 
     $uri_orig = $uri;
