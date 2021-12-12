@@ -603,7 +603,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 	if ($semester['time_start'] < $time && $semester['time_end'] > $time)
 	  $text_extra[] = 'current';
 
-	$text_extra = implode($text_extra, ', ');
+	$text_extra = implode(', ', $text_extra);
 	if (strlen($text_extra))
 	  $text_extra = ' (' . $text_extra . ')';
 
