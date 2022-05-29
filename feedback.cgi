@@ -55,7 +55,7 @@ $n = "\n";
 </p>
 <h2>Options</h2>
 <ul>
-  <li><a class="slatepermutate-link" href="#email">Contact Email Form (below)</a></li>
+  <!--<li><a class="slatepermutate-link" href="#email">Contact Email Form (below)</a></li>-->
   <!--
   On Android, screen_name=SlatePermutate is ignored when opening the link in the app.
   The iOS and web versions of Twitter support screen_name.
@@ -67,8 +67,9 @@ $n = "\n";
   <li><a class="twitter-link" href="https://twitter.com/intent/tweet?screen_name=SlatePermutate<?php if (!empty($referrer)) echo page::entities('&url=' . rawurlencode($referrer)); ?>&amp;text=<?php echo page::entities(rawurlencode($tweet_content));?>">Twitter</a> (Android users <a href="https://twitter.com/intent/tweet?text=<?php echo page::entities(rawurlencode('@SlatePermutate ' . $tweet_content)); ?>">use alternate</a>)</li>
   <li><a class="line-link" href="https://line.me/ti/p/%40ncz3026b">LINE</a></li>
   <li><a class="messenger-link" href="https://m.me/slatepermutate">Facebook Messenger</a></li>
-  <li><span class="stackexchange-webapps-link">Consider helping others by <a href="https://webapps.stackexchange.com/questions/ask?tags=slate-permutate">asking</a> general “How do I…?” questions at <a href="https://webapps.stackexchange.com/questions/tagged/slate-permutate">StackExchange Web Applications</a></span></li>
+<!--  <li><span class="stackexchange-webapps-link">Consider helping others by <a href="https://webapps.stackexchange.com/questions/ask?tags=slate-permutate">asking</a> general “How do I…?” questions at <a href="https://webapps.stackexchange.com/questions/tagged/slate-permutate">StackExchange Web Applications</a></span></li>-->
 </ul>
+<!--
 
 <h2 id="email">Contact Email Form</h2>
 
@@ -89,7 +90,7 @@ $n = "\n";
   <span><input checked="checked" id="rating-great" name="rating" type="radio" value="Great" /><label for="rating-great">Great</label></span>
   <span><input id="rating-usable" name="rating" type="radio" value="Usable" /><label for="rating-usable">Usable</label></span>
   <span><input id="rating-buggy" name="rating" type="radio" value="Buggy/Hard to Use" /><label for="rating-buggy">Buggy/Hard to Use</label></span>
-  <span><input id="rating-unknown" name="rating" type="radio" value="Don't know" /><label for="rating-unknown">Don't Know <!-- ' --></label></span>
+  <span><input id="rating-unknown" name="rating" type="radio" value="Don't know" /><label for="rating-unknown">Don't Know</label></span>
   </div>
 </div>
 <h3>General Comments</h3>
@@ -129,6 +130,7 @@ $n = "\n";
 <?php endif; ?>
 </div>
 </form>
+-->
 
 <?php
 $feedbackpage->foot();
