@@ -64,7 +64,7 @@ $n = "\n";
   $tweet_content = !empty($referrer) || empty($school) || $school['id'] === 'default' ? '' : ('school ' . $school['id'] . ' ');
 ?>
   -->
-  <li><a class="twitter-link" href="https://twitter.com/intent/tweet?screen_name=SlatePermutate<?php if (!empty($referrer)) echo page::entities('&url=' . rawurlencode($referrer)); ?>&amp;text=<?php echo page::entities(rawurlencode($tweet_content));?>">Twitter</a> (Android users <a href="https://twitter.com/intent/tweet?text=<?php echo page::entities(rawurlencode('@SlatePermutate ' . $tweet_content)); ?>">use alternate</a>)</li>
+  <li><a class="twitter-link" href="https://twitter.com/SlatePermutate">Twitter</a></li>
   <li><a class="line-link" href="https://line.me/ti/p/%40ncz3026b">LINE</a></li>
   <li><a class="messenger-link" href="https://m.me/slatepermutate">Facebook Messenger</a></li>
 <!--  <li><span class="stackexchange-webapps-link">Consider helping others by <a href="https://webapps.stackexchange.com/questions/ask?tags=slate-permutate">asking</a> general “How do I…?” questions at <a href="https://webapps.stackexchange.com/questions/tagged/slate-permutate">StackExchange Web Applications</a></span></li>-->
