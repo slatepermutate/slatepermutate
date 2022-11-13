@@ -20,29 +20,27 @@
 
 function calvin_info()
 {
-  return array('name' => 'Calvin University',
-	       'url' => 'https://calvin.edu/',
-	       /*
-		* rDNS postfixes which indicate a student is
-		* connecting from that college campus
-		*/
-	       'domains' => array(
-				  'calvin.edu',
-				  ),
-	       'example_course_id' => 'CS-232',
-	       'registration_url' => 'https://portal.calvin.edu/Pages/WebAdvisor.aspx?title=Express+Registration&PID=ST-WERG',
-	       'student_address' => 'Knight',
-	       'webadvisor_url' => 'https://resources.calvin.edu/selfservice/WebAdvisor',
-	       );
+  return array(
+    'name' => 'Calvin University',
+    'url' => 'https://calvin.edu/',
+    /*
+     * rDNS postfixes which indicate a student is
+     * connecting from that college campus
+     */
+    'domains' => array(
+      'calvin.edu',
+    ),
+    'example_course_id' => 'CS-232',
+    'registration_url' => 'https://workday.calvin.edu/',
+    'student_address' => 'Knight',
+    'webadvisor_url' => 'https://resources.calvin.edu/selfservice/WebAdvisor',
+  );
 }
 
 function calvin_instructions_html()
 {
   return <<<EOF
 <h2>Instructions</h2>
-<!--<p>
-  SlatePermutate can be a useful tool for scheduling your next semester at <a href="https://calvin.edu/">Calvin University</a>.
-</p>-->
 <h3>Using Auto-Complete</h3>
 <ol>
   <li>Click/tap on a the Class ID box in an empty row.</li>
@@ -57,15 +55,7 @@ function calvin_instructions_html()
   <li>Use Slate Permutate (this website) to check out different schedules and sections for the courses you plan to take.</li>
   <li>Look up your <a href="https://calvin.edu/offices-services/center-for-student-success/registration/registration-times/">Registration Time</a>.</li>
   <li>Prior to your registration time, you may pre-search for your desired sections in Calvin’s registration system. The system may let you create and modify a saved list of sections.</li>
-  <li>After your registration time, you may <a href="https://www.viki.com/videos/1100604v-cheese-in-the-trap-episode-1?vst=1250" target="_blank">submit your registration (link only works on desktop)</a>.</li>
+  <li>Once your registration time comes, register.</li>
 </ol>
-<!--<ol>
-  <li>Get in touch with your advisor during advising/reading recess.</li>
-  <li>Look up each class your advisor specified in Calvin's registration page of <a href="http://kv.calvin.edu/">KnightVision</a> (soon to be <a href="http://moodle.calvin.edu">moo</a>).</li>
-  <li>Enter each class into a <tt>slate_permutate</tt> schedule and add each section that is listed that you are willing to take.</li>
-  <li>Submit your schedule and view all of the different permutations of your schedule which would work with the sections you specified.</li>
-  <li>Print out your preferred schedule by choosing "print" and selecting a schedule.</li>
-  <li>Wait until it's your turn to register and grab your preferred sections before they fill up!</li>
-</ol>-->
 EOF;
 }
